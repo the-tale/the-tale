@@ -60,11 +60,11 @@
 
 {% endmacro %}
 
-{% macro emissary_list(emissaries, powers, clans=none, show_places=false, show_status=true) %}
+{% macro emissary_list(emissaries, powers, clans=none, show_places=false, show_status=true, show_max_health=true, show_clan_name=true) %}
 <table class="table table-condensed">
   <thead>
     <tr>
-      <th width="70px" style="text-align: right;">♥</th>
+      <th width="{% if show_max_health %}70{% else %}30{% endif %}px" style="text-align: right;">♥</th>
       <th>эмиссар</th>
       {% if clans %}
       <th>гильдия</th>
@@ -84,7 +84,12 @@
   <tbody>
     {% for emissary in emissaries %}
     <tr>
-      <td style="text-align: right;">{{emissary.health}} / {{emissary.attrs.max_health}}</td>
+      <td style="text-align: right;">
+        {{emissary.health}}
+        {% if show_max_health %}
+        / {{emissary.attrs.max_health}}
+        {% endif %}
+      </td>
       <td>
         {{emissary_verbose(emissary)}}
 
@@ -115,7 +120,7 @@
       </td>
 
       {% if clans %}
-      <td>{{clans_macros.clan_link(clans[emissary.clan_id])}}</td>
+      <td>{{clans_macros.clan_link(clans[emissary.clan_id], show_name=show_clan_name)}}</td>
       {% endif %}
 
       {% if show_places %}
@@ -135,5 +140,49 @@
     {% endfor %}
   </tbody>
 </table>
+
+{% endmacro %}
+
+{% macro event_properties(event_class) %}
+  <span class="label {% if event_class.TYPE.availability.is_FOR_ALL%}label-success{% else %}label-info{%endif %}"
+        style="cursor: default;"
+        rel="tooltip"
+        title="{{event_class.TYPE.availability.description}}">
+        {{event_class.TYPE.availability.text}}
+  </span>
+
+  &nbsp;
+
+  {% for ability in event_class.TYPE.abilities|sort(attribute="name") %}
+    <span class="label"
+          style="cursor: default;"
+          rel="tooltip"
+          title="Эффективнсоть зависит от способности «{{ability.text}}»">
+          {{ability.event_name.word.forms[0]}}
+    </span>
+    {% if not loop.last %}
+      &nbsp;
+    {% endif %}
+  {% endfor %}
+
+  {% if event_class.HAS_PROTECTORAT_BONUS %}
+    &nbsp;
+    <span class="label label-info"
+          style="cursor: default;"
+          rel="tooltip"
+          title="На мероприятие действуют бонусы протектората">
+          ещё сильнее в протекторате
+    </span>
+    {% endif %}
+
+  {% if event_class.ONLY_FOR_PROTECTORAT %}
+    &nbsp;
+    <span class="label label-important"
+          style="cursor: default;"
+          rel="tooltip"
+          title="Мероприятие действует только в городах-протекторатах гильдии">
+          толья для протектората
+    </span>
+  {% endif %}
 
 {% endmacro %}

@@ -31,7 +31,6 @@
     {% endif %}
     {{place.name}}
     {{ base_macros.magnet(place_meta_object) }}
-    <small>{{places_macros.place_description(place)}}</small>
 
     {% if hero and hero.preferences.place and hero.preferences.place.id == place.id %}
       <span class="badge badge-success">родной город</span>
@@ -41,6 +40,18 @@
       обновлено в
       <span class="pgf-format-time" data-timestamp="{{ place.updated_at|timestamp }}"></span>
     </small>
+
+    <br/>
+    <small>{{places_macros.place_description(place)}}</small>
+
+    <br/>
+    <small>{{places_macros.clan_region_description(clan_region)}}</small>
+
+    {% if protector_candidates %}
+    <br/>
+    <small>{{places_macros.place_protector_candidates(protector_candidates)}}</small>
+    {% endif %}
+
   </h2>
 
 {% if place.new_for > now() %}
@@ -134,7 +145,7 @@
 </p>
 
 {% if emissaries %}
-{{emissaries_macros.emissary_list(emissaries, powers=emissaries_powers, clans=clans)}}
+{{emissaries_macros.emissary_list(emissaries, powers=emissaries_powers, clans=clans_infos)}}
 {% else %}
 <p class="alert alert-info">
   В городе нет активных эмиссаров.

@@ -957,7 +957,6 @@ class DoEventStepTests(BaseEmissaryTests):
         event.steps_processed = event.stop_after_steps - 1
 
         logic.save_event(event)
-
         self.assertTrue(logic.do_event_step(event.id))
 
         self.assertTrue(logic.load_event(event.id).state.is_STOPPED)
@@ -1306,3 +1305,62 @@ class CanClanParticipateInPvpTests(BaseEmissaryTests):
 
         with mock.patch('the_tale.game.emissaries.objects.Emissary.can_participate_in_pvp', can_participate_in_pvp):
             self.assertTrue(logic.can_clan_participate_in_pvp(self.clan.id))
+
+
+class SendEventSuccessMessageTests(BaseEmissaryTests):
+
+    def setUp(self):
+        super().setUp()
+
+        personal_messages_tt_services.personal_messages.cmd_debug_clear_service()
+
+    def test_single_emissary(self):
+
+        emissary = self.create_emissary(clan=self.clan,
+                                        initiator=self.account,
+                                        place_id=self.places[0].id)
+
+        concrete_event = events.Rest(raw_ability_power=666)
+
+        emissary_event = logic.create_event(initiator=self.account,
+                                            emissary=emissary,
+                                            concrete_event=concrete_event,
+                                            days=7)
+
+        logic.send_event_success_message(emissary_event,
+                                         account=self.account,
+                                         suffix='xxx')
+
+        messages_count, messages = personal_messages_tt_services.personal_messages.cmd_get_received_messages(account_id=self.account.id)
+
+        self.assertIn(emissary.utg_name.forms[1], messages[0].body)
+        self.assertIn('xxx', messages[0].body)
+
+    def test_multiple_emissaries(self):
+
+        emissaries = [self.create_emissary(clan=self.clan,
+                                           initiator=self.account,
+                                           place_id=self.places[0].id),
+                      self.create_emissary(clan=self.clan,
+                                           initiator=self.account,
+                                           place_id=self.places[1].id)]
+
+        concrete_event = events.Rest(raw_ability_power=666)
+
+        emissary_events = [logic.create_event(initiator=self.account,
+                                              emissary=emissaries[0],
+                                              concrete_event=concrete_event,
+                                              days=7),
+                           logic.create_event(initiator=self.account,
+                                              emissary=emissaries[1],
+                                              concrete_event=concrete_event,
+                                              days=7)]
+
+        logic.send_event_success_message(random.choice(emissary_events),
+                                         account=self.account,
+                                         suffix='xxx')
+
+        messages_count, messages = personal_messages_tt_services.personal_messages.cmd_get_received_messages(account_id=self.account.id)
+
+        self.assertTrue(all(emissaries[0].utg_name.forms[1] in messages[0].body for emissary in emissaries))
+        self.assertTrue(all('xxx' in messages[0].body for emissary in emissaries))

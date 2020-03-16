@@ -156,6 +156,15 @@ class Place(game_names.ManageNameMixin2):
 
         return self.name
 
+    def clan_protector_info(self):
+        if self.attrs.clan_protector is None:
+            return None
+
+        return clans_storage.infos[self.attrs.clan_protector]
+
+    def clan_region(self):
+        return storage.clans_regions.region_for_place(self.id)
+
     @property
     def persons(self):
         return sorted((person for person in persons_storage.persons.all() if person.place_id == self.id),
@@ -464,10 +473,13 @@ class Place(game_names.ManageNameMixin2):
         return [place for place in storage.places.all() if self.is_frontier == place.is_frontier]
 
     def map_info(self):
+        region = storage.clans_regions.region_for_place(self.id)
+
         return {'id': self.id,
                 'pos': {'x': self.x, 'y': self.y},
                 'race': self.race.value,
                 'name': self.name,
+                'clan_protector': None if region.clan_id is None else clans_storage.infos[region.clan_id].ui_info(),
                 'size': self.attrs.size}
 
     def meta_object(self):
@@ -564,3 +576,43 @@ class Popularity:
                 return fame
 
         return default
+
+
+class ClanRegion:
+    __slots__ = ('clan_id', 'places_ids')
+
+    def __init__(self, clan_id, places_ids=None):
+        self.clan_id = clan_id
+        self.places_ids = set() if places_ids is None else places_ids
+
+    def clan_info(self):
+        if self.clan_id is None:
+            return None
+
+        return clans_storage.infos[self.clan_id]
+
+    def add_place(self, place_id):
+        self.places_ids.add(place_id)
+
+    def size(self):
+        return len(self.places_ids)
+
+    def merge(self, region):
+        if self.clan_id != region.clan_id:
+            raise ValueError('can not merge clan regions for different clans')
+
+        self.places_ids |= region.places_ids
+
+    def places_names(self):
+        return list(sorted(places_storage.places[place_id].name for place_id in self.places_ids))
+
+    def event_bonus(self):
+        return tt_emissaries_constants.PROTECTORAT_BONUSES[self.size()]
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__ and
+                self.clan_id == other.clan_id and
+                self.places_ids == other.places_ids)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)

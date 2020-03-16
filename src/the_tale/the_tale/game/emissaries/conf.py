@@ -9,9 +9,8 @@ settings = utils_app_settings.app_settings('EMISSARIES',
                                            GAME_CHRONICLE_RECORDS_ON_EMISSARY_PAGE=5,
                                            EVENTS_CURRENCIES_TRANSACTION_LIFETIME=2 * 60 * 60,
 
-                                           # делаем таймаут чуть меньше расчётного,
-                                           # чтобы на последнем цикле игрок мог получить карту
-                                           CARD_RECEIVING_BY_EMISSARY_TIMEOUT=24 * 60 * 60 - 30 * 60,
+                                           CARD_RECEIVING_BY_EMISSARY_TIMEOUT=12 * 60 * 60,
+                                           PREMIUM_RECEIVING_BY_EMISSARY_TIMEOUT=12 * 60 * 60,
 
                                            SHOW_START_EVENT_WARNING_BARRIER=1000,
 

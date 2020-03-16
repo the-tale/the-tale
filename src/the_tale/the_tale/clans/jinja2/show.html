@@ -385,6 +385,47 @@ jQuery(document).ready(function(e){
     </p>
     {% endif %}
 
+    <h3>Подконтрольные города</h3>
+
+    <p>
+      Гильдия может объявить город своим протекторатом. В этом случае мероприятия её эмиссаров в этом городе усиливают свои эффекты и / или преобетают новые эффекты.
+    </p>
+
+    <p>
+      Связанные дорогами города-протектораты гильдии объединяются в общий регион. Бонусы в городах тем больше, чем больше регион.
+    </p>
+
+    {% if protected_places %}
+
+    <table width="100%" class="table table-condensed">
+      <thead>
+        <tr>
+          <th>город</th>
+          <th>количество городов в протекторате</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for place in protected_places %}
+        <tr>
+          <td>
+            <a href="{{url('game:places:show', place.id)}}">{{place.name}}</a>
+          </td>
+          <td>
+            {{clans_regions.region_for_place(place.id).size()}}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% else %}
+
+    <p class="alert alert-info">
+      У гильдии нет подконтрольных городов.
+    </p>
+
+    {% endif %}
+
   </div>
 
   <div class="tab-pane" id="pgf-clan-events">

@@ -122,7 +122,9 @@ class BaseEventsMixin(clans_helpers.ClansTestsMixin,
 
 # tests for Rest event and its base class
 # other tests will be only for concrete event
-class RestTests(BaseEventsMixin, utils_testcase.TestCase):
+class RestTests(places_helpers.PlacesTestsMixin,
+                BaseEventsMixin,
+                utils_testcase.TestCase):
 
     Event = events.Rest
 
@@ -136,11 +138,11 @@ class RestTests(BaseEventsMixin, utils_testcase.TestCase):
                          self.concrete_event.event_description(self.emissary))
 
     def test_health_per_step(self):
-        self.assertEqual(self.concrete_event.health_per_step(0), 11)
-        self.assertEqual(self.concrete_event.health_per_step(250), 13)
-        self.assertEqual(self.concrete_event.health_per_step(500), 14)
-        self.assertEqual(self.concrete_event.health_per_step(1000), 16)
-        self.assertEqual(self.concrete_event.health_per_step(2000), 20)
+        self.assertEqual(self.concrete_event.health_per_step(0, bonus=0), 11)
+        self.assertEqual(self.concrete_event.health_per_step(250, bonus=2), 37)
+        self.assertEqual(self.concrete_event.health_per_step(500, bonus=0), 14)
+        self.assertEqual(self.concrete_event.health_per_step(1000, bonus=3), 61)
+        self.assertEqual(self.concrete_event.health_per_step(2000, bonus=0), 20)
 
     def test_ability_power(self):
         self.assertEqual(self.concrete_event.ability_power(777), 777 / tt_emissaries_constants.MAXIMUM_ATTRIBUTE_MAXIMUM)
@@ -254,7 +256,20 @@ class RestTests(BaseEventsMixin, utils_testcase.TestCase):
 
         logic.save_emissary(self.emissary)
 
-        delta = self.concrete_event.health_per_step(self.concrete_event.raw_ability_power)
+        delta = self.concrete_event.health_per_step(self.concrete_event.raw_ability_power, bonus=0)
+
+        with self.check_delta(lambda: logic.load_emissary(self.emissary.id).health, delta):
+            self.concrete_event.on_step(self.get_event())
+
+    def test_on_step__protectorat(self):
+        self.emissary.health = 1
+
+        self.set_protector(self.emissary.place_id, self.emissary.clan_id)
+
+        logic.save_emissary(self.emissary)
+
+        delta = self.concrete_event.health_per_step(self.concrete_event.raw_ability_power,
+                                                    bonus=tt_emissaries_constants.PROTECTORAT_BONUSES[1])
 
         with self.check_delta(lambda: logic.load_emissary(self.emissary.id).health, delta):
             self.concrete_event.on_step(self.get_event())
@@ -346,6 +361,7 @@ class RelocationTests(BaseEventsMixin, utils_testcase.TestCase):
         loaded_event_2 = storage.events.get_or_load(event_2.id)
         self.assertTrue(loaded_event_2.state.is_STOPPED)
         self.assertTrue(loaded_event_2.stop_reason.is_EMISSARY_RELOCATED)
+
 
 class RenameTests(BaseEventsMixin, utils_testcase.TestCase):
 
@@ -586,7 +602,9 @@ class TrainingTests(BaseEventsMixin, utils_testcase.TestCase):
             self.concrete_event.on_step(self.get_event())
 
 
-class ReservesSearchTests(BaseEventsMixin, utils_testcase.TestCase):
+class ReservesSearchTests(places_helpers.PlacesTestsMixin,
+                          BaseEventsMixin,
+                          utils_testcase.TestCase):
 
     Event = events.ReservesSearch
 
@@ -611,18 +629,34 @@ class ReservesSearchTests(BaseEventsMixin, utils_testcase.TestCase):
         self.assertEqual(self.concrete_event.effect_description(self.emissary, self.concrete_event.raw_ability_power),
                          self.concrete_event.event_description(self.emissary))
 
-    def test_pints_per_step(self):
-        self.assertEqual(self.concrete_event.action_points_per_step(0), 20)
-        self.assertEqual(self.concrete_event.action_points_per_step(250), 22)
-        self.assertEqual(self.concrete_event.action_points_per_step(500), 23)
-        self.assertEqual(self.concrete_event.action_points_per_step(1000), 26)
-        self.assertEqual(self.concrete_event.action_points_per_step(2000), 31)
+    def test_points_per_step(self):
+        self.assertEqual(self.concrete_event.action_points_per_step(0, bonus=0), 20)
+        self.assertEqual(self.concrete_event.action_points_per_step(250, bonus=2), 63)
+        self.assertEqual(self.concrete_event.action_points_per_step(500, bonus=0), 22)
+        self.assertEqual(self.concrete_event.action_points_per_step(1000, bonus=3), 94)
+        self.assertEqual(self.concrete_event.action_points_per_step(2000, bonus=0), 27)
 
     def test_on_step(self):
         def get_action_points():
             return clans_tt_services.currencies.cmd_balance(self.clan.id, currency=clans_relations.CURRENCY.ACTION_POINTS)
 
-        with self.check_delta(get_action_points, self.concrete_event.action_points_per_step(self.concrete_event.raw_ability_power)):
+        delta = self.concrete_event.action_points_per_step(self.concrete_event.raw_ability_power,
+                                                           bonus=0)
+
+        with self.check_delta(get_action_points, delta):
+            self.concrete_event.on_step(self.get_event())
+
+    def test_on_step__protectorat(self):
+
+        self.set_protector(self.emissary.place_id, self.emissary.clan_id)
+
+        def get_action_points():
+            return clans_tt_services.currencies.cmd_balance(self.clan.id, currency=clans_relations.CURRENCY.ACTION_POINTS)
+
+        delta = self.concrete_event.action_points_per_step(self.concrete_event.raw_ability_power,
+                                                           bonus=tt_emissaries_constants.PROTECTORAT_BONUSES[1])
+
+        with self.check_delta(get_action_points, delta):
             self.concrete_event.on_step(self.get_event())
 
     def test_on_step__points_maximum(self):
@@ -724,24 +758,27 @@ class PlaceEffectEventMixin(BaseEventsMixin):
                 self.concrete_event.on_step(self.get_event())
 
 
-class CountedEventMixin:
+class CountedEventMixin(places_helpers.PlacesTestsMixin):
 
     EVENT_CURRENCY = NotImplemented
 
     def test_tokens_per_day(self):
-        self.assertEqual(self.concrete_event.tokens_per_day(0), 3)
-        self.assertEqual(self.concrete_event.tokens_per_day(250), 3.24)
-        self.assertEqual(self.concrete_event.tokens_per_day(500), 3.48)
-        self.assertEqual(self.concrete_event.tokens_per_day(1000), 3.96)
-        self.assertEqual(self.concrete_event.tokens_per_day(2000), 4.92)
-        self.assertEqual(self.concrete_event.tokens_per_day(10000), 12.6)
+        self.assertEqual(self.concrete_event.tokens_per_day(0, bonus=0), 3)
+        self.assertEqual(self.concrete_event.tokens_per_day(250, bonus=0), 3.24)
+        self.assertEqual(self.concrete_event.tokens_per_day(500, bonus=2), 10.44)
+        self.assertEqual(self.concrete_event.tokens_per_day(1000, bonus=0), 3.96)
+        self.assertEqual(self.concrete_event.tokens_per_day(2000, bonus=3), 19.68)
+        self.assertEqual(self.concrete_event.tokens_per_day(10000, bonus=0), 12.6)
 
     def test_points_per_step(self):
-        self.assertEqual(self.concrete_event.points_per_step(), 152)
+        self.assertEqual(self.concrete_event.points_per_step(bonus=0), 152)
+        self.assertEqual(self.concrete_event.points_per_step(bonus=2), 455)
 
     def test_change_points(self):
-        with self.check_delta(self.get_event_points, self.concrete_event.points_per_step()):
-            self.concrete_event.change_points(self.emissary, amount=self.concrete_event.points_per_step())
+        delta = self.concrete_event.points_per_step(bonus=0)
+
+        with self.check_delta(self.get_event_points, delta):
+            self.concrete_event.change_points(self.emissary, amount=delta)
 
     def give_currency_points(self, amount):
         tt_services.events_currencies.cmd_change_balance(account_id=self.concrete_event.resource_id(self.emissary),
@@ -750,6 +787,21 @@ class CountedEventMixin:
                                                          asynchronous=False,
                                                          autocommit=True,
                                                          currency=self.EVENT_CURRENCY)
+
+    def test_on_step__points_given(self):
+        delta = self.concrete_event.points_per_step(bonus=0)
+
+        with self.check_delta(self.get_event_points, delta):
+            self.concrete_event.on_step(self.get_event())
+
+    def test_on_step__points_given__protectorat(self):
+
+        self.set_protector(self.emissary.place_id, self.emissary.clan_id)
+
+        delta = self.concrete_event.points_per_step(bonus=tt_emissaries_constants.PROTECTORAT_BONUSES[1])
+
+        with self.check_delta(self.get_event_points, delta):
+            self.concrete_event.on_step(self.get_event())
 
 
 class CountedPlaceEventsMixin(CountedEventMixin, PlaceEffectEventMixin):
@@ -844,15 +896,16 @@ class TaskBoardUpdatingTests(CountedPlaceEventsMixin, utils_testcase.TestCase):
     ATTRIBUTE = places_relations.ATTRIBUTE.TASK_BOARD
 
     def test_tokens_per_day(self):
-        self.assertEqual(self.concrete_event.tokens_per_day(0), 5.0)
-        self.assertEqual(self.concrete_event.tokens_per_day(250), 5.4)
-        self.assertEqual(self.concrete_event.tokens_per_day(500), 5.8)
-        self.assertEqual(self.concrete_event.tokens_per_day(1000), 6.6)
-        self.assertEqual(self.concrete_event.tokens_per_day(2000), 8.2)
-        self.assertEqual(self.concrete_event.tokens_per_day(10000), 21.0)
+        self.assertEqual(self.concrete_event.tokens_per_day(0, bonus=0), 5.0)
+        self.assertEqual(self.concrete_event.tokens_per_day(250, bonus=0), 5.4)
+        self.assertEqual(self.concrete_event.tokens_per_day(500, bonus=2), 17.4)
+        self.assertEqual(self.concrete_event.tokens_per_day(1000, bonus=0), 6.6)
+        self.assertEqual(self.concrete_event.tokens_per_day(2000, bonus=3), 32.8)
+        self.assertEqual(self.concrete_event.tokens_per_day(10000, bonus=0), 21.0)
 
     def test_points_per_step(self):
-        self.assertEqual(self.concrete_event.points_per_step(), 253)
+        self.assertEqual(self.concrete_event.points_per_step(bonus=0), 253)
+        self.assertEqual(self.concrete_event.points_per_step(bonus=2), 759)
 
 
 class FastTransportationTests(CountedPlaceEventsMixin, utils_testcase.TestCase):
@@ -879,7 +932,8 @@ class PlaceEffectDirectInfluenceMixin(PlaceEffectEventMixin):
         self.concrete_event = self.Event(raw_ability_power=666)
 
     def _get_expected_effect_value(self):
-        return self.concrete_event.direct_effect_value(self.concrete_event.raw_ability_power)
+        return self.concrete_event.direct_effect_value(self.concrete_event.raw_ability_power,
+                                                       bonus=self.emissary.protectorat_event_bonus())
 
     def test_is_effect_allowed(self):
         self.emissary.place_rating_position = None
@@ -905,7 +959,9 @@ class PlaceEffectDirectInfluenceMixin(PlaceEffectEventMixin):
                 self.concrete_event.after_create(self.get_event())
 
 
-class ArtisansSupportTests(PlaceEffectDirectInfluenceMixin, utils_testcase.TestCase):
+class ArtisansSupportTests(places_helpers.PlacesTestsMixin,
+                           PlaceEffectDirectInfluenceMixin,
+                           utils_testcase.TestCase):
     Event = events.ArtisansSupport
     ATTRIBUTE = places_relations.ATTRIBUTE.PRODUCTION
 
@@ -914,13 +970,28 @@ class ArtisansSupportTests(PlaceEffectDirectInfluenceMixin, utils_testcase.TestC
         self.assertEqual(self.concrete_event._effect_value(self.get_event()), 25)
 
         self.concrete_event.raw_ability_power = 1000
-        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 39)
+        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 33)
 
         self.concrete_event.raw_ability_power = 5000
-        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 95)
+        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 65)
+
+    def test_effect_value__protectorate(self):
+        self.set_protector(place_id=self.emissary.place_id,
+                           clan_id=self.emissary.clan_id)
+
+        self.concrete_event.raw_ability_power = 0
+        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 38)
+
+        self.concrete_event.raw_ability_power = 1000
+        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 50)
+
+        self.concrete_event.raw_ability_power = 5000
+        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 98)
 
 
-class PublicOpinionManagementTests(PlaceEffectDirectInfluenceMixin, utils_testcase.TestCase):
+class PublicOpinionManagementTests(places_helpers.PlacesTestsMixin,
+                                   PlaceEffectDirectInfluenceMixin,
+                                   utils_testcase.TestCase):
     Event = events.PublicOpinionManagement
     ATTRIBUTE = places_relations.ATTRIBUTE.STABILITY
 
@@ -929,13 +1000,28 @@ class PublicOpinionManagementTests(PlaceEffectDirectInfluenceMixin, utils_testca
         self.assertEqual(self.concrete_event._effect_value(self.get_event()), 0.025)
 
         self.concrete_event.raw_ability_power = 1000
-        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 0.039)
+        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 0.033)
 
         self.concrete_event.raw_ability_power = 5000
-        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 0.095)
+        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 0.065)
+
+    def test_effect_value__protectorate(self):
+        self.set_protector(place_id=self.emissary.place_id,
+                           clan_id=self.emissary.clan_id)
+
+        self.concrete_event.raw_ability_power = 0
+        self.assertAlmostEqual(self.concrete_event._effect_value(self.get_event()), 0.025 * 1.5)
+
+        self.concrete_event.raw_ability_power = 1000
+        self.assertAlmostEqual(self.concrete_event._effect_value(self.get_event()), 0.033 * 1.5)
+
+        self.concrete_event.raw_ability_power = 5000
+        self.assertAlmostEqual(self.concrete_event._effect_value(self.get_event()), 0.065 * 1.5)
 
 
-class PatronageTests(PlaceEffectDirectInfluenceMixin, utils_testcase.TestCase):
+class PatronageTests(places_helpers.PlacesTestsMixin,
+                     PlaceEffectDirectInfluenceMixin,
+                     utils_testcase.TestCase):
     Event = events.Patronage
     ATTRIBUTE = places_relations.ATTRIBUTE.CULTURE
 
@@ -944,13 +1030,28 @@ class PatronageTests(PlaceEffectDirectInfluenceMixin, utils_testcase.TestCase):
         self.assertEqual(self.concrete_event._effect_value(self.get_event()), 0.0375)
 
         self.concrete_event.raw_ability_power = 1000
-        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 0.0585)
+        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 0.0495)
 
         self.concrete_event.raw_ability_power = 5000
-        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 0.1425)
+        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 0.0975)
+
+    def test_effect_value__protectorate(self):
+        self.set_protector(place_id=self.emissary.place_id,
+                           clan_id=self.emissary.clan_id)
+
+        self.concrete_event.raw_ability_power = 0
+        self.assertAlmostEqual(self.concrete_event._effect_value(self.get_event()), 0.0375 * 1.5, places=4)
+
+        self.concrete_event.raw_ability_power = 1000
+        self.assertAlmostEqual(self.concrete_event._effect_value(self.get_event()), 0.0495 * 1.5, places=4)
+
+        self.concrete_event.raw_ability_power = 5000
+        self.assertAlmostEqual(self.concrete_event._effect_value(self.get_event()), 0.0975 * 1.5, places=4)
 
 
-class PatrioticPatronageTests(PlaceEffectDirectInfluenceMixin, utils_testcase.TestCase):
+class PatrioticPatronageTests(places_helpers.PlacesTestsMixin,
+                              PlaceEffectDirectInfluenceMixin,
+                              utils_testcase.TestCase):
     Event = events.PatrioticPatronage
     RACE = game_relations.RACE.random()
     ATTRIBUTE = getattr(places_relations.ATTRIBUTE, 'DEMOGRAPHICS_PRESSURE_{}'.format(RACE.name))
@@ -961,13 +1062,26 @@ class PatrioticPatronageTests(PlaceEffectDirectInfluenceMixin, utils_testcase.Te
 
     def test_effect_value(self):
         self.concrete_event.raw_ability_power = 0
-        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 0.25)
+        self.assertAlmostEqual(self.concrete_event._effect_value(self.get_event()), 0.25)
 
         self.concrete_event.raw_ability_power = 1000
-        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 0.39)
+        self.assertAlmostEqual(self.concrete_event._effect_value(self.get_event()), 0.39)
 
         self.concrete_event.raw_ability_power = 5000
-        self.assertEqual(self.concrete_event._effect_value(self.get_event()), 0.95)
+        self.assertAlmostEqual(self.concrete_event._effect_value(self.get_event()), 0.95)
+
+    def test_effect_value__protectorate(self):
+        self.set_protector(place_id=self.emissary.place_id,
+                           clan_id=self.emissary.clan_id)
+
+        self.concrete_event.raw_ability_power = 0
+        self.assertAlmostEqual(self.concrete_event._effect_value(self.get_event()), 0.25 * 1.5)
+
+        self.concrete_event.raw_ability_power = 1000
+        self.assertAlmostEqual(self.concrete_event._effect_value(self.get_event()), 0.39 * 1.5)
+
+        self.concrete_event.raw_ability_power = 5000
+        self.assertAlmostEqual(self.concrete_event._effect_value(self.get_event()), 0.95 * 1.5)
 
 
 class GloryOfTheKeepersTests(CountedEventMixin,
@@ -987,16 +1101,19 @@ class GloryOfTheKeepersTests(CountedEventMixin,
 
         self.concrete_event = self.Event(raw_ability_power=666)
 
+        logic.update_emissaries_ratings()
+
     def test_tokens_per_day(self):
-        self.assertEqual(self.concrete_event.tokens_per_day(0), 1)
-        self.assertEqual(self.concrete_event.tokens_per_day(250), 1.08)
-        self.assertEqual(self.concrete_event.tokens_per_day(500), 1.16)
-        self.assertEqual(self.concrete_event.tokens_per_day(1000), 1.32)
-        self.assertEqual(self.concrete_event.tokens_per_day(2000), 1.64)
-        self.assertEqual(self.concrete_event.tokens_per_day(10000), 4.2)
+        self.assertEqual(self.concrete_event.tokens_per_day(0, bonus=0), 1)
+        self.assertEqual(self.concrete_event.tokens_per_day(250, bonus=0), 1.08)
+        self.assertEqual(self.concrete_event.tokens_per_day(500, bonus=2), 3.48)
+        self.assertEqual(self.concrete_event.tokens_per_day(1000, bonus=0), 1.32)
+        self.assertEqual(self.concrete_event.tokens_per_day(2000, bonus=3), 6.56)
+        self.assertEqual(self.concrete_event.tokens_per_day(10000, bonus=0), 4.2)
 
     def test_points_per_step(self):
-        self.assertEqual(self.concrete_event.points_per_step(), 51)
+        self.assertEqual(self.concrete_event.points_per_step(bonus=0), 51)
+        self.assertEqual(self.concrete_event.points_per_step(bonus=2), 152)
 
     def test_is_effect_allowed(self):
 
@@ -1029,8 +1146,10 @@ class GloryOfTheKeepersTests(CountedEventMixin,
                                                                  name=accounts_tt_services.PLAYER_PROPERTIES.last_card_by_emissary,
                                                                  value=time.time() - conf.settings.CARD_RECEIVING_BY_EMISSARY_TIMEOUT)
 
+        self.assertTrue(self.emissary.is_place_leader())
+
         with self.check_delta(self.get_event_points,
-                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER + self.concrete_event.points_per_step()):
+                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER + self.concrete_event.points_per_step(bonus=0)):
             with self.check_delta(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id)), 1):
                 with self.check_delta(lambda: personal_messages_tt_services.personal_messages.cmd_new_messages_number(self.account.id), 1):
                     self.concrete_event.on_step(self.get_event())
@@ -1039,6 +1158,28 @@ class GloryOfTheKeepersTests(CountedEventMixin,
                                                                    accounts_tt_services.PLAYER_PROPERTIES.last_card_by_emissary)
 
         self.assertTrue(started_at < card_time < time.time())
+
+    def test_on_step__not_leader(self):
+
+        for i in range(tt_emissaries_constants.PLACE_LEADERS_NUMBER):
+            emissary = self.create_emissary(clan=self.clan,
+                                            initiator=self.account,
+                                            place_id=self.places[0].id)
+
+            politic_power_logic.add_power_impacts([game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.EMISSARY_POWER,
+                                                                                actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                                actor_id=666,
+                                                                                target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
+                                                                                target_id=emissary.id,
+                                                                                amount=10050000)])
+
+        logic.update_emissaries_ratings()
+
+        self.assertFalse(self.emissary.is_place_leader())
+
+        with self.check_not_changed(self.get_event_points):
+            with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id))):
+                self.concrete_event.on_step(self.get_event())
 
     def test_on_step__single_effect__blocked(self):
 
@@ -1050,7 +1191,7 @@ class GloryOfTheKeepersTests(CountedEventMixin,
                                                                  name=accounts_tt_services.PLAYER_PROPERTIES.last_card_by_emissary,
                                                                  value=started_at)
 
-        with self.check_delta(self.get_event_points, self.concrete_event.points_per_step()):
+        with self.check_delta(self.get_event_points, self.concrete_event.points_per_step(bonus=0)):
             with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id))):
                 self.concrete_event.on_step(self.get_event())
 
@@ -1063,7 +1204,7 @@ class GloryOfTheKeepersTests(CountedEventMixin,
         self.give_currency_points(tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * 2 - 1)
 
         with self.check_delta(self.get_event_points,
-                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * 1 + self.concrete_event.points_per_step()):
+                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * 1 + self.concrete_event.points_per_step(bonus=0)):
             with self.check_delta(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id)), 1):
                 with self.check_delta(lambda: personal_messages_tt_services.personal_messages.cmd_new_messages_number(self.account.id), 1):
                     self.concrete_event.on_step(self.get_event())
@@ -1081,7 +1222,7 @@ class GloryOfTheKeepersTests(CountedEventMixin,
         self.give_currency_points(tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * N)
 
         with self.check_delta(self.get_event_points,
-                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * 2 + self.concrete_event.points_per_step()):
+                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * 2 + self.concrete_event.points_per_step(bonus=0)):
             with self.check_increased(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id))):
                 with self.check_increased(lambda: len(cards_tt_services.storage.cmd_get_items(account_2.id))):
                     with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(account_3.id))):
@@ -1106,12 +1247,16 @@ class GloryOfTheKeepersTests(CountedEventMixin,
                                      concrete_event=concrete_event_2,
                                      days=7)
 
+        logic.update_emissaries_ratings()
+
+        self.assertTrue(emissary_2.is_place_leader())
+
         self.give_currency_points(tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER - 1)
 
         with self.check_delta(self.get_event_points,
                               -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER +
-                              self.concrete_event.points_per_step() +
-                              concrete_event_2.points_per_step()):
+                              self.concrete_event.points_per_step(bonus=0) +
+                              concrete_event_2.points_per_step(bonus=0)):
             with self.check_delta(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id)), 1):
                 with self.check_delta(lambda: personal_messages_tt_services.personal_messages.cmd_new_messages_number(self.account.id), 1):
                     self.concrete_event.on_step(event_1)
@@ -1121,3 +1266,488 @@ class GloryOfTheKeepersTests(CountedEventMixin,
 
         self.assertIn(self.emissary.utg_name.forms[1], messages[0].body)
         self.assertIn(emissary_2.utg_name.forms[1], messages[0].body)
+
+    def test_get_receiver(self):
+        account_2 = self.accounts_factory.create_account()
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
+
+        clan_2 = self.create_clan(owner=account_3, uid=2)
+
+        clans_logic._add_member(clan=self.clan,
+                                account=account_4,
+                                role=clans_relations.MEMBER_ROLE.OFFICER)
+
+        self.assertEqual({self.account.id, account_4.id},
+                         {self.concrete_event.get_receiver(self.get_event()).id for i in range(100)})
+
+        accounts_tt_services.players_properties.cmd_set_property(object_id=self.account.id,
+                                                                 name=accounts_tt_services.PLAYER_PROPERTIES.last_card_by_emissary,
+                                                                 value=time.time())
+
+        self.assertEqual({account_4.id},
+                         {self.concrete_event.get_receiver(self.get_event()).id for i in range(100)})
+
+        accounts_tt_services.players_properties.cmd_set_property(object_id=account_4.id,
+                                                                 name=accounts_tt_services.PLAYER_PROPERTIES.last_card_by_emissary,
+                                                                 value=time.time())
+
+        self.assertEqual({None},
+                         {self.concrete_event.get_receiver(self.get_event()) for i in range(100)})
+
+
+class RevolutionTests(places_helpers.PlacesTestsMixin,
+                      BaseEventsMixin,
+                      utils_testcase.TestCase):
+
+    Event = events.Revolution
+
+    EXPECTED_CYCLE_TIME = 7
+    EXPECTED_PERIOD_CHOICES_NUMBER = 1
+
+    def setUp(self):
+        super().setUp()
+
+        places_tt_services.effects.cmd_debug_clear_service()
+        personal_messages_tt_services.personal_messages.cmd_debug_clear_service()
+
+        self.concrete_event = self.Event(raw_ability_power=666)
+
+        self.notify_accounts = [self.accounts_factory.create_account()
+                                for i in range(7)]
+
+        self.notify_clans = [self.create_clan(owner=self.notify_accounts[0], uid=2),
+                             self.create_clan(owner=self.notify_accounts[1], uid=3),
+                             self.create_clan(owner=self.notify_accounts[2], uid=4),
+                             self.create_clan(owner=self.notify_accounts[3], uid=5)]
+
+        clans_logic._add_member(self.notify_clans[0],
+                                account=self.notify_accounts[4],
+                                role=clans_relations.MEMBER_ROLE.COMANDOR)
+
+        clans_logic._add_member(self.notify_clans[0],
+                                account=self.notify_accounts[5],
+                                role=clans_relations.MEMBER_ROLE.OFFICER)
+
+        clans_logic._add_member(self.notify_clans[0],
+                                account=self.notify_accounts[6],
+                                role=clans_relations.MEMBER_ROLE.FIGHTER)
+
+        self.assertEqual(self.emissary.place_id, self.places[0].id)
+
+        self.notify_emissaries = [self.create_emissary(clan=self.notify_clans[0],
+                                                       initiator=self.notify_accounts[0],
+                                                       place_id=self.places[0].id),
+                                  self.create_emissary(clan=self.notify_clans[1],
+                                                       initiator=self.notify_accounts[1],
+                                                       place_id=self.places[0].id),
+                                  self.create_emissary(clan=self.notify_clans[2],
+                                                       initiator=self.notify_accounts[2],
+                                                       place_id=self.places[1].id),
+                                  self.create_emissary(clan=self.notify_clans[3],
+                                                       initiator=self.notify_accounts[3],
+                                                       place_id=self.places[0].id)]
+
+        logic._remove_emissary(self.notify_emissaries[1].id, reason=relations.REMOVE_REASON.DISMISSED)
+
+        self.assertEqual(self.emissary.place.attrs.clan_protector, None)
+
+        self.assertEqual(id(self.emissary), id(storage.emissaries[self.emissary.id]))
+
+    @contextlib.contextmanager
+    def check_messages_received_by_other_clan(self):
+        def number(account_id):
+            return personal_messages_tt_services.personal_messages.cmd_new_messages_number(account_id)
+
+        with self.check_delta(lambda: number(self.notify_accounts[0].id), 1), \
+             self.check_not_changed(lambda: number(self.notify_accounts[1].id)), \
+             self.check_not_changed(lambda: number(self.notify_accounts[2].id)), \
+             self.check_delta(lambda: number(self.notify_accounts[3].id), 1), \
+             self.check_delta(lambda: number(self.notify_accounts[4].id), 1), \
+             self.check_delta(lambda: number(self.notify_accounts[5].id), 1), \
+             self.check_not_changed(lambda: number(self.notify_accounts[6].id)), \
+             self.check_delta(lambda: number(self.account.id), 1):
+            yield
+
+    def test_on_create__already_has_same_protector(self):
+        self.set_protector(place_id=self.emissary.place_id,
+                           clan_id=self.emissary.clan_id)
+
+        with self.assertRaises(exceptions.OnEventCreateError):
+            with self.concrete_event.on_create(self.emissary):
+                pass
+
+    def test_notify_other_clans_on_create(self):
+        with self.check_messages_received_by_other_clan():
+            self.concrete_event.after_create(self.get_event())
+
+    def test_on_finish__already_has_same_protector(self):
+
+        self.set_protector(place_id=self.emissary.place_id,
+                           clan_id=self.emissary.clan_id)
+
+        with self.check_messages_received_by_other_clan():
+            self.assertTrue(self.concrete_event.on_finish(self.get_event()))
+
+        self.assertEqual(self.emissary.place.attrs.clan_protector, self.emissary.clan_id)
+
+    def test_on_finish__not_place_leader(self):
+
+        for i in range(tt_emissaries_constants.PLACE_LEADERS_NUMBER):
+            emissary = self.create_emissary(clan=self.clan,
+                                            initiator=self.account,
+                                            place_id=self.places[0].id)
+
+            politic_power_logic.add_power_impacts([game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.EMISSARY_POWER,
+                                                                                actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                                actor_id=666,
+                                                                                target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
+                                                                                target_id=emissary.id,
+                                                                                amount=10050000)])
+
+        logic.update_emissaries_ratings()
+
+        self.assertFalse(self.emissary.is_place_leader())
+
+        with self.check_not_changed(lambda: self.emissary.place.attrs.clan_protector):
+            with self.check_messages_received_by_other_clan():
+                self.assertFalse(self.concrete_event.on_finish(self.get_event()))
+
+    def test_on_finish__no_enough_power(self):
+        game_tt_services.debug_clear_service()
+
+        politic_power_logic.add_power_impacts([game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.EMISSARY_POWER,
+                                                                            actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                            actor_id=666,
+                                                                            target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
+                                                                            target_id=self.emissary.id,
+                                                                            amount=self.Event.POWER_BARRIER - 1)])
+
+        logic.update_emissaries_ratings()
+
+        self.assertTrue(self.emissary.is_place_leader())
+
+        with self.check_not_changed(lambda: self.emissary.place.attrs.clan_protector):
+            with self.check_messages_received_by_other_clan():
+                self.assertFalse(self.concrete_event.on_finish(self.get_event()))
+
+    def test_on_finish__old_protector_emissary_has_more_power(self):
+        self.set_protector(place_id=self.places[0].id,
+                           clan_id=self.notify_clans[0].id)
+
+        politic_power_logic.add_power_impacts([game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.EMISSARY_POWER,
+                                                                            actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                            actor_id=666,
+                                                                            target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
+                                                                            target_id=self.notify_emissaries[0].id,
+                                                                            amount=10050000)])
+
+        logic.update_emissaries_ratings()
+
+        self.assertTrue(self.emissary.is_place_leader())
+
+        with self.check_not_changed(lambda: self.emissary.place.attrs.clan_protector):
+            with self.check_messages_received_by_other_clan():
+                self.assertFalse(self.concrete_event.on_finish(self.get_event()))
+
+    def test_on_finish__success__on_empty_place(self):
+        logic.update_emissaries_ratings()
+
+        with self.check_changed(lambda: self.emissary.place.attrs.clan_protector):
+            with self.check_messages_received_by_other_clan():
+                self.assertTrue(self.concrete_event.on_finish(self.get_event()))
+
+        self.assertEqual(self.emissary.place.attrs.clan_protector, self.emissary.clan_id)
+
+        total_events, events = clans_tt_services.chronicle.cmd_get_last_events(self.clan, tags=(), number=1000)
+
+        self.assertEqual(set(events[0].tags),
+                         {self.clan.meta_object().tag,
+                          clans_relations.EVENT.PROTECTORAT_ESTABLISHED.meta_object().tag,
+                          self.emissary.meta_object().tag,
+                          self.emissary.place.meta_object().tag})
+
+    def test_on_finish__success__replace_enemy(self):
+
+        self.set_protector(place_id=self.places[0].id,
+                           clan_id=self.notify_clans[0].id)
+
+        logic.update_emissaries_ratings()
+
+        with self.check_changed(lambda: self.emissary.place.attrs.clan_protector):
+            with self.check_messages_received_by_other_clan():
+                self.assertTrue(self.concrete_event.on_finish(self.get_event()))
+
+        self.assertEqual(self.emissary.place.attrs.clan_protector, self.emissary.clan_id)
+
+
+class DarkRitualsTests(CountedEventMixin,
+                       BaseEventsMixin,
+                       utils_testcase.TestCase):
+    Event = events.DarkRituals
+    EVENT_CURRENCY = relations.EVENT_CURRENCY.DARK_RITUALS
+
+    def setUp(self):
+        tt_services.events_currencies.cmd_debug_clear_service()
+
+        super().setUp()
+
+        self.properties_client = accounts_tt_services.players_properties
+
+        self.properties_client.cmd_debug_clear_service()
+
+        self.concrete_event = self.Event(raw_ability_power=666)
+
+        self.set_protector(place_id=self.emissary.place_id,
+                           clan_id=self.emissary.clan_id)
+
+        logic.update_emissaries_ratings()
+
+    def test_tokens_per_day(self):
+        self.assertEqual(self.concrete_event.tokens_per_day(0, bonus=0), 0.5)
+        self.assertEqual(self.concrete_event.tokens_per_day(250, bonus=0), 0.52)
+        self.assertEqual(self.concrete_event.tokens_per_day(500, bonus=0), 0.54)
+        self.assertEqual(self.concrete_event.tokens_per_day(1000, bonus=0), 0.58)
+        self.assertEqual(self.concrete_event.tokens_per_day(2000, bonus=0), 0.66)
+        self.assertEqual(self.concrete_event.tokens_per_day(10000, bonus=0), 1.3)
+
+    def test_points_per_step(self):
+        self.assertEqual(self.concrete_event.points_per_step(bonus=0), 24)
+
+    def test_is_effect_allowed(self):
+
+        self.concrete_event.after_create(self.get_event())
+
+        self.assertFalse(self.concrete_event.is_effect_allowed(self.emissary))
+
+        self.concrete_event.change_points(self.emissary, amount=100501)
+
+        self.assertTrue(self.concrete_event.is_effect_allowed(self.emissary))
+
+    @contextlib.contextmanager
+    def check_premium_encreased(self, account, days):
+        old_premium_end_at = max(datetime.datetime.now(),
+                                 accounts_models.Account.objects.get(id=account.id).premium_end_at)
+
+        yield
+
+        new_premium_end_at = max(datetime.datetime.now(),
+                                 accounts_models.Account.objects.get(id=account.id).premium_end_at)
+
+        self.assertTrue(old_premium_end_at + datetime.timedelta(days=days) <
+                        new_premium_end_at <
+                        old_premium_end_at + datetime.timedelta(days=days+1))
+
+    @contextlib.contextmanager
+    def check_premium_not_changed(self, account):
+        with self.check_not_changed(lambda: accounts_models.Account.objects.get(id=account.id).premium_end_at):
+            yield
+
+    def test_on_step__effect_not_allowed(self):
+
+        with self.check_increased(self.get_event_points):
+            with self.check_premium_not_changed(self.account):
+                self.concrete_event.on_step(self.get_event())
+
+        card_time = self.properties_client.cmd_get_object_property(self.account.id,
+                                                                   accounts_tt_services.PLAYER_PROPERTIES.last_premium_by_emissary)
+
+        self.assertEqual(card_time, 0)
+
+    def test_on_step__single_effect(self):
+
+        self.give_currency_points(tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER - 1)
+
+        started_at = time.time()
+
+        accounts_tt_services.players_properties.cmd_set_property(object_id=self.account.id,
+                                                                 name=accounts_tt_services.PLAYER_PROPERTIES.last_premium_by_emissary,
+                                                                 value=time.time() - conf.settings.CARD_RECEIVING_BY_EMISSARY_TIMEOUT)
+
+        self.assertTrue(self.emissary.is_place_leader())
+
+        with self.check_delta(self.get_event_points,
+                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER + self.concrete_event.points_per_step(bonus=0)):
+            with self.check_premium_encreased(self.account, 1):
+                with self.check_delta(lambda: personal_messages_tt_services.personal_messages.cmd_new_messages_number(self.account.id), 1):
+                    self.concrete_event.on_step(self.get_event())
+
+        card_time = self.properties_client.cmd_get_object_property(self.account.id,
+                                                                   accounts_tt_services.PLAYER_PROPERTIES.last_premium_by_emissary)
+
+        self.assertTrue(started_at < card_time < time.time())
+
+    def test_on_step__not_leader(self):
+
+        for i in range(tt_emissaries_constants.PLACE_LEADERS_NUMBER):
+            emissary = self.create_emissary(clan=self.clan,
+                                            initiator=self.account,
+                                            place_id=self.places[0].id)
+
+            politic_power_logic.add_power_impacts([game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.EMISSARY_POWER,
+                                                                                actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                                actor_id=666,
+                                                                                target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
+                                                                                target_id=emissary.id,
+                                                                                amount=10050000)])
+
+        logic.update_emissaries_ratings()
+
+        self.assertFalse(self.emissary.is_place_leader())
+
+        with self.check_not_changed(self.get_event_points):
+            with self.check_premium_not_changed(self.account):
+                self.concrete_event.on_step(self.get_event())
+
+    def test_on_step__not_protector(self):
+
+        self.set_protector(place_id=self.emissary.place_id,
+                           clan_id=None)
+
+        with self.check_not_changed(self.get_event_points):
+            with self.check_premium_not_changed(self.account):
+                self.concrete_event.on_step(self.get_event())
+
+    def test_on_step__single_effect__blocked(self):
+
+        self.give_currency_points(tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER - 1)
+
+        started_at = time.time() - conf.settings.CARD_RECEIVING_BY_EMISSARY_TIMEOUT + 10
+
+        accounts_tt_services.players_properties.cmd_set_property(object_id=self.account.id,
+                                                                 name=accounts_tt_services.PLAYER_PROPERTIES.last_premium_by_emissary,
+                                                                 value=started_at)
+
+        with self.check_delta(self.get_event_points, self.concrete_event.points_per_step(bonus=0)):
+            with self.check_premium_not_changed(self.account):
+                self.concrete_event.on_step(self.get_event())
+
+        card_time = self.properties_client.cmd_get_object_property(self.account.id,
+                                                                   accounts_tt_services.PLAYER_PROPERTIES.last_premium_by_emissary)
+
+        self.assertEqual(started_at, card_time)
+
+    def test_on_step__points_given__protectorat(self):
+
+        self.assertEqual(self.emissary.place.attrs.clan_protector,
+                         self.emissary.clan_id)
+
+        delta = self.concrete_event.points_per_step(bonus=0)
+
+        with self.check_delta(self.get_event_points, delta):
+            self.concrete_event.on_step(self.get_event())
+
+    def test_on_step__multiple_effects(self):
+        self.give_currency_points(tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * 2 - 1)
+
+        with self.check_delta(self.get_event_points,
+                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * 1 + self.concrete_event.points_per_step(bonus=0)):
+            with self.check_premium_encreased(self.account, 1):
+                with self.check_delta(lambda: personal_messages_tt_services.personal_messages.cmd_new_messages_number(self.account.id), 1):
+                    self.concrete_event.on_step(self.get_event())
+
+    def test_on_step__multiple_accounts(self):
+        account_2 = self.accounts_factory.create_account()
+        account_3 = self.accounts_factory.create_account()
+
+        clans_logic._add_member(clan=self.clan,
+                                account=account_2,
+                                role=clans_relations.MEMBER_ROLE.OFFICER)
+
+        N = 20
+
+        self.give_currency_points(tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * N)
+
+        with self.check_delta(self.get_event_points,
+                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * 2 + self.concrete_event.points_per_step(bonus=0)):
+            with self.check_premium_encreased(self.account, 1):
+                with self.check_premium_encreased(account_2, 1):
+                    with self.check_premium_not_changed(account_3):
+                        self.concrete_event.on_step(self.get_event())
+
+    def test_resource_id(self):
+        self.assertEqual(self.concrete_event.resource_id(self.emissary),
+                         logic.resource_id(clan_id=self.emissary.clan_id, place_id=None))
+
+    def test_on_step__multiple_emissaries(self):
+
+        personal_messages_tt_services.personal_messages.cmd_debug_clear_service()
+
+        emissary_2 = self.create_emissary(clan=self.clan,
+                                          initiator=self.account,
+                                          place_id=self.places[1].id)
+
+        self.set_protector(place_id=emissary_2.place_id,
+                           clan_id=emissary_2.clan_id)
+
+        concrete_event_2 = self.Event(raw_ability_power=666)
+
+        event_1 = self.get_event()
+        event_2 = logic.create_event(initiator=self.account,
+                                     emissary=emissary_2,
+                                     concrete_event=concrete_event_2,
+                                     days=7)
+
+        logic.update_emissaries_ratings()
+
+        self.assertTrue(emissary_2.is_place_leader())
+
+        self.give_currency_points(tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER - 1)
+
+        with self.check_delta(self.get_event_points,
+                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER +
+                              self.concrete_event.points_per_step(bonus=0) +
+                              concrete_event_2.points_per_step(bonus=0)):
+            with self.check_premium_encreased(self.account, 1):
+                with self.check_delta(lambda: personal_messages_tt_services.personal_messages.cmd_new_messages_number(self.account.id), 1):
+                    self.concrete_event.on_step(event_1)
+                    concrete_event_2.on_step(event_2)
+
+        messages_count, messages = personal_messages_tt_services.personal_messages.cmd_get_received_messages(account_id=self.account.id)
+
+        self.assertIn(self.emissary.utg_name.forms[1], messages[0].body)
+        self.assertIn(emissary_2.utg_name.forms[1], messages[0].body)
+
+    def test_get_receiver(self):
+        account_2 = self.accounts_factory.create_account()
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
+        account_5 = self.accounts_factory.create_account()
+
+        clan_2 = self.create_clan(owner=account_3, uid=2)
+
+        clans_logic._add_member(clan=self.clan,
+                                account=account_4,
+                                role=clans_relations.MEMBER_ROLE.OFFICER)
+
+        clans_logic._add_member(clan=self.clan,
+                                account=account_5,
+                                role=clans_relations.MEMBER_ROLE.OFFICER)
+
+        self.assertEqual({self.account.id, account_4.id, account_5.id},
+                         {self.concrete_event.get_receiver(self.get_event()).id for i in range(100)})
+
+        account_5.permanent_purchases.insert(shop_relations.PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION)
+        account_5.save()
+
+        self.assertEqual({self.account.id, account_4.id},
+                         {self.concrete_event.get_receiver(self.get_event()).id for i in range(100)})
+
+        clans_logic.change_role(clan=self.clan,
+                                initiator=self.account,
+                                member=account_4,
+                                new_role=clans_relations.MEMBER_ROLE.RECRUIT)
+
+        self.assertEqual({self.account.id},
+                         {self.concrete_event.get_receiver(self.get_event()).id for i in range(100)})
+
+        accounts_tt_services.players_properties.cmd_set_property(object_id=self.account.id,
+                                                                 name=accounts_tt_services.PLAYER_PROPERTIES.last_premium_by_emissary,
+                                                                 value=time.time())
+
+        self.assertEqual({None},
+                         {self.concrete_event.get_receiver(self.get_event()) for i in range(100)})
+
+    def test_maximum_points_a_day(self):
+        # Внимание!! при увеличении этого параметра надо очень внимательно проанализировать весь баланс
+        self.assertEqual(self.concrete_event.maximum_points_a_day(), 1.5)

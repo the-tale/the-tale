@@ -4,13 +4,15 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'refresh CDNs info'
 
-    def handle(self, *args, **options):
+    LOCKS = ['game_commands']
 
-        print('refresh CDNs')
+    def _handle(self, *args, **options):
+
+        self.logger.info('refresh CDNs')
 
         info = utils_cdn.get_cdns_info(django_settings.CDNS)
 

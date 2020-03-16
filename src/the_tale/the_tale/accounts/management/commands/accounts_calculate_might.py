@@ -4,9 +4,11 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'Recalculate mights of accounts'
 
-    def handle(self, *args, **options):
+    LOCKS = ['portal_commands']
+
+    def _handle(self, *args, **options):
         might.recalculate_accounts_might()

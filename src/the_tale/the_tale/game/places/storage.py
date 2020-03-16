@@ -206,3 +206,39 @@ class EffectsStorage(utils_storage.CachedStorage):
 
 
 effects = EffectsStorage()
+
+
+class ClansRegionsStorage(utils_storage.DependentStorage):
+    __slots__ = ('_places_version',
+                 '_roads_version',
+                 '_regions')
+
+    def __init__(self):
+        super().__init__()
+
+        self._regions = {}
+
+    def expected_version(self):
+        return (places_storage.places.version,
+                roads_storage.roads.version)
+
+    def reset(self):
+        super().reset()
+
+        self._regions = {}
+
+    def recalculate(self):
+        for place in places.all():
+            self._regions[place.id] = objects.ClanRegion(place.attrs.clan_protector, {place.id})
+
+        for road in roads_storage.roads.all():
+            if road.place_1.attrs.clan_protector == road.place_2.attrs.clan_protector:
+                self._regions[road.place_1_id].merge(self._regions[road.place_2_id])
+                self._regions[road.place_2_id] = self._regions[road.place_1_id]
+
+    def region_for_place(self, place_id):
+        self.sync()
+        return self._regions[place_id]
+
+
+clans_regions = ClansRegionsStorage()

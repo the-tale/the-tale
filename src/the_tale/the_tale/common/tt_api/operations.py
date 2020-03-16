@@ -51,7 +51,7 @@ class SenderThread(threading.Thread):
 
     def __init__(self):
         super().__init__(name='tt_api_sender', daemon=True)
-        self.logger = logging.getLogger('the-tale.tt_api_sender')
+        self.logger = logging.getLogger(__name__)
 
     def run(self):
         while True:

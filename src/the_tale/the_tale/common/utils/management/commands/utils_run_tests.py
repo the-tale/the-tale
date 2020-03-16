@@ -4,13 +4,15 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'run tests for all non-django applications'
 
+    LOCKS = []
+
     requires_model_validation = False
 
-    def handle(self, *args, **options):
+    def _handle(self, *args, **options):
         subprocess.call("rm -f `find ./ -name '*.pyc'`", shell=True)
 
         tests = []

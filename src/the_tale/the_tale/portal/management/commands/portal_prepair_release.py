@@ -7,37 +7,39 @@ smart_imports.all()
 META_CONFIG = django_settings.META_CONFIG
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'prepair all generated static files'
 
+    LOCKS = ['portal_commands']
+
     def add_arguments(self, parser):
-        super(Command, self).add_arguments(parser)
+        super().add_arguments(parser)
         parser.add_argument('-g', '--game-version', action='store', type=str, dest='game-version', help='game version')
 
-    def handle(self, *args, **options):
+    def _handle(self, *args, **options):
 
         version = options['game-version']
 
         if version is None:
-            print('game version MUST be specified', file=sys.stderr)
+            self.logger.info('game version MUST be specified')
             sys.exit(1)
 
-        print()
-        print('GENERATE JAVASCRIPT CONSTANTS')
-        print()
+        self.logger.info('')
+        self.logger.info('GENERATE JAVASCRIPT CONSTANTS')
+        self.logger.info('')
 
-        utils_logic.run_django_command(['game_generate_js'])
+        utils_logic.run_django_command(['game_generate_js', '--ignore-lock', 'portal_commands'])
 
-        print()
-        print('GENERATE CSS')
-        print()
+        self.logger.info('')
+        self.logger.info('GENERATE CSS')
+        self.logger.info('')
 
-        utils_logic.run_django_command(['less_generate_css'])
+        utils_logic.run_django_command(['less_generate_css', '--ignore-lock', 'portal_commands'])
 
-        print()
-        print('GENERATE META CONFIG')
-        print()
+        self.logger.info('')
+        self.logger.info('GENERATE META CONFIG')
+        self.logger.info('')
 
         META_CONFIG.increment_static_data_version()
         META_CONFIG.version = version

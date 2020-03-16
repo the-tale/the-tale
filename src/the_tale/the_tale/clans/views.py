@@ -358,6 +358,9 @@ def show(context):
     action_points_effects.sort(key=lambda effect: effect[0])
     action_points_total = sum(points for name, points in action_points_effects)
 
+    protected_places = [place for place in places_storage.places.all() if place.attrs.clan_protector == context.current_clan.id]
+    protected_places.sort(key=lambda place: place.name)
+
     return utils_views.Page('clans/show.html',
                             content={'resource': context.resource,
                                      'page_id': relations.PAGE_ID.SHOW,
@@ -387,7 +390,9 @@ def show(context):
                                      'action_points_effects': action_points_effects,
                                      'tt_clans_constants': tt_clans_constants,
                                      'emissaries_powers': emissaries_powers,
-                                     'can_participate_in_pvp': can_participate_in_pvp})
+                                     'can_participate_in_pvp': can_participate_in_pvp,
+                                     'protected_places': protected_places,
+                                     'clans_regions': places_storage.clans_regions})
 
 
 @accounts_views.LoginRequiredProcessor()

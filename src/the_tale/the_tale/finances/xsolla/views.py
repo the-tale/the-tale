@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-logger = logging.getLogger('the-tale.bank_xsolla_requests')
+logger = logging.getLogger(__name__)
 
 
 class XsollaResource(utils_resources.Resource):

@@ -6,12 +6,17 @@ smart_imports.all()
 
 class ATTRIBUTE_TYPE(rels_django.DjangoEnum):
     records = (('AGGREGATED', 0, 'аггрегируемый'),
-               ('CALCULATED', 1, 'вычисляемый'))
+               ('CALCULATED', 1, 'вычисляемый'),
+               ('REWRITABLE', 2, 'перезаписываемый'))
 
 
 def set_applier(container, value):
     container.add(value)
     return container
+
+
+def replace_applier(container, value):
+    return value
 
 
 class ATTRIBUTE(rels_django.DjangoEnum):

@@ -4,8 +4,6 @@ import smart_imports
 smart_imports.all()
 
 
-QUESTS_LOGGER = logging.getLogger('the-tale.game.quests')
-
 WORLD_RESTRICTIONS = [questgen_restrictions.SingleLocationForObject(),
                       questgen_restrictions.ReferencesIntegrity()]
 QUEST_RESTRICTIONS = [questgen_restrictions.SingleStartStateWithNoEnters(),

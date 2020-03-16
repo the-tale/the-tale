@@ -4,9 +4,11 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'statistics funnel'
+
+    LOCKS = ['portal_commands']
 
     def print_funnel(self, year, month, new_users):
         DATE_FROM = datetime.datetime(year, month, 1)
@@ -60,21 +62,21 @@ class Command(django_management.BaseCommand):
         alive_after_5_month = len(alive_after_5_month_ids & new_accounts_ids)
         alive_after_6_month = len(alive_after_6_month_ids & new_accounts_ids)
 
-        print('--------------------------------------')
-        print('from %s to %s' % (DATE_FROM.date(), DATE_TO.date()))
-        print('visitors: %d' % new_users)
-        print('registration tries %d (%.3f from visitors)' % (fast_registrations, float(fast_registrations) / new_users))
-        print('registration completed %d (%.3f from visitors)' % (registrations, float(registrations) / new_users))
-        print('payers %d (%.3f from registrations)' % (payers, float(payers) / registrations))
-        print('alive after week %d (%.3f from registrations)' % (alive_after_week, float(alive_after_week) / registrations))
-        print('alive after 1_month %d (%.3f from registrations)' % (alive_after_1_month, float(alive_after_1_month) / registrations))
-        print('alive after 2 month %d (%.3f from registrations)' % (alive_after_2_month, float(alive_after_2_month) / registrations))
-        print('alive after 3 month %d (%.3f from registrations)' % (alive_after_3_month, float(alive_after_3_month) / registrations))
-        print('alive after 4 month %d (%.4f from registrations)' % (alive_after_4_month, float(alive_after_4_month) / registrations))
-        print('alive after 5 month %d (%.5f from registrations)' % (alive_after_5_month, float(alive_after_5_month) / registrations))
-        print('alive after 6 month %d (%.6f from registrations)' % (alive_after_6_month, float(alive_after_6_month) / registrations))
+        self.logger.info('--------------------------------------')
+        self.logger.info('from %s to %s' % (DATE_FROM.date(), DATE_TO.date()))
+        self.logger.info('visitors: %d' % new_users)
+        self.logger.info('registration tries %d (%.3f from visitors)' % (fast_registrations, float(fast_registrations) / new_users))
+        self.logger.info('registration completed %d (%.3f from visitors)' % (registrations, float(registrations) / new_users))
+        self.logger.info('payers %d (%.3f from registrations)' % (payers, float(payers) / registrations))
+        self.logger.info('alive after week %d (%.3f from registrations)' % (alive_after_week, float(alive_after_week) / registrations))
+        self.logger.info('alive after 1_month %d (%.3f from registrations)' % (alive_after_1_month, float(alive_after_1_month) / registrations))
+        self.logger.info('alive after 2 month %d (%.3f from registrations)' % (alive_after_2_month, float(alive_after_2_month) / registrations))
+        self.logger.info('alive after 3 month %d (%.3f from registrations)' % (alive_after_3_month, float(alive_after_3_month) / registrations))
+        self.logger.info('alive after 4 month %d (%.4f from registrations)' % (alive_after_4_month, float(alive_after_4_month) / registrations))
+        self.logger.info('alive after 5 month %d (%.5f from registrations)' % (alive_after_5_month, float(alive_after_5_month) / registrations))
+        self.logger.info('alive after 6 month %d (%.6f from registrations)' % (alive_after_6_month, float(alive_after_6_month) / registrations))
 
-    def handle(self, *args, **options):
+    def _handle(self, *args, **options):
 
         # FEBRUARY
         # self.print_funnel(2014, 2, 2057)

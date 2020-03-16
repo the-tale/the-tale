@@ -4,17 +4,21 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'run specified workers'
 
+    LOCKS = []
+    SKIP_IF_ALREADY_IN_QUEUE = False
+    LOCK_RUNNING_IN_PARALLEL = False
+
     def add_arguments(self, parser):
-        super(Command, self).add_arguments(parser)
+        super().add_arguments(parser)
         parser.add_argument('-w', '--worker', action='store', type=str, dest='worker', help='worker name')
 
     requires_model_validation = False
 
-    def handle(self, *args, **options):
+    def _handle(self, *args, **options):
 
         worker_name = options['worker']
 
@@ -25,9 +29,9 @@ class Command(django_management.BaseCommand):
         if worker is None:
             raise Exception('Worker {name} has not found'.format(name=worker_name))
 
-        self._handle(worker)
+        self._handle_worker(worker)
 
-    def _handle(self, worker):
+    def _handle_worker(self, worker):
         try:
             signal.signal(signal.SIGTERM, worker.on_sigterm)
 
@@ -46,6 +50,7 @@ class Command(django_management.BaseCommand):
             if worker and worker.logger:
                 worker.logger.error('Infrastructure worker exception: %s' % worker.name,
                                     exc_info=sys.exc_info(),
-                                    extra={} )
+                                    extra={})
+            raise
 
         # TODO: close worker's queues

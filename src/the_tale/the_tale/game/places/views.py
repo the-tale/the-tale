@@ -76,14 +76,13 @@ def show(context):
 
     emissaries = emissaries_logic.load_emissaries_for_place(context.place.id)
 
-    clans = {clan.id: clan
-             for clan in clans_logic.load_clans([emissary.clan_id for emissary in emissaries])}
-
     emissaries_powers = politic_power_logic.get_emissaries_power([emissary.id for emissary in emissaries])
 
     emissaries_logic.sort_for_ui(emissaries, emissaries_powers)
 
     place_distances = storage.places.nearest_places_with_distance(context.place.id)
+
+    clan_region = places_storage.clans_regions.region_for_place(context.place.id)
 
     return utils_views.Page('places/show.html',
                             content={'place': context.place,
@@ -99,7 +98,9 @@ def show(context):
                                      'persons_power_storage': politic_power_storage.persons,
                                      'resource': context.resource,
                                      'emissaries': emissaries,
-                                     'clans': clans,
+                                     'clans_infos': clans_storage.infos,
+                                     'clan_region': clan_region,
                                      'emissaries_powers': emissaries_powers,
                                      'place_distances': place_distances,
-                                     'places_storage': storage.places})
+                                     'places_storage': storage.places,
+                                     'protector_candidates': logic.protector_candidates_for_ui(context.place.id)})

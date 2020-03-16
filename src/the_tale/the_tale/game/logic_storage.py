@@ -141,9 +141,6 @@ class LogicStorage(object):
         number = action.hero.actions.number
         return (action.hero.id, number - 1 if action is action.hero.actions.current_action else number)
 
-    def on_highlevel_data_updated(self):
-        pass
-
     @contextlib.contextmanager
     def on_exception(self, logger, message, data, excluded_bundle_id):
         try:

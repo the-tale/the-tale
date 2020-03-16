@@ -4,13 +4,17 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'create super user'
 
-    def handle(self, *args, **options):
+    LOCKS = ['game_commands', 'portal_commands']
+
+    GAME_MUST_BE_STOPPED = True
+
+    def _handle(self, *args, **options):
         if models.Account.objects.exists():
-            print('some users have created already, superuser MUST be created first')
+            self.logger.info('some users have created already, superuser MUST be created first')
             exit(0)
 
         NICK = 'superuser'
@@ -28,7 +32,7 @@ class Command(django_management.BaseCommand):
 
         models.Account.objects.filter(id=account_id).update(is_superuser=True, is_staff=True)
 
-        print('nick:', NICK)
-        print('email:', EMAIL)
-        print('password:', PASSWORD)
-        print('login to site.url/admin and change password!')
+        self.logger.info(f'nick: {NICK}')
+        self.logger.info(f'email {EMAIL}')
+        self.logger.info(f'password {PASSWORD}')
+        self.logger.info('login to site.url/admin and change password!')

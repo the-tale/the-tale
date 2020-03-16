@@ -231,3 +231,71 @@ class EffectsStorageTest(utils_testcase.TestCase):
                          {effect_3_id})
         self.assertEqual({effect.id for effect in self.storage.effects_for_place(self.places[2].id)},
                          set())
+
+
+class ClansRegionsStorageTests(helpers.PlacesTestsMixin,
+                               utils_testcase.TestCase):
+
+    def setUp(self):
+        tt_services.effects.cmd_debug_clear_service()
+
+        super().setUp()
+
+        self.places = game_logic.create_test_map()
+
+        self.storage = storage.clans_regions
+
+    def test_initialize(self):
+        clans_regions = storage.ClansRegionsStorage()
+
+        self.assertEqual(clans_regions._regions, {})
+
+    def test_recalculate__single_none_region(self):
+        self.assertEqual(self.storage.region_for_place(self.places[0].id),
+                         self.storage.region_for_place(self.places[1].id))
+
+        self.assertEqual(self.storage.region_for_place(self.places[0].id),
+                         self.storage.region_for_place(self.places[2].id))
+
+        self.assertEqual(self.storage.region_for_place(self.places[0].id).places_ids,
+                         {place.id for place in self.places})
+
+    def test_united_regions(self):
+        self.set_protector(self.places[0].id, 1)
+        self.set_protector(self.places[1].id, 2)
+        self.set_protector(self.places[2].id, 2)
+
+        self.assertNotEqual(self.storage.region_for_place(self.places[0].id),
+                            self.storage.region_for_place(self.places[1].id))
+
+        self.assertEqual(self.storage.region_for_place(self.places[1].id),
+                         self.storage.region_for_place(self.places[2].id))
+
+        self.assertEqual(self.storage.region_for_place(self.places[0].id).places_ids,
+                         {self.places[0].id})
+
+        self.assertEqual(self.storage.region_for_place(self.places[1].id).places_ids,
+                         {self.places[1].id, self.places[2].id})
+
+    def test_broken_regions(self):
+        self.set_protector(self.places[0].id, 1)
+        self.set_protector(self.places[1].id, 2)
+        self.set_protector(self.places[2].id, 1)
+
+        self.assertNotEqual(self.storage.region_for_place(self.places[0].id),
+                            self.storage.region_for_place(self.places[1].id))
+
+        self.assertNotEqual(self.storage.region_for_place(self.places[1].id),
+                            self.storage.region_for_place(self.places[2].id))
+
+        self.assertNotEqual(self.storage.region_for_place(self.places[0].id),
+                            self.storage.region_for_place(self.places[2].id))
+
+        self.assertEqual(self.storage.region_for_place(self.places[0].id).places_ids,
+                         {self.places[0].id})
+
+        self.assertEqual(self.storage.region_for_place(self.places[1].id).places_ids,
+                         {self.places[1].id})
+
+        self.assertEqual(self.storage.region_for_place(self.places[2].id).places_ids,
+                         {self.places[2].id})

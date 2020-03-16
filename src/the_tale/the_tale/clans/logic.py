@@ -687,3 +687,8 @@ def is_role_change_get_into_limit(clan_id, old_role, new_role):
         delta += 1
 
     return is_clan_in_fighters_limit(clan_id, delta)
+
+
+def get_members_with_roles(clans_ids, roles):
+    return set(models.Membership.objects.filter(clan_id__in=clans_ids,
+                                                role__in=roles).values_list('account_id', flat=True))

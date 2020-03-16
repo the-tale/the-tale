@@ -5,6 +5,7 @@
 {% import 'clans/macros.html' as clans_macros with context %}
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
 {% import 'emissaries/macros.html' as emissaries_macros with context %}
+{% import 'places/macros.html' as places_macros with context %}
 
 {% block title %} {{ emissary.name }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация об эмиссаре «{{emissary.name}}» гильдии «{{clan.name}}»{% endblock %}
@@ -34,7 +35,15 @@
 
     <tr>
       <th>Город</th>
-      <td><a href="{{url('game:places:show', emissary.place.id)}}">{{emissary.place.name}}</a></td>
+      <td>
+        <a href="{{url('game:places:show', emissary.place.id)}}">
+          {{emissary.place.name}}
+        </a>
+        {% if emissary.place.attrs.clan_protector is not none %}
+        — протекторат гильдии {{clans_macros.clan_link(emissary.place.clan_protector_info())}}
+        {{places_macros.clan_region_badge(emissary.place.clan_region())}}
+        {% endif %}
+      </td>
     </tr>
 
     <tr>
@@ -130,7 +139,23 @@
 
     <tr>
       <th>{{event.concrete_event.TYPE.text}}</th>
-      <td>{{event.concrete_event.event_description(emissary)}}</td>
+      <td>
+        {{event.concrete_event.event_description(emissary)}}
+
+        {% if emissary_clan_rights %}
+        {% set actual_info = event.concrete_event.actual_info(emissary) %}
+        {% set actual_info_help = event.concrete_event.actual_info_help() %}
+
+        {% if actual_info %}
+        </br>
+        <i>{{actual_info}}</i>
+        <i class="icon-info-sign"
+             data-tooltip-placement="right"
+             rel="tooltip"
+             title="{{actual_info_help}}"></i>
+        {% endif %}
+        {% endif %}
+      </td>
       <td>
         <span class="pgf-format-datetime"
               data-timestamp="{{ event.stop_after|timestamp}}"
@@ -196,26 +221,7 @@
             <tr>
               <th>{{event_class.TYPE.text}}</th>
               <td>
-                <span class="label {% if event_class.TYPE.availability.is_FOR_ALL%}label-success{% else %}label-info{%endif %}"
-                      style="cursor: default;"
-                      rel="tooltip"
-                      title="{{event_class.TYPE.availability.description}}">
-                  {{event_class.TYPE.availability.text}}
-                </span>
-
-                &nbsp;
-
-                {% for ability in event_class.TYPE.abilities|sort(attribute="name") %}
-                <span class="label"
-                      style="cursor: default;"
-                      rel="tooltip"
-                      title="Эффективнсоть зависит от способности «{{ability.text}}»">
-                  {{ability.event_name.word.forms[0]}}
-                </span>
-                {% if not loop.last %}
-                &nbsp;
-                {% endif %}
-                {% endfor %}
+                {{emissaries_macros.event_properties(event_class)}}
 
                 <br/>
 

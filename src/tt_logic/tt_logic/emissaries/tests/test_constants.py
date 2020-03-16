@@ -67,7 +67,7 @@ class ConstantsTest(unittest.TestCase):
         self.assertEqual(c.MAX_EXPERIENCE_PER_EVENT, 84)
 
         self.assertEqual(c.MIN_ACTION_POINTS_PER_EVENT, 20)
-        self.assertEqual(c.MAX_ACTION_POINTS_PER_EVENT, 83)
+        self.assertEqual(c.MAX_ACTION_POINTS_PER_EVENT, 62)
 
         self.assertEqual(c.PLACE_LEADERS_NUMBER, 3)
 
@@ -79,3 +79,19 @@ class ConstantsTest(unittest.TestCase):
         self.assertEqual(c.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP, 840)
 
         self.assertEqual(c.TASK_BOARD_PLACES_NUMBER, 10)
+
+        self.assertEqual(len(c.PROTECTORAT_BONUSES), clans_constants.MAXIMUM_EMISSARIES + 1)
+        self.assertEqual(c.PROTECTORAT_BONUSES, [0,
+                                                 0.50,
+                                                 0.75,
+                                                 0.95,
+                                                 1.15,
+                                                 1.35,
+                                                 1.50,
+                                                 1.65,
+                                                 1.80,
+                                                 1.90,
+                                                 2.00])
+
+        self.assertEqual(c.PLACE_EVENT_MIN_EFFECT_POWER, 0.25)
+        self.assertEqual(c.PLACE_EVENT_MAX_EFFECT_POWER, 1.25)

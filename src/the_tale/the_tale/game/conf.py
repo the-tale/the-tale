@@ -10,7 +10,6 @@ APP_DIR = os.path.abspath(os.path.dirname(__file__))
 settings = utils_app_settings.app_settings('GAME',
                                            TURN_DELAY=c.TURN_DELTA,
 
-                                           ENABLE_WORKER_HIGHLEVEL=True,
                                            ENABLE_WORKER_TURNS_LOOP=True,
                                            ENABLE_WORKER_LONG_COMMANDS=True,
                                            ENABLE_PVP=True,
@@ -18,7 +17,6 @@ settings = utils_app_settings.app_settings('GAME',
                                            ENABLE_DATA_REFRESH=True,
 
                                            PROCESS_TURN_WAIT_LOGIC_TIMEOUT=5 * 60,
-                                           PROCESS_TURN_WAIT_HIGHLEVEL_TIMEOUT=10 * 60,
 
                                            STOP_WAIT_TIMEOUT=20 * 60,
 

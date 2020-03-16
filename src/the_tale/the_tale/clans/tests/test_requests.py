@@ -211,7 +211,6 @@ class TestShowRequests(BaseTestRequests):
                                   ('pgf-experience-dummy', 1)])
 
 
-
 class TestChronicleRequests(BaseTestRequests):
 
     def setUp(self):

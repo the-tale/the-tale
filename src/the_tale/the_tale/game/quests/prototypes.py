@@ -4,9 +4,6 @@ import smart_imports
 smart_imports.all()
 
 
-logger = logging.getLogger('the-tale.quests')
-
-
 E = 0.001
 
 
@@ -418,17 +415,17 @@ class QuestPrototype(object):
         else:
             real_break_at = (percents - nearest_percents) / (1 - nearest_percents)
 
-        log_data = {'hero_id': self.hero.id,
-                    'percents': percents,
-                    'nearest_percents': nearest_percents,
-                    'hero_coordinates': (self.hero.position.x, self.hero.position.y),
-                    'path_coordinates': (x, y),
-                    'place_from': place_from.id,
-                    'place_to': place_to.id,
-                    'path_to': path_to.serialize(),
-                    'real_break_at': real_break_at}
+        # log_data = {'hero_id': self.hero.id,
+        #             'percents': percents,
+        #             'nearest_percents': nearest_percents,
+        #             'hero_coordinates': (self.hero.position.x, self.hero.position.y),
+        #             'path_coordinates': (x, y),
+        #             'place_from': place_from.id,
+        #             'place_to': place_to.id,
+        #             'path_to': path_to.serialize(),
+        #             'real_break_at': real_break_at}
 
-        logger.info('_move_hero_on_road for hero %s, properties: %s', self.hero.id, log_data)
+        # logger.info('_move_hero_on_road for hero %s, properties: %s', self.hero.id, log_data)
 
         actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
                                                             path=path_to,

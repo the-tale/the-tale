@@ -40,7 +40,7 @@ def save_emissary(emissary, new=False):
     storage.emissaries.update_version()
 
     if not emissary.state.is_IN_GAME:
-        storage.emissaries.refresh()
+        storage.emissaries.remove_item(emissary.id)
 
 
 def create_emissary(initiator, clan, place_id, gender, race, utg_name):
@@ -177,7 +177,7 @@ def dismiss_emissary(emissary_id):
     message = linguistics_logic.technical_render('Эмиссар [emissary] [покинул|emissary] гильдию',
                                                  {'emissary': emissary.utg_name_form})
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_DISSMISSED,
                                               tags=[emissary.meta_object().tag,
                                                     emissary.place.meta_object().tag],
@@ -192,7 +192,7 @@ def kill_emissary(emissary_id):
     message = linguistics_logic.technical_render('Эмиссар [emissary] [убит|emissary]',
                                                  {'emissary': emissary.utg_name_form})
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_KILLED,
                                               tags=[emissary.meta_object().tag],
                                               message=message)
@@ -216,7 +216,7 @@ def damage_emissary(emissary_id):
     message = linguistics_logic.technical_render('На эмиссара [emissary|вн] совершено покушение',
                                                  {'emissary': emissary.utg_name_form})
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_DAMAGED,
                                               tags=[emissary.meta_object().tag],
                                               message=message)
@@ -280,7 +280,7 @@ def move_emissary(emissary_id, new_place_id):
                                                   'old_place': old_place.utg_name_form,
                                                   'new_place': new_place.utg_name_form})
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_MOVED,
                                               tags=[emissary.meta_object().tag,
                                                     old_place.meta_object().tag,
@@ -309,7 +309,7 @@ def rename_emissary(emissary_id, new_name):
                                                  {'old_name': utg_words.WordForm(old_name),
                                                   'new_name': utg_words.WordForm(new_name)})
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_RENAMED,
                                               tags=[emissary.meta_object().tag,
                                                     emissary.place.meta_object().tag],
@@ -458,7 +458,7 @@ def save_event(event, new=False):
     storage.events.update_version()
 
     if not event.state.is_RUNNING:
-        storage.events.refresh()
+        storage.events.remove_item(event.id)
 
 
 def create_event(initiator, emissary, concrete_event, days):
@@ -544,7 +544,7 @@ def cancel_event(initiator, event):
                              emissary=event.emissary.utg_name.forms[1],
                              event=event.concrete_event.TYPE.text)
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(event.emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[event.emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_EVENT_CANCELED,
                                               tags=[event.emissary.meta_object().tag,
                                                     event.emissary.place.meta_object().tag,
@@ -566,7 +566,7 @@ def finish_event(event, with_error=False):
     message = message.format(emissary=emissary.utg_name.forms[1],
                              event=event.concrete_event.TYPE.text)
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_EVENT_FINISHED,
                                               tags=[emissary.meta_object().tag,
                                                     emissary.place.meta_object().tag,
@@ -583,7 +583,7 @@ def stop_event_due_emissary_left_game(event):
                                                  {'emissary': event.emissary.utg_name_form,
                                                   'event': lexicon_dictionary.text(event.concrete_event.TYPE.text)})
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(event.emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[event.emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_EVENT_FINISHED,
                                               tags=[event.emissary.meta_object().tag,
                                                     event.emissary.place.meta_object().tag,
@@ -600,7 +600,7 @@ def stop_event_due_emissary_relocated(event):
                                                  {'emissary': event.emissary.utg_name_form,
                                                   'event': lexicon_dictionary.text(event.concrete_event.TYPE.text)})
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(event.emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[event.emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_EVENT_FINISHED,
                                               tags=[event.emissary.meta_object().tag,
                                                     event.emissary.place.meta_object().tag,
@@ -633,7 +633,6 @@ def do_event_step(event_id):
 
         if event.stop_after_steps <= event.steps_processed:
             success = event.concrete_event.on_finish(event)
-
             finish_event(event, with_error=not success)
 
     return True
@@ -750,3 +749,41 @@ def cancel_events_except_one(event, cancel_event_callback):
             continue
 
         cancel_event_callback(emissary_event)
+
+
+def notify_clans(place_id, message, roles, exclude_clans_ids):
+    clans_to_notify = {emissary.clan_id
+                       for emissary in storage.emissaries.emissaries_in_place(place_id)
+                       if emissary.state.is_IN_GAME and emissary.clan_id not in exclude_clans_ids}
+
+    accounts_to_notify = clans_logic.get_members_with_roles(clans_ids=clans_to_notify,
+                                                            roles=roles)
+
+    personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+                                         recipients_ids=accounts_to_notify,
+                                         body=message)
+
+
+def send_event_success_message(event, account, suffix):
+    emissaries_with_event = []
+
+    for event_candiate in storage.events.clan_events(event.emissary.clan_id):
+        if event_candiate.concrete_event.TYPE != event.concrete_event.TYPE:
+            continue
+
+        emissaries_with_event.append(event_candiate.emissary)
+
+    url_template = '[url="{}"]{}[/url]'
+
+    emissaries_text = ', '.join(url_template.format(utils_urls.full_url('https', 'game:emissaries:show', emissary.id),
+                                                    emissary.utg_name.forms[1])
+                                for emissary in emissaries_with_event)
+
+    if len(emissaries_with_event) == 1:
+        message = f'Благодаря усилиям эмиссара {emissaries_text} {suffix}'
+    else:
+        message = f'Благодаря усилиям эмиссаров {emissaries_text} {suffix}'
+
+    personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+                                         recipients_ids=[account.id],
+                                         body=message)

@@ -3,12 +3,16 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'add new places, described in CODE'
 
+    LOCKS = ['game_commands']
+
+    GAME_MUST_BE_STOPPED = True
+
     @django_transaction.atomic
-    def handle(self, *args, **options):
+    def _handle(self, *args, **options):
 
         place = places_logic.create_place(x=29,
                                           y=6,

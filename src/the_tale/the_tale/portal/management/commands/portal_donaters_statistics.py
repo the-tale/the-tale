@@ -124,24 +124,26 @@ def linguistics_no_words(ids):
 
 
 def clans_clanleads(ids):
-    return clans_models.Membership.objects.filter(account_id__in=ids, role=clans_relations.MEMBER_ROLE.LEADER).count()
+    return clans_models.Membership.objects.filter(account_id__in=ids, role=clans_relations.MEMBER_ROLE.MASTER).count()
 
 
 def clans_members(ids):
-    return clans_models.Membership.objects.filter(account_id__in=ids, role=clans_relations.MEMBER_ROLE.MEMBER).count()
+    return clans_models.Membership.objects.filter(account_id__in=ids).exclude(role=clans_relations.MEMBER_ROLE.MASTER).count()
 
 
 def clans_not_members(ids):
     return len(ids - set(clans_models.Membership.objects.filter(account_id__in=ids).values_list('account_id', flat=True)))
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'statistics of benefits from different user kinds in relation to donate types '
 
+    LOCKS = ['portal_commands']
+
     requires_model_validation = False
 
-    def handle(self, *args, **options):
+    def _handle(self, *args, **options):
 
         all_accounts_ids = set(accounts_models.Account.objects.filter(is_fast=False).values_list('id', flat=True))
         donaters_ids = set(bank_models.Invoice.objects.filter(django_models.Q(state=bank_relations.INVOICE_STATE.CONFIRMED) | django_models.Q(state=bank_relations.INVOICE_STATE.FORCED),
@@ -194,8 +196,8 @@ class Command(django_management.BaseCommand):
                       ('гильдии: не в гильдии', clans_not_members, 'от всех', accounts_count)]
 
         for processor_name, processor, compare_name, comparator in processors:
-            print()
-            print('----- %s -----' % processor_name)
+            self.logger.info('')
+            self.logger.info('----- %s -----' % processor_name)
             total = None
             for set_name, set_ids in accounts_sets:
                 value = processor(set_ids)
@@ -204,8 +206,8 @@ class Command(django_management.BaseCommand):
 
                 if comparator is None:
                     message = '{:<30} {:>8} {:>8}%'
-                    print(message.format(set_name, value, str(round(100 * float(value) / total, 2)).zfill(5)))
+                    self.logger.info(message.format(set_name, value, str(round(100 * float(value) / total, 2)).zfill(5)))
                 else:
                     message = '{:<30} {:>8} {:>8}% {:>10} {}%'
                     compare_to_value = comparator(set_ids)
-                    print(message.format(set_name, value, str(round(100 * float(value) / total, 2)).zfill(5), compare_name, round(100 * float(value) / compare_to_value, 2),))
+                    self.logger.info(message.format(set_name, value, str(round(100 * float(value) / total, 2)).zfill(5), compare_name, round(100 * float(value) / compare_to_value, 2),))

@@ -76,7 +76,16 @@ class Client(client.Client):
                       delta=data.get('delta'),
                       info=data.get('info'))
 
-    def cmd_register(self, effect):
+    def cmd_remove_effects(self, entity, attribute):
+        for existed_effect in self.cmd_list():
+            if (existed_effect.attribute == attribute and
+                existed_effect.entity == entity):
+                self.cmd_remove(existed_effect.id)
+
+    def cmd_register(self, effect, unique=False):
+        if unique:
+            self.cmd_remove_effects(entity=effect.entity, attribute=effect.attribute)
+
         answer = operations.sync_request(url=self.url('register'),
                                          data=tt_protocol_effects_pb2.RegisterRequest(effect=self.protobuf_from_effect(effect)),
                                          AnswerType=tt_protocol_effects_pb2.RegisterResponse)

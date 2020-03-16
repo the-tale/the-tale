@@ -39,7 +39,6 @@ class Worker(utils_workers.BaseWorker):
     def cmd_next_turn(self, turn_number):
         return self.send_cmd('next_turn', data={'turn_number': turn_number})
 
-    # @profile.profile_decorator('/home/the-tale/profile.info')
     def process_next_turn(self, turn_number):
 
         self.turn_number += 1
@@ -193,12 +192,6 @@ class Worker(utils_workers.BaseWorker):
                                       actual_bills=actual_bills,
                                       clan_id=clan_id)
         self.storage.save_bundle_data(hero.actions.current_action.bundle_id)
-
-    def cmd_highlevel_data_updated(self):
-        self.send_cmd('highlevel_data_updated')
-
-    def process_highlevel_data_updated(self):
-        self.storage.on_highlevel_data_updated()
 
     def cmd_setup_quest(self, account_id, knowledge_base):
         return self.send_cmd('setup_quest', {'account_id': account_id,

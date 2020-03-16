@@ -5,7 +5,13 @@ import smart_imports
 smart_imports.all()
 
 
-class Clan:
+class MetaObjectMixin:
+
+    def meta_object(self):
+        return meta_relations.Clan.create_from_object(self)
+
+
+class Clan(MetaObjectMixin):
     __slots__ = ('id',
                  'created_at',
                  'updated_at',
@@ -57,9 +63,6 @@ class Clan:
     @property
     def description_html(self):
         return bbcode_renderers.default.render(self.description)
-
-    def meta_object(self):
-        return meta_relations.Clan.create_from_object(self)
 
 
 class Membership:
@@ -254,7 +257,7 @@ class Attributes:
                               tt_clans_constants.POINTS_GAIN_INCREMENT_ON_LEVEL_UP) / 24))
 
 
-class ClanInfo:
+class ClanInfo(MetaObjectMixin):
     __slots__ = ('id', 'name', 'linguistics_name', 'abbr', 'motto', '_utg_name_form__lazy')
 
     def __init__(self, id, name, linguistics_name, abbr, motto):

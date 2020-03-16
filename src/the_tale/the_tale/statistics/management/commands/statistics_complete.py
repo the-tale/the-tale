@@ -154,17 +154,19 @@ METRICS = [
 ]
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'complete statistics'
 
+    LOCKS = ['portal_commands']
+
     def add_arguments(self, parser):
-        super(Command, self).add_arguments(parser)
+        super().add_arguments(parser)
         parser.add_argument('-f', '--force-clear', action='store_true', dest='force-clear', help='force clear all metrics')
         parser.add_argument('-l', '--log', action='store_true', dest='verbose', help='print log')
         parser.add_argument('-r', '--recalculate-last', action='store_true', dest='recalculate-last', help='recalculate last day')
 
-    def handle(self, *args, **options):
+    def _handle(self, *args, **options):
 
         force_clear = options.get('force-clear')
         verbose = options.get('verbose')
@@ -178,13 +180,13 @@ class Command(django_management.BaseCommand):
         for MetricClass in METRICS:
             if force_clear or MetricClass.FULL_CLEAR_RECUIRED:
                 if verbose:
-                    print('clear %s' % MetricClass.TYPE)
+                    self.logger.info('clear %s' % MetricClass.TYPE)
                 MetricClass.clear()
 
         for i, MetricClass in enumerate(METRICS):
             metric = MetricClass()
             if verbose:
-                print('[%3d] calculate %s' % (i, metric.TYPE))
+                self.logger.info('[%3d] calculate %s' % (i, metric.TYPE))
 
             metric.initialize()
             metric.complete_values()

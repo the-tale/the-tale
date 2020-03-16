@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-logger = logging.getLogger('the-tale.linguistics')
+logger = logging.getLogger(__name__)
 
 
 def get_templates_count():

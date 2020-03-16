@@ -4,11 +4,13 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'generate javascript files'
 
-    def handle(self, *args, **options):
+    LOCKS = ['portal_commands']
+
+    def _handle(self, *args, **options):
 
         LINGUISTICS_FORMATTERS = {key.value: linguistics_logic.ui_format(key.ui_text)
                                   for key in lexicon_keys.LEXICON_KEY.records

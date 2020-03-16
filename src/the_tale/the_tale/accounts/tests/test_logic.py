@@ -23,7 +23,7 @@ class TestLogic(utils_testcase.TestCase):
         self.assertEqual(models.Account.objects.all().count(), 2)
         self.assertEqual(heroes_models.Hero.objects.all().count(), 2)
 
-        logic.block_expired_accounts(logger=logging.getLogger('dummy'))
+        logic.block_expired_accounts(logger=mock.Mock())
 
         self.assertEqual(achievements_models.AccountAchievements.objects.all().count(), 1)
         self.assertEqual(heroes_models.Hero.objects.all().count(), 1)

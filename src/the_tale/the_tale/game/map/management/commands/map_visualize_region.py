@@ -23,18 +23,20 @@ def draw_sprite(image, texture, sprite_info, x, y, rotate=0, base=False):
     image.paste(sprite, (x * conf.settings.CELL_SIZE, y * conf.settings.CELL_SIZE), sprite)
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'visualize map with region data'
+
+    LOCKS = ['game_commands']
 
     requires_model_validation = False
 
     def add_arguments(self, parser):
-        super(Command, self).add_arguments(parser)
+        super().add_arguments(parser)
         parser.add_argument('-r', '--region', action='store', type=str, dest='region', help='region file name')
         parser.add_argument('-o', '--output', action='store', type=str, dest='output', help='output file')
 
-    def handle(self, *args, **options):
+    def _handle(self, *args, **options):
 
         region = options['region']
         if not region:
@@ -50,7 +52,7 @@ class Command(django_management.BaseCommand):
         format_version = data.get('format_version')
 
         if format_version is None:
-            utils_logic.run_django_command(['map_visualize_old_region', '-r', region, '-o', output])
+            utils_logic.run_django_command(['map_visualize_old_region', '--ignore-lock', 'game_commands', '-r', region, '-o', output])
             return
 
         draw_info = data['draw_info']

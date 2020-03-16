@@ -4,16 +4,18 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'recalculate ratings'
 
-    def handle(self, *args, **options):
+    LOCKS = ['portal_commands']
 
-        print('recalculate values')
+    def _handle(self, *args, **options):
+
+        self.logger.info('recalculate values')
 
         prototypes.RatingValuesPrototype.recalculate()
 
-        print('recalculate places')
+        self.logger.info('recalculate places')
 
         prototypes.RatingPlacesPrototype.recalculate()

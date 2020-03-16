@@ -577,3 +577,54 @@ class BuildingTests(utils_testcase.TestCase):
         logic.destroy_building(building)
         self.assertNotEqual(old_version, storage.buildings.version)
         self.assertFalse(building.id in storage.buildings)
+
+
+class ClanRegionTests(helpers.PlacesTestsMixin,
+                      utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.places = game_logic.create_test_map()
+
+        self.region = objects.ClanRegion(clan_id=666)
+
+    def test_initialization(self):
+        self.assertEqual(self.region.clan_id, 666)
+        self.assertEqual(self.region.places_ids, set())
+
+    def test_add_place(self):
+        self.region.add_place(1)
+        self.region.add_place(2)
+        self.region.add_place(1)
+        self.region.add_place(3)
+
+        self.assertEqual(self.region.places_ids, {1, 2, 3})
+
+    def test_size(self):
+        self.assertEqual(self.region.size(), 0)
+
+        self.region.add_place(1)
+        self.region.add_place(2)
+
+        self.assertEqual(self.region.size(), 2)
+
+    def test_merge(self):
+        self.region.add_place(1)
+        self.region.add_place(2)
+        self.region.add_place(3)
+
+        region_2 = objects.ClanRegion(clan_id=666)
+        region_2.add_place(4)
+        region_2.add_place(2)
+
+        self.region.merge(region_2)
+
+        self.assertEqual(self.region.places_ids, {1, 2, 3, 4})
+        self.assertEqual(region_2.places_ids, {2, 4})
+
+    def test_merge__different_clans(self):
+        region_2 = objects.ClanRegion(clan_id=777)
+
+        with self.assertRaises(ValueError):
+            self.region.merge(region_2)

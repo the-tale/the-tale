@@ -87,10 +87,14 @@ def cell_info(context):
         hero = heroes_logic.load_hero(account_id=context.account.id)
 
     emissaries = None
-    clans = None
     emissaries_powers = {}
 
+    clan_region = None
+    protector_candidates = None
+
     if place:
+        clan_region = places_storage.clans_regions.region_for_place(place.id)
+
         place_inner_circle = politic_power_logic.get_inner_circle(place_id=place.id)
         persons_inner_circles = {person.id: politic_power_logic.get_inner_circle(person_id=person.id)
                                  for person in place.persons}
@@ -103,11 +107,11 @@ def cell_info(context):
         emissaries = emissaries_logic.load_emissaries_for_place(place.id)
         emissaries = [emissary for emissary in emissaries if emissary.state.is_IN_GAME]
 
-        clans = {clan.id: clan for clan in clans_logic.load_clans([emissary.clan_id for emissary in emissaries])}
-
         emissaries_powers = politic_power_logic.get_emissaries_power([emissary.id for emissary in emissaries])
 
         emissaries_logic.sort_for_ui(emissaries, emissaries_powers)
+
+        protector_candidates = places_logic.protector_candidates_for_ui(place.id)
 
     path_modifier = None
     path_modifier_effects = None
@@ -142,4 +146,6 @@ def cell_info(context):
                                      'path_modifier_effects': path_modifier_effects,
                                      'emissaries': emissaries,
                                      'emissaries_powers': emissaries_powers,
-                                     'clans': clans})
+                                     'clans_infos': clans_storage.infos,
+                                     'clan_region': clan_region,
+                                     'protector_candidates': protector_candidates})

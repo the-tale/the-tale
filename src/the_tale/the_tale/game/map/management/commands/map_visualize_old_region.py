@@ -128,18 +128,20 @@ def get_road_sprite_info(m, x, y):
         return {'name': 'R1', 'rotate': 90}
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'visualize map with region data'
+
+    LOCKS = ['game_commands']
 
     requires_model_validation = False
 
     def add_arguments(self, parser):
-        super(Command, self).add_arguments(parser)
+        super().add_arguments(parser)
         parser.add_argument('-r', '--region', action='store', type=str, dest='region', help='region file name')
         parser.add_argument('-o', '--output', action='store', type=str, dest='output', help='output file')
 
-    def handle(self, *args, **options):
+    def _handle(self, *args, **options):
 
         region = options['region']
         if not region:

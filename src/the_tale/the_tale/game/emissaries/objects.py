@@ -170,6 +170,14 @@ class Emissary(game_names.ManageNameMixin2):
     def can_participate_in_pvp(self):
         return tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP <= self.abilities.total_level()
 
+    def protectorat_event_bonus(self):
+        region = places_storage.clans_regions.region_for_place(self.place_id)
+
+        if region.clan_id != self.clan_id:
+            return 0
+
+        return region.event_bonus()
+
     def ui_info(self):
         clan_info = clans_storage.infos[self.clan_id]
 

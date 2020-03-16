@@ -31,6 +31,11 @@ class EmissariesStorage(utils_storage.CachedStorage):
         self.sync()
         return self._emissaries_by_clan
 
+    def emissaries_in_place(self, place_id):
+        return [emissary
+                for emissary in self.all()
+                if emissary.place_id == place_id]
+
     def get_or_load(self, emissary_id):
         if emissary_id in self:
             return self[emissary_id]

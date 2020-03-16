@@ -155,7 +155,9 @@
                              {"prefix": "ratings_", "module": "the_tale.game.ratings"},
                              {"prefix": "amqp_queues_", "module": "the_tale.common.amqp_queues"},
                              {"prefix": "tt_protocol_", "module": "tt_protocol.protocol"},
-                             {"prefix": "tt_api_", "module": "the_tale.common.tt_api"}]},
+                             {"prefix": "tt_api_", "module": "the_tale.common.tt_api"},
+                             {"prefix": "locks_", "module": "the_tale.common.locks"},
+                             {"prefix": "utilities_", "module": "the_tale.common.utilities"}]},
 
                {"type": "rule_local_modules_from_parent",
                 "suffixes": [".tests",

@@ -99,11 +99,17 @@ class Storage(BaseStorage):
         return self._data[id_]
 
     def add_item(self, id_, item):
-        '''
-        only for add new items, not for any other sort of management
-        '''
         self.sync()
         self._data[id_] = item
+
+    def remove_item(self, id_):
+        self.sync()
+
+        if id_ in self._data:
+            del self._data[id_]
+            return True
+
+        return False
 
     def __contains__(self, id_):
         self.sync()
@@ -153,6 +159,17 @@ class CachedStorage(Storage):
         super(CachedStorage, self).add_item(id_, item)
         self._update_cached_data(item)
 
+    def remove_item(self, id_):
+        if not super().remove_item(id_):
+            return False
+
+        self._reset_cache()
+
+        for item in self.all():
+            self._update_cached_data(item)
+
+        return True
+
     def refresh(self):
         self._reset_cache()
         super(CachedStorage, self).refresh()
@@ -181,6 +198,42 @@ class SingleStorage(BaseStorage):
         self._item = self._construct_zero_item()
         self._version = None
         self._update_version_requested = False
+
+
+class DependentStorage:
+    __slots__ = ('_version', )
+
+    def __init__(self):
+        self.reset_version()
+
+    def reset(self):
+        self.reset_version()
+
+    def reset_version(self):
+        self._version = uuid.uuid4().hex
+
+    def sync(self, force=False):
+
+        if not force and not self.is_changed():
+            return
+
+        self.reset()
+
+        self.recalculate()
+
+        self.actualize_version()
+
+    def actualize_version(self):
+        self._version = self.expected_version()
+
+    def is_changed(self):
+        return self._version != self.expected_version()
+
+    def recalculate(self):
+        raise NotImplementedError
+
+    def expected_version(self):
+        raise NotImplementedError
 
 
 class PrototypeStorage(Storage):

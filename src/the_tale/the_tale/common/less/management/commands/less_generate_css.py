@@ -4,23 +4,26 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'generate css from less sources'
 
-    def handle(self, *args, **options):
+    LOCKS = []
 
-        print('source dir: %s' % django_settings.LESS_FILES_DIR)
-        print('destination dir: %s' % django_settings.LESS_DEST_DIR)
+    def _handle(self, *args, **options):
 
-        print('remove old data')
+        self.logger.info('source dir: %s' % django_settings.LESS_FILES_DIR)
+        self.logger.info('destination dir: %s' % django_settings.LESS_DEST_DIR)
+
+        self.logger.info('remove old data')
+
         if os.path.exists(django_settings.LESS_DEST_DIR):
             shutil.rmtree(django_settings.LESS_DEST_DIR)
 
         if not os.path.exists(django_settings.LESS_DEST_DIR):
             os.mkdir(django_settings.LESS_DEST_DIR)
 
-        print('generate new data')
+        self.logger.info('generate new data')
 
         norm_source_path = os.path.abspath(django_settings.LESS_FILES_DIR)
 
@@ -39,16 +42,18 @@ class Command(django_management.BaseCommand):
                 src_file =  os.path.join(norm_path, filename)
                 dest_file = os.path.join(dest_dir, filename)
 
-                print('process file: %s' % src_file)
+                self.logger.info('process file: %s' % src_file)
 
                 if not src_file.endswith('.less'):
+
                     if src_file.endswith('.css'):
                         shutil.copy(src_file, dest_file)
-                        print('...copy')
-                    print('...skeep')
+                        self.logger.info('...copy')
+
+                    self.logger.info('...skeep')
                     continue
 
-                print('...generate')
+                self.logger.info('...generate')
 
                 dest_file = dest_file[:-5] + '.css'
 
@@ -56,4 +61,4 @@ class Command(django_management.BaseCommand):
                 (out, err) = subprocess.Popen(["lessc", src_file], stdout=f).communicate()
                 f.close()
 
-        print('all files processed')
+        self.logger.info('all files processed')

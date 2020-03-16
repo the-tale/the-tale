@@ -185,6 +185,8 @@ INSTALLED_APPS = [
     'the_tale.common.postponed_tasks',
     'the_tale.common.meta_relations',
     'the_tale.common.bbcode',
+    'the_tale.common.utilities',
+    'the_tale.common.locks',
 
     'the_tale.post_service',
 
@@ -277,6 +279,8 @@ CACHES = {'default': {'BACKEND': 'django_redis.cache.RedisCache',
 
 CACHE_MIDDLEWARE_SECONDS = 24 * 60 * 60
 CACHE_MIDDLEWARE_KEY_PREFIX = ''
+
+MAINTENANCE_FILE = '/var/www/the_tale/maintenance.html'
 
 try:
     from the_tale.settings_local import *  # pylint: disable=W0403,W0401,W0614
@@ -389,7 +393,7 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'the-tale': {
+        'the_tale': {
             'handlers': ['mail_admins', 'console'],
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False

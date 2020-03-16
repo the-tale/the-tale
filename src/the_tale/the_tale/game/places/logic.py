@@ -450,7 +450,7 @@ def register_effect(place_id, attribute, value, name, delta=None, info=None, ref
                                    delta=delta,
                                    info=info)
 
-    effect_id = tt_services.effects.cmd_register(effect)
+    effect_id = tt_services.effects.cmd_register(effect, unique=attribute.type.is_REWRITABLE)
 
     if refresh_effects:
         storage.effects.update_version()
@@ -485,3 +485,81 @@ def remove_effect(effect_id, place_id, refresh_effects=False, refresh_places=Fal
 
 def task_board_places(place):
     return storage.places.nearest_places(place.id, number=tt_emissaries_constants.TASK_BOARD_PLACES_NUMBER)
+
+
+def protector_candidates(place_id):
+    clans_ids = set()
+
+    for emissary in emissaries_storage.emissaries.emissaries_in_place(place_id):
+        for event in emissaries_storage.events.emissary_events(emissary.id):
+            if event.concrete_event.TYPE.is_REVOLUTION:
+                clans_ids.add(emissary.clan_id)
+
+    return clans_ids
+
+
+def protector_candidates_for_ui(place_id):
+    candidates = [clans_storage.infos[clan_id] for clan_id in protector_candidates(place_id)]
+    candidates.sort(key=lambda info: info.name)
+
+    return candidates
+
+
+def remove_protectorat(place, refresh_effects=False, refresh_places=False):
+    clan_id = place.attrs.clan_protector
+
+    if clan_id is None:
+        return
+
+    tt_services.effects.cmd_remove_effects(entity=place.id,
+                                           attribute=relations.ATTRIBUTE.CLAN_PROTECTOR)
+
+    clan_info = clans_storage.infos[clan_id]
+
+    template = 'Последний эмиссар гильдии «[clan]» покинул [place|вн]. Гильдия перестала быть протектором города.'
+    message = linguistics_logic.technical_render(template,
+                                                 {'clan': lexicon_dictionary.text(clan_info.name),
+                                                  'place': place.utg_name_form})
+
+    emissaries_logic.notify_clans(place_id=place.id,
+                                  exclude_clans_ids=(),
+                                  message=message,
+                                  roles=clans_relations.ROLES_TO_NOTIFY)
+
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[clan_id],
+                                              event=clans_relations.EVENT.PROTECTORAT_LOST,
+                                              tags=[place.meta_object().tag],
+                                                    message=f'Потерян протекторат над городом «{place.name}»')
+
+    if refresh_effects:
+        storage.effects.update_version()
+        storage.effects.refresh()
+
+    if refresh_places and place.id is not None:
+        place = places_storage.places[place.id]
+
+        place.refresh_attributes()
+        places_logic.save_place(place)
+
+        places_storage.places.update_version()
+
+
+def sync_protectorat(place):
+    clan_id = place.attrs.clan_protector
+
+    if clan_id is None:
+        return
+
+    emissaries_in_place = emissaries_storage.emissaries.emissaries_in_place(place.id)
+
+    if clan_id in {emissary.clan_id for emissary in emissaries_in_place}:
+        return
+
+    remove_protectorat(place,
+                       refresh_effects=True,
+                       refresh_places=True)
+
+
+def monitor_protectorates():
+    for place in storage.places.all():
+        sync_protectorat(place)

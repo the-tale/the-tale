@@ -4,17 +4,19 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'fill specified account with all available cards whitch are needed to tests'
 
+    LOCKS = ['portal_commands']
+
     def add_arguments(self, parser):
-        super(Command, self).add_arguments(parser)
+        super().add_arguments(parser)
         parser.add_argument('-a', '--account', action='store', type=int, dest='account', help='account identifier')
         parser.add_argument('-n', '--number', action='store', type=int, dest='number', help='number of full generators')
         parser.add_argument('-s', '--storage', action='store', type=int, dest='storage', default=relations.STORAGE.FAST.value, help='storage id')
 
-    def handle(self, *args, **options):
+    def _handle(self, *args, **options):
 
         cards_to_store = []
 

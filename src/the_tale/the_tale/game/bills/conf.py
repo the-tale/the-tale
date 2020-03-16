@@ -14,5 +14,4 @@ settings = utils_app_settings.app_settings('BILLS',
                                            MINIMUM_BILL_OWNER_AGE=2,  # IN DAYS
                                            FORUM_CATEGORY_UID='bills',
                                            BILLS_ON_PAGE=10,
-                                           BILLS_PROCESS_INTERVAL=60,
                                            PLACES__TO_ACCESS_VOTING=10)

@@ -1,5 +1,6 @@
 {% extends "guide/base.html" %}
 {% import 'guide/macros.html' as guide_macros with context %}
+{% import 'emissaries/macros.html' as emissaries_macros with context %}
 
 {% block title %}Эмиссары гильдий | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Об эмиссарах гильдий.{% endblock %}
@@ -121,12 +122,40 @@
   <li>Увеличиваются спобности эмиссара, от которых зависит мероприятие (обычно на {{tt_emissaries_constants.ATTRIBUT_INCREMENT_DELTA}}).</li>
 </ul>
 
+<p>
+  Некоторые мероприятия усиливают свою эффективность или получают дополнительные эффекты, если проходят в городе — <a href="{{url('guide:clans')}}">протекторате</a> гильдии. Такие мероприятия отмечены специальной меткой.
+</p>
+
+<p>
+  В зависимости от размера протектората, мероприятия получают следующие бонусы к силе эффектов:
+</p>
+
+
+<table class="table table-condensed">
+  <thead>
+    <th width="150px">количество городов</th>
+    <th>бонус</th>
+  </thead>
+  <tbody>
+    {% for bonus in tt_emissaries_constants.PROTECTORAT_BONUSES[1:] %}
+    <tr>
+      <th>{{loop.index}}</th>
+      <td>{{bonus|percents(2)}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p>
+  У мероприятий с ограниченным количеством срабатываний, протекторат увеличивает количество срабатываний.
+</p>
+
 <h4>Список мероприятий</h4>
 
 <table class="table table-condensed">
   <thead>
     <th width="200px">название</th>
-    <th>описание (максимальный эффект)</th>
+    <th>описание (максимальный эффект без протектората)</th>
   </thead>
   <tbody>
     {% for event in value("the_tale.game.emissaries.relations").EVENT_TYPE.records|sort(attribute="text") %}
@@ -135,7 +164,11 @@
 
     <tr>
       <th>{{event.text}}</th>
-      <td>{{event_class.effect_description(emissary=None, raw_ability_power=tt_emissaries_constants.MAXIMUM_ATTRIBUTE_MAXIMUM)}}</td>
+      <td>
+        {{emissaries_macros.event_properties(event_class)}}
+        <br/>
+        {{event_class.effect_description(emissary=None, raw_ability_power=tt_emissaries_constants.MAXIMUM_ATTRIBUTE_MAXIMUM)}}
+      </td>
     </tr>
     {% endfor %}
   </tbody>

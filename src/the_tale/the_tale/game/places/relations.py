@@ -141,7 +141,11 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
 
                attributes.attr('TAX_SIZE_BORDER', 44, 'поддерживаемый размер', default=lambda: 1,
                                type=attributes.ATTRIBUTE_TYPE.CALCULATED,
-                               description=f'Если есть риск уменьшения размера города ниже этого значения, город автоматически введёт пошлину, чтобы компенсировать недостаток производства. В городах размером больше 1, пошлина может компенсировать не более {c.MAX_PRODUCTION_FROM_TAX} производства.'),)
+                               description=f'Если есть риск уменьшения размера города ниже этого значения, город автоматически введёт пошлину, чтобы компенсировать недостаток производства. В городах размером больше 1, пошлина может компенсировать не более {c.MAX_PRODUCTION_FROM_TAX} производства.'),
+
+               attributes.attr('CLAN_PROTECTOR', 45, 'гильдия-протектор', default=lambda: None,
+                               apply=game_attributes.replace_applier, type=game_attributes.ATTRIBUTE_TYPE.REWRITABLE,
+                               description='Гильдия, протекторатом которого является город. Мероприятяи эмиссаров гильдии-протектора, проводимые в городе, получают дополнительные и/или усиленные эффекты.'))
 
 
 ATTRIBUTE.EFFECTS_ORDER = sorted(set(record.order for record in ATTRIBUTE.records))

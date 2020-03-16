@@ -226,3 +226,147 @@ class FormGameInfoTests(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
         self.assertFalse('pvp__last_turn' in data['enemy']['hero']['action']['data']['pvp'])
 
         self.assertEqual(data['enemy']['energy'], None)
+
+
+class HighlevelStepTests(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.places = logic.create_test_map()
+
+    def test_places_methods_called(self):
+        # all that methods tested in places package
+        set_power_economic = mock.Mock()
+        sync_size = mock.Mock()
+        sync_habits = mock.Mock()
+        refresh_attributes = mock.Mock()
+        mark_as_updated = mock.Mock()
+        set_area = mock.Mock()
+        sync_race = mock.Mock()
+        update_heroes_habits = mock.Mock()
+
+        with mock.patch('the_tale.game.places.attributes.Attributes.set_power_economic', set_power_economic), \
+                mock.patch('the_tale.game.places.attributes.Attributes.sync_size', sync_size), \
+                mock.patch('the_tale.game.places.attributes.Attributes.set_area', set_area), \
+                mock.patch('the_tale.game.places.objects.Place.sync_habits', sync_habits), \
+                mock.patch('the_tale.game.places.objects.Place.sync_race', sync_race), \
+                mock.patch('the_tale.game.places.objects.Place.refresh_attributes', refresh_attributes), \
+                mock.patch('the_tale.game.places.objects.Place.update_heroes_habits', update_heroes_habits), \
+                mock.patch('the_tale.game.places.objects.Place.mark_as_updated', mark_as_updated):
+            logic.highlevel_step(logger=mock.Mock())
+
+        places_number = len(places_storage.places.all())
+
+        for method in (set_power_economic,
+                       sync_size,
+                       sync_habits,
+                       refresh_attributes,
+                       mark_as_updated,
+                       set_area,
+                       sync_race,
+                       update_heroes_habits):
+            self.assertEqual(method.call_count, places_number)
+
+    def give_power_to_person(self, person, power, fame):
+        impacts = persons_logic.tt_power_impacts(person_inner_circle=False,
+                                                 place_inner_circle=False,
+                                                 actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                 actor_id=666,
+                                                 person=person,
+                                                 amount=power,
+                                                 fame=fame)
+
+        politic_power_logic.add_power_impacts(impacts)
+
+    def give_power_to_place(self, place, power, fame):
+        impacts = places_logic.tt_power_impacts(inner_circle=False,
+                                                actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                actor_id=666,
+                                                place=place,
+                                                amount=power,
+                                                fame=fame)
+        politic_power_logic.add_power_impacts(impacts)
+
+    @mock.patch('the_tale.game.persons.attributes.Attributes.places_help_amount', 1)
+    @mock.patch('the_tale.game.places.attributes.Attributes.freedom', 1)
+    @mock.patch('the_tale.game.balance.constants.PLACE_POWER_REDUCE_FRACTION', 0.9)
+    @mock.patch('the_tale.game.places.objects.Place.refresh_attributes', mock.Mock())
+    def test_sync_data(self):
+        game_tt_services.debug_clear_service()
+
+        self.assertEqual(politic_power_storage.places.outer_power(self.places[0].id), 0)
+        self.assertEqual(politic_power_storage.places.inner_power(self.places[0].id), 0)
+        self.assertEqual(politic_power_storage.places.outer_power(self.places[1].id), 0)
+        self.assertEqual(politic_power_storage.places.inner_power(self.places[1].id), 0)
+        self.assertEqual(politic_power_storage.places.outer_power(self.places[2].id), 0)
+        self.assertEqual(politic_power_storage.places.inner_power(self.places[2].id), 0)
+
+        self.assertEqual(persons_models.Person.objects.filter(place_id=self.places[0].id).count(), 3)
+        self.assertEqual(persons_models.Person.objects.filter(place_id=self.places[1].id).count(), 3)
+        self.assertEqual(persons_models.Person.objects.filter(place_id=self.places[2].id).count(), 3)
+        self.assertEqual(len(persons_storage.persons.all()), 9)
+
+        popularity = places_logic.get_hero_popularity(666)
+
+        self.assertEqual(popularity.get_fame(self.places[0].id), 0)
+        self.assertEqual(popularity.get_fame(self.places[1].id), 0)
+        self.assertEqual(popularity.get_fame(self.places[2].id), 0)
+
+        person_1_1 = self.places[0].persons[0]
+        person_2_1, person_2_2 = self.places[1].persons[0:2]
+        person_3_1, person_3_2 = self.places[2].persons[0:2]
+
+        self.give_power_to_person(person=person_1_1, power=1, fame=2)
+        self.give_power_to_person(person=person_2_1, power=100, fame=200)
+        self.give_power_to_person(person=person_2_2, power=1000, fame=2000)
+        self.give_power_to_person(person=person_3_1, power=10000, fame=20000)
+        self.give_power_to_person(person=person_3_2, power=100000, fame=200000)
+
+        with self.check_changed(lambda: persons_storage.persons._version):
+            with self.check_changed(lambda: places_storage.places._version):
+                logic.highlevel_step(logger=mock.Mock())
+
+        self.assertTrue(self.places[0]._modifier.is_NONE)
+
+        game_turn.increment()
+
+        self.assertEqual(politic_power_storage.persons.outer_power(person_1_1.id), 0)
+        self.assertEqual(politic_power_storage.persons.outer_power(person_2_1.id), 90)
+        self.assertEqual(politic_power_storage.persons.outer_power(person_2_2.id), 900)
+        self.assertEqual(politic_power_storage.persons.outer_power(person_3_1.id), 9000)
+        self.assertEqual(politic_power_storage.persons.outer_power(person_3_2.id), 90000)
+
+        self.assertEqual(politic_power_storage.places.outer_power(self.places[0].id), 0)
+        self.assertEqual(politic_power_storage.places.outer_power(self.places[1].id), 990)
+        self.assertEqual(politic_power_storage.places.outer_power(self.places[2].id), 99000)
+
+        popularity = places_logic.get_hero_popularity(666)
+
+        self.assertEqual(popularity.get_fame(self.places[0].id), 1)
+        self.assertEqual(popularity.get_fame(self.places[1].id), 2189)
+        self.assertEqual(popularity.get_fame(self.places[2].id), 218997)
+
+        self.give_power_to_place(place=self.places[0], power=-10, fame=-20)
+        self.give_power_to_place(place=self.places[1], power=-1, fame=-2)
+        self.give_power_to_place(place=self.places[1], power=+10000000, fame=20000000)
+        self.give_power_to_place(place=self.places[2], power=-2, fame=-40)
+        self.give_power_to_place(place=self.places[2], power=+20, fame=40)
+
+        with self.check_changed(lambda: persons_storage.persons._version):
+            with self.check_changed(lambda: places_storage.places._version):
+                logic.highlevel_step(logger=mock.Mock())
+
+        self.places = [places_storage.places[self.places[0].id],
+                       places_storage.places[self.places[1].id],
+                       places_storage.places[self.places[2].id]]
+
+        self.assertEqual(politic_power_storage.places.outer_power(self.places[0].id), -9)
+        self.assertEqual(politic_power_storage.places.outer_power(self.places[1].id), 9000890)
+        self.assertEqual(politic_power_storage.places.outer_power(self.places[2].id), 89116)
+
+        popularity = places_logic.get_hero_popularity(666)
+
+        self.assertEqual(popularity.get_fame(self.places[0].id), 0)
+        self.assertEqual(popularity.get_fame(self.places[1].id), 19911015)
+        self.assertEqual(popularity.get_fame(self.places[2].id), 218038)

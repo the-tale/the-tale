@@ -167,13 +167,8 @@ class CellInfo:
                                                       expected_battle_complexity=expected_battle_complexity)
 
 
-class CellsStorage:
-    __slots__ = ('_places_version',
-                 '_buildings_version',
-                 '_roads_version',
-                 '_map_info_version',
-
-                 '_map',
+class CellsStorage(utils_storage.DependentStorage):
+    __slots__ = ('_map',
 
                  '_places_terrains',
                  '_places_area',
@@ -182,11 +177,6 @@ class CellsStorage:
                  '_navigators')
 
     def __init__(self):
-        self._places_version = None
-        self._buildings_version = None
-        self._roads_version = None
-        self._map_info_version = None
-
         self._map = []
         self._places_terrains = {}
         self._places_area = {}
@@ -198,23 +188,13 @@ class CellsStorage:
         for y in range(map_conf.settings.HEIGHT):
             self._map.append([CellInfo() for x in range(map_conf.settings.WIDTH)])
 
-    def is_changed(self):
-        return (places_storage.places.version != self._places_version or
-                places_storage.buildings.version != self._buildings_version or
-                roads_storage.roads.version != self._roads_version or
-                map_info.version != self._map_info_version)
+        super().__init__()
 
-    def actualize_versions(self):
-        self._places_version = places_storage.places.version
-        self._buildings_version = places_storage.buildings.version
-        self._roads_version = roads_storage.roads.version
-        self._map_info_version = map_info.version
-
-    def reset_versions(self):
-        self._places_version = None
-        self._buildings_version = None
-        self._roads_version = None
-        self._map_info_version = None
+    def expected_version(self):
+        return (places_storage.places.version,
+                places_storage.buildings.version,
+                roads_storage.roads.version,
+                map_info.version)
 
     def _cells_iterator(self):
         for y in range(map_conf.settings.HEIGHT):
@@ -241,13 +221,7 @@ class CellsStorage:
         self.sync()
         return self._places_cells[place_id]
 
-    def sync(self, force=False):
-
-        if not force and not self.is_changed():
-            return
-
-        self.reset()
-
+    def recalculate(self):
         nearest_cells.update(self._map)
 
         self.sync_terrain()
@@ -261,12 +235,10 @@ class CellsStorage:
                                                            expected_battle_complexity=risk_level.expected_battle_complexity)
             self._navigators[risk_level].sync(travel_cost)
 
-        self.actualize_versions()
-
     def reset(self):
-        from the_tale.game.places import storage as places_storage
+        super().reset()
 
-        self.reset_versions()
+        from the_tale.game.places import storage as places_storage
 
         for x, y, cell in self._cells_iterator():
             cell.reset()

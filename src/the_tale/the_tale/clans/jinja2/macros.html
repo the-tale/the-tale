@@ -1,3 +1,7 @@
-{% macro clan_link(clan) %}
-<a href="{{url('clans:show', clan.id)}}">[{{clan.abbr}}] {{clan.name}}</a>
+{% macro clan_link(clan, show_abbr=true, show_name=true) %}
+<a href="{{url('clans:show', clan.id)}}"
+   style="white-space: nowrap;">
+  {% if show_abbr %}[{{clan.abbr}}]{% endif %}
+  {% if show_name %}{{clan.name}}{% endif %}
+</a>
 {% endmacro %}

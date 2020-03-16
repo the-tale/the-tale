@@ -1317,3 +1317,42 @@ class IsRoleChangeGetIntoLimitTests(BaseClanTests):
         self.assertFalse(logic.is_role_change_get_into_limit(clan_id=self.clan.id,
                                                              old_role=relations.MEMBER_ROLE.FIGHTER,
                                                              new_role=relations.MEMBER_ROLE.OFFICER))
+
+
+class GetMembersWithRolesTests(BaseClanTests):
+
+    def setUp(self):
+        super().setUp()
+
+        self.account_2 = self.accounts_factory.create_account()
+        self.account_3 = self.accounts_factory.create_account()
+        self.account_4 = self.accounts_factory.create_account()
+        self.account_5 = self.accounts_factory.create_account()
+
+        self.clan_2 = self.create_clan(owner=self.account_2, uid=2)
+        self.clan_3 = self.create_clan(owner=self.account_3, uid=3)
+
+        logic._add_member(clan=self.clan_2,
+                          account=self.account_4,
+                          role=relations.MEMBER_ROLE.COMANDOR)
+
+        logic._add_member(clan=self.clan_3,
+                          account=self.account_5,
+                          role=relations.MEMBER_ROLE.FIGHTER)
+
+    def test_no_clans(self):
+        self.assertEqual(logic.get_members_with_roles(clans_ids=(),
+                                                      roles=relations.MEMBER_ROLE.records), set())
+
+    def test_no_roles(self):
+        self.assertEqual(logic.get_members_with_roles(clans_ids=(self.clan.id, self.clan_2.id, self.clan_3.id),
+                                                      roles=()), set())
+
+    def test_ok(self):
+        self.assertEqual(logic.get_members_with_roles(clans_ids=(self.clan.id, self.clan_2.id, self.clan_3.id),
+                                                      roles=(relations.MEMBER_ROLE.records)),
+                         {self.account.id, self.account_2.id, self.account_3.id, self.account_4.id, self.account_5.id})
+
+        self.assertEqual(logic.get_members_with_roles(clans_ids=(self.clan.id, self.clan_2.id, self.clan_3.id),
+                                                      roles=(relations.MEMBER_ROLE.COMANDOR, relations.MEMBER_ROLE.FIGHTER)),
+                         {self.account_4.id, self.account_5.id})

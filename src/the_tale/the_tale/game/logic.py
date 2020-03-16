@@ -392,3 +392,70 @@ def generate_history(name_forms, gender, race, honor, peacefulness, archetype, u
         texts.append(text)
 
     return texts
+
+
+@places_storage.places.postpone_version_update
+@places_storage.buildings.postpone_version_update
+@persons_storage.persons.postpone_version_update
+def highlevel_step(logger):
+
+    logger.info('sync data')
+
+    call_after_transaction = []
+
+    with django_transaction.atomic():
+        logger.info('sync data transaction started')
+
+        try:
+            politic_power_logic.sync_power()
+            places_logic.sync_fame()
+            places_logic.sync_money()
+        except tt_api_exceptions.TTAPIError as e:
+            sentry_sdk.capture_exception(e)
+            logger.exception('Error while syncing powers')
+
+        # обрабатывает работы только во время запланированного обновления
+        # поскольку при остановке игры нельзя будет обработать команды для героев
+        # (те уже будут сохраняться в базу, рабочие логики будут недоступны)
+        for person in persons_storage.persons.all():
+            call_after_transaction.extend(jobs_logic.update_job(person.job, person.id))
+
+        frontier_places = [place for place in places_storage.places.all() if place.is_frontier]
+        core_places = [place for place in places_storage.places.all() if not place.is_frontier]
+
+        places_logic.sync_power_economic(frontier_places,
+                                         max_economic=c.PLACE_MAX_FRONTIER_ECONOMIC)
+        places_logic.sync_power_economic(core_places,
+                                         max_economic=c.PLACE_MAX_ECONOMIC)
+
+        places_logic.sync_money_economic(frontier_places,
+                                         max_economic=c.PLACE_MAX_FRONTIER_ECONOMIC)
+        places_logic.sync_money_economic(core_places,
+                                         max_economic=c.PLACE_MAX_ECONOMIC)
+
+        places_logic.update_effects()
+
+        for place in places_storage.places.all():
+            place.attrs.sync_size(c.MAP_SYNC_TIME_HOURS)
+            place.attrs.set_area(map_storage.cells.place_area(place.id))
+
+            place.sync_race()
+            place.sync_habits()
+            place.update_heroes_habits()
+
+            # must be last operation to display and use real data
+            place.refresh_attributes()
+
+            place.mark_as_updated()
+
+        places_storage.places.save_all()
+        persons_storage.persons.save_all()
+
+    logger.info('sync data transaction completed')
+
+    logger.info('after transaction operations number: {number}'.format(number=len(call_after_transaction)))
+
+    for operation in call_after_transaction:
+        operation()
+
+    logger.info('sync data completed')
