@@ -395,6 +395,8 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.FREE_ACCOUNT_MAX_ACTIVE_BILLS, 1)
         self.assertEqual(c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS, 4)
 
+        self.assertEqual(c.BILLS_FAME_BORDER, 1000)
+
     def test_dedication_maximum_multiplier(self):
         multiplier = ((1 + c.COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA) *
                       (1 + c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA) *

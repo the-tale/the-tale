@@ -114,8 +114,8 @@ class BillPrototype(utils_prototypes.BasePrototype):
         return actors
 
     def can_vote(self, hero):
-        allowed_places_ids = places_logic.get_hero_popularity(hero.id).get_allowed_places_ids(conf.settings.PLACES__TO_ACCESS_VOTING)
-
+        allowed_places_ids = places_logic.get_hero_popularity(hero.id).get_allowed_places_ids(conf.settings.PLACES__TO_ACCESS_VOTING,
+                                                                                              border=c.BILLS_FAME_BORDER)
         place_found = False
         place_allowed = False
 

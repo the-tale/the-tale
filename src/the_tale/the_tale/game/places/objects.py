@@ -554,7 +554,7 @@ class Popularity:
     def places_rating(self):
         return self._places_fame
 
-    def get_allowed_places_ids(self, number):
+    def get_allowed_places_ids(self, number, border):
         number -= 1
 
         if number >= len(self._places_fame):
@@ -563,7 +563,7 @@ class Popularity:
         if number < 0:
             return set()
 
-        min_fame = self._places_fame[number][1]
+        min_fame = max(border, self._places_fame[number][1])
 
         return {place_id for place_id, fame in self._places_fame if fame >= min_fame}
 
