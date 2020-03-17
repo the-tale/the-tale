@@ -392,7 +392,8 @@ def show(context):
                                      'emissaries_powers': emissaries_powers,
                                      'can_participate_in_pvp': can_participate_in_pvp,
                                      'protected_places': protected_places,
-                                     'clans_regions': places_storage.clans_regions})
+                                     'clans_regions': places_storage.clans_regions,
+                                     'combat_personnel': logic.get_combat_personnel__by_memberships(memberships)})
 
 
 @accounts_views.LoginRequiredProcessor()

@@ -195,7 +195,7 @@ jQuery(document).ready(function(e){
   <div class="tab-pane" id="pgf-clan-members">
 
     <p>
-      <i>Максимальный боевой состав гильдии: {{attributes.fighters_maximum}}</i>
+      <i>Боевой состав гильдии: {{combat_personnel}}/{{attributes.fighters_maximum}}</i>
       <i class="icon-info-sign"
          rel="tooltip"
          title="Количество членов гильдии в звании {{value('the_tale.clans.relations').MEMBER_ROLE.FIGHTER.text}} или выше. Чтобы увеличить максимальный размер гильдии, развивайте её с помощью эмиссаров."></i>
@@ -347,7 +347,7 @@ jQuery(document).ready(function(e){
 
         <tr>
           <th>Максимальный боевой состав</th>
-          <td>{{attributes.fighters_maximum}}</td>
+          <td>{{attributes.fighters_maximum}} (занято мест: {{combat_personnel}})</td>
           <td>уровень {{attributes.fighters_maximum_level}} из {{tt_clans_constants.FIGHTERS_MAXIMUM_LEVEL_STEPS}}</td>
         </tr>
 

@@ -660,7 +660,11 @@ def lock_clan_for_update(clan_id):
 
 
 def get_combat_personnel(clan_id):
-    return sum(1 for membership in get_clan_memberships(clan_id).values()
+    return get_combat_personnel__by_memberships(get_clan_memberships(clan_id))
+
+
+def get_combat_personnel__by_memberships(memberships):
+    return sum(1 for membership in memberships.values()
                if relations.PERMISSION.EMISSARIES_QUESTS in membership.role.permissions)
 
 
