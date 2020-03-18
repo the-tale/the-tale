@@ -1308,6 +1308,8 @@ class RevolutionTests(places_helpers.PlacesTestsMixin,
     def setUp(self):
         super().setUp()
 
+        self.enable_emissary_pvp(self.emissary)
+
         places_tt_services.effects.cmd_debug_clear_service()
         personal_messages_tt_services.personal_messages.cmd_debug_clear_service()
 
@@ -1353,6 +1355,14 @@ class RevolutionTests(places_helpers.PlacesTestsMixin,
         self.assertEqual(self.emissary.place.attrs.clan_protector, None)
 
         self.assertEqual(id(self.emissary), id(storage.emissaries[self.emissary.id]))
+
+    def test_is_available__not_ready_for_pvp(self):
+
+        self.assertTrue(self.concrete_event.is_available(self.emissary, active_events=()))
+
+        self.disable_emissary_pvp(self.emissary)
+
+        self.assertFalse(self.concrete_event.is_available(self.emissary, active_events=()))
 
     @contextlib.contextmanager
     def check_messages_received_by_other_clan(self):

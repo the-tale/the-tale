@@ -977,6 +977,13 @@ class Revolution(EventBase):
     def max_event_length(cls):
         return cls.BASE_CYCLE_LENGTH
 
+    @classmethod
+    def is_available(cls, emissary, active_events):
+        if not super().is_available(emissary, active_events):
+            return False
+
+        return emissary.can_participate_in_pvp()
+
     @contextlib.contextmanager
     def on_create(self, emissary):
 
@@ -1072,7 +1079,7 @@ class Revolution(EventBase):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = f'Делает гильдию эмиссара протектором города, в котором тот находится. Проваливается, если в момент завершения мероприятия эмиссар не находится в числе лидеров города, либо имеет не более {cls.POWER_BARRIER} влияния, либо имеет меньше влияния, чем эмиссар текущей гильдии-протектора. При начале и завершении мероприятия будет отправлено соответствующее сообщение всем членам гильдий (с эмиссарами в городе) с правом «{clans_relations.PERMISSION.RECEIVE_MESSAGES.text}».'
+        text = f'Делает гильдию эмиссара протектором города, в котором тот находится. Проваливается, если в момент завершения мероприятия эмиссар не находится в числе лидеров города, либо имеет не более {cls.POWER_BARRIER} влияния, либо имеет меньше влияния, чем эмиссар текущей гильдии-протектора. При начале и завершении мероприятия будет отправлено соответствующее сообщение всем членам гильдий (с эмиссарами в городе) с правом «{clans_relations.PERMISSION.RECEIVE_MESSAGES.text}». Начать мероприятие может только эмиссар с суммой способностей больше {tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP}'
         return text
 
 
