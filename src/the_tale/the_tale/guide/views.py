@@ -260,8 +260,8 @@ class GuideResource(utils_resources.Resource):
     def emissaries(self):
         return self.template('guide/emissaries.html', {'section': 'emissaries'})
 
-    @old_views.handler('creativity-recomendations')
-    def creativity_recomendations(self):
-        return self.template('guide/creativity-recomendations.html', {'section': 'creativity-recomendations',
-                                                                      'MINIMUM_CANON_POST': blogs_conf.settings.MINIMUM_CANON_POST,
-                                                                      'FORUM_TAGS_THREAD': blogs_conf.settings.FORUM_TAGS_THREAD})
+    @old_views.handler('creativity-recommendations')
+    def creativity_recommendations(self):
+        return self.template('guide/creativity-recommendations.html', {'section': 'creativity-recommendations',
+                                                                       'MINIMUM_CANON_POST': blogs_conf.settings.MINIMUM_CANON_POST,
+                                                                       'FORUM_TAGS_THREAD': blogs_conf.settings.FORUM_TAGS_THREAD})
