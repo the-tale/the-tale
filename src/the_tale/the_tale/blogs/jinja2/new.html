@@ -20,7 +20,11 @@ jQuery(document).ready( function(e) {
 
 {% block blogs_content %}
 
-{% include "blogs/recomendations.html" %}
+<p>
+  Требования ко всем текстам фольклора можно найти в <a href="{{url('guide:creativity-recomendations')}}">путеводителе</a>. <strong>Обязательно ознакомьтесь с ними</strong>.
+</p>
+
+<p>Произведение должно содержать минимум {{form.text.field.min_length}} символов.</p>
 
 <form id="pgf-new-post-form" method="post" action="{{ url('blogs:posts:create') }}">
 
