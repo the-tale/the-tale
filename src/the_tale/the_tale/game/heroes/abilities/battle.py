@@ -217,7 +217,7 @@ class RUN_UP_PUSH(prototypes.AbilityPrototype):
 
     NAME = 'Ошеломление'
     normalized_name = NAME
-    DESCRIPTION = 'Боец оглушает противника и тот пропускает один или несколько ходов.'
+    DESCRIPTION = 'Боец оглушает противника, и тот пропускает один или несколько ходов.'
 
     DAMAGE_MODIFIER = [0.35, 0.45, 0.55, 0.65, 0.75]
 
