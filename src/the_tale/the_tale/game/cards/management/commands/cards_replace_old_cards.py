@@ -109,7 +109,7 @@ class Command(utilities_base.Command):
                                to_remove=removed_cards,
                                storage=relations.STORAGE.NEW)
 
-            self.logger.info('replaced: ', len(added_cards))
+            self.logger.info(f'replaced: {len(added_cards)}')
 
             total_replaced += len(added_cards)
 
