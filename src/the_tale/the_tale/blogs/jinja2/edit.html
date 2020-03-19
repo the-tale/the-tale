@@ -21,7 +21,9 @@ jQuery(document).ready( function(e) {
 
 <h3>Редактирование произведения <small><a href="{{ url('blogs:posts:show', resource.post.id) }}">вернуться</a></small></h3>
 
-{% include "blogs/recomendations.html" %}
+<p>
+  Требования ко всем текстам фольклора можно найти в <a href="{{url('guide:creativity-recommendations')}}">путеводителе</a>. <strong>Обязательно ознакомьтесь с ними</strong>.
+</p>
 
 <form id="pgf-edit-post-form" method="post" action="{{ url('blogs:posts:update', resource.post.id) }}">
 
