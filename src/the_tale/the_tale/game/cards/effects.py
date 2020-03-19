@@ -1102,7 +1102,7 @@ class QuestForEmissary(_QuestMixin, BaseEffect):
     __slots__ = ()
 
     def get_form(self, card, hero, data):
-        return forms.Emissary(data, clan_id=hero.clan_id.id)
+        return forms.Emissary(data, clan_id=hero.clan_id)
 
     @property
     def DESCRIPTION(self):
