@@ -106,7 +106,7 @@ def sent(context):
                     utils_list_filter.static_element('количество:', attribute='count', default_value=0)]
 
     url_builder = utils_urls.UrlBuilder(utils_urls.url('accounts:messages:sent'), arguments={'page': context.page,
-                                                                                           'filter': context.filter})
+                                                                                            'filter': context.filter})
 
     index_filter = Filter(url_builder=url_builder, values={'filter': context.filter,
                                                            'count': messages_count})

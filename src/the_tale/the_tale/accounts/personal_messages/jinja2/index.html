@@ -83,15 +83,20 @@ jQuery(document).ready(function(){
           <td class="author">
             {% set recipients = sorted_recipients(message.recipients_ids, accounts) %}
             <a href="{{url('accounts:show', message.sender_id)}}">{{ accounts[message.sender_id].nick_verbose }}</a> ⟶
-            <a href="{{url('accounts:show', recipients[0].id)}}">
-              {% if message.sender_id != master_account.id %}
+
+            {% if message.sender_id != master_account.id %}
+            <a href="{{url('accounts:show', master_account.id)}}">
               {{master_account.nick_verbose}}
-              {% elif page=="contacts" %}
+            </a>
+            {% else %}
+            <a href="{{url('accounts:show', recipients[0].id)}}">
+              {% if page=="contacts" %}
               {{ contact.nick_verbose }}
               {% else %}
               {{ recipients[0].nick_verbose }}
               {% endif %}
             </a>
+            {% endif %}
             {% if recipients|length > 1 %}
             <i class="icon icon-bullhorn" style="cursor: pointer;" rel="tooltip"
                title="Сообщение отправлено нескольким адресатам: {% for recipient in recipients %}{{recipient.nick_verbose}}{% if not loop.last %},{% endif %} {% endfor %}"></i>
