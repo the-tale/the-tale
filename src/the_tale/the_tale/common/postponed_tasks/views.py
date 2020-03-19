@@ -6,12 +6,12 @@ smart_imports.all()
 
 class PostponedTaskResource(utils_resources.Resource):
 
-    @dext_old_views.validate_argument('task', PostponedTaskPrototype.get_by_id, 'postponed_task', 'Задача не найдена')
+    @old_views.validate_argument('task', PostponedTaskPrototype.get_by_id, 'postponed_task', 'Задача не найдена')
     def initialize(self, task, *args, **kwargs):
         super(PostponedTaskResource, self).initialize(*args, **kwargs)
         self.task = task
 
-    @dext_old_views.handler('#task', 'status', method='get')
+    @old_views.handler('#task', 'status', method='get')
     def status(self):  # pylint: disable=R0911
         if self.task.state.is_waiting:
             return self.json_processing(django_reverse('postponed-tasks:status', args=[self.task.id]))
@@ -34,7 +34,7 @@ class PostponedTaskResource(utils_resources.Resource):
 
         return self.json_error('postponed_task.unknown_error', 'Неизвестная ошибка, повторите попытку позже')
 
-    @dext_old_views.handler('#task', 'wait', method='get')
+    @old_views.handler('#task', 'wait', method='get')
     def wait(self):
         return self.template('postponed_tasks/wait.html',
                              {'task': self.task})

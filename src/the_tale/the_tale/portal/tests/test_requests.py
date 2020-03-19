@@ -13,32 +13,32 @@ class TestRequests(utils_testcase.TestCase):
         chronicle_tt_services.chronicle.cmd_debug_clear_service()
 
     def test_search(self):
-        self.check_html_ok(self.request_html(dext_urls.url('portal:search')))
+        self.check_html_ok(self.request_html(utils_urls.url('portal:search')))
 
     def test_landing(self):
-        self.check_html_ok(self.request_html(dext_urls.url('portal:landing')))
+        self.check_html_ok(self.request_html(utils_urls.url('portal:landing')))
 
     def test_landing__authengitacted(self):
         account = self.accounts_factory.create_account()
         self.request_login(account.email)
-        self.check_redirect(dext_urls.url('portal:landing'), dext_urls.url('portal:'))
+        self.check_redirect(utils_urls.url('portal:landing'), utils_urls.url('portal:'))
 
     def test_preview(self):
         text = 'simple test text'
-        self.check_html_ok(self.client.post(dext_urls.url('portal:preview'), {'text': text}), texts=[text])
+        self.check_html_ok(self.client.post(utils_urls.url('portal:preview'), {'text': text}), texts=[text])
 
     def test_hot_themes__show_all(self):
         forum = forum_helpers.ForumFixture(self.accounts_factory)
-        self.check_html_ok(self.request_html(dext_urls.url('portal:')), texts=[forum.thread_1.caption, forum.thread_2.caption, forum.thread_3.caption])
+        self.check_html_ok(self.request_html(utils_urls.url('portal:')), texts=[forum.thread_1.caption, forum.thread_2.caption, forum.thread_3.caption])
 
     def test_hot_themes__hide_restricted_themes(self):
         forum = forum_helpers.ForumFixture(self.accounts_factory)
         forum.subcat_3._model.restricted = True
         forum.subcat_3.save()
-        self.check_html_ok(self.request_html(dext_urls.url('portal:')), texts=[forum.thread_1.caption, forum.thread_2.caption, (forum.thread_3.caption, 0)])
+        self.check_html_ok(self.request_html(utils_urls.url('portal:')), texts=[forum.thread_1.caption, forum.thread_2.caption, (forum.thread_3.caption, 0)])
 
     def test_info(self):
-        self.check_ajax_ok(self.request_json(dext_urls.url('portal:api-info', api_version='1.0', api_client=django_settings.API_CLIENT)),
+        self.check_ajax_ok(self.request_json(utils_urls.url('portal:api-info', api_version='1.0', api_client=django_settings.API_CLIENT)),
                            data={'static_content': django_settings.STATIC_URL,
                                  'game_version': django_settings.META_CONFIG.version,
                                  'turn_delta': c.TURN_DELTA,
@@ -50,7 +50,7 @@ class TestRequests(utils_testcase.TestCase):
         account = self.accounts_factory.create_account()
         self.request_login(account.email)
 
-        self.check_ajax_ok(self.request_json(dext_urls.url('portal:api-info', api_version='1.0', api_client=django_settings.API_CLIENT)),
+        self.check_ajax_ok(self.request_json(utils_urls.url('portal:api-info', api_version='1.0', api_client=django_settings.API_CLIENT)),
                            data={'static_content': django_settings.STATIC_URL,
                                  'game_version': django_settings.META_CONFIG.version,
                                  'turn_delta': c.TURN_DELTA,
@@ -68,7 +68,7 @@ class IndexRequestTests(utils_testcase.TestCase):
         chronicle_tt_services.chronicle.cmd_debug_clear_service()
 
     def test_success(self):
-        response = self.client.get(dext_urls.url('portal:'))
+        response = self.client.get(utils_urls.url('portal:'))
         self.assertEqual(response.status_code, 200)
 
     def test_first_time(self):

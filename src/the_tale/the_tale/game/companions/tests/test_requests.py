@@ -27,8 +27,8 @@ class IndexRequestsTests(RequestsTestsBase):
 
     def setUp(self):
         super(IndexRequestsTests, self).setUp()
-        self.requested_url = dext_urls.url('game:companions:')
-        self.requested_url_disabled = dext_urls.url('game:companions:', state=relations.STATE.DISABLED.value)
+        self.requested_url = utils_urls.url('game:companions:')
+        self.requested_url_disabled = utils_urls.url('game:companions:', state=relations.STATE.DISABLED.value)
 
         self.companion_1 = logic.create_companion_record(utg_name=game_names.generator().get_test_name('c-1'),
                                                          description='companion-description',
@@ -137,7 +137,7 @@ class NewRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(NewRequestsTests, self).setUp()
 
-        self.requested_url = dext_urls.url('game:companions:new')
+        self.requested_url = utils_urls.url('game:companions:new')
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
@@ -162,7 +162,7 @@ class CreateRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(CreateRequestsTests, self).setUp()
 
-        self.requested_url = dext_urls.url('game:companions:create')
+        self.requested_url = utils_urls.url('game:companions:create')
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
@@ -221,7 +221,7 @@ class CreateRequestsTests(RequestsTestsBase):
 
         new_companion = logic.get_last_companion()
 
-        self.check_ajax_ok(response, data={'next_url': dext_urls.url('guide:companions:show', new_companion.id)})
+        self.check_ajax_ok(response, data={'next_url': utils_urls.url('guide:companions:show', new_companion.id)})
 
         self.assertEqual(new_companion.description, 'some-description')
         self.assertTrue(new_companion.state.is_DISABLED)
@@ -314,8 +314,8 @@ class ShowRequestsTests(RequestsTestsBase):
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.DISABLED)
 
-        self.requested_url_1 = dext_urls.url('game:companions:show', self.companion_1.id)
-        self.requested_url_2 = dext_urls.url('game:companions:show', self.companion_2.id)
+        self.requested_url_1 = utils_urls.url('game:companions:show', self.companion_1.id)
+        self.requested_url_2 = utils_urls.url('game:companions:show', self.companion_2.id)
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
@@ -444,8 +444,8 @@ class InfoRequestsTests(RequestsTestsBase):
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.DISABLED)
 
-        self.requested_url_1 = dext_urls.url('game:companions:info', self.companion_1.id)
-        self.requested_url_2 = dext_urls.url('game:companions:info', self.companion_2.id)
+        self.requested_url_1 = utils_urls.url('game:companions:info', self.companion_1.id)
+        self.requested_url_2 = utils_urls.url('game:companions:info', self.companion_2.id)
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
@@ -534,7 +534,7 @@ class EditRequestsTests(RequestsTestsBase):
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.DISABLED)
 
-        self.requested_url = dext_urls.url('game:companions:edit', self.companion_1.id)
+        self.requested_url = utils_urls.url('game:companions:edit', self.companion_1.id)
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
@@ -584,7 +584,7 @@ class UpdateRequestsTests(RequestsTestsBase):
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.DISABLED)
 
-        self.requested_url = dext_urls.url('game:companions:update', self.companion_1.id)
+        self.requested_url = utils_urls.url('game:companions:update', self.companion_1.id)
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
@@ -635,7 +635,7 @@ class UpdateRequestsTests(RequestsTestsBase):
             with self.check_changed(lambda: storage.companions._version):
                 with self.check_not_changed(storage.companions.__len__):
                     self.check_ajax_ok(self.post_ajax_json(self.requested_url, post_data),
-                                       data={'next_url': dext_urls.url('guide:companions:show', self.companion_1.id)})
+                                       data={'next_url': utils_urls.url('guide:companions:show', self.companion_1.id)})
 
         # storage.companions.refresh()
 
@@ -709,7 +709,7 @@ class EnableRequestsTests(RequestsTestsBase):
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.DISABLED)
 
-        self.requested_url = dext_urls.url('game:companions:enable', self.companion_1.id)
+        self.requested_url = utils_urls.url('game:companions:enable', self.companion_1.id)
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()

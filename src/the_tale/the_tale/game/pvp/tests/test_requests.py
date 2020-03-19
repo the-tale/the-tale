@@ -71,7 +71,7 @@ class UsePvPAbilityRequestsTests(TestRequestsBase):
     def setUp(self):
         super().setUp()
         self.ability = random.choice(list(abilities.ABILITIES.values()))
-        self.change_style_url = dext_urls.url('game:pvp:use-ability', ability=self.ability.TYPE)
+        self.change_style_url = utils_urls.url('game:pvp:use-ability', ability=self.ability.TYPE)
 
     def test_login_required(self):
         self.request_logout()
@@ -84,7 +84,7 @@ class UsePvPAbilityRequestsTests(TestRequestsBase):
 
     def test_wrong_style_id(self):
         self.create_pvp_battle(account_1=self.account_1, account_2=self.account_2)
-        self.check_ajax_error(self.client.post(dext_urls.url('game:pvp:use-ability', ability=666)), 'ability.wrong_format')
+        self.check_ajax_error(self.client.post(utils_urls.url('game:pvp:use-ability', ability=666)), 'ability.wrong_format')
 
     def test_success(self):
         self.create_pvp_battle(account_1=self.account_1, account_2=self.account_2)

@@ -37,14 +37,14 @@ def region_url(turn=None):
     if turn is not None:
         arguments['turn'] = turn
 
-    return dext_urls.url('game:map:api-region', **arguments)
+    return utils_urls.url('game:map:api-region', **arguments)
 
 
 def region_versions_url():
     arguments = {'api_version': conf.settings.REGION_API_VERSION,
                  'api_client': django_settings.API_CLIENT}
 
-    return dext_urls.url('game:map:api-region-versions', **arguments)
+    return utils_urls.url('game:map:api-region-versions', **arguments)
 
 
 def get_person_race_percents(persons):

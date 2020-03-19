@@ -17,18 +17,18 @@ class BaseRequestsTests(utils_testcase.TestCase):
 class IndexRequestsTests(BaseRequestsTests):
 
     def test_success(self):
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:')), texts=[])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:')), texts=[])
 
     def test_all_groups(self):
         texts = [group.text for group in lexicon_groups_relations.LEXICON_GROUP.records]
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:')), texts=texts)
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:')), texts=texts)
 
     def test_all_keys(self):
         texts = [key.text for key in lexicon_keys.LEXICON_KEY.records]
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:')), texts=texts)
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:')), texts=texts)
 
 
 class HowAddPhraseTests(BaseRequestsTests):
 
     def test_success(self):
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:how-add-phrase')), texts=[])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:how-add-phrase')), texts=[])

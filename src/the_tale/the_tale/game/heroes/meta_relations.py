@@ -15,7 +15,7 @@ class Hero(meta_relations_objects.MetaType):
 
     @property
     def url(self):
-        return dext_urls.url('game:heroes:show', self.id)
+        return utils_urls.url('game:heroes:show', self.id)
 
     @classmethod
     def create_from_object(cls, hero):

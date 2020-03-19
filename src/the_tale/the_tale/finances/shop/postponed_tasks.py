@@ -263,6 +263,6 @@ class BuyMarketLot(BaseBuyTask):
         personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
                                              recipients_ids=[lot.owner_id],
                                              body=good_bought_message(name=lot_name, price=self.price - logic.get_commission(self.price)),
-                                             async=True)
+                                             asynchronous=True)
 
         return True

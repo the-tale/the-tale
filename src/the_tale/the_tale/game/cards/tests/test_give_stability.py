@@ -41,9 +41,16 @@ class GiveStabilityMixin(helpers.CardsTestMixin):
                          (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_use_for_wrong_place_id(self):
-        with self.check_not_changed(lambda: len(self.place_1.effects)):
-            self.assertEqual(self.CARD.effect.use(**self.use_attributes(hero=self.hero, value=666, storage=self.storage)),
-                             (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
+        with mock.patch('the_tale.game.balance.constants.PLACE_BASE_STABILITY', 0.25):
+            self.place_1.refresh_attributes()
+
+            self.assertLess(self.place_1.attrs.stability, 1.0 - self.CARD.effect.modificator)
+
+            with self.check_not_changed(lambda: self.place_1.attrs.stability):
+                self.assertEqual(self.CARD.effect.use(**self.use_attributes(hero=self.hero, value=666, storage=self.storage)),
+                                 (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED,
+                                  game_postponed_tasks.ComplexChangeTask.STEP.ERROR,
+                                  ()))
 
 
 class GiveStabilityUncommonTests(GiveStabilityMixin, utils_testcase.TestCase):

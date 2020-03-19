@@ -4,11 +4,11 @@ import smart_imports
 smart_imports.all()
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def all_places():
     return sorted(storage.places.all(), key=lambda p: p.name)
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def hero_popularity(hero_id):
     return logic.get_hero_popularity(hero_id)

@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(default=b'', blank=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True, db_index=True)),
                 ('updated_at', models.DateTimeField(auto_now=True, db_index=True)),
-                ('account', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL)),
+                ('account', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -82,7 +82,7 @@ class Migration(migrations.Migration):
                 ('new_nick', models.CharField(default=None, max_length=128, null=True)),
                 ('uuid', models.CharField(max_length=32, db_index=True)),
                 ('relogin_required', models.BooleanField(default=False)),
-                ('account', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL)),
+                ('account', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -110,7 +110,7 @@ class Migration(migrations.Migration):
                 ('uuid', models.CharField(max_length=32)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('is_processed', models.BooleanField(default=False, db_index=True)),
-                ('account', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL)),
+                ('account', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },

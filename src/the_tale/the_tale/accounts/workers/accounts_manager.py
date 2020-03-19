@@ -19,9 +19,9 @@ class Worker(utils_workers.BaseWorker):
     def process_no_cmd(self):
 
         # is send premium expired notifications needed
-        if (time.time() - float(dext_settings.settings.get(conf.settings.SETTINGS_PREV_PREIMIUM_EXPIRED_NOTIFICATION_RUN_TIME_KEY, 0)) > 23.5 * 60 * 60 and
+        if (time.time() - float(global_settings.get(conf.settings.SETTINGS_PREV_PREIMIUM_EXPIRED_NOTIFICATION_RUN_TIME_KEY, 0)) > 23.5 * 60 * 60 and
                 conf.settings.PREMIUM_EXPIRED_NOTIFICATION_RUN_TIME <= datetime.datetime.now().hour <= conf.settings.PREMIUM_EXPIRED_NOTIFICATION_RUN_TIME + 1):
-            dext_settings.settings[conf.settings.SETTINGS_PREV_PREIMIUM_EXPIRED_NOTIFICATION_RUN_TIME_KEY] = str(time.time())
+            global_settings[conf.settings.SETTINGS_PREV_PREIMIUM_EXPIRED_NOTIFICATION_RUN_TIME_KEY] = str(time.time())
             self.run_send_premium_expired_notifications()
             return
 

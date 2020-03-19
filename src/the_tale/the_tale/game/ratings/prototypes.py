@@ -135,4 +135,4 @@ JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %
 
         cursor.execute(sql_request)
 
-        dext_settings.settings[conf.settings.SETTINGS_UPDATE_TIMESTEMP_KEY] = str(time.time())
+        global_settings[conf.settings.SETTINGS_UPDATE_TIMESTEMP_KEY] = str(time.time())

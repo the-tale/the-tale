@@ -26,17 +26,17 @@ class CardsRequestsTestsBase(utils_testcase.TestCase):
 class UseDialogRequestTests(CardsRequestsTestsBase):
 
     def test_unlogined(self):
-        self.check_html_ok(self.request_ajax_html(dext_urls.url('game:cards:use-dialog', card=uuid.uuid4().hex)), texts=['common.login_required'])
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('game:cards:use-dialog', card=uuid.uuid4().hex)), texts=['common.login_required'])
 
     def test_no_cards(self):
         self.request_login(self.account.email)
-        self.check_html_ok(self.request_ajax_html(dext_urls.url('game:cards:use-dialog', card=uuid.uuid4().hex)), texts=['pgf-error-card.wrong_value'])
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('game:cards:use-dialog', card=uuid.uuid4().hex)), texts=['pgf-error-card.wrong_value'])
 
     def test_has_cards(self):
         logic.change_cards(self.hero.account_id, operation_type='#test', to_add=[self.card])
 
         self.request_login(self.account.email)
-        self.check_html_ok(self.request_ajax_html(dext_urls.url('game:cards:use-dialog', card=self.card.uid)))
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('game:cards:use-dialog', card=self.card.uid)))
 
     def test_every_card(self):
         self.request_login(self.account.email)
@@ -51,7 +51,7 @@ class UseDialogRequestTests(CardsRequestsTestsBase):
             card = card_type.effect.create_card(available_for_auction=True, type=card_type)
             logic.change_cards(self.hero.account_id, operation_type='#test', to_add=[card])
 
-            self.check_html_ok(self.request_ajax_html(dext_urls.url('game:cards:use-dialog', card=self.card.uid)))
+            self.check_html_ok(self.request_ajax_html(utils_urls.url('game:cards:use-dialog', card=self.card.uid)))
 
 
 class UseRequestTests(CardsRequestsTestsBase):
@@ -90,17 +90,17 @@ class TestIndexRequests(CardsRequestsTestsBase):
 
     def test_simple(self):
         texts = [card.text for card in types.CARD.records]
-        self.check_html_ok(self.request_html(dext_urls.url('guide:cards:')), texts=texts)
+        self.check_html_ok(self.request_html(utils_urls.url('guide:cards:')), texts=texts)
 
     def test_rarity_filter(self):
         for rarity in relations.RARITY.records:
             texts = [card.text for card in types.CARD.records if card.rarity == rarity]
-            self.check_html_ok(self.request_html(dext_urls.url('guide:cards:')), texts=texts)
+            self.check_html_ok(self.request_html(utils_urls.url('guide:cards:')), texts=texts)
 
     def test_availability_filter(self):
         for availability in relations.AVAILABILITY.records:
             texts = [card.text for card in types.CARD.records if card.availability == availability]
-            self.check_html_ok(self.request_html(dext_urls.url('guide:cards:')), texts=texts)
+            self.check_html_ok(self.request_html(utils_urls.url('guide:cards:')), texts=texts)
 
 
 class GetCardRequestsTests(CardsRequestsTestsBase):
@@ -389,14 +389,14 @@ class TakeCardCallbackTests(CardsRequestsTestsBase, tt_api_testcase.TestCaseMixi
                                                    secret=secret).SerializeToString()
 
     def test_no_post_data(self):
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('game:cards:tt-take-card-callback')), 'common.wrong_tt_post_data', status_code=500)
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('game:cards:tt-take-card-callback')), 'common.wrong_tt_post_data', status_code=500)
 
         cards = tt_services.storage.cmd_get_items(self.account.id)
         self.assertEqual(cards, {})
 
     def test_wrong_secret_key(self):
         data = self.create_data(secret='wrong.secret')
-        self.check_ajax_error(self.post_ajax_binary(dext_urls.url('game:cards:tt-take-card-callback'), data), 'common.wrong_tt_secret', status_code=500)
+        self.check_ajax_error(self.post_ajax_binary(utils_urls.url('game:cards:tt-take-card-callback'), data), 'common.wrong_tt_secret', status_code=500)
 
         cards = tt_services.storage.cmd_get_items(self.account.id)
         self.assertEqual(cards, {})
@@ -406,7 +406,7 @@ class TakeCardCallbackTests(CardsRequestsTestsBase, tt_api_testcase.TestCaseMixi
         account_id = 9999999
 
         data = self.create_data(secret=django_settings.TT_SECRET, account_id=account_id)
-        answer = self.check_protobuf_ok(self.post_protobuf(dext_urls.url('game:cards:tt-take-card-callback'), data),
+        answer = self.check_protobuf_ok(self.post_protobuf(utils_urls.url('game:cards:tt-take-card-callback'), data),
                                         answer_type=tt_protocol_timers_pb2.CallbackAnswer)
 
         self.assertEqual(answer.postprocess_type, self.postprocess_remove)
@@ -417,7 +417,7 @@ class TakeCardCallbackTests(CardsRequestsTestsBase, tt_api_testcase.TestCaseMixi
     @mock.patch('tt_logic.common.checkers.is_player_participate_in_game', mock.Mock(return_value=False))
     def test_does_not_participate_in_game(self):
         data = self.create_data(secret=django_settings.TT_SECRET)
-        answer = self.check_protobuf_ok(self.post_protobuf(dext_urls.url('game:cards:tt-take-card-callback'), data),
+        answer = self.check_protobuf_ok(self.post_protobuf(utils_urls.url('game:cards:tt-take-card-callback'), data),
                                         answer_type=tt_protocol_timers_pb2.CallbackAnswer)
 
         self.assertEqual(answer.postprocess_type, self.postprocess_restart)
@@ -446,7 +446,7 @@ class TakeCardCallbackTests(CardsRequestsTestsBase, tt_api_testcase.TestCaseMixi
         tt_services.storage.cmd_debug_clear_service()
 
         data = self.create_data(secret=django_settings.TT_SECRET)
-        answer = self.check_protobuf_ok(self.post_ajax_binary(dext_urls.url('game:cards:tt-take-card-callback'), data),
+        answer = self.check_protobuf_ok(self.post_ajax_binary(utils_urls.url('game:cards:tt-take-card-callback'), data),
                                         answer_type=tt_protocol_timers_pb2.CallbackAnswer)
 
         self.assertEqual(answer.postprocess_type, self.postprocess_restart)
@@ -467,7 +467,7 @@ class TakeCardCallbackTests(CardsRequestsTestsBase, tt_api_testcase.TestCaseMixi
         self.check_cards_timer_speed(tt_cards_constants.PREMIUM_PLAYER_SPEED)
 
         data = self.create_data(secret=django_settings.TT_SECRET)
-        answer = self.check_protobuf_ok(self.post_ajax_binary(dext_urls.url('game:cards:tt-take-card-callback'), data),
+        answer = self.check_protobuf_ok(self.post_ajax_binary(utils_urls.url('game:cards:tt-take-card-callback'), data),
                                         answer_type=tt_protocol_timers_pb2.CallbackAnswer)
 
         self.assertEqual(answer.postprocess_type, self.postprocess_restart)
@@ -493,7 +493,7 @@ class TakeCardCallbackTests(CardsRequestsTestsBase, tt_api_testcase.TestCaseMixi
 
         for i in range(100):
             data = self.create_data(secret=django_settings.TT_SECRET)
-            answer = self.check_protobuf_ok(self.post_ajax_binary(dext_urls.url('game:cards:tt-take-card-callback'), data),
+            answer = self.check_protobuf_ok(self.post_ajax_binary(utils_urls.url('game:cards:tt-take-card-callback'), data),
                                             answer_type=tt_protocol_timers_pb2.CallbackAnswer)
 
             self.assertEqual(answer.postprocess_type, self.postprocess_restart)
@@ -517,7 +517,7 @@ class TakeCardCallbackTests(CardsRequestsTestsBase, tt_api_testcase.TestCaseMixi
 
         for i in range(100):
             data = self.create_data(secret=django_settings.TT_SECRET)
-            answer = self.check_protobuf_ok(self.post_ajax_binary(dext_urls.url('game:cards:tt-take-card-callback'), data),
+            answer = self.check_protobuf_ok(self.post_ajax_binary(utils_urls.url('game:cards:tt-take-card-callback'), data),
                                             answer_type=tt_protocol_timers_pb2.CallbackAnswer)
 
             self.assertEqual(answer.postprocess_type, self.postprocess_restart)
@@ -546,7 +546,7 @@ class TakeCardCallbackTests(CardsRequestsTestsBase, tt_api_testcase.TestCaseMixi
 
         for i in range(100):
             data = self.create_data(secret=django_settings.TT_SECRET)
-            answer = self.check_protobuf_ok(self.post_ajax_binary(dext_urls.url('game:cards:tt-take-card-callback'), data),
+            answer = self.check_protobuf_ok(self.post_ajax_binary(utils_urls.url('game:cards:tt-take-card-callback'), data),
                                             answer_type=tt_protocol_timers_pb2.CallbackAnswer)
 
             self.assertEqual(answer.postprocess_type, self.postprocess_restart)

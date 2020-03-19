@@ -11,7 +11,7 @@ class BasePersonBill(base_bill.BaseBill):
     DESCRIPTION = None
 
     def __init__(self, person_id=None, old_place_name_forms=None, place_id=None):
-        super(BasePersonBill, self).__init__()
+        super().__init__()
         self.old_place_name_forms = old_place_name_forms
         self.person_id = person_id
         self.place_id = place_id
@@ -39,7 +39,8 @@ class BasePersonBill(base_bill.BaseBill):
         return places_storage.places.get(self.place_id)
 
     @property
-    def actors(self): return [self.place]
+    def actors(self):
+        return [self.place, self.person]
 
     @property
     def old_place_name(self):

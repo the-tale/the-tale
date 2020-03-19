@@ -264,7 +264,7 @@ class MobRecord(game_names.ManageNameMixin2):
             raise exceptions.NoWeaponsError(mob_id=self.id)
 
     @property
-    def description_html(self): return utils_bbcode.render(self.description)
+    def description_html(self): return bbcode_renderers.default.render(self.description)
 
     def features_verbose(self):
         features = [feature.verbose_text for feature in self.features]

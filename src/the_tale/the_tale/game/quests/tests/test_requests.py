@@ -23,7 +23,7 @@ class ChooseRequestsTests(utils_testcase.TestCase, helpers.QuestTestsMixin):
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [helpers.QuestWith2ChoicePoints])
     def test_choose_no_account(self):
         self.turn_to_quest(self.storage, self.hero.id)
-        response = self.client.post(dext_urls.url('game:quests:api-choose', option_uid=self.option_uid, api_version='1.0', api_client=django_settings.API_CLIENT))
+        response = self.client.post(utils_urls.url('game:quests:api-choose', option_uid=self.option_uid, api_version='1.0', api_client=django_settings.API_CLIENT))
         self.check_ajax_error(response, 'common.login_required')
 
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [helpers.QuestWith2ChoicePoints])
@@ -31,7 +31,7 @@ class ChooseRequestsTests(utils_testcase.TestCase, helpers.QuestTestsMixin):
         self.turn_to_quest(self.storage, self.hero.id)
 
         self.request_login(self.account.email)
-        response = self.client.post(dext_urls.url('game:quests:api-choose', option_uid=self.option_uid, api_version='1.0', api_client=django_settings.API_CLIENT))
+        response = self.client.post(utils_urls.url('game:quests:api-choose', option_uid=self.option_uid, api_version='1.0', api_client=django_settings.API_CLIENT))
 
         task = PostponedTaskPrototype._db_get_object(0)
         self.check_ajax_processing(response, task.status_url)

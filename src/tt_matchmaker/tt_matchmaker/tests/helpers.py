@@ -10,7 +10,7 @@ from .. import operations
 class BaseTests(web_helpers.BaseTests):
 
     def create_application(self):
-        return service.create_application(get_config(), loop=self.loop)
+        return service.create_application(get_config())
 
     async def clean_environment(self, app=None):
         await operations.clean_database()

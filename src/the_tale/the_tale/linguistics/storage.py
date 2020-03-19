@@ -21,7 +21,7 @@ class BaseGameDictionaryStorage(utils_storage.SingleStorage):
             word = utg_words.Word.deserialize(s11n.from_json(forms))
             self._item.add_word(word)
 
-        self._version = dext_settings.settings.get(self.SETTINGS_KEY)
+        self._version = global_settings.get(self.SETTINGS_KEY)
 
     def _get_next_version(self):
         return '%f' % time.time()
@@ -56,7 +56,7 @@ class GameLexiconDictionaryStorage(utils_storage.SingleStorage):
             restrictions = frozenset(tuple(key) for key in data.get('restrictions', ()))
             self._item.add_template(key, template, restrictions=restrictions)
 
-        self._version = dext_settings.settings.get(self.SETTINGS_KEY)
+        self._version = global_settings.get(self.SETTINGS_KEY)
 
     def _get_next_version(self):
         return '%f' % time.time()
@@ -66,7 +66,7 @@ dictionary = GameDictionaryStorage()
 lexicon = GameLexiconDictionaryStorage()
 
 
-class RestrictionsStorage(dext_storage.Storage):
+class RestrictionsStorage(utils_storage.Storage):
     SETTINGS_KEY = 'linguisitcs-restrictions-storage'
     EXCEPTION = exceptions.RestrictionsStorageError
 

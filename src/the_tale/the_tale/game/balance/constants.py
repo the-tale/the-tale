@@ -247,35 +247,21 @@ _SAFETY_TO_TRANSPORT = float(round(-speed_from_safety(0.01, BATTLES_PER_TURN) / 
 # Карта
 ##########################
 
-QUEST_AREA_RADIUS = float(44)  # радиус от позиции героя в котором ОБЫЧНО выбираются города для его заданий
-QUEST_AREA_SHORT_RADIUS = QUEST_AREA_RADIUS / 2  # радиус от позиции героя в котором выбираются города для его заданий на начальных уровнях
-QUEST_AREA_MAXIMUM_RADIUS = float(1000000)  # максимальный радиус для выбора городов для заданий
-
-# примерное количество ходов на один квест вида «сходит туда и обратно»
-# средний квест предполагает среднее расстояние между городами, значит двойное расстоения надо поделить на 2
-TURNS_IN_QUEST = QUEST_AREA_RADIUS * 2 / 2 / DISTANCE_IN_ACTION_CYCLE * ACTIONS_CYCLE_LENGTH
+MINIMUM_QUESTS_REGION_SIZE = int(15)
+DEFAULT_QUESTS_REGION_SIZE = int(25)
 
 MAP_SYNC_TIME_HOURS = int(1)
 MAP_SYNC_TIME = int(TURNS_IN_HOUR * MAP_SYNC_TIME_HOURS)  # синхронизируем карту раз в N часов
 
 CELL_SAFETY_MIN = float(0.05)
+CELL_SAFETY_MAX = float(0.95)
 
 CELL_SAFETY_DELTA = float(0.01)
-
-CELL_SAFETY_TREES = -2 * CELL_SAFETY_DELTA
-CELL_SAFETY_HILLS = CELL_SAFETY_DELTA
-CELL_SAFETY_MOUNTAINS = 2 * CELL_SAFETY_DELTA
 
 CELL_SAFETY_NO_PATRULES = float(-0.5)
 
 CELL_TRANSPORT_MIN = CELL_SAFETY_MIN * _SAFETY_TO_TRANSPORT
 CELL_TRANSPORT_DELTA = CELL_SAFETY_DELTA * _SAFETY_TO_TRANSPORT
-
-CELL_TRANSPORT_TREES = -CELL_TRANSPORT_DELTA
-CELL_TRANSPORT_SWAMP = -CELL_TRANSPORT_DELTA
-CELL_TRANSPORT_JUNGLE = -CELL_TRANSPORT_DELTA
-CELL_TRANSPORT_HILLS = -CELL_TRANSPORT_DELTA * 2
-CELL_TRANSPORT_MOUNTAINS = -CELL_TRANSPORT_DELTA * 4
 
 CELL_TRANSPORT_MAGIC = -CELL_TRANSPORT_DELTA
 
@@ -293,8 +279,6 @@ PATH_MODIFIER_MINIMUM_MULTIPLIER = float(0.1)
 # Задания
 ##########################
 
-QUESTS_SHORT_PATH_LEVEL_CAP = int(4)  # на уровнях до этого герои получаю задания в близких городах
-
 QUESTS_PILGRIMAGE_FRACTION = float(0.025)  # вероятность отправить героя в паломничество
 
 ##########################
@@ -308,19 +292,17 @@ PERSON_POWER_FOR_RANDOM_SPEND = int(200)
 
 MINIMUM_CARD_POWER = int(HERO_POWER_PER_DAY)
 
+EXPECTED_HERO_QUEST_POWER_MODIFIER = float(5)
+
 # в 2 раза больше, так как карту надо применять к конкретному квесту, а не сразу к мастеру
 # в EXPECTED_HERO_QUEST_POWER_MODIFIER раз меньше, так как на эффект квеста действует политический бонус героя, считаем его в среднем равным EXPECTED_HERO_QUEST_POWER_MODIFIER
 
-EXPECTED_HERO_QUEST_POWER_MODIFIER = float(5)
-
 CARD_BONUS_FOR_QUEST = int(2 * MINIMUM_CARD_POWER / EXPECTED_HERO_QUEST_POWER_MODIFIER)
 
-NORMAL_JOB_LENGTH = int(10)  # средняя длительность занятия мастера в днях
+NORMAL_JOB_LENGTH = int(4)  # минимальная длительность занятия мастера в днях
 
 JOB_MIN_POWER = float(0.5)
 JOB_MAX_POWER = float(2.0)
-
-JOB_HERO_REWARD_FRACTION = float(0.1)  # множитель наград для героев, расчитываемых из длительности проекта
 
 JOB_NEGATIVE_POWER_MULTIPLIER = float(2.0)  # множитель награды для противников: ломать — не строить
 
@@ -453,7 +435,8 @@ PVP_EFFECTIVENESS_INITIAL = float(300)
 ###########################
 
 PLACE_MIN_PERSONS = 2
-PLACE_MAX_PERSONS = 6
+PLACE_MAX_PERSONS = [None, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]
+PLACE_ABSOLUTE_MAX_PERSONS = PLACE_MAX_PERSONS[-1]
 
 PLACE_MIN_STABILITY = 0
 PLACE_MIN_CULTURE = 0.2
@@ -500,6 +483,12 @@ CELL_STABILIZATION_PRICE = int(PLACE_AVERAGE_TOTAL_ROADS_PRICE / 15)
 # то в городе вводят пошлину в размере "недостающее производство" * PLACE_TAX_PER_ONE_GOODS
 PLACE_TAX_PER_ONE_GOODS = float(0.1 / PLACE_GOODS_BONUS)
 
+# максимальное производство от пошлины фиксируется статически, а не динамически (например как 1/PLACE_TAX_PER_ONE_GOODS)
+# поскольку последнее:
+# - либо сделает пошлину крайне невыгодной в книге судеб
+# - либо позволит поддерживать город максимального размера при, ожидаемом минимальном размере
+MAX_PRODUCTION_FROM_TAX = int(PLACE_GOODS_BONUS * 2.5)
+
 # исходим из того, что в первую очередь надо балансировать вероятность нападения монстров как самый важный параметр
 PLACE_SAFETY_FROM_BEST_PERSON = float(0.025)
 PLACE_TRANSPORT_FROM_BEST_PERSON = PLACE_SAFETY_FROM_BEST_PERSON * _SAFETY_TO_TRANSPORT
@@ -545,14 +534,14 @@ PLACE_HABITS_CHANGE_SPEED_MAXIMUM = float(10)
 PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY = float(10)
 PLACE_HABITS_EVENT_PROBABILITY = float(0.025)
 
-PLACE_JOB_EFFECT_FRACTION = float(0.2)
+PLACE_JOB_EFFECT_LIFETIME = int(NORMAL_JOB_LENGTH * 2)  # в днях
 
-JOB_PRODUCTION_BONUS = int(PLACE_GOODS_BONUS * PLACE_JOB_EFFECT_FRACTION)
-JOB_SAFETY_BONUS = float(PLACE_SAFETY_FROM_BEST_PERSON * PLACE_JOB_EFFECT_FRACTION)
-JOB_TRANSPORT_BONUS = float(PLACE_TRANSPORT_FROM_BEST_PERSON * PLACE_JOB_EFFECT_FRACTION)
-JOB_FREEDOM_BONUS = float(PLACE_FREEDOM_FROM_BEST_PERSON * PLACE_JOB_EFFECT_FRACTION)
-JOB_STABILITY_BONUS = float(PLACE_STABILITY_UNIT * PLACE_JOB_EFFECT_FRACTION)
-JOB_CULTURE_BONUS = float(PLACE_CULTURE_FROM_BEST_PERSON * PLACE_JOB_EFFECT_FRACTION)
+JOB_PRODUCTION_BONUS = int(PLACE_GOODS_BONUS)
+JOB_SAFETY_BONUS = float(PLACE_SAFETY_FROM_BEST_PERSON)
+JOB_TRANSPORT_BONUS = float(PLACE_TRANSPORT_FROM_BEST_PERSON)
+JOB_FREEDOM_BONUS = float(PLACE_FREEDOM_FROM_BEST_PERSON)
+JOB_STABILITY_BONUS = float(PLACE_STABILITY_UNIT)
+JOB_CULTURE_BONUS = float(PLACE_CULTURE_FROM_BEST_PERSON)
 
 
 RESOURCE_EXCHANGE_COST_PER_CELL = int(math.floor(PLACE_GOODS_BONUS / 40))
@@ -598,8 +587,7 @@ COMPANIONS_MAX_COHERENCE = int(100)  # максимальный уровень �
 
 # опыта к слаженности за выполненный квест
 # подбирается так, чтобы слаженность росла до максимума примерно за 9 месяцев
-_QUESTS_REQUIED = (9 * 30 * 24 * 60 * 60) / (TURNS_IN_QUEST * TURN_DELTA)
-COMPANIONS_COHERENCE_EXP_PER_QUEST = int(((1 + 100) * 100 / 2) / _QUESTS_REQUIED)
+EXPECTED_FULL_COHERENCE_TIME = 9 * 30 * 24 * 60 * 60
 
 COMPANIONS_MEDIUM_COHERENCE = float(COMPANIONS_MIN_COHERENCE + COMPANIONS_MAX_COHERENCE) / 2
 
@@ -679,3 +667,5 @@ PLACE_MAX_BILLS_NUMBER = int(3)
 
 FREE_ACCOUNT_MAX_ACTIVE_BILLS = int(1)
 PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS = int(4)
+
+BILLS_FAME_BORDER = HERO_FAME_PER_HELP

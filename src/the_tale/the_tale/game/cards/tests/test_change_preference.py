@@ -156,3 +156,26 @@ class ChangePreference(utils_testcase.TestCase, helpers.CardsTestMixin):
         self.use_card(heroes_relations.PREFERENCE_TYPE.COMPANION_EMPATHY, heroes_relations.COMPANION_EMPATHY.EMPATH)
 
         self.assertTrue(self.hero.preferences.companion_empathy.is_EMPATH)
+
+    def test_quests_region(self):
+        place = places_storage.places.all()[0]
+
+        self.assertEqual(self.hero.preferences.quests_region, None)
+
+        self.use_card(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION, place.id)
+
+        self.assertEqual(self.hero.preferences.quests_region.id, place.id)
+
+        self.use_card(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION, None)
+
+        self.assertEqual(self.hero.preferences.quests_region, None)
+
+    @mock.patch('the_tale.game.balance.constants.MINIMUM_QUESTS_REGION_SIZE', 1)
+    def test_quests_region_size(self):
+        self.assertEqual(self.hero.preferences.quests_region_size, c.DEFAULT_QUESTS_REGION_SIZE)
+
+        self.use_card(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE, 1)
+        self.assertEqual(self.hero.preferences.quests_region_size, 1)
+
+        self.use_card(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE, 2)
+        self.assertEqual(self.hero.preferences.quests_region_size, 2)

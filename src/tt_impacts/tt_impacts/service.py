@@ -6,7 +6,7 @@ from tt_web import postgresql
 
 
 async def on_startup(app):
-    await postgresql.initialize(app['config']['database'], loop=app.loop)
+    await postgresql.initialize(app['config']['database'])
 
 
 async def on_cleanup(app):
@@ -26,8 +26,8 @@ def register_routers(app):
     app.router.add_post('/debug-clear-service', handlers.debug_clear_service)
 
 
-def create_application(config, loop=None):
-    app = web.Application(loop=loop)
+def create_application(config):
+    app = web.Application()
 
     app['config'] = config
 

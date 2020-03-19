@@ -33,7 +33,7 @@ def send_mail(accounts, subject, text_content, html_content):
             email.send()
         except Exception:
             if not django_settings.TESTS_RUNNING:
-                logger = logging.getLogger('the-tale.workers.post_service_message_sender')
+                logger = logging.getLogger(__name__)
                 logger.error('Exception while send email',
                              exc_info=sys.exc_info(),
                              extra={})

@@ -30,8 +30,8 @@ def update_job(job, actor_id):
 
     effect_kwargs = {'actor_type': job.ACTOR,
                      'actor_name': job.get_project_name(actor_id),
-                     'positive_heroes': inner_circle.positive_heroes,
-                     'negative_heroes': inner_circle.negative_heroes,
+                     'positive_heroes': inner_circle.get_positive_heroes_ids(),
+                     'negative_heroes': inner_circle.get_negative_heroes_ids(),
                      'job_power': job.get_job_power(actor_id)}
 
     effect_kwargs.update(job.get_objects(actor_id))
@@ -65,7 +65,6 @@ def update_job(job, actor_id):
     job.name = create_name(job.ACTOR, new_effect)
     job.created_at_turn = game_turn.number()
     job.effect = new_effect
-    job.power_required = job.NORMAL_POWER * new_effect.power_modifier
 
     return after_update_operations
 
@@ -79,5 +78,4 @@ def create_job(JobClass):
 
     return JobClass(name=create_name(JobClass.ACTOR, effect),
                     created_at_turn=game_turn.number(),
-                    effect=effect,
-                    power_required=JobClass.NORMAL_POWER * effect.power_modifier)
+                    effect=effect)

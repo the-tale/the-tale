@@ -151,13 +151,13 @@ class TestIndexRequests(BaseTestRequests):
         models.MobRecord.objects.all().delete()
         storage.mobs.clear()
         logic.create_random_mob_record(uuid='bandit', type=tt_beings_relations.TYPE.COLDBLOODED)
-        self.check_html_ok(self.request_html(dext_urls.url('guide:mobs:', type=tt_beings_relations.TYPE.CIVILIZED.value)), texts=(('pgf-no-mobs-message', 1),))
+        self.check_html_ok(self.request_html(utils_urls.url('guide:mobs:', type=tt_beings_relations.TYPE.CIVILIZED.value)), texts=(('pgf-no-mobs-message', 1),))
 
     def test_filter_by_type(self):
         models.MobRecord.objects.all().delete()
         storage.mobs.clear()
         logic.create_random_mob_record(uuid='bandit', type=tt_beings_relations.TYPE.COLDBLOODED)
-        self.check_html_ok(self.request_html(dext_urls.url('guide:mobs:', type=tt_beings_relations.TYPE.COLDBLOODED.value)), texts=['bandit'])
+        self.check_html_ok(self.request_html(utils_urls.url('guide:mobs:', type=tt_beings_relations.TYPE.COLDBLOODED.value)), texts=['bandit'])
 
 
 class TestNewRequests(BaseTestRequests):
@@ -274,7 +274,7 @@ class TestShowRequests(BaseTestRequests):
         blogs_helpers.create_post_for_meta_object(self.account_1, 'folclor-1-caption', 'folclor-1-text', meta_relations.Mob.create_from_object(mob))
         blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-2-caption', 'folclor-2-text', meta_relations.Mob.create_from_object(mob))
 
-        self.check_html_ok(self.request_html(dext_urls.url('guide:mobs:show', mob.id)), texts=[('pgf-no-folclor', 0),
+        self.check_html_ok(self.request_html(utils_urls.url('guide:mobs:show', mob.id)), texts=[('pgf-no-folclor', 0),
                                                                                                'folclor-1-caption',
                                                                                                'folclor-2-caption'])
 
@@ -305,30 +305,30 @@ class TestInfoRequests(BaseTestRequests):
         super(TestInfoRequests, self).setUp()
 
     def test_wrong_mob_id(self):
-        self.check_html_ok(self.request_html(dext_urls.url('guide:mobs:info', 'adsd')), texts=[('mobs.mob.wrong_format', 1)])
+        self.check_html_ok(self.request_html(utils_urls.url('guide:mobs:info', 'adsd')), texts=[('mobs.mob.wrong_format', 1)])
 
     def test_no_mob(self):
-        self.check_html_ok(self.request_html(dext_urls.url('guide:mobs:info', 666)), texts=[('mobs.mob.not_found', 1)], status_code=404)
+        self.check_html_ok(self.request_html(utils_urls.url('guide:mobs:info', 666)), texts=[('mobs.mob.not_found', 1)], status_code=404)
 
     def test_disabled_mob_declined(self):
         mob = logic.create_random_mob_record(uuid='bandit', state=relations.MOB_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.request_html(dext_urls.url('guide:mobs:info', mob.id)), texts=[('mobs.mob_disabled', 1)], status_code=404)
+        self.check_html_ok(self.request_html(utils_urls.url('guide:mobs:info', mob.id)), texts=[('mobs.mob_disabled', 1)], status_code=404)
 
     def test_disabled_mob_accepted_for_create_rights(self):
         self.request_logout()
         self.request_login(self.account_2.email)
         mob = logic.create_random_mob_record(uuid='bandit', state=relations.MOB_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.request_html(dext_urls.url('guide:mobs:info', mob.id)), texts=[mob.name.capitalize()])
+        self.check_html_ok(self.request_html(utils_urls.url('guide:mobs:info', mob.id)), texts=[mob.name.capitalize()])
 
     def test_disabled_mob_accepted_for_add_rights(self):
         self.request_logout()
         self.request_login(self.account_3.email)
         mob = logic.create_random_mob_record(uuid='bandit', state=relations.MOB_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.request_html(dext_urls.url('guide:mobs:info', mob.id)), texts=[mob.name.capitalize()])
+        self.check_html_ok(self.request_html(utils_urls.url('guide:mobs:info', mob.id)), texts=[mob.name.capitalize()])
 
     def test_simple(self):
         mob = logic.construct_from_model(models.MobRecord.objects.all()[0])
-        self.check_html_ok(self.request_html(dext_urls.url('guide:mobs:info', mob.id)), texts=[(mob.name.capitalize(), 1),
+        self.check_html_ok(self.request_html(utils_urls.url('guide:mobs:info', mob.id)), texts=[(mob.name.capitalize(), 1),
                                                                                                ('pgf-no-description', 0),
                                                                                                ('pgf-moderate-button', 0),
                                                                                                ('pgf-edit-button', 0),
@@ -342,7 +342,7 @@ class TestInfoRequests(BaseTestRequests):
         blogs_helpers.create_post_for_meta_object(self.account_1, 'folclor-1-caption', 'folclor-1-text', meta_relations.Mob.create_from_object(mob))
         blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-2-caption', 'folclor-2-text', meta_relations.Mob.create_from_object(mob))
 
-        self.check_html_ok(self.request_html(dext_urls.url('guide:mobs:info', mob.id)), texts=[('pgf-no-folclor', 0),
+        self.check_html_ok(self.request_html(utils_urls.url('guide:mobs:info', mob.id)), texts=[('pgf-no-folclor', 0),
                                                                                                'folclor-1-caption',
                                                                                                'folclor-2-caption'])
 
@@ -350,7 +350,7 @@ class TestInfoRequests(BaseTestRequests):
         mob = storage.mobs.all()[0]
         mob.description = ''
         logic.save_mob_record(mob)
-        self.check_html_ok(self.request_html(dext_urls.url('guide:mobs:info', mob.id)), texts=[('pgf-no-description', 1)])
+        self.check_html_ok(self.request_html(utils_urls.url('guide:mobs:info', mob.id)), texts=[('pgf-no-description', 1)])
 
 
 class TestEditRequests(BaseTestRequests):

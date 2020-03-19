@@ -12,14 +12,14 @@ class AuthRequestsTests(utils_testcase.TestCase):
         self.account = self.accounts_factory.create_account()
 
     def test_login_page(self):
-        response = self.client.get(dext_urls.url('accounts:auth:page-login'))
+        response = self.client.get(utils_urls.url('accounts:auth:page-login'))
         self.check_html_ok(response)
 
     def test_login_page_after_login(self):
         chronicle_tt_services.chronicle.cmd_debug_clear_service()
 
         self.request_login(self.account.email)
-        self.check_redirect(dext_urls.url('accounts:auth:page-login'), '/')
+        self.check_redirect(utils_urls.url('accounts:auth:page-login'), '/')
 
     def test_login_command(self):
         self.request_login(self.account.email, '111111', remember=False)
@@ -30,7 +30,7 @@ class AuthRequestsTests(utils_testcase.TestCase):
         self.assertTrue(self.client.session.get_expiry_age() > conf.settings.SESSION_REMEMBER_TIME - 10)
 
     def test_login(self):
-        response = self.client.post(dext_urls.url('accounts:auth:api-login', api_version='1.0', api_client='test-1.0', next_url='/bla-bla'),
+        response = self.client.post(utils_urls.url('accounts:auth:api-login', api_version='1.0', api_client='test-1.0', next_url='/bla-bla'),
                                     {'email': self.account.email, 'password': '111111'})
         self.check_ajax_ok(response)
 

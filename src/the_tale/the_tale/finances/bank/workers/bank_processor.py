@@ -29,10 +29,10 @@ class Worker(utils_workers.BaseWorker):
 
     def check_frozen_expired_invoices(self):
 
-        if time.time() - float(dext_settings.settings.get(conf.settings.SETTINGS_LAST_FROZEN_EXPIRED_CHECK_KEY, 0)) < conf.settings.FROZEN_INVOICE_EXPIRED_CHECK_TIMEOUT:
+        if time.time() - float(global_settings.get(conf.settings.SETTINGS_LAST_FROZEN_EXPIRED_CHECK_KEY, 0)) < conf.settings.FROZEN_INVOICE_EXPIRED_CHECK_TIMEOUT:
             return
 
-        dext_settings.settings[conf.settings.SETTINGS_LAST_FROZEN_EXPIRED_CHECK_KEY] = str(time.time())
+        global_settings[conf.settings.SETTINGS_LAST_FROZEN_EXPIRED_CHECK_KEY] = str(time.time())
 
         if not prototypes.InvoicePrototype.check_frozen_expired_invoices():
             return
@@ -50,7 +50,7 @@ class Worker(utils_workers.BaseWorker):
             return
 
         if (not conf.settings.ENABLE_BANK or
-                dext_settings.settings.get(conf.settings.SETTINGS_ALLOWED_KEY) is None):
+                global_settings.get(conf.settings.SETTINGS_ALLOWED_KEY) is None):
             self.logger.info('postpone invoice %d' % invoice.id)
             return
 

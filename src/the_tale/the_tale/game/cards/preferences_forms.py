@@ -9,9 +9,9 @@ def form(preference):
     name = preference.text
     name = name[0].upper() + name[1:]
 
-    class Preference(dext_forms.Form):
+    class Preference(utils_forms.Form):
         PREFERENCE = preference
-        value = dext_fields.ChoiceField(required=False)
+        value = utils_fields.ChoiceField(required=False)
 
         def __init__(self, *args, **kwargs):
             self.hero = kwargs.pop('hero')
@@ -82,11 +82,11 @@ class RelationMixin:
 
 
 class EnergyRegenerationType(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE)):
-    value = dext_fields.RelationField(relation=heroes_relations.ENERGY_REGENERATION)
+    value = utils_fields.RelationField(relation=heroes_relations.ENERGY_REGENERATION)
 
 
 class EquipmentSlot(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT)):
-    value = dext_fields.RelationField(relation=heroes_relations.EQUIPMENT_SLOT, required=False)
+    value = utils_fields.RelationField(relation=heroes_relations.EQUIPMENT_SLOT, required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -94,11 +94,11 @@ class EquipmentSlot(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.EQUIPME
 
 
 class RiskLevel(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.RISK_LEVEL)):
-    value = dext_fields.RelationField(relation=heroes_relations.RISK_LEVEL)
+    value = utils_fields.RelationField(relation=heroes_relations.RISK_LEVEL)
 
 
 class FavoriteItem(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.FAVORITE_ITEM)):
-    value = dext_fields.RelationField(relation=heroes_relations.EQUIPMENT_SLOT, required=False)
+    value = utils_fields.RelationField(relation=heroes_relations.EQUIPMENT_SLOT, required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -115,16 +115,28 @@ class FavoriteItem(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.FAVORITE
 
 
 class Archetype(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.ARCHETYPE)):
-    value = dext_fields.RelationField(relation=game_relations.ARCHETYPE)
+    value = utils_fields.RelationField(relation=game_relations.ARCHETYPE)
 
 
 class CompanionDedication(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.COMPANION_DEDICATION)):
-    value = dext_fields.RelationField(relation=heroes_relations.COMPANION_DEDICATION)
+    value = utils_fields.RelationField(relation=heroes_relations.COMPANION_DEDICATION)
 
 
 class CompanionEmpathy(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.COMPANION_EMPATHY)):
-    value = dext_fields.RelationField(relation=heroes_relations.COMPANION_EMPATHY)
+    value = utils_fields.RelationField(relation=heroes_relations.COMPANION_EMPATHY)
+
+
+class QuestsRegiion(form(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION)):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['value'].choices = [(None, 'забыть предпочтение')] + places_storage.places.get_choices()
+
+
+class QuestsRegiionSize(form(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE)):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['value'].choices = [(str(i), str(i)) for i in range(c.MINIMUM_QUESTS_REGION_SIZE, len(places_storage.places.all()))]
 
 
 FORMS = {form_class.PREFERENCE: form_class
-         for form_class in dext_discovering.discover_classes(globals().values(), dext_forms.Form)}
+         for form_class in utils_discovering.discover_classes(globals().values(), utils_forms.Form)}

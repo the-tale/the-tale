@@ -4,11 +4,13 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'clean database'
 
-    def handle(self, *args, **options):
+    LOCKS = ['portal_commands']
+
+    def _handle(self, *args, **options):
         PostponedTaskPrototype.remove_old_tasks()
 
         forum_prototypes.ThreadReadInfoPrototype.remove_old_infos()

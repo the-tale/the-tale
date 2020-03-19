@@ -4,50 +4,46 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'do post update operations'
 
+    LOCKS = ['game_commands', 'portal_commands']
+
+    GAME_MUST_BE_STOPPED = True
+    GAME_CAN_BE_IN_MAINTENANCE_MODE = True
+
     requires_model_validation = False
 
-    def handle(self, *args, **options):
+    def _handle(self, *args, **options):
 
-        print()
-        print('UPDATE MAP')
-        print()
+        self.logger.info('')
+        self.logger.info('UPDATE MAP')
+        self.logger.info('')
 
-        dext_logic.run_django_command(['map_update_map'])
+        utils_logic.run_django_command(['map_update_map', '--ignore-lock', 'game_commands', '--game-can-be-in-maintenance-mode'])
 
-        print()
-        print('UPDATE LINGUISTICS')
+        self.logger.info('')
+        self.logger.info('UPDATE LINGUISTICS')
 
         linguistics_logic.sync_static_restrictions()
         linguistics_logic.update_templates_errors()
         linguistics_logic.update_words_usage_info()
 
-        print()
-        print('SYNC ACTUAL BILLS')
+        self.logger.info('')
+        self.logger.info('SYNC ACTUAL BILLS')
 
         bills_logic.update_actual_bills_for_all_accounts()
 
-        print()
-        print('REFRESH ATTRIBUTES')
+        self.logger.info('')
+        self.logger.info('REFRESH ATTRIBUTES')
 
         places_logic.refresh_all_places_attributes()
         persons_logic.refresh_all_persons_attributes()
 
-        print()
-        print('REMOVE OLD CDN INFO')
-
-        if portal_conf.settings.SETTINGS_CDN_INFO_KEY in dext_settings.settings:
-            del dext_settings.settings[portal_conf.settings.SETTINGS_CDN_INFO_KEY]
-
-        if portal_conf.settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY in dext_settings.settings:
-            del dext_settings.settings[portal_conf.settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY]
-
-        print()
-        print('SYNC GROUPS AND PERMISSIONS')
-        print()
+        self.logger.info('')
+        self.logger.info('SYNC GROUPS AND PERMISSIONS')
+        self.logger.info('')
 
         utils_permissions.sync_group('content group', ['news.add_news', 'news.change_news', 'news.delete_news'])
 

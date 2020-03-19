@@ -13,10 +13,10 @@ def new_messages_number_url():
     arguments = {'api_version': conf.settings.NEW_MESSAGES_NUMNER_API_VERSION,
                  'api_client': django_settings.API_CLIENT}
 
-    return dext_urls.url('accounts:messages:api-new-messages-number', **arguments)
+    return utils_urls.url('accounts:messages:api-new-messages-number', **arguments)
 
 
-def send_message(sender_id, recipients_ids, body, async=False):
+def send_message(sender_id, recipients_ids, body, asynchronous=False):
 
     def callback(answer):
         notify_post_service(answer=answer,
@@ -25,5 +25,5 @@ def send_message(sender_id, recipients_ids, body, async=False):
     return tt_services.personal_messages.cmd_send_message(sender_id=sender_id,
                                                           recipients_ids=recipients_ids,
                                                           body=body,
-                                                          async=async,
+                                                          asynchronous=asynchronous,
                                                           callback=callback)

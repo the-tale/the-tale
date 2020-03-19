@@ -11,7 +11,7 @@ class Clan(django_models.Model):
     MAX_ABBR_LENGTH = 5
     MIN_ABBR_LENGTH = 2
     MAX_MOTTO_LENGTH = 256
-    MAX_DESCRIPTION_LENGTH = 2024
+    MAX_DESCRIPTION_LENGTH = 10000
 
     created_at = django_models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = django_models.DateTimeField(auto_now=True, db_index=True)
@@ -36,7 +36,7 @@ class Clan(django_models.Model):
 
     statistics_refreshed_at = django_models.DateTimeField(auto_now_add=True)
 
-    data = django_postgres_fields.JSONField(default='{}')
+    data = django_postgres_fields.JSONField()
 
     def __str__(self):
         return '[%s] %s' % (self.abbr, self.name)

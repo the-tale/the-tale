@@ -5,8 +5,8 @@ smart_imports.all()
 
 class Client(client.Client):
 
-    def cmd_read_messages(self, account_id, async=False):
-        if async:
+    def cmd_read_messages(self, account_id, asynchronous=False):
+        if asynchronous:
             operations.async_request(url=self.url('read-messages'),
                                      data=tt_protocol_personal_messages_pb2.ReadMessagesRequest(account_id=account_id))
         else:
@@ -83,12 +83,12 @@ class Client(client.Client):
 
         return None
 
-    def cmd_send_message(self, sender_id, recipients_ids, body, async=False, callback=lambda answer, recipients_ids: None):
+    def cmd_send_message(self, sender_id, recipients_ids, body, asynchronous=False, callback=lambda answer, recipients_ids: None):
         data = tt_protocol_personal_messages_pb2.SendMessageRequest(sender_id=sender_id,
                                                                     recipients_ids=recipients_ids,
                                                                     body=body)
 
-        if async:
+        if asynchronous:
             operations.async_request(url=self.url('send-message'),
                                      data=data,
                                      AnswerType=tt_protocol_personal_messages_pb2.SendMessageResponse,

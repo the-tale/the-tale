@@ -20,8 +20,8 @@ class Migration(migrations.Migration):
                 ('text', models.TextField(default=b'', blank=True)),
                 ('hide_from_sender', models.BooleanField(default=False)),
                 ('hide_from_recipient', models.BooleanField(default=False)),
-                ('recipient', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('sender', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL)),
+                ('recipient', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL, on_delete=models.PROTECT)),
+                ('sender', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL, on_delete=models.PROTECT)),
             ],
             options={
                 'get_latest_by': 'created_at',

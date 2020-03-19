@@ -54,25 +54,25 @@ class TestShowRequests(utils_testcase.TestCase):
 
     def test_place_new_place_message(self):
         self.assertTrue(self.place_1.is_new)
-        self.check_html_ok(self.request_html(dext_urls.url('game:places:show', self.place_1.id)), texts=['pgf-new-place-message'])
+        self.check_html_ok(self.request_html(utils_urls.url('game:places:show', self.place_1.id)), texts=['pgf-new-place-message'])
 
     @mock.patch('the_tale.game.balance.constants.PLACE_NEW_PLACE_LIVETIME', 0)
     def test_place_new_place_message__not_new(self):
-        self.check_html_ok(self.request_html(dext_urls.url('game:places:show', self.place_1.id)), texts=[('pgf-new-place-message', 0)])
+        self.check_html_ok(self.request_html(utils_urls.url('game:places:show', self.place_1.id)), texts=[('pgf-new-place-message', 0)])
 
     @mock.patch('the_tale.game.places.objects.Place.is_frontier', True)
     def test_place_frontier_message(self):
-        self.check_html_ok(self.request_html(dext_urls.url('game:places:show', self.place_1.id)), texts=['pgf-frontier-message'])
+        self.check_html_ok(self.request_html(utils_urls.url('game:places:show', self.place_1.id)), texts=['pgf-frontier-message'])
 
     @mock.patch('the_tale.game.places.objects.Place.is_frontier', False)
     def test_place_frontier_message__not_new(self):
-        self.check_html_ok(self.request_html(dext_urls.url('game:places:show', self.place_1.id)), texts=[('pgf-frontier-message', 0)])
+        self.check_html_ok(self.request_html(utils_urls.url('game:places:show', self.place_1.id)), texts=[('pgf-frontier-message', 0)])
 
     def test_wrong_place_id(self):
-        self.check_html_ok(self.request_html(dext_urls.url('game:places:show', 'wrong_id')), texts=['pgf-error-place.wrong_format'])
+        self.check_html_ok(self.request_html(utils_urls.url('game:places:show', 'wrong_id')), texts=['pgf-error-place.wrong_format'])
 
     def test_place_does_not_exist(self):
-        self.check_html_ok(self.request_html(dext_urls.url('game:places:show', 666)), texts=['pgf-error-place.wrong_value'])
+        self.check_html_ok(self.request_html(utils_urls.url('game:places:show', 666)), texts=['pgf-error-place.wrong_value'])
 
     def test__has_folclor(self):
         blogs_helpers.prepair_forum()
@@ -80,9 +80,9 @@ class TestShowRequests(utils_testcase.TestCase):
         blogs_helpers.create_post_for_meta_object(self.account, 'folclor-1-caption', 'folclor-1-text', meta_relations.Place.create_from_object(self.place_1))
         blogs_helpers.create_post_for_meta_object(self.account, 'folclor-2-caption', 'folclor-2-text', meta_relations.Place.create_from_object(self.place_1))
 
-        self.check_html_ok(self.request_html(dext_urls.url('game:places:show', self.place_1.id)), texts=[('pgf-no-folclor', 0),
+        self.check_html_ok(self.request_html(utils_urls.url('game:places:show', self.place_1.id)), texts=[('pgf-no-folclor', 0),
                                                                                                          'folclor-1-caption',
                                                                                                          'folclor-2-caption'])
 
     def test__no_folclor(self):
-        self.check_html_ok(self.request_html(dext_urls.url('game:places:show', self.place_1.id)), texts=['pgf-no-folclor'])
+        self.check_html_ok(self.request_html(utils_urls.url('game:places:show', self.place_1.id)), texts=['pgf-no-folclor'])

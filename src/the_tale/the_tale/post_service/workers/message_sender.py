@@ -35,8 +35,8 @@ class Worker(utils_workers.BaseWorker):
             return False
 
         if (not conf.settings.ENABLE_MESSAGE_SENDER or
-            (dext_settings.settings.get(conf.settings.SETTINGS_ALLOWED_KEY) is None and
-             message.handler.settings_type_uid not in dext_settings.settings.get(conf.settings.SETTINGS_FORCE_ALLOWED_KEY, ''))):
+            (global_settings.get(conf.settings.SETTINGS_ALLOWED_KEY) is None and
+             message.handler.settings_type_uid not in global_settings.get(conf.settings.SETTINGS_FORCE_ALLOWED_KEY, ''))):
             self.logger.info('skip message %s' % message.uid)
             message.skip()
             return True

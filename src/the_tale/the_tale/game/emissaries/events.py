@@ -9,6 +9,8 @@ class EventBase:
 
     TYPE = NotImplemented
     BASE_CYCLE_LENGTH = 1
+    HAS_PROTECTORAT_BONUS = False
+    ONLY_FOR_PROTECTORAT = False
 
     def __init__(self, raw_ability_power):
         self.raw_ability_power = raw_ability_power
@@ -27,9 +29,14 @@ class EventBase:
         return tt_clans_constants.MAX_EVENT_LENGTH
 
     @classmethod
-    def actual_value(cls, raw_ability_power, left, right, round=lambda value: int(math.ceil(value))):
+    def actual_value(cls,
+                     raw_ability_power,
+                     left,
+                     right,
+                     bonus=0,
+                     round=lambda value: int(math.ceil(value))):
         value = left + cls.ability_power(raw_ability_power) * (right - left)
-        return round(value)
+        return round(value * (1 + bonus))
 
     @classmethod
     def period_choices(cls, emissary):
@@ -138,6 +145,12 @@ class EventBase:
     def deserialize(cls, data):
         return cls(raw_ability_power=data['raw_ability_power'])
 
+    def actual_info(self, emissary):
+        return None
+
+    def actual_info_help(self):
+        return None
+
     def __eq__(self, other):
         return (self.__class__ == other.__class__ and
                 self.raw_ability_power == other.raw_ability_power)
@@ -150,15 +163,18 @@ class Rest(EventBase):
     __slots__ = ()
 
     TYPE = relations.EVENT_TYPE.REST
+    HAS_PROTECTORAT_BONUS = True
 
     @classmethod
-    def health_per_step(cls, raw_ability_power):
+    def health_per_step(cls, raw_ability_power, bonus):
         return cls.actual_value(raw_ability_power,
                                 tt_emissaries_constants.HEALTH_REGENERATION_MIN,
-                                tt_emissaries_constants.HEALTH_REGENERATION_MAX)
+                                tt_emissaries_constants.HEALTH_REGENERATION_MAX,
+                                bonus=bonus)
 
     def on_step(self, event):
-        health_to_regenerate = self.health_per_step(self.raw_ability_power)
+        health_to_regenerate = self.health_per_step(self.raw_ability_power,
+                                                    bonus=event.emissary.protectorat_event_bonus())
 
         event.emissary.health = min(event.emissary.health + health_to_regenerate, event.emissary.attrs.max_health)
 
@@ -168,8 +184,9 @@ class Rest(EventBase):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = 'Восстанавливает эмиссару {health} здоровья каждый час.'
-        return text.format(health=cls.health_per_step(raw_ability_power))
+        health = cls.health_per_step(raw_ability_power,
+                                     bonus=emissary.protectorat_event_bonus() if emissary else 0)
+        return f'Восстанавливает эмиссару {health} здоровья каждый час.'
 
 
 class Dismiss(EventBase):
@@ -186,6 +203,8 @@ class Dismiss(EventBase):
         return 'Увольняет эмиссара. Вернуть эмиссара после увольнения нельзя.'
 
     def on_finish(self, event):
+        logic.cancel_events_except_one(event, logic.stop_event_due_emissary_left_game)
+
         logic.dismiss_emissary(event.emissary.id)
         return True
 
@@ -217,12 +236,14 @@ class Relocation(EventBase):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        return 'По завершении мероприятия эмиссар перемещается в указанный город, его влияние становится равным {power}.'.format(power=logic.expected_power_per_day())
+        return f'По завершении мероприятия эмиссар перемещается в указанный город, его влияние становится равным {logic.expected_power_per_day()}. Все активные мероприятия эмиссара автоматически отменяются.'
 
     def event_description(self, emissary):
         return 'Перемещает эмиссара в {}.'.format(places_storage.places[self.place_id].utg_name.forms[3])
 
     def on_finish(self, event):
+        logic.cancel_events_except_one(event, logic.stop_event_due_emissary_relocated)
+
         logic.move_emissary(emissary_id=event.emissary_id,
                             new_place_id=self.place_id)
         return True
@@ -323,24 +344,20 @@ class ClanLevelUpMixin:
         else:
             delta = cls.PROPERTY.delta
 
-        return 'Увеличивает {} на {}. Тратит {} опыта гильдии. Если одновременно запущено два мероприятия этого типа, то второе законченное не будет иметь эффекта, потраченный опыт вернётся гильдии.'.format(cls.PROPERTY.text,
-                                                                   delta,
-                                                                   required_experience)
+        return f'Увеличивает {cls.PROPERTY.text} на {delta}. Тратит {required_experience} опыта гильдии. Если одновременно запущено два мероприятия этого типа, то второе не будет иметь эффекта, потраченный опыт вернётся гильдии. При отмене мероприятия потраченный опыт возвращается гильдии.'
 
     def event_description(self, emissary):
         current_level, required_experience = self.experience_and_current_level(emissary, current_level=self.current_level)
 
         if required_experience is None:
-            return 'Увеличивает {}. Этот параметр гильдии уже достиг максимального значения.'.format(self.PROPERTY.text)
+            return 'Увеличивает {self.PROPERTY.text}. Этот параметр гильдии уже достиг максимального значения.'
 
         if self.TYPE.is_LEVEL_UP_POINTS_GANE:
-            delta = '{} в день'.format(self.PROPERTY.delta)
+            delta = '{self.PROPERTY.delta} в день'
         else:
             delta = self.PROPERTY.delta
 
-        return 'Увеличивает {} на {}. Тратит {} опыта гильдии.Если одновременно запущено два мероприятия этого типа, то второе законченное не будет иметь эффекта, потраченный опыт вернётся гильдии.'.format(self.PROPERTY.text,
-                                                                   delta,
-                                                                   required_experience)
+        return 'Увеличивает {self.PROPERTY.text} на {delta}. Тратит {required_experience} опыта гильдии. Если одновременно запущено два мероприятия этого типа, то второе не будет иметь эффекта, потраченный опыт вернётся гильдии. При отмене мероприятия потраченный опыт возвращается гильдии.'
 
     @classmethod
     def experience_and_current_level(cls, emissary, current_level=None):
@@ -389,7 +406,7 @@ class ClanLevelUpMixin:
         success, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=emissary.clan_id,
                                                                                   type='level_up_{}'.format(self.PROPERTY.name).lower(),
                                                                                   amount=-required_experience,
-                                                                                  async=False,
+                                                                                  asynchronous=False,
                                                                                   autocommit=False,
                                                                                   currency=clans_relations.CURRENCY.EXPERIENCE,
                                                                                   transaction_lifetime=transaction_lifetime)
@@ -493,7 +510,7 @@ class Training(EventBase):
         status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=event.emissary.clan_id,
                                                                                  type='training_experience',
                                                                                  amount=experience,
-                                                                                 async=False,
+                                                                                 asynchronous=False,
                                                                                  autocommit=True,
                                                                                  currency=clans_relations.CURRENCY.EXPERIENCE)
         return status
@@ -508,15 +525,18 @@ class ReservesSearch(EventBase):
     __slots__ = ()
 
     TYPE = relations.EVENT_TYPE.RESERVES_SEARCH
+    HAS_PROTECTORAT_BONUS = True
 
     @classmethod
-    def action_points_per_step(cls, raw_ability_power):
+    def action_points_per_step(cls, raw_ability_power, bonus):
         return cls.actual_value(raw_ability_power,
                                 tt_emissaries_constants.MIN_ACTION_POINTS_PER_EVENT,
-                                tt_emissaries_constants.MAX_ACTION_POINTS_PER_EVENT)
+                                tt_emissaries_constants.MAX_ACTION_POINTS_PER_EVENT,
+                                bonus=bonus)
 
     def on_step(self, event):
-        action_points = self.action_points_per_step(self.raw_ability_power)
+        action_points = self.action_points_per_step(self.raw_ability_power,
+                                                    bonus=event.emissary.protectorat_event_bonus())
 
         restrictions = clans_tt_services.currencies.Restrictions(hard_minimum=0,
                                                                  soft_maximum=tt_clans_constants.MAXIMUM_POINTS)
@@ -524,7 +544,7 @@ class ReservesSearch(EventBase):
         status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=event.emissary.clan_id,
                                                                                  type='reserves_search',
                                                                                  amount=action_points,
-                                                                                 async=False,
+                                                                                 asynchronous=False,
                                                                                  autocommit=True,
                                                                                  restrictions=restrictions,
                                                                                  currency=clans_relations.CURRENCY.ACTION_POINTS)
@@ -533,8 +553,9 @@ class ReservesSearch(EventBase):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = 'Приносит гильдии дополнительно {points} очков действий каждый час.'
-        return text.format(points=cls.action_points_per_step(raw_ability_power))
+        points = cls.action_points_per_step(raw_ability_power,
+                                            bonus=emissary.protectorat_event_bonus() if emissary else 0)
+        return f'Приносит гильдии дополнительно {points} очков действий каждый час.'
 
 
 class PlaceEffectEvent(EventBase):
@@ -573,6 +594,8 @@ class PlaceEffectEvent(EventBase):
                                    place_id=emissary.place_id,
                                    refresh_effects=True,
                                    refresh_places=True)
+
+        self.effect_id = None
 
     def is_effect_allowed(self, emissary):
         raise NotImplementedError
@@ -627,18 +650,19 @@ class CountedMixin:
         return tt_emissaries_constants.STANDART_LIMITED_TASK_POINTS_MAXIMUM
 
     @classmethod
-    def tokens_per_day(cls, raw_ability_power):
+    def tokens_per_day(cls, raw_ability_power, bonus):
         return cls.actual_value(raw_ability_power,
                                 cls.minimum_poins_a_day(),
                                 cls.maximum_points_a_day(),
+                                bonus=bonus,
                                 round=lambda value: round(value, 4))
 
     def resource_id(self, emissary):
         return logic.resource_id(clan_id=emissary.clan_id,
                                  place_id=emissary.place_id)
 
-    def points_per_step(self):
-        tokens_per_day = self.tokens_per_day(self.raw_ability_power)
+    def points_per_step(self, bonus):
+        tokens_per_day = self.tokens_per_day(self.raw_ability_power, bonus=bonus)
         return int(math.ceil(tokens_per_day / 24 * tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER))
 
     def change_points(self, emissary, amount):
@@ -651,11 +675,21 @@ class CountedMixin:
         points = tt_services.events_currencies.cmd_balance(self.resource_id(emissary), currency=self.CURRENCY)
         return tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER <= points
 
+    def actual_info(self, emissary):
+        points = tt_services.events_currencies.cmd_balance(self.resource_id(emissary), currency=self.CURRENCY)
+        effects_number = points / tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER
+
+        return f'Накопившееся количество срабатываний: {effects_number:.2f}'
+
+    def actual_info_help(self):
+        return 'Эффект мероприятия применится, как только количество срабатываний превысит 1 и выполнятся специфичные для мероприятия условия.'
+
 
 class BaseCountedEvent(CountedMixin, PlaceEffectEvent):
     __slots__ = ()
 
     CURRENCY = NotImplemented
+    HAS_PROTECTORAT_BONUS = True
 
     def _effect_value(self, event):
         return event.emissary.clan_id
@@ -670,7 +704,8 @@ class BaseCountedEvent(CountedMixin, PlaceEffectEvent):
         super().after_create(event)
 
     def on_step(self, event):
-        self.change_points(event.emissary, amount=self.points_per_step())
+        self.change_points(event.emissary,
+                           amount=self.points_per_step(bonus=event.emissary.protectorat_event_bonus()))
         return super().on_step(event)
 
     def on_monitoring(self, event):
@@ -694,19 +729,19 @@ class TaskBoardUpdating(BaseCountedEvent):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = 'Герои гильдии не бездельничают в городах в радиусе {radius} клеток от города (по манхеттенскому расстоянию). Количество срабатываний в сутки: {points}. {places_text}'
 
         if emissary is not None:
-            places = places_logic.task_board_places(emissary.place.x, emissary.place.y)
+            places = places_logic.task_board_places(emissary.place)
 
             places_text = 'Города:' + ', '.join(sorted(place.name for place in places))
 
         else:
             places_text = ''
 
-        return text.format(points=cls.tokens_per_day(raw_ability_power),
-                           radius=tt_emissaries_constants.TASK_BOARD_RADIUS,
-                           places_text=places_text)
+        tokens_per_day = cls.tokens_per_day(raw_ability_power,
+                                            bonus=emissary.protectorat_event_bonus() if emissary else 0)
+
+        return f'Герои гильдии не бездельничают в городе и {tt_emissaries_constants.TASK_BOARD_PLACES_NUMBER - 1} ближайших городах (по манхеттенскому расстоянию). Количество срабатываний в сутки: {tokens_per_day}. {places_text}'
 
 
 class FastTransportation(BaseCountedEvent):
@@ -718,8 +753,9 @@ class FastTransportation(BaseCountedEvent):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = 'Предоставляет героям гильдии безопасный путь до следующего города. Количество срабатываний в сутки: {points}.'
-        return text.format(points=cls.tokens_per_day(raw_ability_power))
+        points = cls.tokens_per_day(raw_ability_power,
+                                    bonus=emissary.protectorat_event_bonus() if emissary else 0)
+        return f'Предоставляет героям гильдии безопасный путь до следующего города. Количество срабатываний в сутки: {points}.'
 
 
 class CompanionsSupport(BaseCountedEvent):
@@ -731,9 +767,11 @@ class CompanionsSupport(BaseCountedEvent):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = 'Лечит спутников героя при посещении города на {health} здоровья. Количество срабатываний в сутки: {points}.'
-        return text.format(points=cls.tokens_per_day(raw_ability_power),
-                           health=c.COMPANIONS_HEAL_AMOUNT)
+        points = cls.tokens_per_day(raw_ability_power,
+                                    bonus=emissary.protectorat_event_bonus() if emissary else 0)
+        health = c.COMPANIONS_HEAL_AMOUNT
+
+        return f'Лечит спутников героя при посещении города на {health} здоровья. Количество срабатываний в сутки: {points}.'
 
 
 class ArtisansSupport(PlaceEffectEvent):
@@ -741,23 +779,27 @@ class ArtisansSupport(PlaceEffectEvent):
 
     TYPE = relations.EVENT_TYPE.ARTISANS_SUPPORT
     ATTRIBUTE = places_relations.ATTRIBUTE.PRODUCTION
+    HAS_PROTECTORAT_BONUS = True
 
     @classmethod
-    def direct_effect_value(cls, raw_ability_power):
+    def direct_effect_value(cls, raw_ability_power, bonus):
         return cls.actual_value(raw_ability_power,
-                                int(math.ceil(0.25 * c.PLACE_GOODS_BONUS)),
-                                int(math.ceil(2.00 * c.PLACE_GOODS_BONUS)))
+                                int(math.ceil(tt_emissaries_constants.PLACE_EVENT_MIN_EFFECT_POWER * c.PLACE_GOODS_BONUS)),
+                                int(math.ceil(tt_emissaries_constants.PLACE_EVENT_MAX_EFFECT_POWER * c.PLACE_GOODS_BONUS)),
+                                bonus=bonus)
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = 'Увеличивает производство города на {production}.'
-        return text.format(production=cls.direct_effect_value(raw_ability_power))
+        production = cls.direct_effect_value(raw_ability_power,
+                                             bonus=emissary.protectorat_event_bonus() if emissary else 0)
+        return f'Увеличивает производство города на {production}.'
 
     def is_effect_allowed(self, emissary):
         return emissary.is_place_leader()
 
     def _effect_value(self, event):
-        return self.direct_effect_value(self.raw_ability_power)
+        return self.direct_effect_value(self.raw_ability_power,
+                                        bonus=event.emissary.protectorat_event_bonus() if event.emissary else 0)
 
 
 class PublicOpinionManagement(PlaceEffectEvent):
@@ -765,24 +807,28 @@ class PublicOpinionManagement(PlaceEffectEvent):
 
     TYPE = relations.EVENT_TYPE.PUBLIC_OPINION_MANAGEMENT
     ATTRIBUTE = places_relations.ATTRIBUTE.STABILITY
+    HAS_PROTECTORAT_BONUS = True
 
     @classmethod
-    def direct_effect_value(cls, raw_ability_power):
+    def direct_effect_value(cls, raw_ability_power, bonus):
         return cls.actual_value(raw_ability_power,
-                                0.25 * c.PLACE_STABILITY_UNIT,
-                                2.00 * c.PLACE_STABILITY_UNIT,
+                                tt_emissaries_constants.PLACE_EVENT_MIN_EFFECT_POWER * c.PLACE_STABILITY_UNIT,
+                                tt_emissaries_constants.PLACE_EVENT_MAX_EFFECT_POWER * c.PLACE_STABILITY_UNIT,
+                                bonus=bonus,
                                 round=lambda value: round(value, 4))
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = 'Увеличивает стабильность города на {stability:.2f}%.'
-        return text.format(stability=cls.direct_effect_value(raw_ability_power) * 100)
+        stability = cls.direct_effect_value(raw_ability_power,
+                                            bonus=emissary.protectorat_event_bonus() if emissary else 0) * 100
+        return f'Увеличивает стабильность города на {stability:.2f}%.'
 
     def is_effect_allowed(self, emissary):
         return emissary.is_place_leader()
 
     def _effect_value(self, event):
-        return self.direct_effect_value(self.raw_ability_power)
+        return self.direct_effect_value(self.raw_ability_power,
+                                        bonus=event.emissary.protectorat_event_bonus() if event.emissary else 0)
 
 
 class Patronage(PlaceEffectEvent):
@@ -790,51 +836,59 @@ class Patronage(PlaceEffectEvent):
 
     TYPE = relations.EVENT_TYPE.PATRONAGE
     ATTRIBUTE = places_relations.ATTRIBUTE.CULTURE
+    HAS_PROTECTORAT_BONUS = True
 
     @classmethod
-    def direct_effect_value(cls, raw_ability_power):
+    def direct_effect_value(cls, raw_ability_power, bonus):
         return cls.actual_value(raw_ability_power,
-                                0.25 * c.PLACE_CULTURE_FROM_BEST_PERSON,
-                                2.00 * c.PLACE_CULTURE_FROM_BEST_PERSON,
+                                tt_emissaries_constants.PLACE_EVENT_MIN_EFFECT_POWER * c.PLACE_CULTURE_FROM_BEST_PERSON,
+                                tt_emissaries_constants.PLACE_EVENT_MAX_EFFECT_POWER * c.PLACE_CULTURE_FROM_BEST_PERSON,
+                                bonus=bonus,
                                 round=lambda value: round(value, 4))
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = 'Увеличивает культуру города на {culture:.2f}%.'
-        return text.format(culture=cls.direct_effect_value(raw_ability_power) * 100)
+        culture = cls.direct_effect_value(raw_ability_power,
+                                          bonus=emissary.protectorat_event_bonus() if emissary else 0) * 100
+        return f'Увеличивает культуру города на {culture:.2f}%.'
 
     def is_effect_allowed(self, emissary):
         return emissary.is_place_leader()
 
     def _effect_value(self, event):
-        return self.direct_effect_value(self.raw_ability_power)
+        return self.direct_effect_value(self.raw_ability_power,
+                                        bonus=event.emissary.protectorat_event_bonus() if event.emissary else 0)
 
 
 class PatrioticPatronage(PlaceEffectEvent):
     __slots__ = ()
 
     TYPE = relations.EVENT_TYPE.PATRIOTIC_PATRONAGE
+    HAS_PROTECTORAT_BONUS = True
 
     def attribute(self, event):
         return getattr(places_relations.ATTRIBUTE, 'DEMOGRAPHICS_PRESSURE_{}'.format(event.emissary.race.name))
 
     @classmethod
-    def direct_effect_value(cls, raw_ability_power):
+    def direct_effect_value(cls, raw_ability_power, bonus):
         return cls.actual_value(raw_ability_power,
                                 tt_emissaries_constants.RACE_PRESSURE_MODIFIER_MIN,
                                 tt_emissaries_constants.RACE_PRESSURE_MODIFIER_MAX,
+                                bonus=bonus,
                                 round=lambda value: round(value, 4))
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = 'Увеличивает давление расы эмиссара в городе на {culture:.2f}%.'
-        return text.format(culture=cls.direct_effect_value(raw_ability_power) * 100)
+        culture = cls.direct_effect_value(raw_ability_power,
+                                          bonus=emissary.protectorat_event_bonus() if emissary else 0) * 100
+        return f'Увеличивает давление расы эмиссара в городе на {culture:.2f}%.'
 
     def is_effect_allowed(self, emissary):
         return emissary.is_place_leader()
 
     def _effect_value(self, event):
-        return self.direct_effect_value(self.raw_ability_power)
+        return self.direct_effect_value(self.raw_ability_power,
+                                        bonus=event.emissary.protectorat_event_bonus() if event.emissary else 0)
 
 
 class GloryOfTheKeepers(CountedMixin, EventBase):
@@ -842,6 +896,7 @@ class GloryOfTheKeepers(CountedMixin, EventBase):
 
     TYPE = relations.EVENT_TYPE.GLORY_OF_THE_KEEPERS
     CURRENCY = relations.EVENT_CURRENCY.GLORY_OF_THE_KEEPERS
+    HAS_PROTECTORAT_BONUS = True
 
     @classmethod
     def minimum_poins_a_day(cls):
@@ -851,40 +906,268 @@ class GloryOfTheKeepers(CountedMixin, EventBase):
     def maximum_points_a_day(cls):
         return tt_clans_constants.FIGHTERS_TO_EMISSARY
 
+    def resource_id(self, emissary):
+        return logic.resource_id(clan_id=emissary.clan_id,
+                                 place_id=None)
+
+    def get_receiver(self, event):
+        memberships = clans_logic.get_clan_memberships(event.emissary.clan_id)
+
+        property_name = accounts_tt_services.PLAYER_PROPERTIES.last_card_by_emissary
+
+        accounts_properties = accounts_tt_services.players_properties.cmd_get_properties({account_id: [property_name]
+                                                                                          for account_id in memberships.keys()})
+
+        allowed_accounts = [account_id
+                            for account_id, properties in accounts_properties.items()
+                            if properties.last_card_by_emissary + conf.settings.CARD_RECEIVING_BY_EMISSARY_TIMEOUT < time.time()]
+
+        if not allowed_accounts:
+            return None
+
+        receiver_id = random.choice(allowed_accounts)
+
+        return accounts_prototypes.AccountPrototype.get_by_id(receiver_id)
+
     def on_step(self, event):
-        self.change_points(event.emissary, amount=self.points_per_step())
+        if not event.emissary.is_place_leader():
+            return True
+
+        self.change_points(event.emissary, amount=self.points_per_step(bonus=event.emissary.protectorat_event_bonus()))
 
         while self.is_effect_allowed(event.emissary):
-            memberships = clans_logic.get_clan_memberships(event.emissary.clan_id)
-            receiver_id = random.choice(list(memberships.keys()))
-            account = accounts_prototypes.AccountPrototype.get_by_id(receiver_id)
+            account = self.get_receiver(event)
 
-            cards_logic.give_new_cards(account_id=receiver_id,
+            if account is None:
+                return True
+
+            cards_logic.give_new_cards(account_id=account.id,
                                        operation_type='give-new-card-by-emissary',
                                        allow_premium_cards=account.cards_receive_mode().is_ALL,
                                        available_for_auction=account.is_premium,
                                        number=1)
 
-            logic.withdraw_event_points(clan_id=event.emissary.clan_id,
-                                        place_id=event.emissary.place_id,
-                                        currency=self.CURRENCY)
+            logic.withdraw_event_points_by_resource_id(self.resource_id(event.emissary), currency=self.CURRENCY)
 
-            message = 'Благодаря мероприятию эмиссара [url="{emissary_url}"]{emissary}[/url] вы получили дополнительную Карту Судьбы.'
-            message = message.format(emissary=event.emissary.utg_name.forms[1],
-                                     emissary_url=dext_urls.full_url('https', 'game:emissaries:show', event.emissary.id))
+            accounts_tt_services.players_properties.cmd_set_property(object_id=account.id,
+                                                                     name=accounts_tt_services.PLAYER_PROPERTIES.last_card_by_emissary,
+                                                                     value=time.time())
 
-            personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
-                                                 recipients_ids=[account.id],
-                                                 body=message)
+            logic.send_event_success_message(event, account, suffix='вы получили дополнительную Карту Судьбы.')
 
         return True
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = 'Случайный игрок гильдии периодически получает карту судьбы. Свойства карты такие же, как и при получении их обычным образом. Количество срабатываний в сутки: {points}.'
-        return text.format(points=cls.tokens_per_day(raw_ability_power))
+        points = cls.tokens_per_day(raw_ability_power,
+                                    bonus=emissary.protectorat_event_bonus() if emissary else 0)
+        return f'Случайный игрок гильдии периодически получает карту судьбы. Свойства карты такие же, как и при получении их обычным образом. Количество срабатываний в сутки: {points}. С помощью мероприятий Хранитель не может получить более одной карты в 12 часов.'
+
+
+class Revolution(EventBase):
+    __slots__ = ()
+
+    TYPE = relations.EVENT_TYPE.REVOLUTION
+
+    BASE_CYCLE_LENGTH = 7
+
+    POWER_BARRIER = 0
+
+    @classmethod
+    def max_event_length(cls):
+        return cls.BASE_CYCLE_LENGTH
+
+    @classmethod
+    def is_available(cls, emissary, active_events):
+        if not super().is_available(emissary, active_events):
+            return False
+
+        return emissary.can_participate_in_pvp()
+
+    @contextlib.contextmanager
+    def on_create(self, emissary):
+
+        if emissary.place.attrs.clan_protector == emissary.clan_id:
+            raise exceptions.OnEventCreateError(message='already protector')
+
+        yield
+
+    def message(self, template, emissary):
+        clan_info = clans_storage.infos[emissary.clan_id]
+        place = emissary.place
+
+        return linguistics_logic.technical_render(template,
+                                                  {'emissary': emissary.utg_name_form,
+                                                   'clan': lexicon_dictionary.text(clan_info.name),
+                                                   'place': place.utg_name_form})
+
+    def after_create(self, event):
+        message = self.message('Эмиссар [emissary] из гильдии «[clan]» пытается установить протекторат над [place|тв]',
+                               event.emissary)
+
+        logic.notify_clans(place_id=event.emissary.place_id,
+                           exclude_clans_ids=(),
+                           message=message,
+                           roles=clans_relations.ROLES_TO_NOTIFY)
+
+    def message_on_fail(self, event):
+        message = self.message('Эмиссар [emissary] из гильдии «[clan]» не [смог|emissary] установить протекторат над [place|тв]',
+                               event.emissary)
+
+        logic.notify_clans(place_id=event.emissary.place_id,
+                           exclude_clans_ids=(),
+                           message=message,
+                           roles=clans_relations.ROLES_TO_NOTIFY)
+
+    def message_on_success(self, event):
+        message = self.message('Эмиссар [emissary] из гильдии «[clan]» [установил|emissary] протекторат над [place|тв]',
+                               event.emissary)
+
+        logic.notify_clans(place_id=event.emissary.place_id,
+                           exclude_clans_ids=(),
+                           message=message,
+                           roles=clans_relations.ROLES_TO_NOTIFY)
+
+    def on_finish(self, event):
+
+        protector_id = event.emissary.place.attrs.clan_protector
+
+        if protector_id == event.emissary.clan_id:
+            self.message_on_success(event)
+            return True
+
+        if not event.emissary.is_place_leader():
+            self.message_on_fail(event)
+            return False
+
+        emissaries = storage.emissaries.emissaries_in_place(event.emissary.place_id)
+
+        powers = politic_power_logic.get_emissaries_power([emissary.id for emissary in emissaries])
+
+        if powers[event.emissary.id] <= self.POWER_BARRIER:
+            self.message_on_fail(event)
+            return False
+
+        for emissary in emissaries:
+            if emissary.clan_id != protector_id:
+                continue
+
+            if powers[event.emissary.id] < powers[emissary.id]:
+                self.message_on_fail(event)
+                return False
+
+        places_logic.register_effect(place_id=event.emissary.place_id,
+                                     attribute=places_relations.ATTRIBUTE.CLAN_PROTECTOR,
+                                     value=event.emissary.clan_id,
+                                     name='эмиссар [{}] {}'.format(clans_storage.infos[event.emissary.clan_id].abbr,
+                                                                   event.emissary.name),
+                                     refresh_effects=True,
+                                     refresh_places=True,
+                                     info={'source': 'emissaries_events',
+                                           'emissary': event.emissary_id,
+                                           'event': event.id})
+
+        self.message_on_success(event)
+
+        clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[event.emissary.clan_id],
+                                                  event=clans_relations.EVENT.PROTECTORAT_ESTABLISHED,
+                                                  tags=[event.emissary.place.meta_object().tag,
+                                                        event.emissary.meta_object().tag],
+                                                  message=f'Установлен протекторат над городом «{event.emissary.place.name}»')
+
+        return True
+
+    @classmethod
+    def effect_description(cls, emissary, raw_ability_power):
+        text = f'Делает гильдию эмиссара протектором города, в котором тот находится. Проваливается, если в момент завершения мероприятия эмиссар не находится в числе лидеров города, либо имеет не более {cls.POWER_BARRIER} влияния, либо имеет меньше влияния, чем эмиссар текущей гильдии-протектора. При начале и завершении мероприятия будет отправлено соответствующее сообщение всем членам гильдий (с эмиссарами в городе) с правом «{clans_relations.PERMISSION.RECEIVE_MESSAGES.text}». Начать мероприятие может только эмиссар с суммой способностей больше {tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP}'
+        return text
+
+
+class DarkRituals(CountedMixin, EventBase):
+    __slots__ = ()
+
+    TYPE = relations.EVENT_TYPE.DARK_RITUALS
+    CURRENCY = relations.EVENT_CURRENCY.DARK_RITUALS
+    ONLY_FOR_PROTECTORAT = True
+
+    @classmethod
+    def minimum_poins_a_day(cls):
+        return 0.5
+
+    @classmethod
+    def maximum_points_a_day(cls):
+        # С изменением этого параметра необходимо быть очень аккуратным,
+        # так как бесконтрольня раздача подписки очень опасна
+        return 1.5
+
+    def resource_id(self, emissary):
+        return logic.resource_id(clan_id=emissary.clan_id,
+                                 place_id=None)
+
+    def get_receiver(self, event):
+        memberships = clans_logic.get_clan_memberships(event.emissary.clan_id)
+
+        memberships = {key: record
+                       for key, record in memberships.items()
+                       if not record.is_freezed()}
+
+        property_name = accounts_tt_services.PLAYER_PROPERTIES.last_premium_by_emissary
+
+        accounts_properties = accounts_tt_services.players_properties.cmd_get_properties({account_id: [property_name]
+                                                                                          for account_id in memberships.keys()})
+
+        allowed_accounts = [account_id
+                            for account_id, properties in accounts_properties.items()
+                            if properties.last_premium_by_emissary + conf.settings.PREMIUM_RECEIVING_BY_EMISSARY_TIMEOUT < time.time()]
+
+        accounts_query = accounts_prototypes.AccountPrototype._db_filter(id__in=allowed_accounts)
+
+        accounts = accounts_prototypes.AccountPrototype.from_query(accounts_query)
+
+        accounts = [account for account in accounts if not account.is_premium_infinit]
+
+        if not accounts:
+            return None
+
+        return random.choice(accounts)
+
+    def on_step(self, event):
+        if event.emissary.clan_id != event.emissary.place.attrs.clan_protector:
+            return True
+
+        if not event.emissary.is_place_leader():
+            return True
+
+        self.change_points(event.emissary, amount=self.points_per_step(bonus=0))
+
+        while self.is_effect_allowed(event.emissary):
+            account = self.get_receiver(event)
+
+            if account is None:
+                return True
+
+            # TODO: проблемное место, но пересечение с другой логикой досаточно маловероятно,
+            # чтобы отложить правильную реализацию до момента рефакторинга аккаунтов (см. gh-2480 для подробной информации)
+            account.prolong_premium(1)
+            account.save()
+
+            logic.withdraw_event_points_by_resource_id(self.resource_id(event.emissary), currency=self.CURRENCY)
+
+            accounts_tt_services.players_properties.cmd_set_property(object_id=account.id,
+                                                                     name=accounts_tt_services.PLAYER_PROPERTIES.last_premium_by_emissary,
+                                                                     value=time.time())
+
+            logic.send_event_success_message(event, account, suffix='вы получили 1 день подписки.')
+
+        return True
+
+    @classmethod
+    def effect_description(cls, emissary, raw_ability_power):
+        points = cls.tokens_per_day(raw_ability_power,
+                                    bonus=0)
+        return f'Случайный игрок гильдии периодически получает 1 день подписки. Игрок выбирается из всех членов гильдии кроме замороженных и обладающих вечной подпиской. Количество срабатываний в сутки: {points}. Один и тот же Хранитель неможет получить день подписки не чаще одного раза в 12 часов.'
 
 
 TYPES = {event_class.TYPE: event_class
-         for event_class in dext_discovering.discover_classes(list(globals().values()), EventBase)
+         for event_class in utils_discovering.discover_classes(list(globals().values()), EventBase)
          if event_class not in (BaseCountedEvent, PlaceEffectEvent)}

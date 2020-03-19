@@ -16,7 +16,7 @@ HOME_DIR = os.getenv("HOME")
 PROJECT_MODULE = os.path.basename(PROJECT_DIR)
 
 META_CONFIG_FILE = os.path.join(PROJECT_DIR, 'meta_config.json')
-META_CONFIG = dext_meta_config.MetaConfig(config_path=META_CONFIG_FILE)
+META_CONFIG = utils_meta_config.MetaConfig(config_path=META_CONFIG_FILE)
 
 DEBUG = False
 
@@ -24,7 +24,7 @@ SENTRY_RAVEN_CONFIG = None
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'the_tale',
         'USER': 'the_tale',
         'PASSWORD': 'the_tale',
@@ -115,45 +115,43 @@ EMAIL_FILE_PATH = '/tmp/emails'
 
 APPEND_SLASH = True
 
-TEMPLATES = [{'BACKEND': 'dext.common.utils.jinja2.Engine',
+TEMPLATES = [{'BACKEND': 'the_tale.common.utils.jinja2.Backend',
+              'DIRS': (os.path.join(PROJECT_DIR, 'jinja2'),),
+              'APP_DIRS': True,
               'OPTIONS': {
+                  'environment': 'the_tale.common.utils.jinja2.create_environment',
+                  'autoescape': True,
+                  'trim_blocks': True,
+                  'auto_reload': DEBUG,
+                  'undefined': jinja2.StrictUndefined,
+                  'loader': None,
+                  'extensions': ['jinja2.ext.loopcontrols'],
+
                   'context_processors': ('django.contrib.auth.context_processors.auth',
                                          'django.template.context_processors.debug',
                                          'django.template.context_processors.i18n',
                                          'django.template.context_processors.media',
                                          'django.template.context_processors.static',
-                                         'django.contrib.messages.context_processors.messages',
+                                         'the_tale.common.utils.context_processors.common',
                                          'the_tale.portal.context_processors.section',
                                          'the_tale.portal.context_processors.cdn_paths',
                                          'the_tale.game.balance.context_processors.balance',
                                          'the_tale.game.bills.context_processors.bills_context',
                                          'the_tale.linguistics.context_processors.linguistics_context',
                                          'the_tale.guide.context_processors.guide_context',
-                                         'the_tale.blogs.context_processors.blogs_context'
-                                         ),
-                  'directories': (os.path.join(PROJECT_DIR, 'templates'),),
-                  'auto_reload': False,
-                  'undefined': jinja2.StrictUndefined,
-                  'autoescape': True,
-                  'trim_blocks': True,
-                  'extensions': ['jinja2.ext.loopcontrols']
+                                         'the_tale.blogs.context_processors.blogs_context'),
               }},
              {'BACKEND': 'django.template.backends.django.DjangoTemplates',
               'APP_DIRS': True,
               'OPTIONS': {
+                  'debug': False,
+
                   'context_processors': ('django.contrib.auth.context_processors.auth',
                                          'django.template.context_processors.debug',
                                          'django.template.context_processors.i18n',
                                          'django.template.context_processors.media',
                                          'django.template.context_processors.static',
-                                         'django.contrib.messages.context_processors.messages',
-                                         'the_tale.portal.context_processors.section',
-                                         'the_tale.portal.context_processors.cdn_paths',
-                                         'the_tale.game.balance.context_processors.balance',
-                                         'the_tale.game.bills.context_processors.bills_context',
-                                         'the_tale.linguistics.context_processors.linguistics_context'
-                                         ),
-                  'debug': False
+                                         'django.contrib.messages.context_processors.messages')
               }}
              ]
 
@@ -164,7 +162,7 @@ MIDDLEWARE = ('django.middleware.common.CommonMiddleware',
               'django.contrib.auth.middleware.AuthenticationMiddleware',
               'django.contrib.messages.middleware.MessageMiddleware',
               'django.middleware.clickjacking.XFrameOptionsMiddleware',
-              'dext.settings.middleware.SettingsMiddleware',
+              'the_tale.common.settings.middleware.SettingsMiddleware',
               'the_tale.accounts.middleware.RegistrationMiddleware',
               'the_tale.accounts.third_party.middleware.ThirdPartyMiddleware',
               'the_tale.accounts.middleware.FirstTimeVisitMiddleware')
@@ -179,15 +177,16 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.staticfiles',
 
-    'dext.less',
-    'dext.settings',
-    'dext.forms',
-    'dext.common.utils',
-    'dext.common.amqp_queues',
-
+    'the_tale.common.less',
     'the_tale.common.utils',
+    'the_tale.common.settings',
+    'the_tale.common.old_views',
+    'the_tale.common.amqp_queues',
     'the_tale.common.postponed_tasks',
     'the_tale.common.meta_relations',
+    'the_tale.common.bbcode',
+    'the_tale.common.utilities',
+    'the_tale.common.locks',
 
     'the_tale.post_service',
 
@@ -281,6 +280,8 @@ CACHES = {'default': {'BACKEND': 'django_redis.cache.RedisCache',
 CACHE_MIDDLEWARE_SECONDS = 24 * 60 * 60
 CACHE_MIDDLEWARE_KEY_PREFIX = ''
 
+MAINTENANCE_FILE = '/var/www/the_tale/maintenance.html'
+
 try:
     from the_tale.settings_local import *  # pylint: disable=W0403,W0401,W0614
 except Exception:  # pylint: disable=W0702,W0703
@@ -288,8 +289,10 @@ except Exception:  # pylint: disable=W0702,W0703
 
 
 if SENTRY_RAVEN_CONFIG:
-    INSTALLED_APPS.append('raven.contrib.django.raven_compat')
-    RAVEN_CONFIG = SENTRY_RAVEN_CONFIG
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(SENTRY_RAVEN_CONFIG['dsn'],
+                    integrations=[DjangoIntegration()])
 
 
 if RUNSERVER_RUNNING:
@@ -373,12 +376,6 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler',
             'formatter': 'verbose'
         },
-        'sentry': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-            'formatter': 'verbose'
-        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -396,7 +393,7 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'the-tale': {
+        'the_tale': {
             'handlers': ['mail_admins', 'console'],
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False

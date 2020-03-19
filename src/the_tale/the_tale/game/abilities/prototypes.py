@@ -15,7 +15,7 @@ class AbilityPrototype(object):
             status, transaction_id = game_tt_services.energy.cmd_change_balance(account_id=hero.account_id,
                                                                                 type='help-{}'.format(self.TYPE.value),
                                                                                 amount=-self.TYPE.cost,
-                                                                                async=False,
+                                                                                asynchronous=False,
                                                                                 autocommit=False)
 
             if not status:

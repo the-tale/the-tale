@@ -84,14 +84,27 @@ class EventsStorageTest(utils_testcase.TestCase,
 
     def test_sync(self):
 
+        account_2 = self.accounts_factory.create_account()
+        clan_2 = self.create_clan(owner=account_2, uid=2)
+
         emissaries = [self.create_emissary(clan=self.clan,
                                            initiator=self.account,
-                                           place_id=random.choice(self.places).id)
-                      for i in range(3)]
+                                           place_id=random.choice(self.places).id),
+                      self.create_emissary(clan=clan_2,
+                                           initiator=account_2,
+                                           place_id=random.choice(self.places).id),
+                      self.create_emissary(clan=self.clan,
+                                           initiator=self.account,
+                                           place_id=random.choice(self.places).id)]
 
         emissaries.sort(key=lambda emissary: emissary.id)
 
         event_0_1 = logic.create_event(initiator=self.account,
+                                       emissary=emissaries[0],
+                                       concrete_event=events.Rest(raw_ability_power=100500),
+                                       days=1)
+
+        event_0_2 = logic.create_event(initiator=self.account,
                                        emissary=emissaries[0],
                                        concrete_event=events.Rest(raw_ability_power=100500),
                                        days=1)
@@ -120,9 +133,12 @@ class EventsStorageTest(utils_testcase.TestCase,
         self.assertIn(event_1_2.id, self.storage)
         self.assertIn(event_2_1.id, self.storage)
 
-        self.assertCountEqual(self.storage.emissary_events(emissaries[0].id), [])
+        self.assertCountEqual(self.storage.emissary_events(emissaries[0].id), [event_0_2])
         self.assertCountEqual(self.storage.emissary_events(emissaries[1].id), [event_1_1, event_1_2])
         self.assertCountEqual(self.storage.emissary_events(emissaries[2].id), [event_2_1])
+
+        self.assertCountEqual(self.storage.clan_events(self.clan.id), [event_0_2, event_2_1])
+        self.assertCountEqual(self.storage.clan_events(clan_2.id), [event_1_1, event_1_2])
 
     def test_get_or_load(self):
         emissary = self.create_emissary(clan=self.clan,

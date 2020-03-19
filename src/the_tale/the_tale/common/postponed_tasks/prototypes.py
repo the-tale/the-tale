@@ -37,7 +37,7 @@ class PostponedLogic(object):
 
 def _register_postponed_tasks(container, objects):
 
-    for obj in dext_discovering.discover_classes(objects, PostponedLogic):
+    for obj in utils_discovering.discover_classes(objects, PostponedLogic):
         if obj.TYPE in container:
             raise exceptions.PostponedTaskException('interanl logic "%s" for postponed task has being registered already' % obj.TYPE)
         if obj.TYPE is None:
@@ -46,7 +46,7 @@ def _register_postponed_tasks(container, objects):
         container[obj.TYPE] = obj
 
 
-@dext_discovering.automatic_discover(_INTERNAL_LOGICS, 'postponed_tasks')
+@utils_discovering.automatic_discover(_INTERNAL_LOGICS, 'postponed_tasks')
 def autodiscover(container, module):
     _register_postponed_tasks(container, [getattr(module, name) for name in dir(module)])
 

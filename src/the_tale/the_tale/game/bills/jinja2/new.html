@@ -1,0 +1,41 @@
+
+{% extends "bills/base.html" %}
+
+{% block title %}Создание новой записи | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Создание новой записи.{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var newForm = new pgf.forms.Form(jQuery('#pgf-new-bill-form'),
+                                               {OnSuccess: function(instance, data){location.href = data.data.next_url;}});
+
+});
+
+</script>
+
+{% endblock %}
+
+{% block bills_content %}
+
+<h3>Создание новой записи</h3>
+
+{% include "bills/rules.html" with context%}
+
+<h3>{{ bill_class.CAPTION }} <small>стабильность -{{bill_class.type.stability|percents}}</small></h3>
+
+<p>{{bill_class.DESCRIPTION|safe}}</p>
+
+<form id="pgf-new-bill-form" method="post" action="{{ url('game:bills:create', bill_type=bill_class.type.value) }}">
+
+  {% include "bills/user_form.html" with context%}
+
+  <div class="widget">
+    <input type="submit" accesskey="s" class="btn" value="Создать"/>
+  </div>
+
+</form>
+
+{% endblock %}

@@ -1,0 +1,45 @@
+{% import 'clans/macros.html' as clans_macros with context %}
+
+{% macro place_description(place) %}
+  Земля
+  <span {%if place.is_wrong_race()%}style="color: orange; cursor: default; font-weight: bold; vertical-align: baseline;" rel="tooltip" title="Титульная раса города не соответствует самой влиятельной"{% else %}style="vertical-align: baseline;"{% endif %}>
+    {{place.race.utg_name_form.word.forms[7] -}}
+  </span>,
+  {{place.habit_honor.interval.place_text}},
+  {{place.habit_peacefulness.interval.place_text}}
+  {%- if place.is_frontier -%}, <a href="{{url('guide:cities')}}" class="pgf-frontier-message" target="_blank">Фронтир</a>{% endif %}
+{% endmacro %}
+
+
+{% macro clan_region_badge(region) %}
+  <span class="badge"
+        rel="tooltip"
+        title="Гильдия владеет регионом из следующих городов: {{', '.join(region.places_names())}}"
+        style="cursor: default; vertical-align: middle;">{{region.size()}}</span>
+{% endmacro %}
+
+{% macro clan_region_description(region) %}
+  {% if region.clan_id is none %}
+  <span rel="tooltip"
+        title="Ни одна гильдия не сделала этот город своим протекторатом"
+        style="cursor: default;">
+    Свободный город
+  </span>
+  {% else %}
+  Протекторат размера {{clan_region_badge(region)}} гильдии {{clans_macros.clan_link(region.clan_info()) }}
+  {% endif %}
+
+{% endmacro %}
+
+
+{% macro place_protector_candidates(protector_candidates) %}
+  <span style="color: red !important; font-weight: bold; cursor: default;"
+        rel="tooltip"
+        title="Эти гильдии пытаются установить свой протекторат над городом">
+        Гильдии оспаривают власть над городом:
+  </span>
+  {% for clan_info in protector_candidates %}
+    {{clans_macros.clan_link(clan_info, show_name=false) -}}
+    {%- if not loop.last -%},{% endif%}
+  {% endfor %}
+{% endmacro %}

@@ -10,15 +10,15 @@ def argument_to_group(value): return relations.ACHIEVEMENT_GROUP.index_slug.get(
 def argument_to_achievement(value): return storage.achievements[int(value)]
 
 
-@dext_old_views.validator(code='accounts.achievements.no_edit_rights', message='нет прав для редактирования достижений')
+@old_views.validator(code='accounts.achievements.no_edit_rights', message='нет прав для редактирования достижений')
 def validate_can_edit_achievements(resource, *args, **kwargs):
     return resource.can_edit_achievements
 
 
 class AchievementsResource(utils_resources.Resource):
 
-    @dext_old_views.validate_argument('group', argument_to_group, 'accounts.achievements', 'Группа не найдена')
-    @dext_old_views.validate_argument('achievement', argument_to_achievement, 'accounts.achievements', 'Достижение не найдено')
+    @old_views.validate_argument('group', argument_to_group, 'accounts.achievements', 'Группа не найдена')
+    @old_views.validate_argument('achievement', argument_to_achievement, 'accounts.achievements', 'Достижение не найдено')
     def initialize(self, group=None, achievement=None, *args, **kwargs):
         super(AchievementsResource, self).initialize(*args, **kwargs)
         self.achievement = achievement
@@ -34,22 +34,22 @@ class AchievementsResource(utils_resources.Resource):
 
     def group_url(self, group):
         if self.master_account:
-            return dext_urls.url('accounts:achievements:group', group.slug, account=self.master_account.id)
+            return utils_urls.url('accounts:achievements:group', group.slug, account=self.master_account.id)
         else:
-            return dext_urls.url('accounts:achievements:group', group.slug)
+            return utils_urls.url('accounts:achievements:group', group.slug)
 
     def index_url(self):
         if self.master_account:
-            return dext_urls.url('accounts:achievements:', account=self.master_account.id)
+            return utils_urls.url('accounts:achievements:', account=self.master_account.id)
         else:
-            return dext_urls.url('accounts:achievements:')
+            return utils_urls.url('accounts:achievements:')
 
-    @dext_old_views.validate_argument('account', accounts_prototypes.AccountPrototype.get_by_id, 'accounts.achievements', 'Игрок не найден')
-    @dext_old_views.handler('')
+    @old_views.validate_argument('account', accounts_prototypes.AccountPrototype.get_by_id, 'accounts.achievements', 'Игрок не найден')
+    @old_views.handler('')
     def index(self, account=None):
 
         if account is None and self.account.is_authenticated:
-            return self.redirect(dext_urls.url('accounts:achievements:', account=self.account.id))
+            return self.redirect(utils_urls.url('accounts:achievements:', account=self.account.id))
 
         self.master_account = account
 
@@ -67,11 +67,11 @@ class AchievementsResource(utils_resources.Resource):
                               'groups_statistics': storage.achievements.get_groups_statistics(account_achievements),
                               'last_achievements': last_achievements})
 
-    @dext_old_views.validate_argument('account', accounts_prototypes.AccountPrototype.get_by_id, 'accounts.achievements', 'Игрок не найден')
-    @dext_old_views.handler('#group', name='group')
+    @old_views.validate_argument('account', accounts_prototypes.AccountPrototype.get_by_id, 'accounts.achievements', 'Игрок не найден')
+    @old_views.handler('#group', name='group')
     def show_group(self, account=None):
         if account is None and self.account.is_authenticated:
-            return self.redirect(dext_urls.url('accounts:achievements:group', self.group.slug, account=self.account.id))
+            return self.redirect(utils_urls.url('accounts:achievements:group', self.group.slug, account=self.account.id))
 
         self.master_account = account
 
@@ -91,14 +91,14 @@ class AchievementsResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @validate_can_edit_achievements()
-    @dext_old_views.handler('new')
+    @old_views.handler('new')
     def new(self):
         return self.template('achievements/new.html',
                              {'form': forms.NewAchievementForm()})
 
     @utils_decorators.login_required
     @validate_can_edit_achievements()
-    @dext_old_views.handler('create', method='post')
+    @old_views.handler('create', method='post')
     def create(self):
         form = forms.NewAchievementForm(self.request.POST)
 
@@ -116,11 +116,11 @@ class AchievementsResource(utils_resources.Resource):
                                                              item_2=form.c.item_2,
                                                              item_3=form.c.item_3)
 
-        return self.json_ok(data={'next_url': dext_urls.url('accounts:achievements:group', achievement.group.slug)})
+        return self.json_ok(data={'next_url': utils_urls.url('accounts:achievements:group', achievement.group.slug)})
 
     @utils_decorators.login_required
     @validate_can_edit_achievements()
-    @dext_old_views.handler('#achievement', 'edit')
+    @old_views.handler('#achievement', 'edit')
     def edit(self):
         form = forms.EditAchievementForm(initial={'approved': self.achievement.approved,
                                                   'group': self.achievement.group,
@@ -138,7 +138,7 @@ class AchievementsResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @validate_can_edit_achievements()
-    @dext_old_views.handler('#achievement', 'update', method='post')
+    @old_views.handler('#achievement', 'update', method='post')
     def update(self):
         form = forms.EditAchievementForm(self.request.POST)
 
@@ -173,4 +173,4 @@ class AchievementsResource(utils_resources.Resource):
             if is_changed:
                 prototypes.GiveAchievementTaskPrototype.create(account_id=None, achievement_id=self.achievement.id)
 
-        return self.json_ok(data={'next_url': dext_urls.url('accounts:achievements:group', self.achievement.group.slug)})
+        return self.json_ok(data={'next_url': utils_urls.url('accounts:achievements:group', self.achievement.group.slug)})

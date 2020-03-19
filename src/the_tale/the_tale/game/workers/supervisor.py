@@ -33,18 +33,13 @@ class Worker(utils_workers.BaseWorker):
 
         PostponedTaskPrototype.reset_all()
 
-        self.logic_workers = {worker.name: worker for worker in (amqp_environment.environment.workers.logic_1, amqp_environment.environment.workers.logic_2)}
+        self.logic_workers = {worker.name: worker
+                              for worker in (amqp_environment.environment.workers.logic_1,
+                                             amqp_environment.environment.workers.logic_2)}
 
         self.logger.info('initialize logic')
 
         self.logic_multicast('initialize', arguments=dict(turn_number=game_turn.number()), worker_id=True, wait_answer=True)
-
-        if conf.settings.ENABLE_WORKER_HIGHLEVEL:
-            self.logger.info('initialize highlevel')
-            amqp_environment.environment.workers.highlevel.cmd_initialize(turn_number=game_turn.number(), worker_id='highlevel')
-            self.wait_answers_from('initialize', workers=['highlevel'])
-        else:
-            self.logger.info('skip initialization of highlevel')
 
         self.logger.info('child workers initialized')
 
@@ -201,14 +196,6 @@ class Worker(utils_workers.BaseWorker):
         self.logic_multicast('next_turn', arguments=dict(turn_number=game_turn.number()))
         self.wait_next_turn_answer = True
 
-        try:
-            if conf.settings.ENABLE_WORKER_HIGHLEVEL:
-                amqp_environment.environment.workers.highlevel.cmd_next_turn(turn_number=game_turn.number())
-        except amqp_queues_exceptions.WaitAnswerTimeoutError:
-            self.logger.error('next turn timeout while getting answer from highlevel')
-            self._force_stop()
-            raise
-
     def _force_stop(self):
         self.logger.error('force stop all workers, send signals.')
 
@@ -220,9 +207,6 @@ class Worker(utils_workers.BaseWorker):
 
     def _send_stop_signals(self):
         self.logic_multicast('stop', arguments={})
-
-        if conf.settings.ENABLE_WORKER_HIGHLEVEL:
-            amqp_environment.environment.workers.highlevel.cmd_stop()
 
     def on_sigterm(self, signal_code, frame):
         if self.logger:
@@ -245,9 +229,6 @@ class Worker(utils_workers.BaseWorker):
         self.logger.info('stop signals sent')
 
         wait_answers_from = list(self.logic_workers.keys())
-
-        if conf.settings.ENABLE_WORKER_HIGHLEVEL:
-            wait_answers_from.append('highlevel')
 
         self.wait_answers_from('stop', workers=wait_answers_from, timeout=conf.settings.STOP_WAIT_TIMEOUT)
 
@@ -312,12 +293,6 @@ class Worker(utils_workers.BaseWorker):
 
     def process_start_hero_caching(self, account_id):
         self.dispatch_logic_cmd(account_id, 'start_hero_caching', {'account_id': account_id})
-
-    def cmd_highlevel_data_updated(self):
-        self.send_cmd('highlevel_data_updated')
-
-    def process_highlevel_data_updated(self):
-        self.logic_multicast('highlevel_data_updated', arguments={})
 
     def cmd_force_save(self, account_id):
         self.send_cmd('force_save', {'account_id': account_id})

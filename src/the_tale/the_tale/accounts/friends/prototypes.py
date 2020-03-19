@@ -14,7 +14,7 @@ class FriendshipPrototype(utils_prototypes.BasePrototype):
         self._model.is_confirmed = True
         self.save()
 
-        account_link = '[url={}]{}[/url]'.format(dext_urls.full_url('https', 'accounts:show', self.friend_2.id), self.friend_2.nick_verbose)
+        account_link = '[url={}]{}[/url]'.format(utils_urls.full_url('https', 'accounts:show', self.friend_2.id), self.friend_2.nick_verbose)
         message = 'игрок {account_link} подтвердил, что вы являетесь друзьями'.format(account_link=account_link)
 
         personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
@@ -28,7 +28,7 @@ class FriendshipPrototype(utils_prototypes.BasePrototype):
     def friend_2(self): return accounts_prototypes.AccountPrototype(model=self._model.friend_2)
 
     @property
-    def text_html(self): return utils_bbcode.render(self._model.text)
+    def text_html(self): return bbcode_renderers.default.render(self._model.text)
 
     @classmethod
     def _get_for(cls, friend_1, friend_2):
@@ -101,9 +101,9 @@ class FriendshipPrototype(utils_prototypes.BasePrototype):
 
 ----------
 принять или отклонить предложение вы можете на этой странице: %(friends_link)s
-''' % {'account_link': '[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', friend_1.id), friend_1.nick_verbose),
+''' % {'account_link': '[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', friend_1.id), friend_1.nick_verbose),
             'text': text,
-            'friends_link': '[url="%s"]предложения дружбы[/url]' % dext_urls.full_url('https', 'accounts:friends:candidates')}
+            'friends_link': '[url="%s"]предложения дружбы[/url]' % utils_urls.full_url('https', 'accounts:friends:candidates')}
 
         # send message from name of user, who request friendship
         # since many users try to respod to system user
@@ -120,7 +120,7 @@ class FriendshipPrototype(utils_prototypes.BasePrototype):
         if request is None:
             return
 
-        account_link = '[url="{}"]{}[/url]'.format(dext_urls.full_url('https', 'accounts:show', initiator.id), initiator.nick_verbose)
+        account_link = '[url="{}"]{}[/url]'.format(utils_urls.full_url('https', 'accounts:show', initiator.id), initiator.nick_verbose)
 
         if request.is_confirmed:
             message = 'игрок {account_link} удалил вас из списка друзей'.format(account_link=account_link)

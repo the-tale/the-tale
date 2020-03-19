@@ -160,7 +160,8 @@ def politics_power_for_level(level):
 
 
 def normal_job_power(heroes_number):
-    return c.HERO_POWER_PER_DAY * c.NORMAL_JOB_LENGTH * c.EXPECTED_HERO_QUEST_POWER_MODIFIER * heroes_number
+    magic = 3  # магическое число, отражающее сложность выполнения проекта
+    return c.HERO_POWER_PER_DAY * c.NORMAL_JOB_LENGTH * c.EXPECTED_HERO_QUEST_POWER_MODIFIER * heroes_number * magic
 
 
 def might_pvp_effectiveness_bonus(might):
@@ -179,7 +180,8 @@ def experience_for_quest__real(max_path_length):
 
 
 def experience_for_quest(max_path_length):
-    return int(math.ceil(experience_for_quest__real(max_path_length) * random.uniform(1.0 - c.EXP_PER_QUEST_FRACTION, 1 + c.EXP_PER_QUEST_FRACTION)))
+    return int(math.ceil(experience_for_quest__real(max_path_length) * random.uniform(1.0 - c.EXP_PER_QUEST_FRACTION,
+                                                                                      1.0 + c.EXP_PER_QUEST_FRACTION)))
 
 #########################################
 # расчёт изменения влияния песроанажа
@@ -192,7 +194,8 @@ def person_power_for_quest__real(path_length):
 
 
 def person_power_for_quest(path_length):
-    return int(math.ceil(person_power_for_quest__real(path_length) * random.uniform(1.0 - c.PERSON_POWER_PER_QUEST_FRACTION, 1 + c.PERSON_POWER_PER_QUEST_FRACTION)))
+    return int(math.ceil(person_power_for_quest__real(path_length) * random.uniform(1.0 - c.PERSON_POWER_PER_QUEST_FRACTION,
+                                                                                    1.0 + c.PERSON_POWER_PER_QUEST_FRACTION)))
 
 
 def max_ability_points_number(level):

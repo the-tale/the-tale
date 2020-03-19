@@ -116,7 +116,7 @@ class ThreadPrototype(utils_prototypes.BasePrototype):
 
     @property
     def paginator(self):
-        url_builder = dext_urls.UrlBuilder(django_reverse('forum:threads:show', args=[self.id]))
+        url_builder = utils_urls.UrlBuilder(django_reverse('forum:threads:show', args=[self.id]))
         # +1 since first post does not counted
         return utils_pagination.Paginator(1, self.posts_count + 1, conf.settings.POSTS_ON_PAGE, url_builder)
 
@@ -268,14 +268,14 @@ class PostPrototype(utils_prototypes.BasePrototype):
     @property
     def html(self):
         if self.markup_method.is_POSTMARKUP:
-            return utils_bbcode.render(self.text)
+            return bbcode_renderers.default.render(self.text)
         elif self.markup_method.is_MARKDOWN:
             return markdown.markdown(self.text)
 
     @property
     def safe_html(self):
         if self.markup_method.is_POSTMARKUP:
-            return utils_bbcode.safe_render(self.text)
+            return bbcode_renderers.safe.render(self.text)
         elif self.markup_method.is_MARKDOWN:
             return markdown.markdown(self.text)
 

@@ -153,8 +153,8 @@ class FormFieldDrawer(BaseDrawer):
         self.widgets = widgets
 
     def widget_html(self, name):
-        content = self.widgets[name] + dext_forms.HTML_ERROR_CONTAINER % {'name': name}
-        return dext_forms.HTML_WIDGET_WRAPPER % {'content': content}
+        content = self.widgets[name] + utils_forms.HTML_ERROR_CONTAINER % {'name': name}
+        return utils_forms.HTML_WIDGET_WRAPPER % {'content': content}
 
     def get_form(self, key):
 
@@ -168,12 +168,12 @@ class FormFieldDrawer(BaseDrawer):
         if key not in cache:
             return ''
 
-        return jinja2.Markup(dext_forms.HTML_WIDGET_WRAPPER % {'content': self.widget_html('%s_%d' % (forms.WORD_FIELD_PREFIX, cache[key]))})
+        return jinja2.Markup(utils_forms.HTML_WIDGET_WRAPPER % {'content': self.widget_html('%s_%d' % (forms.WORD_FIELD_PREFIX, cache[key]))})
 
     def get_property(self, property):
         content = self.widget_html('%s_%s' % (forms.WORD_FIELD_PREFIX, property.__name__))
         content = '<label>%s:</label> %s' % (utg_relations.PROPERTY_TYPE.index_relation[property].text, content)
-        return jinja2.Markup(dext_forms.HTML_WIDGET_WRAPPER % {'content': content})
+        return jinja2.Markup(utils_forms.HTML_WIDGET_WRAPPER % {'content': content})
 
 
 STRUCTURES = {word_type: get_structure(word_type)

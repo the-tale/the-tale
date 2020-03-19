@@ -61,7 +61,7 @@ MAX_EXPERIENCE_PER_EVENT = int(math.ceil(clans_constants.EXPERIENCE_PER_EVENT / 
 
 # в час
 MIN_ACTION_POINTS_PER_EVENT = int(0.5 * clans_constants.INITIAL_POINTS_IN_DAY // 24)
-MAX_ACTION_POINTS_PER_EVENT = int(2 * clans_constants.INITIAL_POINTS_IN_DAY // 24)
+MAX_ACTION_POINTS_PER_EVENT = int(1.5 * clans_constants.INITIAL_POINTS_IN_DAY // 24)
 
 
 STANDART_LIMITED_TASK_POINTS_MINIMUM = int(math.ceil(clans_constants.FIGHTERS_TO_EMISSARY / 2))
@@ -83,4 +83,22 @@ EXPECTED_ATTRIBUTES_INCREMENT_FROM_EVENT = 2 * ATTRIBUT_INCREMENT_DELTA
 
 ATTRIBUTES_FOR_PARTICIPATE_IN_PVP = TIME_FOR_PARTICIPATE_IN_PVP * clans_constants.SIMULTANEOUS_EMISSARY_EVENTS * ATTRIBUT_INCREMENT_DELTA
 
-TASK_BOARD_RADIUS = int(15)
+TASK_BOARD_PLACES_NUMBER = int(10)
+
+_PROTECTORAT_BONUSES_FOR_LEVEL = [0,
+                                  0.50,
+                                  0.25,
+                                  0.20,
+                                  0.20,
+                                  0.20,
+                                  0.15,
+                                  0.15,
+                                  0.15,
+                                  0.10,
+                                  0.10]
+
+
+PROTECTORAT_BONUSES = [round(sum(_PROTECTORAT_BONUSES_FOR_LEVEL[:i+1]), 2) for i in range(len(_PROTECTORAT_BONUSES_FOR_LEVEL))]
+
+PLACE_EVENT_MIN_EFFECT_POWER = float(0.25)
+PLACE_EVENT_MAX_EFFECT_POWER = float(1.25)

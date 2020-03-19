@@ -15,7 +15,7 @@ class Person(meta_relations_objects.MetaType):
 
     @property
     def url(self):
-        return dext_urls.url('game:persons:show', self.id)
+        return utils_urls.url('game:persons:show', self.id)
 
     @classmethod
     def create_from_object(cls, person):

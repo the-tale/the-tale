@@ -69,7 +69,7 @@ class AccountPrototype(utils_prototypes.BasePrototype):
         return self.id in conf.settings.MODERATORS_IDS
 
     @property
-    def description_html(self): return utils_bbcode.render(self.description)
+    def description_html(self): return bbcode_renderers.default.render(self.description)
 
     @utils_decorators.lazy_property
     def permanent_purchases(self):
@@ -193,9 +193,9 @@ class AccountPrototype(utils_prototypes.BasePrototype):
 
 Вы можете продлить подписку на странице нашего %(shop_link)s.
 ''' % {'verbose_timedelta': utils_logic.verbose_timedelta(self.premium_end_at - current_time),
-            'shop_link': '[url="%s"]магазина[/url]' % dext_urls.full_url('https', 'shop:')}
+            'shop_link': '[url="%s"]магазина[/url]' % utils_urls.full_url('https', 'shop:')}
 
-        personal_messages_logic.send_message(logic.get_system_user_id(), [self.id], message, async=True)
+        personal_messages_logic.send_message(logic.get_system_user_id(), [self.id], message, asynchronous=True)
 
     @utils_decorators.lazy_property
     def bank_account(self):
@@ -262,6 +262,16 @@ class AccountPrototype(utils_prototypes.BasePrototype):
 
     @property
     def is_active(self): return self.active_end_at > datetime.datetime.now()
+
+    @property
+    def is_technical(self):
+        if self.is_bot:
+            return True
+
+        if self.id == logic.get_system_user_id():
+            return True
+
+        return False
 
     def get_achievement_account_id(self):
         return self.id
@@ -491,7 +501,7 @@ class RandomPremiumRequestPrototype(utils_prototypes.BasePrototype):
             account.prolong_premium(self.days)
             account.save()
 
-            personal_messages_logic.send_message(logic.get_system_user_id(), [account.id], self.MESSAGE % {'days': self.days}, async=True)
+            personal_messages_logic.send_message(logic.get_system_user_id(), [account.id], self.MESSAGE % {'days': self.days}, asynchronous=True)
 
             self.receiver_id = account.id
             self.state = relations.RANDOM_PREMIUM_REQUEST_STATE.PROCESSED

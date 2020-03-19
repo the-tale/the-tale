@@ -30,26 +30,26 @@ def argument_to_bill_type(value): return relations.BILL_TYPE(int(value))
 def argument_to_bill_state(value): return relations.BILL_STATE(int(value))
 
 
-@dext_old_views.validator(code='bills.voting_state_required')
+@old_views.validator(code='bills.voting_state_required')
 def validate_voting_state(resource, *args, **kwargs): return resource.bill.state.is_VOTING
 
 
-@dext_old_views.validator(code='bills.not_owner', message='Вы не являетесь создателем данной записи')
+@old_views.validator(code='bills.not_owner', message='Вы не являетесь создателем данной записи')
 def validate_ownership(resource, *args, **kwargs): return resource.account.id == resource.bill.owner.id
 
 
-@dext_old_views.validator(code='bills.moderator_rights_required', message='Вы не являетесь модератором')
+@old_views.validator(code='bills.moderator_rights_required', message='Вы не являетесь модератором')
 def validate_moderator_rights(resource, *args, **kwargs): return resource.can_moderate_bill()
 
-@dext_old_views.validator(code='bills.moderator_rights_required', message='Вы должны являться владельцем записи либо модератором')
+@old_views.validator(code='bills.moderator_rights_required', message='Вы должны являться владельцем записи либо модератором')
 def validate_moderator_or_ownership_rights(resource, *args, **kwargs):
     return resource.can_moderate_bill() or resource.account.id == resource.bill.owner.id
 
-@dext_old_views.validator(code='bills.can_not_participate_in_politics', message='Для создания записей в Книге Судеб вам необходимо закончить регистрацию')
+@old_views.validator(code='bills.can_not_participate_in_politics', message='Для создания записей в Книге Судеб вам необходимо закончить регистрацию')
 def validate_participate_in_politics(resource, *args, **kwargs): return resource.can_participate_in_politics
 
 
-@dext_old_views.validator(code='bills.can_not_vote', message='Голосовать могут только подписчики')
+@old_views.validator(code='bills.can_not_vote', message='Голосовать могут только подписчики')
 def validate_can_vote(resource, *args, **kwargs): return resource.can_vote
 
 
@@ -73,7 +73,7 @@ class BillResource(utils_resources.Resource):
     def can_moderate_bill(self):
         return self.account.is_authenticated and self.account.has_perm('bills.moderate_bill')
 
-    @dext_old_views.validate_argument('bill', prototypes.BillPrototype.get_by_id, 'bills', 'Запись не найдена')
+    @old_views.validate_argument('bill', prototypes.BillPrototype.get_by_id, 'bills', 'Запись не найдена')
     def initialize(self, bill=None, *args, **kwargs):
         super(BillResource, self).initialize(*args, **kwargs)
 
@@ -82,13 +82,13 @@ class BillResource(utils_resources.Resource):
         if self.bill and self.bill.state.is_REMOVED:
             return self.auto_error('bills.removed', 'Запись удалена')
 
-    @dext_old_views.validate_argument('page', int, 'bills', 'неверная страница')
-    @dext_old_views.validate_argument('owner', accounts_prototypes.AccountPrototype.get_by_id, 'bills', 'неверный владелец записи')
-    @dext_old_views.validate_argument('state', argument_to_bill_state, 'bills', 'неверное состояние записи')
-    @dext_old_views.validate_argument('bill_type', argument_to_bill_type, 'bills', 'неверный тип записи')
-    @dext_old_views.validate_argument('voted', relations.VOTED_TYPE, 'bills', 'неверный тип фильтра голосования')
-    @dext_old_views.validate_argument('place', lambda value: places_storage.places[int(value)], 'bills', 'не существует такого города')
-    @dext_old_views.handler('', method='get')
+    @old_views.validate_argument('page', int, 'bills', 'неверная страница')
+    @old_views.validate_argument('owner', accounts_prototypes.AccountPrototype.get_by_id, 'bills', 'неверный владелец записи')
+    @old_views.validate_argument('state', argument_to_bill_state, 'bills', 'неверное состояние записи')
+    @old_views.validate_argument('bill_type', argument_to_bill_type, 'bills', 'неверный тип записи')
+    @old_views.validate_argument('voted', relations.VOTED_TYPE, 'bills', 'неверный тип фильтра голосования')
+    @old_views.validate_argument('place', lambda value: places_storage.places[int(value)], 'bills', 'не существует такого города')
+    @old_views.handler('', method='get')
     def index(self, page=1, owner=None, state=None, bill_type=None, voted=None, place=None):  # pylint: disable=R0914
 
         bills_query = models.Bill.objects.exclude(state=relations.BILL_STATE.REMOVED)
@@ -117,11 +117,11 @@ class BillResource(utils_resources.Resource):
             else:
                 bills_query = bills_query.filter(vote__owner=self.account._model, vote__type=voted.vote_type).distinct()
 
-        url_builder = dext_urls.UrlBuilder(django_reverse('game:bills:'), arguments={'owner': owner.id if owner else None,
-                                                                                     'state': state.value if state else None,
-                                                                                     'bill_type': bill_type.value if bill_type else None,
-                                                                                     'voted': voted.value if voted else None,
-                                                                                     'place': place.id if place else None})
+        url_builder = utils_urls.UrlBuilder(django_reverse('game:bills:'), arguments={'owner': owner.id if owner else None,
+                                                                                      'state': state.value if state else None,
+                                                                                      'bill_type': bill_type.value if bill_type else None,
+                                                                                      'voted': voted.value if voted else None,
+                                                                                      'place': place.id if place else None})
 
         IndexFilter = LoginedIndexFilter if self.account.is_authenticated else UnloginedIndexFilter  # pylint: disable=C0103
 
@@ -161,8 +161,8 @@ class BillResource(utils_resources.Resource):
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_any()
     @validate_participate_in_politics()
-    @dext_old_views.validate_argument('bill_type', argument_to_bill_type, 'bills.new', 'неверный тип записи')
-    @dext_old_views.handler('new', method='get')
+    @old_views.validate_argument('bill_type', argument_to_bill_type, 'bills.new', 'неверный тип записи')
+    @old_views.handler('new', method='get')
     def new(self, bill_type):
         if not bill_type.enabled:
             return self.auto_error('bills.new.bill_type.not_enabled', 'Этот тип записи создать нельзя', response_type='html')
@@ -176,8 +176,8 @@ class BillResource(utils_resources.Resource):
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_any()
     @validate_participate_in_politics()
-    @dext_old_views.validate_argument('bill_type', argument_to_bill_type, 'bills.create', 'неверный тип записи')
-    @dext_old_views.handler('create', method='post')
+    @old_views.validate_argument('bill_type', argument_to_bill_type, 'bills.create', 'неверный тип записи')
+    @old_views.handler('create', method='post')
     def create(self, bill_type):
 
         if not bill_type.enabled:
@@ -205,7 +205,7 @@ class BillResource(utils_resources.Resource):
 
         return self.json_error('bills.create.form_errors', user_form.errors)
 
-    @dext_old_views.handler('#bill', name='show', method='get')
+    @old_views.handler('#bill', name='show', method='get')
     def show(self):
         thread_data = forum_views.ThreadPageData()
         thread_data.initialize(account=self.account, thread=self.bill.forum_thread, page=1, inline=True)
@@ -224,7 +224,7 @@ class BillResource(utils_resources.Resource):
     @validate_participate_in_politics()
     @validate_ownership()
     @validate_voting_state(message='Можно редактировать только записи, находящиеся в стадии голосования')
-    @dext_old_views.handler('#bill', 'edit', name='edit', method='get')
+    @old_views.handler('#bill', 'edit', name='edit', method='get')
     def edit(self):
         user_form = self.bill.data.get_user_form_update(initial=self.bill.user_form_initials,
                                                         owner_id=self.account.id,
@@ -240,7 +240,7 @@ class BillResource(utils_resources.Resource):
     @validate_participate_in_politics()
     @validate_ownership()
     @validate_voting_state(message='Можно редактировать только записи, находящиеся в стадии голосования')
-    @dext_old_views.handler('#bill', 'update', name='update', method='post')
+    @old_views.handler('#bill', 'update', name='update', method='post')
     def update(self):
         user_form = self.bill.data.get_user_form_update(post=self.request.POST,
                                                         owner_id=self.account.id,
@@ -255,7 +255,7 @@ class BillResource(utils_resources.Resource):
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @validate_moderator_or_ownership_rights()
-    @dext_old_views.handler('#bill', 'delete', name='delete', method='post')
+    @old_views.handler('#bill', 'delete', name='delete', method='post')
     def delete(self):
         self.bill.remove(self.account)
         return self.json_ok()
@@ -264,7 +264,7 @@ class BillResource(utils_resources.Resource):
     @accounts_views.validate_fast_account()
     @validate_moderator_rights()
     @validate_voting_state(message='Можно редактировать только записи, находящиеся в стадии голосования')
-    @dext_old_views.handler('#bill', 'moderate', name='moderate', method='get')
+    @old_views.handler('#bill', 'moderate', name='moderate', method='get')
     def moderation_page(self):
         moderation_form = self.bill.data.get_moderator_form_update(initial=self.bill.moderator_form_initials,
                                                                    original_bill_id=self.bill.id)
@@ -276,7 +276,7 @@ class BillResource(utils_resources.Resource):
     @accounts_views.validate_fast_account()
     @validate_moderator_rights()
     @validate_voting_state(message='Можно редактировать только записи, находящиеся в стадии голосования')
-    @dext_old_views.handler('#bill', 'moderate', name='moderate', method='post')
+    @old_views.handler('#bill', 'moderate', name='moderate', method='post')
     def moderate(self):
         moderator_form = self.bill.data.get_moderator_form_update(post=self.request.POST,
                                                                   original_bill_id=self.bill.id)
@@ -293,8 +293,8 @@ class BillResource(utils_resources.Resource):
     @validate_participate_in_politics()
     @validate_can_vote()
     @validate_voting_state(message='На данной стадии за запись нельзя голосовать')
-    @dext_old_views.validate_argument('type', lambda t: relations.VOTE_TYPE.index_value[int(t)], 'bills.vote', 'Неверно указан тип голоса')
-    @dext_old_views.handler('#bill', 'vote', name='vote', method='post')
+    @old_views.validate_argument('type', lambda t: relations.VOTE_TYPE.index_value[int(t)], 'bills.vote', 'Неверно указан тип голоса')
+    @old_views.handler('#bill', 'vote', name='vote', method='post')
     def vote(self, type):  # pylint: disable=W0622
 
         if not self.bill.can_vote(self.hero):

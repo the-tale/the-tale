@@ -48,7 +48,7 @@ class PlacesStorageTest(utils_testcase.TestCase):
         self.storage.sync()
         self.assertNotEqual(self.storage[self.p1.id].attrs.size, 7)
 
-        dext_settings.settings[self.storage.SETTINGS_KEY] = uuid.uuid4().hex
+        global_settings[self.storage.SETTINGS_KEY] = uuid.uuid4().hex
 
         self.storage.sync()
         self.assertEqual(self.storage[self.p1.id].attrs.size, 7)
@@ -70,17 +70,43 @@ class PlacesStorageTest(utils_testcase.TestCase):
         self.assertTrue(self.p1.id in self.storage)
         self.assertFalse(666 in self.storage)
 
+    def test_nearest_places_with_distances(self):
+        distances = self.storage.nearest_places_with_distance(self.p1.id)
+        self.assertEqual(distances,
+                         [(0, self.p1.id),
+                          (navigation_logic.manhattan_distance(self.p1.x, self.p1.y, self.p3.x, self.p3.y), self.p3.id),
+                          (navigation_logic.manhattan_distance(self.p1.x, self.p1.y, self.p2.x, self.p2.y), self.p2.id)])
+
+        distances = self.storage.nearest_places_with_distance(self.p3.id)
+        self.assertEqual(distances,
+                         [(0, self.p3.id),
+                          (navigation_logic.manhattan_distance(self.p3.x, self.p3.y, self.p1.x, self.p1.y), self.p1.id),
+                          (navigation_logic.manhattan_distance(self.p3.x, self.p3.y, self.p2.x, self.p2.y), self.p2.id)])
+
+    def test_nearest_places_with_distances__number(self):
+        distances = self.storage.nearest_places_with_distance(self.p1.id, number=2)
+        self.assertEqual(distances,
+                         [(0, self.p1.id),
+                          (navigation_logic.manhattan_distance(self.p1.x, self.p1.y, self.p3.x, self.p3.y), self.p3.id)])
+
+        distances = self.storage.nearest_places_with_distance(self.p3.id, number=2)
+        self.assertEqual(distances,
+                         [(0, self.p3.id),
+                          (navigation_logic.manhattan_distance(self.p3.x, self.p3.y, self.p1.x, self.p1.y), self.p1.id),
+                          (navigation_logic.manhattan_distance(self.p3.x, self.p3.y, self.p2.x, self.p2.y), self.p2.id)])
+
     def test_nearest_places(self):
-        self.assertCountEqual([place.id for place in self.storage.nearest_places(self.p1.x, self.p1.y, radius=0)],
-                              [self.p1.id])
-        self.assertCountEqual([place.id for place in self.storage.nearest_places(self.p1.x, self.p1.y, radius=1)],
-                              [self.p1.id])
-        self.assertCountEqual([place.id for place in self.storage.nearest_places(self.p1.x, self.p1.y, radius=2)],
-                              [self.p1.id, self.p3.id])
-        self.assertCountEqual([place.id for place in self.storage.nearest_places(self.p1.x, self.p1.y, radius=3)],
-                              [self.p1.id, self.p3.id])
-        self.assertCountEqual([place.id for place in self.storage.nearest_places(self.p1.x, self.p1.y, radius=4)],
-                              [self.p1.id, self.p2.id, self.p3.id])
+        distances = self.storage.nearest_places(self.p1.id)
+        self.assertEqual(distances, [self.storage[self.p1.id],
+                                     self.storage[self.p3.id],
+                                     self.storage[self.p2.id]])
+
+        distances = self.storage.nearest_places(self.p1.id, number=2)
+        self.assertEqual(distances, [self.storage[self.p1.id],
+                                     self.storage[self.p3.id]])
+
+    def test_expected_minimum_quest_distance(self):
+        self.assertAlmostEqual(self.storage.expected_minimum_quest_distance(), 6.666666666666667)
 
 
 class ResourceExchangeStorageTests(utils_testcase.TestCase):
@@ -205,3 +231,71 @@ class EffectsStorageTest(utils_testcase.TestCase):
                          {effect_3_id})
         self.assertEqual({effect.id for effect in self.storage.effects_for_place(self.places[2].id)},
                          set())
+
+
+class ClansRegionsStorageTests(helpers.PlacesTestsMixin,
+                               utils_testcase.TestCase):
+
+    def setUp(self):
+        tt_services.effects.cmd_debug_clear_service()
+
+        super().setUp()
+
+        self.places = game_logic.create_test_map()
+
+        self.storage = storage.clans_regions
+
+    def test_initialize(self):
+        clans_regions = storage.ClansRegionsStorage()
+
+        self.assertEqual(clans_regions._regions, {})
+
+    def test_recalculate__single_none_region(self):
+        self.assertEqual(self.storage.region_for_place(self.places[0].id),
+                         self.storage.region_for_place(self.places[1].id))
+
+        self.assertEqual(self.storage.region_for_place(self.places[0].id),
+                         self.storage.region_for_place(self.places[2].id))
+
+        self.assertEqual(self.storage.region_for_place(self.places[0].id).places_ids,
+                         {place.id for place in self.places})
+
+    def test_united_regions(self):
+        self.set_protector(self.places[0].id, 1)
+        self.set_protector(self.places[1].id, 2)
+        self.set_protector(self.places[2].id, 2)
+
+        self.assertNotEqual(self.storage.region_for_place(self.places[0].id),
+                            self.storage.region_for_place(self.places[1].id))
+
+        self.assertEqual(self.storage.region_for_place(self.places[1].id),
+                         self.storage.region_for_place(self.places[2].id))
+
+        self.assertEqual(self.storage.region_for_place(self.places[0].id).places_ids,
+                         {self.places[0].id})
+
+        self.assertEqual(self.storage.region_for_place(self.places[1].id).places_ids,
+                         {self.places[1].id, self.places[2].id})
+
+    def test_broken_regions(self):
+        self.set_protector(self.places[0].id, 1)
+        self.set_protector(self.places[1].id, 2)
+        self.set_protector(self.places[2].id, 1)
+
+        self.assertNotEqual(self.storage.region_for_place(self.places[0].id),
+                            self.storage.region_for_place(self.places[1].id))
+
+        self.assertNotEqual(self.storage.region_for_place(self.places[1].id),
+                            self.storage.region_for_place(self.places[2].id))
+
+        self.assertNotEqual(self.storage.region_for_place(self.places[0].id),
+                            self.storage.region_for_place(self.places[2].id))
+
+        self.assertEqual(self.storage.region_for_place(self.places[0].id).places_ids,
+                         {self.places[0].id})
+
+        self.assertEqual(self.storage.region_for_place(self.places[1].id).places_ids,
+                         {self.places[1].id})
+
+        self.assertEqual(self.storage.region_for_place(self.places[2].id).places_ids,
+                         {self.places[2].id})

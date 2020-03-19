@@ -438,3 +438,15 @@ class LogicTests(utils_testcase.TestCase):
         self.assertEqual(companion.record.id, companion_record.id)
         self.assertEqual(companion.health, companion_record.max_health)
         self.assertEqual(companion.coherence, 0)
+
+
+class CoherenceExpPerQuestTests(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+        game_logic.create_test_map()
+
+    def test(self):
+        self.assertEqual(logic.coherence_exp_per_quest(10), 1)
+        self.assertEqual(logic.coherence_exp_per_quest(20), 3)
+        self.assertEqual(logic.coherence_exp_per_quest(40), 6)

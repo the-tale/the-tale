@@ -4,9 +4,13 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'Do one emissary calculation step'
+
+    LOCKS = ['game_commands']
+
+    SKIP_IF_ALREADY_IN_QUEUE = False
 
     def handle(self, *args, **options):
         emissaries_logic.sync_power()

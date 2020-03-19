@@ -5,19 +5,19 @@ smart_imports.all()
 
 
 def login_url(target_url='/'):
-    return dext_urls.url('accounts:auth:api-login', api_version='1.0', api_client=django_settings.API_CLIENT, next_url=target_url.encode('utf-8'))
+    return utils_urls.url('accounts:auth:api-login', api_version='1.0', api_client=django_settings.API_CLIENT, next_url=target_url.encode('utf-8'))
 
 
 def login_page_url(target_url='/'):
-    return dext_urls.url('accounts:auth:page-login', next_url=target_url.encode('utf-8'))
+    return utils_urls.url('accounts:auth:page-login', next_url=target_url.encode('utf-8'))
 
 
 def logout_url():
-    return dext_urls.url('accounts:auth:api-logout', api_version='1.0', api_client=django_settings.API_CLIENT)
+    return utils_urls.url('accounts:auth:api-logout', api_version='1.0', api_client=django_settings.API_CLIENT)
 
 
 def register_url():
-    return dext_urls.url('accounts:registration:api-register', api_version='1.0', api_client=django_settings.API_CLIENT)
+    return utils_urls.url('accounts:registration:api-register', api_version='1.0', api_client=django_settings.API_CLIENT)
 
 
 def get_system_user_id():
@@ -142,7 +142,7 @@ def register_user(nick,
         game_tt_services.energy.cmd_change_balance(account_id=account.id,
                                                    type='initial_contribution',
                                                    amount=c.INITIAL_ENERGY_AMOUNT,
-                                                   async=False,
+                                                   asynchronous=False,
                                                    autocommit=True)
 
         create_cards_timer(account.id)
@@ -257,7 +257,7 @@ def thin_out_accounts(number, prolong_active_to, logger):
 
 # for bank
 def get_account_id_by_email(email):
-    account = prototypes.AccountPrototype.get_by_email(dext_logic.normalize_email(email))
+    account = prototypes.AccountPrototype.get_by_email(utils_logic.normalize_email(email))
     return account.id if account else None
 
 
@@ -367,3 +367,29 @@ def change_credentials(account, new_email=None, new_password=None, new_nick=None
                 account_id=account.referral_of_id,
                 method_name=account.update_referrals_number.__name__,
                 data={})
+
+
+def max_money_to_transfer(account):
+    invoices = account.bank_account.get_history_list()
+
+    bought = sum(abs(invoice.amount) for invoice in invoices
+                 if invoice.sender_type.is_XSOLLA)
+
+    infinit_uid = shop_goods.PURCHAGE_UID.format(shop_price_list.SUBSCRIPTION_INFINIT_UID)
+
+    infinit = sum(abs(invoice.amount) for invoice in invoices
+                  if invoice.operation_uid == infinit_uid)
+
+    transfer_uid = accounts_postponed_tasks.TRANSFER_MONEY_UID
+
+    send = sum(abs(invoice.amount) for invoice in invoices
+               if invoice.sender_type.is_GAME_ACCOUNT and
+                  invoice.sender_id == account.id and
+                  invoice.operation_uid == transfer_uid)
+
+    received = sum(abs(invoice.amount) for invoice in invoices
+                   if invoice.recipient_type.is_GAME_ACCOUNT and
+                      invoice.recipient_id == account.id and
+                      invoice.operation_uid == transfer_uid)
+
+    return bought + received - infinit - send

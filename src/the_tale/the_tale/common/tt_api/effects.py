@@ -6,7 +6,7 @@ smart_imports.all()
 class Effect:
     __slots__ = ('id', 'attribute', 'entity', 'value', 'name', 'delta', 'info')
 
-    def __init__(self, id, attribute, entity, value, name, delta=None, info=None):
+    def __init__(self, attribute, value, name, entity=None, id=None, delta=None, info=None):
         self.id = id
         self.attribute = attribute
         self.entity = entity
@@ -39,7 +39,7 @@ class Effect:
     def ui_info(self):
         return {'name': self.name,
                 'attribute': self.attribute.value,
-                'value': self.value}
+                'value': self.value if isinstance(self.value, (numbers.Number, str)) else None}
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__ and
@@ -76,7 +76,16 @@ class Client(client.Client):
                       delta=data.get('delta'),
                       info=data.get('info'))
 
-    def cmd_register(self, effect):
+    def cmd_remove_effects(self, entity, attribute):
+        for existed_effect in self.cmd_list():
+            if (existed_effect.attribute == attribute and
+                existed_effect.entity == entity):
+                self.cmd_remove(existed_effect.id)
+
+    def cmd_register(self, effect, unique=False):
+        if unique:
+            self.cmd_remove_effects(entity=effect.entity, attribute=effect.attribute)
+
         answer = operations.sync_request(url=self.url('register'),
                                          data=tt_protocol_effects_pb2.RegisterRequest(effect=self.protobuf_from_effect(effect)),
                                          AnswerType=tt_protocol_effects_pb2.RegisterResponse)
@@ -89,6 +98,9 @@ class Client(client.Client):
                                 AnswerType=tt_protocol_effects_pb2.RemoveResponse)
 
     def cmd_update(self, effect):
+        if effect.id is None:
+            raise exceptions.TTEffectRequireId()
+
         operations.sync_request(url=self.url('update'),
                                 data=tt_protocol_effects_pb2.UpdateRequest(effect=self.protobuf_from_effect(effect)),
                                 AnswerType=tt_protocol_effects_pb2.UpdateResponse)

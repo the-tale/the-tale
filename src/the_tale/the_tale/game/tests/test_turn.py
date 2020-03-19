@@ -7,18 +7,15 @@ smart_imports.all()
 class TimeTest(utils_testcase.TestCase):
 
     def test_creation(self):
-        dext_settings_models.Setting.objects.all().delete()
-        dext_settings.settings.refresh()
-
-        settings_number = dext_settings_models.Setting.objects.all().count()
+        global_settings.clear()
 
         self.assertEqual(game_turn.number(), 0)
-        self.assertEqual(dext_settings_models.Setting.objects.all().count(), settings_number)
+        self.assertEqual(global_settings.records_number(), 0)
 
         game_turn.increment()
 
         self.assertEqual(game_turn.number(), 1)
-        self.assertEqual(dext_settings_models.Setting.objects.all().count(), settings_number + 1)
+        self.assertEqual(global_settings.records_number(), 1)
 
     def test_get_current_time(self):
         self.assertEqual(game_turn.number(), 0)

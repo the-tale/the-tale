@@ -39,8 +39,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('post', models.ForeignKey(related_name='+', to='blogs.Post')),
-                ('voter', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL)),
+                ('post', models.ForeignKey(related_name='+', to='blogs.Post', on_delete=models.CASCADE)),
+                ('voter', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },

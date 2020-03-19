@@ -36,7 +36,7 @@ def argument_to_mob(value): return storage.mobs.get(int(value), None)
 
 class MobResourceBase(utils_resources.Resource):
 
-    @dext_old_views.validate_argument('mob', argument_to_mob, 'mobs', 'Запись о монстре не найдена')
+    @old_views.validate_argument('mob', argument_to_mob, 'mobs', 'Запись о монстре не найдена')
     def initialize(self, mob=None, *args, **kwargs):
         super(MobResourceBase, self).initialize(*args, **kwargs)
         self.mob = mob
@@ -61,20 +61,20 @@ def argument_to_ability(value):
     return value
 
 
-@dext_old_views.validator(code='mobs.mob_disabled', message='монстр находится вне игры', status_code=404)
+@old_views.validator(code='mobs.mob_disabled', message='монстр находится вне игры', status_code=404)
 def validate_mob_disabled(resource, *args, **kwargs):
     return not resource.mob.state.is_DISABLED or resource.can_create_mob or resource.can_moderate_mob
 
 
 class GuideMobResource(MobResourceBase):
 
-    @dext_old_views.validate_argument('state', argument_to_mob_state, 'mobs', 'неверное состояние записи о монстре')
-    @dext_old_views.validate_argument('terrain', lambda value: map_relations.TERRAIN(int(value)), 'mobs', 'неверный тип территории')
-    @dext_old_views.validate_argument('order_by', relations.INDEX_ORDER_TYPE, 'mobs', 'неверный тип сортировки')
-    @dext_old_views.validate_argument('archetype', argument_to_archetype, 'mobs', 'неверный архетип монстра')
-    @dext_old_views.validate_argument('ability', argument_to_ability, 'mobs', 'неверная способность монстра')
-    @dext_old_views.validate_argument('type', argument_to_mob_type, 'mobs', 'неверный тип монстра')
-    @dext_old_views.handler('', method='get')
+    @old_views.validate_argument('state', argument_to_mob_state, 'mobs', 'неверное состояние записи о монстре')
+    @old_views.validate_argument('terrain', lambda value: map_relations.TERRAIN(int(value)), 'mobs', 'неверный тип территории')
+    @old_views.validate_argument('order_by', relations.INDEX_ORDER_TYPE, 'mobs', 'неверный тип сортировки')
+    @old_views.validate_argument('archetype', argument_to_archetype, 'mobs', 'неверный архетип монстра')
+    @old_views.validate_argument('ability', argument_to_ability, 'mobs', 'неверная способность монстра')
+    @old_views.validate_argument('type', argument_to_mob_type, 'mobs', 'неверный тип монстра')
+    @old_views.handler('', method='get')
     def index(self,
               state=relations.MOB_RECORD_STATE.ENABLED,
               terrain=None,
@@ -112,12 +112,12 @@ class GuideMobResource(MobResourceBase):
         if ability is not None:
             mobs = [mob for mob in mobs if ability in mob.abilities]
 
-        url_builder = dext_urls.UrlBuilder(django_reverse('guide:mobs:'), arguments={'state': state.value if state is not None else None,
-                                                                                     'terrain': terrain.value if terrain is not None else None,
-                                                                                     'type': type.value if type is not None else None,
-                                                                                     'archetype': archetype.value if archetype is not None else None,
-                                                                                     'ability': ability if ability is not None else None,
-                                                                                     'order_by': order_by.value})
+        url_builder = utils_urls.UrlBuilder(django_reverse('guide:mobs:'), arguments={'state': state.value if state is not None else None,
+                                                                                      'terrain': terrain.value if terrain is not None else None,
+                                                                                      'type': type.value if type is not None else None,
+                                                                                      'archetype': archetype.value if archetype is not None else None,
+                                                                                      'ability': ability if ability is not None else None,
+                                                                                      'order_by': order_by.value})
 
         IndexFilter = ModeratorIndexFilter if self.can_create_mob or self.can_moderate_mob else UnloginedIndexFilter  # pylint: disable=C0103
 
@@ -143,28 +143,28 @@ class GuideMobResource(MobResourceBase):
                               'section': 'mobs'})
 
     @validate_mob_disabled()
-    @dext_old_views.handler('#mob', name='show', method='get')
+    @old_views.handler('#mob', name='show', method='get')
     def show(self):
         return self.template('mobs/show.html', {'mob': self.mob,
                                                 'mob_meta_object': meta_relations.Mob.create_from_object(self.mob),
                                                 'section': 'mobs'})
 
     @validate_mob_disabled()
-    @dext_old_views.handler('#mob', 'info', method='get')
+    @old_views.handler('#mob', 'info', method='get')
     def show_dialog(self):
         return self.template('mobs/info.html', {'mob': self.mob,
                                                 'mob_meta_object': meta_relations.Mob.create_from_object(self.mob), })
 
 
-@dext_old_views.validator(code='mobs.create_mob_rights_required', message='Вы не можете создавать мобов')
+@old_views.validator(code='mobs.create_mob_rights_required', message='Вы не можете создавать мобов')
 def validate_create_rights(resource, *args, **kwargs): return resource.can_create_mob
 
 
-@dext_old_views.validator(code='mobs.moderate_mob_rights_required', message='Вы не можете принимать мобов в игру')
+@old_views.validator(code='mobs.moderate_mob_rights_required', message='Вы не можете принимать мобов в игру')
 def validate_moderate_rights(resource, *args, **kwargs): return resource.can_moderate_mob
 
 
-@dext_old_views.validator(code='mobs.disabled_state_required', message='Для проведения этой операции монстр должен быть убран из игры')
+@old_views.validator(code='mobs.disabled_state_required', message='Для проведения этой операции монстр должен быть убран из игры')
 def validate_disabled_state(resource, *args, **kwargs): return resource.mob.state.is_DISABLED
 
 
@@ -172,14 +172,14 @@ class GameMobResource(MobResourceBase):
 
     @utils_decorators.login_required
     @validate_create_rights()
-    @dext_old_views.handler('new', method='get')
+    @old_views.handler('new', method='get')
     def new(self):
         form = forms.MobRecordForm()
         return self.template('mobs/new.html', {'form': form})
 
     @utils_decorators.login_required
     @validate_create_rights()
-    @dext_old_views.handler('create', method='post')
+    @old_views.handler('create', method='post')
     def create(self):
 
         form = forms.MobRecordForm(self.request.POST)
@@ -220,7 +220,7 @@ class GameMobResource(MobResourceBase):
     @utils_decorators.login_required
     @validate_disabled_state()
     @validate_create_rights()
-    @dext_old_views.handler('#mob', 'edit', name='edit', method='get')
+    @old_views.handler('#mob', 'edit', name='edit', method='get')
     def edit(self):
         form = forms.MobRecordForm(initial=forms.MobRecordForm.get_initials(self.mob))
 
@@ -230,7 +230,7 @@ class GameMobResource(MobResourceBase):
     @utils_decorators.login_required
     @validate_disabled_state()
     @validate_create_rights()
-    @dext_old_views.handler('#mob', 'update', name='update', method='post')
+    @old_views.handler('#mob', 'update', name='update', method='post')
     def update(self):
 
         form = forms.MobRecordForm(self.request.POST)
@@ -247,7 +247,7 @@ class GameMobResource(MobResourceBase):
 
     @utils_decorators.login_required
     @validate_moderate_rights()
-    @dext_old_views.handler('#mob', 'moderate', name='moderate', method='get')
+    @old_views.handler('#mob', 'moderate', name='moderate', method='get')
     def moderation_page(self):
         form = forms.ModerateMobRecordForm(initial=forms.ModerateMobRecordForm.get_initials(self.mob))
 
@@ -256,7 +256,7 @@ class GameMobResource(MobResourceBase):
 
     @utils_decorators.login_required
     @validate_moderate_rights()
-    @dext_old_views.handler('#mob', 'moderate', name='moderate', method='post')
+    @old_views.handler('#mob', 'moderate', name='moderate', method='post')
     def moderate(self):
         form = forms.ModerateMobRecordForm(self.request.POST)
 

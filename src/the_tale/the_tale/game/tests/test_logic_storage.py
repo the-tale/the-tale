@@ -457,7 +457,7 @@ class LogicStorageTests(utils_testcase.TestCase):
     def test_save_changed_data(self):
         self.storage.process_turn()
 
-        with mock.patch('dext.common.utils.cache.set_many') as set_many:
+        with mock.patch('the_tale.common.utils.cache.set_many') as set_many:
             with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
                 self.storage.save_changed_data()
 
@@ -490,7 +490,7 @@ class LogicStorageTests(utils_testcase.TestCase):
 
         self.storage.process_turn()
 
-        with mock.patch('dext.common.utils.cache.set_many') as set_many:
+        with mock.patch('the_tale.common.utils.cache.set_many') as set_many:
             with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
                 self.storage.save_changed_data()
 
@@ -697,7 +697,7 @@ class LogicStorageTests(utils_testcase.TestCase):
 
         self.storage.process_turn()
 
-        with mock.patch('dext.common.utils.cache.set_many') as set_many:
+        with mock.patch('the_tale.common.utils.cache.set_many') as set_many:
             with mock.patch('the_tale.game.logic_storage.LogicStorage._save_hero_data') as save_hero_data:
                 with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
                     self.storage.save_changed_data()
@@ -734,7 +734,7 @@ class LogicStorageTests(utils_testcase.TestCase):
 
         self.storage.process_turn()
 
-        with mock.patch('dext.common.utils.cache.set_many') as set_many:
+        with mock.patch('the_tale.common.utils.cache.set_many') as set_many:
             with mock.patch('the_tale.game.logic_storage.LogicStorage._save_hero_data') as save_hero_data:
                 with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
                     self.storage.save_changed_data()

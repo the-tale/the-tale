@@ -147,18 +147,15 @@ class PlaceEffectTests(EffectsTestsBase):
                               [mock.call(method_name='job_message', account_id=self.account_1.id, hero_id=self.hero_1.id,
                                          method_kwargs={'person_id': None,
                                                         'place_id': self.place.id,
-                                                        'message_type': 'job_diary_x_%s_positive_friends' % effect.name.lower(),
-                                                        'job_power': self.job_power}),
+                                                        'message_type': 'job_diary_x_%s_positive_friends' % effect.name.lower()}),
                                mock.call(method_name='job_message', account_id=self.account_3.id, hero_id=self.hero_3.id,
                                          method_kwargs={'person_id': None,
                                                         'place_id': self.place.id,
-                                                        'message_type': 'job_diary_x_%s_positive_friends' % effect.name.lower(),
-                                                        'job_power': self.job_power}),
+                                                        'message_type': 'job_diary_x_%s_positive_friends' % effect.name.lower()}),
                                mock.call(method_name='job_message', account_id=self.account_2.id, hero_id=self.hero_2.id,
                                          method_kwargs={'person_id': None,
                                                         'place_id': self.place.id,
-                                                        'message_type': 'job_diary_x_%s_positive_enemies' % effect.name.lower(),
-                                                        'job_power': self.job_power})])
+                                                        'message_type': 'job_diary_x_%s_positive_enemies' % effect.name.lower()})])
 
         applied_effect = list(places_storage.effects.all())[0]
 
@@ -167,6 +164,7 @@ class PlaceEffectTests(EffectsTestsBase):
         self.assertEqual(applied_effect.value, effect.logic.base_value * self.job_power)
 
     def check_apply_negative(self, effect):
+
         with mock.patch('the_tale.game.jobs.effects.BaseEffect.invoke_hero_method') as invoke_hero_method:
             effect.logic.apply_negative(actor_type='y',
                                         actor_name=self.actor_name,
@@ -182,18 +180,15 @@ class PlaceEffectTests(EffectsTestsBase):
                               [mock.call(method_name='job_message', account_id=self.account_1.id, hero_id=self.hero_1.id,
                                          method_kwargs={'person_id': self.person.id,
                                                         'place_id': self.place.id,
-                                                        'message_type': 'job_diary_y_%s_negative_friends' % effect.name.lower(),
-                                                        'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
+                                                        'message_type': 'job_diary_y_%s_negative_friends' % effect.name.lower()}),
                                mock.call(method_name='job_message', account_id=self.account_2.id, hero_id=self.hero_2.id,
                                          method_kwargs={'person_id': self.person.id,
                                                         'place_id': self.place.id,
-                                                        'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
-                                                        'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
+                                                        'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower()}),
                                mock.call(method_name='job_message', account_id=self.account_3.id, hero_id=self.hero_3.id,
                                          method_kwargs={'person_id': self.person.id,
                                                         'place_id': self.place.id,
-                                                        'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
-                                                        'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER})])
+                                                        'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower()})])
 
         applied_effect = list(places_storage.effects.all())[0]
 
@@ -241,7 +236,11 @@ class PlaceEffectTests(EffectsTestsBase):
 
 class HeroEffectTests(EffectsTestsBase):
 
-    def check_apply_positive(self, effect):
+    def setUp(self):
+        super().setUp()
+        self.target_level = f.lvl_after_time(3 * 365 * 24)
+
+    def check_apply_positive(self, effect, expected_effect_value):
         with mock.patch('the_tale.game.jobs.effects.BaseEffect.invoke_hero_method') as invoke_hero_method:
             effect.logic.apply_positive(actor_type='x',
                                         actor_name=self.actor_name,
@@ -252,23 +251,23 @@ class HeroEffectTests(EffectsTestsBase):
                                         job_power=self.job_power)
 
         self.assertCountEqual(invoke_hero_method.call_args_list,
-                              [mock.call(method_name=effect.logic.method_name, account_id=self.account_1.id, hero_id=self.hero_1.id,
+                              [mock.call(method_name=effect.logic.METHOD_NAME, account_id=self.account_1.id, hero_id=self.hero_1.id,
                                          method_kwargs={'person_id': None,
                                                         'place_id': self.place.id,
                                                         'message_type': 'job_diary_x_%s_positive_friends' % effect.name.lower(),
-                                                        'job_power': self.job_power}),
-                               mock.call(method_name=effect.logic.method_name, account_id=self.account_3.id, hero_id=self.hero_3.id,
+                                                        'effect_value': expected_effect_value}),
+                               mock.call(method_name=effect.logic.METHOD_NAME, account_id=self.account_3.id, hero_id=self.hero_3.id,
                                          method_kwargs={'person_id': None,
                                                         'place_id': self.place.id,
                                                         'message_type': 'job_diary_x_%s_positive_friends' % effect.name.lower(),
-                                                        'job_power': self.job_power}),
+                                                        'effect_value': expected_effect_value}),
                                mock.call(method_name='job_message', account_id=self.account_2.id, hero_id=self.hero_2.id,
                                          method_kwargs={'person_id': None,
                                                         'place_id': self.place.id,
                                                         'message_type': 'job_diary_x_%s_positive_enemies' % effect.name.lower(),
-                                                        'job_power': self.job_power})])
+                                                        'effect_value': expected_effect_value})])
 
-    def check_apply_negative(self, effect):
+    def check_apply_negative(self, effect, expected_effect_value):
         with mock.patch('the_tale.game.jobs.effects.BaseEffect.invoke_hero_method') as invoke_hero_method:
             effect.logic.apply_negative(actor_type='y',
                                         actor_name=self.actor_name,
@@ -283,38 +282,70 @@ class HeroEffectTests(EffectsTestsBase):
                                          method_kwargs={'person_id': self.person.id,
                                                         'place_id': self.place.id,
                                                         'message_type': 'job_diary_y_%s_negative_friends' % effect.name.lower(),
-                                                        'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
-                               mock.call(method_name=effect.logic.method_name, account_id=self.account_2.id, hero_id=self.hero_2.id,
+                                                        'effect_value': expected_effect_value}),
+                               mock.call(method_name=effect.logic.METHOD_NAME, account_id=self.account_2.id, hero_id=self.hero_2.id,
                                          method_kwargs={'person_id': self.person.id,
                                                         'place_id': self.place.id,
                                                         'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
-                                                        'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
-                               mock.call(method_name=effect.logic.method_name, account_id=self.account_3.id, hero_id=self.hero_3.id,
+                                                        'effect_value': expected_effect_value}),
+                               mock.call(method_name=effect.logic.METHOD_NAME, account_id=self.account_3.id, hero_id=self.hero_3.id,
                                          method_kwargs={'person_id': self.person.id,
                                                         'place_id': self.place.id,
                                                         'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
-                                                        'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER})])
+                                                        'effect_value': expected_effect_value})])
 
     def test_money__positive(self):
-        self.check_apply_positive(effects.EFFECT.HERO_MONEY)
+        self.check_apply_positive(effects.EFFECT.HERO_MONEY,
+                                  expected_effect_value=int(math.ceil(f.normal_action_price(self.target_level) *
+                                                                      self.job_power *
+                                                                      c.NORMAL_JOB_LENGTH)))
 
     def test_money__negative(self):
-        self.check_apply_negative(effects.EFFECT.HERO_MONEY)
+        self.check_apply_negative(effects.EFFECT.HERO_MONEY,
+                                  expected_effect_value=int(math.ceil(f.normal_action_price(self.target_level) *
+                                                                      self.job_power *
+                                                                      c.NORMAL_JOB_LENGTH *
+                                                                      c.JOB_NEGATIVE_POWER_MULTIPLIER)))
 
     def test_artifact__positive(self):
-        self.check_apply_positive(effects.EFFECT.HERO_ARTIFACT)
+        self.check_apply_positive(effects.EFFECT.HERO_ARTIFACT,
+                                  expected_effect_value={artifacts_relations.RARITY.RARE.value: c.RARE_ARTIFACT_PROBABILITY,
+                                                         artifacts_relations.RARITY.EPIC.value: c.EPIC_ARTIFACT_PROBABILITY *
+                                                                                                self.job_power})
 
     def test_artifact__negative(self):
-        self.check_apply_negative(effects.EFFECT.HERO_ARTIFACT)
+        self.check_apply_negative(effects.EFFECT.HERO_ARTIFACT,
+                                  expected_effect_value={artifacts_relations.RARITY.RARE.value: c.RARE_ARTIFACT_PROBABILITY,
+                                                         artifacts_relations.RARITY.EPIC.value: c.EPIC_ARTIFACT_PROBABILITY *
+                                                                                                self.job_power *
+                                                                                                c.JOB_NEGATIVE_POWER_MULTIPLIER})
 
     def test_experience__positive(self):
-        self.check_apply_positive(effects.EFFECT.HERO_EXPERIENCE)
+        distance = places_storage.places.expected_minimum_quest_distance()
+
+        self.check_apply_positive(effects.EFFECT.HERO_EXPERIENCE,
+                                  expected_effect_value=int(math.ceil(f.experience_for_quest__real(distance) *
+                                                                      self.job_power *
+                                                                      c.NORMAL_JOB_LENGTH)))
 
     def test_experience__negative(self):
-        self.check_apply_negative(effects.EFFECT.HERO_EXPERIENCE)
+        distance = places_storage.places.expected_minimum_quest_distance()
 
-    def test_energy__positive(self):
-        self.check_apply_positive(effects.EFFECT.HERO_ENERGY)
+        self.check_apply_negative(effects.EFFECT.HERO_EXPERIENCE,
+                                  expected_effect_value=int(math.ceil(f.experience_for_quest__real(distance) *
+                                                                      self.job_power *
+                                                                      c.NORMAL_JOB_LENGTH *
+                                                                      c.JOB_NEGATIVE_POWER_MULTIPLIER)))
 
-    def test_energy__negative(self):
-        self.check_apply_negative(effects.EFFECT.HERO_ENERGY)
+    def test_cards__positive(self):
+        self.check_apply_positive(effects.EFFECT.HERO_CARDS,
+                                  expected_effect_value=int(math.ceil(24.0 / tt_cards_constants.NORMAL_RECEIVE_TIME *
+                                                                      c.NORMAL_JOB_LENGTH *
+                                                                      self.job_power)))
+
+    def test_cards__negative(self):
+        self.check_apply_negative(effects.EFFECT.HERO_CARDS,
+                                  expected_effect_value=int(math.ceil(24.0 / tt_cards_constants.NORMAL_RECEIVE_TIME *
+                                                                      c.NORMAL_JOB_LENGTH *
+                                                                      self.job_power *
+                                                                      c.JOB_NEGATIVE_POWER_MULTIPLIER)))

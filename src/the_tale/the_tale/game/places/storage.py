@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class PlacesStorage(dext_storage.Storage):
+class PlacesStorage(utils_storage.CachedStorage):
     SETTINGS_KEY = 'places change time'
     EXCEPTION = exceptions.PlacesStorageError
 
@@ -15,7 +15,14 @@ class PlacesStorage(dext_storage.Storage):
         return logic.save_place(place)
 
     def _get_all_query(self):
-        return models.Place.objects.all()
+        return list(models.Place.objects.all())
+
+    def _reset_cache(self):
+        self._nearest_places = {}
+
+    def _update_cached_data(self, item):
+        # _nearest_places calculated in there getter
+        pass
 
     def get_choices(self, exclude=()):
         self.sync()
@@ -31,12 +38,44 @@ class PlacesStorage(dext_storage.Storage):
 
         return None
 
-    def nearest_places(self, x, y, radius):
-        self.sync()
+    def nearest_places_with_distance(self, center_place_id, number=None):
+        # sync does not required
 
-        for place in self.all():
-            if navigation_logic.manhattan_distance(x, y, place.x, place.y) <= radius:
-                yield place
+        if number is None:
+            number = len(self)
+
+        if number < 1:
+            return []
+
+        if center_place_id not in self._nearest_places:
+            center_place = self[center_place_id]
+            self._nearest_places[center_place_id] = [(navigation_logic.manhattan_distance(center_place.x, center_place.y,
+                                                                                          place.x, place.y), place.id)
+                                                     for place in self.all()]
+            self._nearest_places[center_place_id].sort()
+
+        places = self._nearest_places[center_place_id]
+
+        if number >= len(places):
+            return places
+
+        stop_distance = places[number - 1][0]
+
+        return [record for record in places if record[0] <= stop_distance]
+
+    def nearest_places(self, center_place_id, number=None):
+        return [self[place_id]
+                for distance, place_id in self.nearest_places_with_distance(center_place_id, number)]
+
+    def expected_minimum_quest_distance(self):
+        radiuses_sum = sum(self.nearest_places_with_distance(p.id, c.MINIMUM_QUESTS_REGION_SIZE)[-1][0]
+                           for p in self.all())
+
+        # считаем как путешествие на среднюю дистанцию туда-обратно
+
+        radius = radiuses_sum / len(self)
+
+        return radius * 2
 
     def shift_all(self, dx, dy):
         self.sync()
@@ -50,7 +89,7 @@ class PlacesStorage(dext_storage.Storage):
 places = PlacesStorage()
 
 
-class BuildingsStorage(dext_storage.CachedStorage):
+class BuildingsStorage(utils_storage.CachedStorage):
     SETTINGS_KEY = 'buildings change time'
     EXCEPTION = exceptions.BuildingsStorageError
 
@@ -116,7 +155,7 @@ class BuildingsStorage(dext_storage.CachedStorage):
 buildings = BuildingsStorage()
 
 
-class ResourceExchangeStorage(utils_storage.Storage):
+class ResourceExchangeStorage(utils_storage.PrototypeStorage):
     SETTINGS_KEY = 'resource exchange change time'
     EXCEPTION = exceptions.ResourceExchangeStorageError
     PROTOTYPE = prototypes.ResourceExchangePrototype
@@ -139,7 +178,7 @@ class ResourceExchangeStorage(utils_storage.Storage):
 resource_exchanges = ResourceExchangeStorage()
 
 
-class EffectsStorage(dext_storage.CachedStorage):
+class EffectsStorage(utils_storage.CachedStorage):
     SETTINGS_KEY = 'effects change time'
     EXCEPTION = exceptions.EffectsStorageError
 
@@ -167,3 +206,39 @@ class EffectsStorage(dext_storage.CachedStorage):
 
 
 effects = EffectsStorage()
+
+
+class ClansRegionsStorage(utils_storage.DependentStorage):
+    __slots__ = ('_places_version',
+                 '_roads_version',
+                 '_regions')
+
+    def __init__(self):
+        super().__init__()
+
+        self._regions = {}
+
+    def expected_version(self):
+        return (places_storage.places.version,
+                roads_storage.roads.version)
+
+    def reset(self):
+        super().reset()
+
+        self._regions = {}
+
+    def recalculate(self):
+        for place in places.all():
+            self._regions[place.id] = objects.ClanRegion(place.attrs.clan_protector, {place.id})
+
+        for road in roads_storage.roads.all():
+            if road.place_1.attrs.clan_protector == road.place_2.attrs.clan_protector:
+                self._regions[road.place_1_id].merge(self._regions[road.place_2_id])
+                self._regions[road.place_2_id] = self._regions[road.place_1_id]
+
+    def region_for_place(self, place_id):
+        self.sync()
+        return self._regions[place_id]
+
+
+clans_regions = ClansRegionsStorage()

@@ -5,8 +5,8 @@ smart_imports.all()
 
 
 class BaseForm(forms.BaseUserForm):
-    place = dext_fields.ChoiceField(label='Город')
-    new_description = utils_bbcode.BBField(label='Новое описание', max_length=places_conf.settings.MAX_DESCRIPTION_LENGTH)
+    place = utils_fields.ChoiceField(label='Город')
+    new_description = bbcode_fields.BBField(label='Новое описание', max_length=places_conf.settings.MAX_DESCRIPTION_LENGTH)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -39,10 +39,10 @@ class PlaceDescripton(base_place_bill.BasePlaceBill):
             self.old_name_forms = self.place.utg_name
 
     @property
-    def description_html(self): return utils_bbcode.render(self.description)
+    def description_html(self): return bbcode_renderers.default.render(self.description)
 
     @property
-    def old_description_html(self): return utils_bbcode.render(self.old_description)
+    def old_description_html(self): return bbcode_renderers.default.render(self.old_description)
 
     def user_form_initials(self):
         data = super(PlaceDescripton, self).user_form_initials()

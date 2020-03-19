@@ -15,7 +15,7 @@ class News(meta_relations_objects.MetaType):
 
     @property
     def url(self):
-        return dext_urls.url('news:show', self.id)
+        return utils_urls.url('news:show', self.id)
 
     @classmethod
     def create_from_object(cls, news):

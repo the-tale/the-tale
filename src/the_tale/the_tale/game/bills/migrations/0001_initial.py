@@ -66,8 +66,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('type', rels.django.RelationIntegerField(db_index=True)),
-                ('bill', models.ForeignKey(to='bills.Bill')),
-                ('owner', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL)),
+                ('bill', models.ForeignKey(to='bills.Bill', on_delete=models.CASCADE)),
+                ('owner', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL)),
             ],
             options={
             },
@@ -80,7 +80,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='actor',
             name='bill',
-            field=models.ForeignKey(to='bills.Bill'),
+            field=models.ForeignKey(to='bills.Bill', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

@@ -41,8 +41,8 @@ class CONVERSION(rels_django.DjangoEnum):
 
 
 class BaseForm(forms.BaseUserForm):
-    place = dext_fields.ChoiceField(label='Город')
-    conversion = dext_fields.TypedChoiceField(label='Тип конверсии', choices=CONVERSION.choices(), coerce=CONVERSION.get_from_name)
+    place = utils_fields.ChoiceField(label='Город')
+    conversion = utils_fields.TypedChoiceField(label='Тип конверсии', choices=CONVERSION.choices(), coerce=CONVERSION.get_from_name)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)

@@ -105,6 +105,22 @@ class SyncClanStatisitcsTests(BaseClanTests):
 
         self.assertEqual(loaded_clan.might, 11)
 
+    def test_might__for_removed_clan(self):
+        accounts_models.Account.objects.filter(id=self.account.id).update(might=0)
+        accounts_models.Account.objects.filter(id=self.account_2.id).update(might=1)
+        accounts_models.Account.objects.filter(id=self.account_3.id).update(might=10)
+        accounts_models.Account.objects.filter(id=self.account_4.id).update(might=100)
+
+        logic.remove_clan(self.clan)
+
+        logic.sync_clan_statistics(self.clan)
+
+        self.assertEqual(self.clan.might, 0)
+
+        loaded_clan = logic.load_clan(clan_id=self.clan.id)
+
+        self.assertEqual(loaded_clan.might, 0)
+
 
 class AddMemberTests(BaseClanTests):
 
@@ -1218,7 +1234,7 @@ class ResetFreeQuestsTests(BaseClanTests):
         status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=self.clan.id,
                                                                                  type='test',
                                                                                  amount=-amount,
-                                                                                 async=False,
+                                                                                 asynchronous=False,
                                                                                  autocommit=True,
                                                                                  currency=relations.CURRENCY.FREE_QUESTS)
 
@@ -1301,3 +1317,42 @@ class IsRoleChangeGetIntoLimitTests(BaseClanTests):
         self.assertFalse(logic.is_role_change_get_into_limit(clan_id=self.clan.id,
                                                              old_role=relations.MEMBER_ROLE.FIGHTER,
                                                              new_role=relations.MEMBER_ROLE.OFFICER))
+
+
+class GetMembersWithRolesTests(BaseClanTests):
+
+    def setUp(self):
+        super().setUp()
+
+        self.account_2 = self.accounts_factory.create_account()
+        self.account_3 = self.accounts_factory.create_account()
+        self.account_4 = self.accounts_factory.create_account()
+        self.account_5 = self.accounts_factory.create_account()
+
+        self.clan_2 = self.create_clan(owner=self.account_2, uid=2)
+        self.clan_3 = self.create_clan(owner=self.account_3, uid=3)
+
+        logic._add_member(clan=self.clan_2,
+                          account=self.account_4,
+                          role=relations.MEMBER_ROLE.COMANDOR)
+
+        logic._add_member(clan=self.clan_3,
+                          account=self.account_5,
+                          role=relations.MEMBER_ROLE.FIGHTER)
+
+    def test_no_clans(self):
+        self.assertEqual(logic.get_members_with_roles(clans_ids=(),
+                                                      roles=relations.MEMBER_ROLE.records), set())
+
+    def test_no_roles(self):
+        self.assertEqual(logic.get_members_with_roles(clans_ids=(self.clan.id, self.clan_2.id, self.clan_3.id),
+                                                      roles=()), set())
+
+    def test_ok(self):
+        self.assertEqual(logic.get_members_with_roles(clans_ids=(self.clan.id, self.clan_2.id, self.clan_3.id),
+                                                      roles=(relations.MEMBER_ROLE.records)),
+                         {self.account.id, self.account_2.id, self.account_3.id, self.account_4.id, self.account_5.id})
+
+        self.assertEqual(logic.get_members_with_roles(clans_ids=(self.clan.id, self.clan_2.id, self.clan_3.id),
+                                                      roles=(relations.MEMBER_ROLE.COMANDOR, relations.MEMBER_ROLE.FIGHTER)),
+                         {self.account_4.id, self.account_5.id})

@@ -5,7 +5,7 @@ SERVICE_USER = getpass.getuser()
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': SERVICE_USER,
         'USER': SERVICE_USER,
         'PASSWORD': SERVICE_USER,

@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='building',
             name='person',
-            field=models.OneToOneField(to='persons.Person'),
+            field=models.OneToOneField(to='persons.Person', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='place',

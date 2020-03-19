@@ -244,6 +244,8 @@ def preferences_for_new_hero(hero):
         hero.preferences.set(relations.PREFERENCE_TYPE.COMPANION_DEDICATION, relations.COMPANION_DEDICATION.NORMAL)
     if hero.preferences.companion_empathy is None:
         hero.preferences.set(relations.PREFERENCE_TYPE.COMPANION_EMPATHY, relations.COMPANION_EMPATHY.ORDINAL)
+    if hero.preferences.quests_region_size is None:
+        hero.preferences.set(relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE, c.DEFAULT_QUESTS_REGION_SIZE)
 
 
 def create_hero(account_id, attributes):
@@ -411,36 +413,36 @@ def register_spending(hero, amount):
 def get_places_path_modifiers_effects(hero, place):
 
     if place.race == hero.race:
-        yield game_effects.Effect(name='совпадение расы', attribute=None, value=-c.PATH_MODIFIER_MINOR_DELTA)
+        yield tt_api_effects.Effect(name='совпадение расы', attribute=None, value=-c.PATH_MODIFIER_MINOR_DELTA)
 
     if place.is_modifier_active():
-        yield game_effects.Effect(name='есть специализация', attribute=None, value=-c.PATH_MODIFIER_MINOR_DELTA)
+        yield tt_api_effects.Effect(name='есть специализация', attribute=None, value=-c.PATH_MODIFIER_MINOR_DELTA)
 
     if hero.preferences.place and hero.preferences.place.id == place.id:
-        yield game_effects.Effect(name='родной город', attribute=None, value=-c.PATH_MODIFIER_NORMAL_DELTA)
+        yield tt_api_effects.Effect(name='родной город', attribute=None, value=-c.PATH_MODIFIER_NORMAL_DELTA)
 
     if hero.preferences.friend and hero.preferences.friend.place_id == place.id:
-        yield game_effects.Effect(name='живёт соратник', attribute=None, value=-c.PATH_MODIFIER_NORMAL_DELTA)
+        yield tt_api_effects.Effect(name='живёт соратник', attribute=None, value=-c.PATH_MODIFIER_NORMAL_DELTA)
 
     if hero.preferences.enemy and hero.preferences.enemy.place_id == place.id:
-        yield game_effects.Effect(name='живёт противник', attribute=None, value=+c.PATH_MODIFIER_NORMAL_DELTA)
+        yield tt_api_effects.Effect(name='живёт противник', attribute=None, value=+c.PATH_MODIFIER_NORMAL_DELTA)
 
     if place.attrs.tax > 0:
-        yield game_effects.Effect(name='пошлина', attribute=None, value=+c.PATH_MODIFIER_NORMAL_DELTA)
+        yield tt_api_effects.Effect(name='пошлина', attribute=None, value=+c.PATH_MODIFIER_NORMAL_DELTA)
 
     if (not place.habit_honor.interval.is_NEUTRAL and not hero.habit_honor.interval.is_NEUTRAL):
         modifier = (place.habit_honor.interval.direction *
                     hero.habit_honor.interval.direction *
                     c.PATH_MODIFIER_MINOR_DELTA)
 
-        yield game_effects.Effect(name='честь', attribute=None, value=-modifier)
+        yield tt_api_effects.Effect(name='честь', attribute=None, value=-modifier)
 
     if (not place.habit_peacefulness.interval.is_NEUTRAL and not hero.habit_peacefulness.interval.is_NEUTRAL):
         modifier = (place.habit_peacefulness.interval.direction *
                     hero.habit_peacefulness.interval.direction *
                     c.PATH_MODIFIER_MINOR_DELTA)
 
-        yield game_effects.Effect(name='миролюбие', attribute=None, value=-modifier)
+        yield tt_api_effects.Effect(name='миролюбие', attribute=None, value=-modifier)
 
 
 def get_places_path_modifiers(hero):

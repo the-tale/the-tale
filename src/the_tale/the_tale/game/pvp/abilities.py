@@ -100,4 +100,4 @@ class Flame(BasePvPAbility):
 
 
 ABILITIES = {ability.TYPE: ability
-             for ability in dext_discovering.discover_classes(globals().values(), BasePvPAbility)}
+             for ability in utils_discovering.discover_classes(globals().values(), BasePvPAbility)}

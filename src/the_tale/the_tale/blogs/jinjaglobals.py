@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def posts_about(meta_object):
     folclor_objects = [obj for relation, obj in meta_relations_logic.get_objects_related_to(relation=meta_relations.IsAbout, meta_object=meta_object)]
 
@@ -15,6 +15,6 @@ def posts_about(meta_object):
     return folclor_objects
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def folclor_tags():
     return models.Tag.objects.order_by('name').all()

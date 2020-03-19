@@ -64,7 +64,7 @@ class MiddlewareTests(utils_testcase.TestCase):
     def test_no_cache(self):
         token = prototypes.AccessTokenPrototype.fast_create(id=1, account=self.account_1)
 
-        with mock.patch('dext.common.utils.cache.set') as set_cache:
+        with mock.patch('the_tale.common.utils.cache.set') as set_cache:
             with mock.patch('the_tale.accounts.logic.force_login_user'):
                 self.middleware.handle_third_party(self.make_request_html('/',
                                                                           session={conf.settings.ACCESS_TOKEN_SESSION_KEY: token.uid}))
@@ -116,7 +116,7 @@ class MiddlewareRequestsTests(utils_testcase.TestCase):
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.request_token_url = dext_urls.url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=django_settings.API_CLIENT)
+        self.request_token_url = utils_urls.url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=django_settings.API_CLIENT)
 
         chronicle_tt_services.chronicle.cmd_debug_clear_service()
 
@@ -198,7 +198,7 @@ class MiddlewareRequestsTests(utils_testcase.TestCase):
 
         token.accept(self.account_1)
 
-        with mock.patch('dext.common.utils.cache.set') as set_cache:
+        with mock.patch('the_tale.common.utils.cache.set') as set_cache:
             self.do_test_request()
 
         cache_key = conf.settings.ACCESS_TOKEN_CACHE_KEY % token.uid

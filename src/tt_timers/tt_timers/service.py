@@ -15,7 +15,10 @@ FINISH_TIMERS_TASK = None
 async def on_startup(app):
     global FINISH_TIMERS_TASK
 
-    await postgresql.initialize(app['config']['database'], loop=app.loop)
+    await postgresql.initialize(app['config']['database'])
+
+    if not app['start_timers_loop']:
+        return
 
     await operations.load_all_timers()
 
@@ -27,11 +30,12 @@ async def on_startup(app):
             operations.finish_completed_timers(scheduler, app['config']['custom'])
             await asyncio.sleep(app['config']['custom']['sleep_if_no_timers_interval'])
 
-    FINISH_TIMERS_TASK = asyncio.ensure_future(finish_timers(), loop=app.loop)
+    FINISH_TIMERS_TASK = asyncio.ensure_future(finish_timers())
 
 
 async def on_cleanup(app):
-    FINISH_TIMERS_TASK.cancel()
+    if FINISH_TIMERS_TASK:
+        FINISH_TIMERS_TASK.cancel()
 
     await postgresql.deinitialize()
 
@@ -46,10 +50,11 @@ def register_routers(app):
     app.router.add_post('/debug-clear-service', handlers.debug_clear_service)
 
 
-def create_application(config, loop=None):
-    app = web.Application(loop=loop)
+def create_application(config, start_timers_loop=True):
+    app = web.Application()
 
     app['config'] = config
+    app['start_timers_loop'] = start_timers_loop
 
     log.initilize(config['log'])
 

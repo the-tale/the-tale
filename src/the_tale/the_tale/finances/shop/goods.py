@@ -3,6 +3,8 @@ import smart_imports
 
 smart_imports.all()
 
+PURCHAGE_UID = 'ingame-purchase-<{}>'
+
 
 class PurchaseItem(object):
 
@@ -27,7 +29,7 @@ class PurchaseItem(object):
         transaction = logic.transaction_logic(account=account,
                                               amount=-self.cost,
                                               description=self.transaction_description,
-                                              uid='ingame-purchase-<%s>' % self.uid)
+                                              uid=PURCHAGE_UID.format(self.uid))
 
         postponed_logic = self.construct_postponed_task(account, transaction)
 

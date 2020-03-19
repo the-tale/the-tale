@@ -23,7 +23,7 @@ class BuildingDestroyTests(helpers.BaseTestPrototypes):
         self.assertEqual(self.bill.data.person_id, self.person_1.id)
 
     def test_actors(self):
-        self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.person_1.place)])
+        self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.person_1.place), id(self.person_1)])
 
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',

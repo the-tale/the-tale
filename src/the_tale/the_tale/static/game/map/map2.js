@@ -427,7 +427,7 @@ pgf.game.map.Map = function(selector, params) {
 
         context.fillStyle="#ffffff";
 
-        var chromeY = -2;
+        var chromeY = 0;
         var firefoxY = 1;
 
         var dY = chromeY;
@@ -517,7 +517,7 @@ pgf.game.map.Map = function(selector, params) {
         for (var place_id in data.places) {
             var place = data.places[place_id];
 
-            var text = '('+place.size+') '+place.name;
+            var text = '('+place.size+') '+place.name + (place.clan_protector ? (' ['+place.clan_protector.abbr+']') : '');
             var textWidth = context.measureText(text).width;
 
             var textX = Math.round(posX + place.pos.x * TILE_SIZE + TILE_SIZE / 2 - textWidth / 2);

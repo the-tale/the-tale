@@ -37,10 +37,10 @@ def is_moderator(account):
 
 class BaseForumResource(utils_resources.Resource):
 
-    @dext_old_views.validate_argument('category', prototypes.CategoryPrototype.get_by_slug, 'forum', 'категория не найдена')
-    @dext_old_views.validate_argument('subcategory', prototypes.SubCategoryPrototype.get_by_id, 'forum', 'подкатегория не найдена')
-    @dext_old_views.validate_argument('thread', prototypes.ThreadPrototype.get_by_id, 'forum', 'обсуждение не найдено')
-    @dext_old_views.validate_argument('post', prototypes.PostPrototype.get_by_id, 'forum', 'сообщение не найдено')
+    @old_views.validate_argument('category', prototypes.CategoryPrototype.get_by_slug, 'forum', 'категория не найдена')
+    @old_views.validate_argument('subcategory', prototypes.SubCategoryPrototype.get_by_id, 'forum', 'подкатегория не найдена')
+    @old_views.validate_argument('thread', prototypes.ThreadPrototype.get_by_id, 'forum', 'обсуждение не найдено')
+    @old_views.validate_argument('post', prototypes.PostPrototype.get_by_id, 'forum', 'сообщение не найдено')
     def initialize(self, category=None, subcategory=None, thread=None, post=None, *args, **kwargs):
         super(BaseForumResource, self).initialize(*args, **kwargs)
 
@@ -60,7 +60,7 @@ class PostsResource(BaseForumResource):
     @utils_decorators.login_required
     @accounts_views.validate_ban_forum()
     @accounts_views.validate_fast_account()
-    @dext_old_views.handler('#post', 'delete', method='post')
+    @old_views.handler('#post', 'delete', method='post')
     def delete_post(self):
 
         if not (can_delete_posts(self.account, self.thread) or self.post.author == self.account):
@@ -79,12 +79,12 @@ class PostsResource(BaseForumResource):
     def get_post_url(self, post):
         thread_posts_ids = list(prototypes.PostPrototype._db_filter(thread_id=post.thread_id).order_by('created_at').values_list('id', flat=True))
         page = utils_pagination.Paginator.get_page_numbers(thread_posts_ids.index(post.id) + 1, conf.settings.POSTS_ON_PAGE)
-        return dext_urls.url('forum:threads:show', post.thread_id, page=page) + ('#m%d' % post.id)
+        return utils_urls.url('forum:threads:show', post.thread_id, page=page) + ('#m%d' % post.id)
 
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
-    @dext_old_views.handler('#post', 'edit', method='get')
+    @old_views.handler('#post', 'edit', method='get')
     def edit_post(self):
 
         if not (can_change_posts(self.account) or self.post.author == self.account):
@@ -102,7 +102,7 @@ class PostsResource(BaseForumResource):
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
-    @dext_old_views.handler('#post', 'update', method='post')
+    @old_views.handler('#post', 'update', method='post')
     def update_post(self):
 
         if not (can_change_posts(self.account) or self.post.author == self.account):
@@ -122,14 +122,14 @@ class ThreadsResource(BaseForumResource):
 
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
-    @dext_old_views.handler('#thread', 'subscribe', method='post')
+    @old_views.handler('#thread', 'subscribe', method='post')
     def subscribe(self):
         prototypes.SubscriptionPrototype.create(self.account, thread=self.thread)
         return self.json_ok()
 
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
-    @dext_old_views.handler('#thread', 'unsubscribe', method='post')
+    @old_views.handler('#thread', 'unsubscribe', method='post')
     def unsubscribe(self):
         subscription = prototypes.SubscriptionPrototype.get_for(self.account, thread=self.thread)
 
@@ -141,7 +141,7 @@ class ThreadsResource(BaseForumResource):
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
-    @dext_old_views.handler('#thread', 'create-post', method='post')
+    @old_views.handler('#thread', 'create-post', method='post')
     def create_post(self):
 
         new_post_delay = prototypes.PostPrototype.get_new_post_delay(self.account)
@@ -162,12 +162,12 @@ class ThreadsResource(BaseForumResource):
         if self.account.is_authenticated:
             prototypes.ThreadReadInfoPrototype.read_thread(self.thread, self.account)
 
-        return self.json_ok(data={'next_url': dext_urls.url('forum:threads:show', self.thread.id, page=self.thread.paginator.pages_count) + ('#m%d' % post.id)})
+        return self.json_ok(data={'next_url': utils_urls.url('forum:threads:show', self.thread.id, page=self.thread.paginator.pages_count) + ('#m%d' % post.id)})
 
-    @dext_old_views.validate_argument('author', accounts_prototypes.AccountPrototype.get_by_id, 'forum.threads.index', 'автор не найден')
-    @dext_old_views.validate_argument('participant', accounts_prototypes.AccountPrototype.get_by_id, 'forum.threads.index', 'участник не найден')
-    @dext_old_views.validate_argument('page', int, 'forum.threads.index', 'неверный номер страницы')
-    @dext_old_views.handler('', method='get')
+    @old_views.validate_argument('author', accounts_prototypes.AccountPrototype.get_by_id, 'forum.threads.index', 'автор не найден')
+    @old_views.validate_argument('participant', accounts_prototypes.AccountPrototype.get_by_id, 'forum.threads.index', 'участник не найден')
+    @old_views.validate_argument('page', int, 'forum.threads.index', 'неверный номер страницы')
+    @old_views.handler('', method='get')
     def index(self, author=None, page=1, participant=None):
 
         threads_query = prototypes.ThreadPrototype.threads_visible_to_account_query(self.account if self.account.is_authenticated else None).order_by('-updated_at')
@@ -182,7 +182,7 @@ class ThreadsResource(BaseForumResource):
             threads_query = threads_query.filter(post__author__id=participant.id).distinct()
             is_filtering = True
 
-        url_builder = dext_urls.UrlBuilder(django_reverse('forum:threads:'), arguments={'author': author.id if author else None,
+        url_builder = utils_urls.UrlBuilder(django_reverse('forum:threads:'), arguments={'author': author.id if author else None,
                                                                                         'participant': participant.id if participant else None,
                                                                                         'page': page})
 
@@ -210,7 +210,7 @@ class ThreadsResource(BaseForumResource):
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
-    @dext_old_views.handler('#thread', 'delete', method='post')
+    @old_views.handler('#thread', 'delete', method='post')
     def delete_thread(self):
 
         if not can_delete_thread(self.account):
@@ -223,7 +223,7 @@ class ThreadsResource(BaseForumResource):
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
-    @dext_old_views.handler('#thread', 'update', method='post')
+    @old_views.handler('#thread', 'update', method='post')
     def update_thread(self):
 
         if not can_change_thread(self.account, self.thread):
@@ -258,7 +258,7 @@ class ThreadsResource(BaseForumResource):
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
-    @dext_old_views.handler('#thread', 'edit', method='get')
+    @old_views.handler('#thread', 'edit', method='get')
     def edit_thread(self):
 
         if not can_change_thread(self.account, self.thread):
@@ -285,8 +285,8 @@ class ThreadsResource(BaseForumResource):
                               'is_moderator': account_is_moderator,
                               'can_change_thread_category': can_change_thread_category(self.account)})
 
-    @dext_old_views.validate_argument('page', int, 'forum.threads.show', 'неверный номер страницы')
-    @dext_old_views.handler('#thread', name='show', method='get')
+    @old_views.validate_argument('page', int, 'forum.threads.show', 'неверный номер страницы')
+    @old_views.handler('#thread', name='show', method='get')
     def get_thread(self, page=1):
 
         thread_data = ThreadPageData()
@@ -313,7 +313,7 @@ class ThreadPageData(object):
         self.account = account
         self.thread = thread
 
-        url_builder = dext_urls.UrlBuilder(django_reverse('forum:threads:show', args=[self.thread.id]),
+        url_builder = utils_urls.UrlBuilder(django_reverse('forum:threads:show', args=[self.thread.id]),
                                            arguments={'page': page})
 
         page -= 1
@@ -366,7 +366,7 @@ class SubscriptionsResource(utils_resources.Resource):
     def initialize(self, *args, **kwargs):
         super(SubscriptionsResource, self).initialize(*args, **kwargs)
 
-    @dext_old_views.handler('', method='get')
+    @old_views.handler('', method='get')
     def subscriptions(self):
         return self.template('forum/subscriptions.html',
                              {'threads': prototypes.SubscriptionPrototype.get_threads_for_account(self.account),
@@ -377,14 +377,14 @@ class SubCategoryResource(BaseForumResource):
 
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
-    @dext_old_views.handler('#subcategory', 'subscribe', method='post')
+    @old_views.handler('#subcategory', 'subscribe', method='post')
     def subscribe(self):
         prototypes.SubscriptionPrototype.create(self.account, subcategory=self.subcategory)
         return self.json_ok()
 
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
-    @dext_old_views.handler('#subcategory', 'unsubscribe', method='post')
+    @old_views.handler('#subcategory', 'unsubscribe', method='post')
     def unsubscribe(self):
         subscription = prototypes.SubscriptionPrototype.get_for(self.account, subcategory=self.subcategory)
 
@@ -396,7 +396,7 @@ class SubCategoryResource(BaseForumResource):
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
-    @dext_old_views.handler('#subcategory', 'new-thread', method='get')
+    @old_views.handler('#subcategory', 'new-thread', method='get')
     def new_thread(self):
 
         if not can_create_thread(self.account, self.subcategory):
@@ -411,7 +411,7 @@ class SubCategoryResource(BaseForumResource):
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
-    @dext_old_views.handler('#subcategory', 'create-thread', method='post')
+    @old_views.handler('#subcategory', 'create-thread', method='post')
     def create_thread(self):
 
         if not can_create_thread(self.account, self.subcategory):
@@ -437,13 +437,13 @@ class SubCategoryResource(BaseForumResource):
         return self.json_ok(data={'thread_url': django_reverse('forum:threads:show', args=[thread.id]),
                                   'thread_id': thread.id})
 
-    @dext_old_views.validate_argument('page', int, 'forum.subcategories.show', 'неверный номер страницы')
-    @dext_old_views.handler('#subcategory', name='show', method='get')
+    @old_views.validate_argument('page', int, 'forum.subcategories.show', 'неверный номер страницы')
+    @old_views.handler('#subcategory', name='show', method='get')
     def get_subcategory(self, page=1):
 
         threads_query = models.Thread.objects.filter(subcategory=self.subcategory._model)
 
-        url_builder = dext_urls.UrlBuilder(django_reverse('forum:subcategories:show', args=[self.subcategory.id]), arguments={'page': page})
+        url_builder = utils_urls.UrlBuilder(django_reverse('forum:subcategories:show', args=[self.subcategory.id]), arguments={'page': page})
 
         page -= 1
 
@@ -478,7 +478,7 @@ class SubCategoryResource(BaseForumResource):
 
 class ForumResource(BaseForumResource):
 
-    @dext_old_views.handler('', method='get')
+    @old_views.handler('', method='get')
     def index(self):
         categories = list(prototypes.CategoryPrototype(category_model) for category_model in models.Category.objects.all().order_by('order', 'id'))
 
@@ -503,19 +503,19 @@ class ForumResource(BaseForumResource):
                               'read_states': read_states})
 
     @utils_decorators.login_required
-    @dext_old_views.handler('categories', '#subcategory', 'read-all-in-subcategory', name='read-all-in-subcategory', method='post')
+    @old_views.handler('categories', '#subcategory', 'read-all-in-subcategory', name='read-all-in-subcategory', method='post')
     def read_all__one(self):
         prototypes.SubCategoryReadInfoPrototype.read_all_in_subcategory(subcategory=self.subcategory, account=self.account)
         return self.json_ok()
 
     @utils_decorators.login_required
-    @dext_old_views.handler('categories', 'read-all', name='read-all', method='post')
+    @old_views.handler('categories', 'read-all', name='read-all', method='post')
     def read_all__all(self):
         for subcategory in prototypes.SubCategoryPrototype.subcategories_visible_to_account(account=self.account):
             prototypes.SubCategoryReadInfoPrototype.read_all_in_subcategory(subcategory=subcategory, account=self.account)
         return self.json_ok()
 
-    @dext_old_views.handler('feed', method='get')
+    @old_views.handler('feed', method='get')
     def feed(self):
         feed = django_feedgenerator.Atom1Feed('Сказка: Форум',
                                               self.request.build_absolute_uri('/'),

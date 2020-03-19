@@ -13,7 +13,7 @@ def login_required(func):
         if resource.account.is_authenticated:
             return func(resource, *argv, **kwargs)
         else:
-            response_type = dext_response.mime_type_to_response_type(resource.request.META.get('HTTP_ACCEPT'))
+            response_type = views.mime_type_to_response_type(resource.request.META.get('HTTP_ACCEPT'))
 
             if resource.request.is_ajax() or response_type == 'json':
                 return resource.auto_error('common.login_required', 'У Вас нет прав для проведения данной операции')
@@ -83,5 +83,46 @@ def generator_to_list(generator):
     @functools.wraps(generator)
     def wrapper(*argv, **kwargs):
         return list(generator(*argv, **kwargs))
+
+    return wrapper
+
+
+def retry_on_exception(max_retries=None, exceptions=[Exception]):
+
+    @functools.wraps(retry_on_exception)
+    def decorator(func):
+
+        @functools.wraps(func)
+        def wrapper(*argv, **kwargs):
+            retries_number = 0
+            while True:
+                retries_number += 1
+                try:
+                    return func(*argv, **kwargs)
+                except Exception as e:
+
+                    if retries_number == max_retries:
+                        raise
+
+                    found = False
+                    for exception in exceptions:
+                        if isinstance(e, exception):
+                            found = True
+
+                    if not found:
+                        raise
+
+        return wrapper
+
+    return decorator
+
+
+def debug_required(func):
+
+    @functools.wraps(func)
+    def wrapper(resource, *argv, **kwargs):
+        if django_settings.DEBUG:
+            return func(resource, *argv, **kwargs)
+        raise django_http.Http404()
 
     return wrapper

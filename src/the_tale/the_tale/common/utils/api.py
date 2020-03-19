@@ -70,19 +70,19 @@ def handler(versions):
     return decorator
 
 
-class Processor(dext_views.BaseViewProcessor):
+class Processor(utils_views.BaseViewProcessor):
     __slots__ = ('versions',)
-    ARG_VERSIONS = dext_views.ProcessorArgument()
+    ARG_VERSIONS = utils_views.ProcessorArgument()
 
     def preprocess(self, context):
 
         api_version = context.django_request.GET.get('api_version', '').strip()
 
         if not api_version:
-            raise dext_views.ViewError(code='api.no_method_version', message='Не указана версия метода')
+            raise utils_views.ViewError(code='api.no_method_version', message='Не указана версия метода')
 
         if api_version not in self.versions:
-            raise dext_views.ViewError(code='api.wrong_method_version',
+            raise utils_views.ViewError(code='api.wrong_method_version',
                                        message='Неверная версия метода, ожидается одна из: %s' % ', '.join(self.versions))
 
         context.api_version = api_version
@@ -90,11 +90,11 @@ class Processor(dext_views.BaseViewProcessor):
         api_client = context.django_request.GET.get('api_client', '').strip()
 
         if not api_client:
-            raise dext_views.ViewError(code='api.no_client_identificator', message='Не указана версия клиента')
+            raise utils_views.ViewError(code='api.no_client_identificator', message='Не указана версия клиента')
 
         if not check_client_version(api_client):
-            raise dext_views.ViewError(code='api.wrong_client_identificator_format',
-                                       message='Неверный идентификатор клиента, ожидается <название программы>-<версия программы>')
+            raise utils_views.ViewError(code='api.wrong_client_identificator_format',
+                                        message='Неверный идентификатор клиента, ожидается <название программы>-<версия программы>')
 
         context.api_client = api_client
 

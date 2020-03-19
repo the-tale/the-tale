@@ -22,12 +22,12 @@ class BaseRequestsTests(utils_testcase.TestCase):
 class IndexRequestsTests(BaseRequestsTests):
 
     def test_state_errors(self):
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:', state='www')), texts=['linguistics.words.state.wrong_format'])
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:', state=666)), texts=['linguistics.words.state.not_found'], status_code=404)
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:', state='www')), texts=['linguistics.words.state.wrong_format'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:', state=666)), texts=['linguistics.words.state.not_found'], status_code=404)
 
     def test_type_errors(self):
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:', type='www')), texts=['linguistics.words.type.wrong_format'])
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:', type=666)), texts=['linguistics.words.type.not_found'], status_code=404)
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:', type='www')), texts=['linguistics.words.type.wrong_format'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:', type=666)), texts=['linguistics.words.type.not_found'], status_code=404)
 
     def create_words(self):
         type_1, type_2, type_3 = random.sample(relations.ALLOWED_WORD_TYPE.records, 3)
@@ -49,11 +49,11 @@ class IndexRequestsTests(BaseRequestsTests):
                  word_3.utg_word.normal_form(),
                  ('pgf-no-words-message', 0)]
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:')), texts=texts)
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:')), texts=texts)
 
     def test_success__no_messages(self):
         texts = ['pgf-no-words-message']
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:')), texts=texts)
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:')), texts=texts)
 
     def test_filter_state(self):
         word_1, word_2, word_3 = self.create_words()
@@ -62,7 +62,7 @@ class IndexRequestsTests(BaseRequestsTests):
                  (word_2.utg_word.normal_form(), 0),
                  word_3.utg_word.normal_form()]
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:', state=relations.WORD_STATE.ON_REVIEW.value)), texts=texts)
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:', state=relations.WORD_STATE.ON_REVIEW.value)), texts=texts)
 
     def test_filter_type(self):
         word_1, word_2, word_3 = self.create_words()
@@ -71,7 +71,7 @@ class IndexRequestsTests(BaseRequestsTests):
                  (word_2.utg_word.normal_form(), 0),
                  word_3.utg_word.normal_form()]
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:', type=word_3.type.value)), texts=texts)
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:', type=word_3.type.value)), texts=texts)
 
 
 class NewRequestsTests(BaseRequestsTests):
@@ -85,22 +85,22 @@ class NewRequestsTests(BaseRequestsTests):
     def test_logic_required(self):
         self.request_logout()
         word_type = utg_relations.WORD_TYPE.records[0]
-        requested_url = dext_urls.url('linguistics:words:new', type=word_type.value, parent='xxx')
+        requested_url = utils_urls.url('linguistics:words:new', type=word_type.value, parent='xxx')
         self.check_redirect(requested_url, accounts_logic.login_page_url(requested_url))
 
     def test_type_errors(self):
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:new')), texts=['linguistics.words.type.not_specified'])
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:new', type='www')), texts=['linguistics.words.type.wrong_format'])
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:new', type=666)), texts=['linguistics.words.type.not_found'], status_code=404)
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:new')), texts=['linguistics.words.type.not_specified'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:new', type='www')), texts=['linguistics.words.type.wrong_format'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:new', type=666)), texts=['linguistics.words.type.not_found'], status_code=404)
 
     def test_parent_errors(self):
         word_type = utg_relations.WORD_TYPE.records[0]
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:new', type=word_type.value, parent='xxx')), texts=['linguistics.words.parent.wrong_format'])
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:new', type=word_type.value, parent=666)), texts=['linguistics.words.parent.not_found'], status_code=404)
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:new', type=word_type.value, parent='xxx')), texts=['linguistics.words.parent.wrong_format'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:new', type=word_type.value, parent=666)), texts=['linguistics.words.parent.not_found'], status_code=404)
 
     def test_displaying_fields_for_all_forms(self):
         for word_type in utg_relations.WORD_TYPE.records:
-            requested_url = dext_urls.url('linguistics:words:new', type=word_type.value)
+            requested_url = utils_urls.url('linguistics:words:new', type=word_type.value)
 
             texts = []
 
@@ -109,12 +109,12 @@ class NewRequestsTests(BaseRequestsTests):
                     continue
                 texts.append(('%s_%d ' % (forms.WORD_FIELD_PREFIX, index)))
 
-            self.check_html_ok(self.request_html(requested_url), texts=texts)
+            self.check_html_ok(self.request_html(requested_url), texts=texts[:3])
 
     def test_displaying_fields_for_all_forms__with_parent(self):
         for word_type in utg_relations.WORD_TYPE.records:
             word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix='w-'), author=self.account_1)
-            requested_url = dext_urls.url('linguistics:words:new', type=word.type.value, parent=word.id)
+            requested_url = utils_urls.url('linguistics:words:new', type=word.type.value, parent=word.id)
 
             texts = []
 
@@ -135,7 +135,7 @@ class NewRequestsTests(BaseRequestsTests):
 
             parent = prototypes.WordPrototype.create(parent_word, author=self.account_2)
 
-            requested_url = dext_urls.url('linguistics:words:new', type=word_type.value, parent=parent.id)
+            requested_url = utils_urls.url('linguistics:words:new', type=word_type.value, parent=parent.id)
 
             texts = ['linguistics.words.new.can_not_edit_anothers_word']
 
@@ -149,7 +149,7 @@ class NewRequestsTests(BaseRequestsTests):
 
             word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix='w-'))
 
-            requested_url = dext_urls.url('linguistics:words:new', type=wrong_type.value, parent=word.id)
+            requested_url = utils_urls.url('linguistics:words:new', type=wrong_type.value, parent=word.id)
 
             self.check_html_ok(self.request_html(requested_url), texts=['linguistics.words.new.unequal_types'])
 
@@ -157,7 +157,7 @@ class NewRequestsTests(BaseRequestsTests):
     def test_has_on_review_copy(self):
         for word_type in utg_relations.WORD_TYPE.records:
             word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix='w-'))
-            requested_url = dext_urls.url('linguistics:words:new', type=word.type.value, parent=word.id)
+            requested_url = utils_urls.url('linguistics:words:new', type=word.type.value, parent=word.id)
             self.check_html_ok(self.request_html(requested_url), texts=['linguistics.words.new.has_on_review_copy'])
 
 
@@ -173,25 +173,25 @@ class CreateRequestsTests(BaseRequestsTests):
         self.request_logout()
         word_type = utg_relations.WORD_TYPE.records[0]
         word = utg_words.Word.create_test_word(word_type, prefix='w-')
-        requested_url = dext_urls.url('linguistics:words:create', type=word_type.value)
+        requested_url = utils_urls.url('linguistics:words:create', type=word_type.value)
         self.check_ajax_error(self.client.post(requested_url, helpers.get_word_post_data(word)), 'common.login_required')
 
     def test_type_errors(self):
-        self.check_ajax_error(self.client.post(dext_urls.url('linguistics:words:create')), 'linguistics.words.type.not_specified')
-        self.check_ajax_error(self.client.post(dext_urls.url('linguistics:words:create', type='www')), 'linguistics.words.type.wrong_format')
-        self.check_ajax_error(self.client.post(dext_urls.url('linguistics:words:create', type=666)), 'linguistics.words.type.not_found')
+        self.check_ajax_error(self.client.post(utils_urls.url('linguistics:words:create')), 'linguistics.words.type.not_specified')
+        self.check_ajax_error(self.client.post(utils_urls.url('linguistics:words:create', type='www')), 'linguistics.words.type.wrong_format')
+        self.check_ajax_error(self.client.post(utils_urls.url('linguistics:words:create', type=666)), 'linguistics.words.type.not_found')
 
     def test_create_with_all_fields(self):
         for word_type in utg_relations.WORD_TYPE.records:
             word = utg_words.Word.create_test_word(word_type, prefix='w-')
-            requested_url = dext_urls.url('linguistics:words:create', type=word_type.value)
+            requested_url = utils_urls.url('linguistics:words:create', type=word_type.value)
 
             with self.check_delta(prototypes.WordPrototype._db_count, 1):
                 response = self.client.post(requested_url, helpers.get_word_post_data(word))
 
             last_prototype = prototypes.WordPrototype._db_latest()
 
-            self.check_ajax_ok(response, data={'next_url': dext_urls.url('linguistics:words:show', last_prototype.id)})
+            self.check_ajax_ok(response, data={'next_url': utils_urls.url('linguistics:words:show', last_prototype.id)})
 
             self.assertEqual(word, last_prototype.utg_word)
 
@@ -202,7 +202,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
             parent = prototypes.WordPrototype.create(parent_word, author=self.account_1)
 
-            requested_url = dext_urls.url('linguistics:words:create', type=word_type.value, parent=parent.id)
+            requested_url = utils_urls.url('linguistics:words:create', type=word_type.value, parent=parent.id)
 
             with self.check_delta(prototypes.WordPrototype._db_count, 0):
                 response = self.client.post(requested_url, helpers.get_word_post_data(child_word))
@@ -211,7 +211,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
             self.assertTrue(parent.created_at < last_prototype.created_at)
 
-            self.check_ajax_ok(response, data={'next_url': dext_urls.url('linguistics:words:show', last_prototype.id)})
+            self.check_ajax_ok(response, data={'next_url': utils_urls.url('linguistics:words:show', last_prototype.id)})
 
             self.assertEqual(child_word, last_prototype.utg_word)
             self.assertEqual(last_prototype.parent_id, None)
@@ -225,7 +225,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
             parent = prototypes.WordPrototype.create(parent_word, author=self.account_1)
 
-            requested_url = dext_urls.url('linguistics:words:create', type=word_type.value, parent=parent.id)
+            requested_url = utils_urls.url('linguistics:words:create', type=word_type.value, parent=parent.id)
 
             with self.check_delta(prototypes.WordPrototype._db_count, 0):
                 response = self.client.post(requested_url, helpers.get_word_post_data(child_word))
@@ -234,7 +234,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
             self.assertTrue(parent.created_at < last_prototype.created_at)
 
-            self.check_ajax_ok(response, data={'next_url': dext_urls.url('linguistics:words:show', last_prototype.id)})
+            self.check_ajax_ok(response, data={'next_url': utils_urls.url('linguistics:words:show', last_prototype.id)})
 
             self.assertEqual(child_word, last_prototype.utg_word)
             self.assertEqual(last_prototype.parent_id, None)
@@ -246,7 +246,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
             parent = prototypes.WordPrototype.create(parent_word, author=self.account_2)
 
-            requested_url = dext_urls.url('linguistics:words:create', type=word_type.value, parent=parent.id)
+            requested_url = utils_urls.url('linguistics:words:create', type=word_type.value, parent=parent.id)
 
             with self.check_delta(prototypes.WordPrototype._db_count, 0):
                 self.check_ajax_error(self.client.post(requested_url, helpers.get_word_post_data(child_word)),
@@ -266,7 +266,7 @@ class CreateRequestsTests(BaseRequestsTests):
             parent.state = relations.WORD_STATE.IN_GAME
             parent.save()
 
-            requested_url = dext_urls.url('linguistics:words:create', type=word_type.value, parent=parent.id)
+            requested_url = utils_urls.url('linguistics:words:create', type=word_type.value, parent=parent.id)
 
             with self.check_delta(prototypes.WordPrototype._db_count, 1):
                 response = self.client.post(requested_url, helpers.get_word_post_data(child_word))
@@ -275,7 +275,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
             last_prototype = prototypes.WordPrototype._db_latest()
 
-            self.check_ajax_ok(response, data={'next_url': dext_urls.url('linguistics:words:show', last_prototype.id)})
+            self.check_ajax_ok(response, data={'next_url': utils_urls.url('linguistics:words:show', last_prototype.id)})
 
             self.assertEqual(child_word, last_prototype.utg_word)
             self.assertEqual(last_prototype.parent_id, parent.id)
@@ -288,7 +288,7 @@ class CreateRequestsTests(BaseRequestsTests):
             parent.state = relations.WORD_STATE.IN_GAME
             parent.save()
 
-            requested_url = dext_urls.url('linguistics:words:create', type=word_type.value, parent=parent.id)
+            requested_url = utils_urls.url('linguistics:words:create', type=word_type.value, parent=parent.id)
 
             with self.check_not_changed(prototypes.WordPrototype._db_count):
                 self.check_ajax_error(self.client.post(requested_url, helpers.get_word_post_data(parent.utg_word)),
@@ -302,7 +302,7 @@ class CreateRequestsTests(BaseRequestsTests):
             parent.state = random.choice(relations.WORD_STATE.records)
             parent.save()
 
-            requested_url = dext_urls.url('linguistics:words:create', type=word_type.value)
+            requested_url = utils_urls.url('linguistics:words:create', type=word_type.value)
 
             with self.check_delta(prototypes.WordPrototype._db_count, 0):
                 self.check_ajax_error(self.client.post(requested_url, helpers.get_word_post_data(word)),
@@ -322,7 +322,7 @@ class CreateRequestsTests(BaseRequestsTests):
             onreview_parent.state = relations.WORD_STATE.ON_REVIEW
             onreview_parent.save()
 
-            requested_url = dext_urls.url('linguistics:words:create', type=word_type.value, parent=onreview_parent.id)
+            requested_url = utils_urls.url('linguistics:words:create', type=word_type.value, parent=onreview_parent.id)
 
             with self.check_delta(prototypes.WordPrototype._db_count, 0):
                 self.check_ajax_ok(self.client.post(requested_url, helpers.get_word_post_data(child_word)))
@@ -335,7 +335,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_form_errors(self):
         for word_type in utg_relations.WORD_TYPE.records:
-            requested_url = dext_urls.url('linguistics:words:create', type=word_type.value)
+            requested_url = utils_urls.url('linguistics:words:create', type=word_type.value)
 
             with self.check_not_changed(prototypes.WordPrototype._db_count):
                 self.check_ajax_error(self.client.post(requested_url, {}), 'linguistics.words.create.form_errors')
@@ -348,7 +348,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
             word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix='w-'))
 
-            requested_url = dext_urls.url('linguistics:words:create', type=wrong_type.value, parent=word.id)
+            requested_url = utils_urls.url('linguistics:words:create', type=wrong_type.value, parent=word.id)
 
             self.check_ajax_error(self.client.post(requested_url, {}), 'linguistics.words.create.unequal_types')
 
@@ -356,7 +356,7 @@ class CreateRequestsTests(BaseRequestsTests):
     def test_has_on_review_copy(self):
         for word_type in utg_relations.WORD_TYPE.records:
             word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix='w-'))
-            requested_url = dext_urls.url('linguistics:words:create', type=word.type.value, parent=word.id)
+            requested_url = utils_urls.url('linguistics:words:create', type=word.type.value, parent=word.id)
             self.check_ajax_error(self.client.post(requested_url, {}), 'linguistics.words.create.has_on_review_copy')
 
 
@@ -368,14 +368,14 @@ class ShowRequestsTests(BaseRequestsTests):
         self.word_type = random.choice(utg_relations.WORD_TYPE.records)
 
     def test_word_errors(self):
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:show', 'www')), texts=['linguistics.words.word.wrong_format'])
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:show', 666)), texts=['linguistics.words.word.not_found'], status_code=404)
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:show', 'www')), texts=['linguistics.words.word.wrong_format'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:show', 666)), texts=['linguistics.words.word.not_found'], status_code=404)
 
     def test_success__for_owner(self):
         self.request_login(self.account_1.email)
 
         word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True), author=self.account_1)
-        requested_url = dext_urls.url('linguistics:words:show', word.id)
+        requested_url = utils_urls.url('linguistics:words:show', word.id)
         self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 0),
                                                                     ('pgf-has-parent-message', 0),
                                                                     ('pgf-in-game-button', 0),
@@ -389,7 +389,7 @@ class ShowRequestsTests(BaseRequestsTests):
         word.state = relations.WORD_STATE.IN_GAME
         word.save()
 
-        requested_url = dext_urls.url('linguistics:words:show', word.id)
+        requested_url = utils_urls.url('linguistics:words:show', word.id)
         self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 0),
                                                                     ('pgf-has-parent-message', 0),
                                                                     ('pgf-in-game-button', 0),
@@ -398,7 +398,7 @@ class ShowRequestsTests(BaseRequestsTests):
 
     def test_success__unlogined(self):
         word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True), author=self.account_1)
-        requested_url = dext_urls.url('linguistics:words:show', word.id)
+        requested_url = utils_urls.url('linguistics:words:show', word.id)
         self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 0),
                                                                     ('pgf-has-parent-message', 0),
                                                                     ('pgf-in-game-button', 0),
@@ -410,7 +410,7 @@ class ShowRequestsTests(BaseRequestsTests):
         word.state = relations.WORD_STATE.IN_GAME
         word.save()
 
-        requested_url = dext_urls.url('linguistics:words:show', word.id)
+        requested_url = utils_urls.url('linguistics:words:show', word.id)
         self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 0),
                                                                     ('pgf-has-parent-message', 0),
                                                                     ('pgf-in-game-button', 0),
@@ -421,7 +421,7 @@ class ShowRequestsTests(BaseRequestsTests):
 
         self.request_login(self.moderator.email)
 
-        requested_url = dext_urls.url('linguistics:words:show', word.id)
+        requested_url = utils_urls.url('linguistics:words:show', word.id)
 
         self.check_html_ok(self.request_html(requested_url), texts=[('pgf-in-game-button', 1),
                                                                     ('pgf-remove-button', 1)])
@@ -433,7 +433,7 @@ class ShowRequestsTests(BaseRequestsTests):
 
         self.request_login(self.moderator.email)
 
-        requested_url = dext_urls.url('linguistics:words:show', word.id)
+        requested_url = utils_urls.url('linguistics:words:show', word.id)
 
         self.check_html_ok(self.request_html(requested_url), texts=[('pgf-in-game-button', 0),
                                                                     ('pgf-remove-button', 1)])
@@ -446,7 +446,7 @@ class ShowRequestsTests(BaseRequestsTests):
         word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True),
                                                  parent=word_1)
 
-        requested_url = dext_urls.url('linguistics:words:show', word_2.id)
+        requested_url = utils_urls.url('linguistics:words:show', word_2.id)
         self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 0),
                                                                     ('pgf-has-parent-message', 1)])
 
@@ -458,14 +458,14 @@ class ShowRequestsTests(BaseRequestsTests):
         prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True),
                                         parent=word_1)
 
-        requested_url = dext_urls.url('linguistics:words:show', word_1.id)
+        requested_url = utils_urls.url('linguistics:words:show', word_1.id)
         self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 1),
                                                                     ('pgf-has-parent-message', 0)])
 
     def test_displaying_fields_for_all_forms(self):
         for word_type in utg_relations.WORD_TYPE.records:
             word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix='w-', only_required=True))
-            requested_url = dext_urls.url('linguistics:words:show', word.id)
+            requested_url = utils_urls.url('linguistics:words:show', word.id)
 
             texts = []
             for property in utg_relations.PROPERTY_TYPE.records:
@@ -484,7 +484,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                                properties=utg_words.Properties(utg_relations.NUMBER.PLURAL)))
         word.save()
 
-        requested_url = dext_urls.url('linguistics:words:show', word.id)
+        requested_url = utils_urls.url('linguistics:words:show', word.id)
 
         texts = []
         for form in word.utg_word.forms[:6]:
@@ -507,12 +507,12 @@ class RemoveRequestsTests(BaseRequestsTests):
 
         self.request_login(self.account_1.email)
 
-        self.requested_url = dext_urls.url('linguistics:words:remove', self.word.id)
+        self.requested_url = utils_urls.url('linguistics:words:remove', self.word.id)
 
     def test_word_errors(self):
         with self.check_not_changed(prototypes.WordPrototype._db_count):
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:words:remove', 'www')), 'linguistics.words.word.wrong_format')
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:words:remove', 666)), 'linguistics.words.word.not_found')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:words:remove', 'www')), 'linguistics.words.word.wrong_format')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:words:remove', 666)), 'linguistics.words.word.not_found')
 
     def test_login_required(self):
         self.request_logout()
@@ -598,12 +598,12 @@ class InGameRequestsTests(BaseRequestsTests):
 
         self.request_login(self.account_1.email)
 
-        self.requested_url = dext_urls.url('linguistics:words:in-game', self.word.id)
+        self.requested_url = utils_urls.url('linguistics:words:in-game', self.word.id)
 
     def test_word_errors(self):
         with self.check_not_changed(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.ON_REVIEW).count):
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:words:in-game', 'www')), 'linguistics.words.word.wrong_format')
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:words:in-game', 666)), 'linguistics.words.word.not_found')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:words:in-game', 'www')), 'linguistics.words.word.wrong_format')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:words:in-game', 666)), 'linguistics.words.word.not_found')
 
     def test_login_required(self):
         self.request_logout()
@@ -666,7 +666,7 @@ class InGameRequestsTests(BaseRequestsTests):
         with self.check_not_changed(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.IN_GAME).count):
             with self.check_not_changed(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.ON_REVIEW).count):
                 with self.check_not_changed(prototypes.WordPrototype._db_count):
-                    self.check_ajax_error(self.client.post(dext_urls.url('linguistics:words:in-game', word_2.id)),
+                    self.check_ajax_error(self.client.post(utils_urls.url('linguistics:words:in-game', word_2.id)),
                                           'linguistics.words.in_game.conflict_with_not_parent')
 
         word_2.reload()
@@ -687,7 +687,7 @@ class InGameRequestsTests(BaseRequestsTests):
         with self.check_not_changed(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.IN_GAME).count):
             with self.check_delta(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.ON_REVIEW).count, -1):
                 with self.check_delta(prototypes.WordPrototype._db_count, -1):
-                    self.check_ajax_ok(self.client.post(dext_urls.url('linguistics:words:in-game', word_2.id)))
+                    self.check_ajax_ok(self.client.post(utils_urls.url('linguistics:words:in-game', word_2.id)))
 
         word_2.reload()
 
@@ -716,7 +716,7 @@ class InGameRequestsTests(BaseRequestsTests):
         with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=self.word.id).count, -2):
             with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=word_2.id).count, 2):
                 with self.check_delta(prototypes.WordPrototype._db_count, -1):
-                    self.check_ajax_ok(self.client.post(dext_urls.url('linguistics:words:in-game', word_2.id)))
+                    self.check_ajax_ok(self.client.post(utils_urls.url('linguistics:words:in-game', word_2.id)))
 
         self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD, entity_id=self.word.id).count(), 0)
         self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD, entity_id=word_2.id, state=relations.CONTRIBUTION_STATE.IN_GAME).count(), 2)
@@ -757,7 +757,7 @@ class InGameRequestsTests(BaseRequestsTests):
             with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=self.word.id).count, -2):
                 with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=word_2.id).count, 1):
                     with self.check_delta(prototypes.WordPrototype._db_count, -1):
-                        self.check_ajax_ok(self.client.post(dext_urls.url('linguistics:words:in-game', word_2.id)))
+                        self.check_ajax_ok(self.client.post(utils_urls.url('linguistics:words:in-game', word_2.id)))
 
         self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD, entity_id=self.word.id).count(), 0)
         self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD, entity_id=word_2.id, state=relations.CONTRIBUTION_STATE.IN_GAME).count(), 2)
@@ -776,16 +776,16 @@ class DictionaryOperationsTests(BaseRequestsTests):
 
     def test_normal_user(self):
         self.request_login(self.account_1.email)
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:dictionary-operations')), texts=[('pgf-dictionary-load-form', 0)])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:dictionary-operations')), texts=[('pgf-dictionary-load-form', 0)])
 
     def test_moderator(self):
         self.request_login(self.moderator.email)
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:dictionary-operations')), texts=[('pgf-dictionary-load-form', 0)])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:dictionary-operations')), texts=[('pgf-dictionary-load-form', 0)])
 
     def test_superuser(self):
         superuser = self.accounts_factory.create_account(is_superuser=True)
         self.request_login(superuser.email)
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:words:dictionary-operations')), texts=['pgf-dictionary-load-form'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:words:dictionary-operations')), texts=['pgf-dictionary-load-form'])
 
 
 class DictionaryDownloadTests(BaseRequestsTests):
@@ -810,7 +810,7 @@ class DictionaryDownloadTests(BaseRequestsTests):
 
         prototypes.WordPrototype.create(outgame_word)  # outgame
 
-        response = self.client.get(dext_urls.url('linguistics:words:dictionary-download'))
+        response = self.client.get(utils_urls.url('linguistics:words:dictionary-download'))
 
         data = s11n.from_json(response.content.decode('utf-8'))
 
@@ -846,7 +846,7 @@ class DictionaryLoadTests(BaseRequestsTests):
 
         self.not_removed = prototypes.WordPrototype.create(self.not_removed_word)
 
-        self.requested_url = dext_urls.url('linguistics:words:dictionary-load')
+        self.requested_url = utils_urls.url('linguistics:words:dictionary-load')
 
         self.superuser = self.accounts_factory.create_account(is_superuser=True)
 

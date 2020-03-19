@@ -232,7 +232,8 @@ class EVENT_STOP_REASON(rels_django.DjangoEnum):
     records = (('NOT_STOPPED', 0, 'не остановлено'),
                ('FINISHED', 1, 'завершено'),
                ('STOPPED_BY_PLAYER', 2, 'остановлено игроком'),
-               ('EMISSARY_LEFT_GAME', 3, 'эмиссар покинул игру'))
+               ('EMISSARY_LEFT_GAME', 3, 'эмиссар покинул игру'),
+               ('EMISSARY_RELOCATED', 4, 'эмиссар был перемещён'))
 
 
 class EVENT_AVAILABILITY(rels_django.DjangoEnum):
@@ -319,11 +320,18 @@ class EVENT_TYPE(rels_django.DjangoEnum):
                      [ABILITY.ECONOMY, ABILITY.SOCIOLOGY, ABILITY.CULTURAL_SCIENCE]),
 
                event('GLORY_OF_THE_KEEPERS', 17, 'Слава Хранителей', EVENT_AVAILABILITY.FOR_LEADERS, 2.0, 2.0,
-                     [ABILITY.RELIGIOUS_STUDIES, ABILITY.CULTURAL_SCIENCE]),)
+                     [ABILITY.RELIGIOUS_STUDIES, ABILITY.CULTURAL_SCIENCE]),
+
+               event('REVOLUTION', 18, 'Переворот', EVENT_AVAILABILITY.FOR_LEADERS, 5.0, 10.0,
+                     [ABILITY.WARFARE, ABILITY.SOCIOLOGY, ABILITY.POLITICAL_SCIENCE, ABILITY.COVERT_OPERATIONS]),
+
+               event('DARK_RITUALS', 19, 'Тёмные ритуалы', EVENT_AVAILABILITY.FOR_LEADERS, 2.5, 5.0,
+                     [ABILITY.COVERT_OPERATIONS, ABILITY.RELIGIOUS_STUDIES]),)
 
 
 class EVENT_CURRENCY(rels_django.DjangoEnum):
     records = (('TASK_BOARD', 0, 'доска заданий города'),
                ('FAST_TRANSPORTATION', 1, 'быстрая транспортировка'),
                ('COMPANIONS_SUPPORT', 2, 'поддержка спутников'),
-               ('GLORY_OF_THE_KEEPERS', 3, 'Слава Хранителей'))
+               ('GLORY_OF_THE_KEEPERS', 3, 'Слава Хранителей'),
+               ('DARK_RITUALS', 4, 'тёмные ритуалы'))

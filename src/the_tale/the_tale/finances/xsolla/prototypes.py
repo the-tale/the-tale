@@ -3,6 +3,8 @@ import smart_imports
 
 smart_imports.all()
 
+BANK_OPERATION_UID = 'bank-xsolla'
+
 
 class InvoicePrototype(utils_prototypes.BasePrototype):
     _model_class = models.Invoice
@@ -124,7 +126,7 @@ class InvoicePrototype(utils_prototypes.BasePrototype):
                                                           amount=self.bank_amount,
                                                           description_for_sender='Покупка печенек (через Xsolla)',
                                                           description_for_recipient='Покупка печенек (через Xsolla)',
-                                                          operation_uid='bank-xsolla',
+                                                          operation_uid=BANK_OPERATION_UID,
                                                           force=True)
 
         self._model.bank_invoice_id = transaction.invoice_id

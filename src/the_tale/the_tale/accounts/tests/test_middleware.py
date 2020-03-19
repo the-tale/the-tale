@@ -80,7 +80,7 @@ class FirstTimeVisitMiddlewareTests(utils_testcase.TestCase):
 
         self.middleware = middleware.FirstTimeVisitMiddleware(mock.Mock())
 
-        self.requested_url = dext_urls.url('accounts:show', self.account.id)
+        self.requested_url = utils_urls.url('accounts:show', self.account.id)
 
     def test_visit_chain(self):
         response = self.client.get(self.requested_url)

@@ -4,59 +4,21 @@ import smart_imports
 smart_imports.all()
 
 
-EffectsContainer = game_effects.create_container(relations.ATTRIBUTE)
-
-
-class PlaceJob(jobs_objects.Job):
-    ACTOR = 'place'
-
-    ACTOR_TYPE = tt_api_impacts.OBJECT_TYPE.PLACE
-    POSITIVE_TARGET_TYPE = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE
-    NEGATIVE_TARGET_TYPE = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE
-
-    # умножаем на 2, так как кажая остановка в городе, по сути, даёт влияние в 2-кратном размере
-    # Город получит влияние и от задания, которое герой выполнил и от того, которое возьмёт
-    NORMAL_POWER = f.normal_job_power(politic_power_conf.settings.PLACE_INNER_CIRCLE_SIZE) * 2
-
-    def load_power(self, actor_id):
-        return politic_power_logic.get_job_power(place_id=actor_id)
-
-    def load_inner_circle(self, actor_id):
-        return politic_power_logic.get_inner_circle(place_id=actor_id)
-
-    def get_job_power(self, actor_id):
-        current_place = storage.places[actor_id]
-
-        return jobs_logic.job_power(power=politic_power_storage.places.total_power_fraction(current_place.id),
-                                    powers=[politic_power_storage.places.total_power_fraction(place.id)
-                                            for place in current_place.get_same_places()])
-
-    def get_project_name(self, actor_id):
-        name = storage.places[actor_id].utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))
-        return 'Проект города {name}'.format(name=name)
-
-    def get_objects(self, actor_id):
-        return {'person': None,
-                'place': storage.places[actor_id]}
-
-    def get_effects_priorities(self, actor_id):
-        return {effect: 1 for effect in jobs_effects.EFFECT.records}
-
-
 def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount, fame):
     amount = round(amount * place.attrs.freedom)
 
-    impact_type = game_tt_services.IMPACT_TYPE.OUTER_CIRCLE
+    impact_types = [game_tt_services.IMPACT_TYPE.OUTER_CIRCLE]
 
     if inner_circle:
-        impact_type = game_tt_services.IMPACT_TYPE.INNER_CIRCLE
+        impact_types.append(game_tt_services.IMPACT_TYPE.INNER_CIRCLE)
 
-    yield game_tt_services.PowerImpact(type=impact_type,
-                                       actor_type=actor_type,
-                                       actor_id=actor_id,
-                                       target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
-                                       target_id=place.id,
-                                       amount=amount)
+    for impact_type in impact_types:
+        yield game_tt_services.PowerImpact(type=impact_type,
+                                           actor_type=actor_type,
+                                           actor_id=actor_id,
+                                           target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                           target_id=place.id,
+                                           amount=amount)
 
     if actor_type.is_HERO and 0 < fame:
         yield game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.FAME,
@@ -69,27 +31,15 @@ def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount, fame):
     if not inner_circle:
         return
 
-    target_type = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE
 
-    if amount < 0:
-        target_type = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE
-
-    yield game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
-                                       actor_type=actor_type,
-                                       actor_id=actor_id,
-                                       target_type=target_type,
-                                       target_id=place.id,
-                                       amount=abs(amount))
-
-
-def impacts_from_hero(hero, place, power, impacts_generator=tt_power_impacts):
+def impacts_from_hero(hero, place, power, inner_circle_places, impacts_generator=tt_power_impacts):
     place_power = 0
 
     can_change_power = hero.can_change_place_power(place)
 
     place_power = hero.modify_politics_power(power, place=place)
 
-    yield from impacts_generator(inner_circle=hero.preferences.has_place_in_preferences(place),
+    yield from impacts_generator(inner_circle=hero.preferences.place_is_hometown(place) or (place.id in inner_circle_places),
                                  actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                  actor_id=hero.id,
                                  place=place,
@@ -128,8 +78,6 @@ def load_place(place_id=None, place_model=None):
                           utg_name=utg_words.Word.deserialize(data['name']),
                           attrs=attributes.Attributes.deserialize(data.get('attributes', {})),
                           races=races.Races.deserialize(data['races']),
-                          effects=EffectsContainer.deserialize(data.get('effects')),
-                          job=PlaceJob.deserialize(data['job']),
                           modifier=place_model.modifier)
 
     place.attrs.sync()
@@ -140,9 +88,7 @@ def load_place(place_id=None, place_model=None):
 def save_place(place, new=False):
     data = {'name': place.utg_name.serialize(),
             'attributes': place.attrs.serialize(),
-            'races': place.races.serialize(),
-            'effects': place.effects.serialize(),
-            'job': place.job.serialize()}
+            'races': place.races.serialize()}
 
     arguments = {'x': place.x,
                  'y': place.y,
@@ -194,8 +140,6 @@ def create_place(x, y, size, utg_name, race, is_frontier=False):
                           attrs=attributes.Attributes(size=size),
                           utg_name=utg_name,
                           races=races.Races(),
-                          effects=EffectsContainer(),
-                          job=jobs_logic.create_job(PlaceJob),
                           modifier=modifiers.CITY_MODIFIERS.NONE)
     # place.refresh_attributes()
     save_place(place, new=True)
@@ -206,14 +150,14 @@ def api_list_url():
     arguments = {'api_version': conf.settings.API_LIST_VERSION,
                  'api_client': django_settings.API_CLIENT}
 
-    return dext_urls.url('game:places:api-list', **arguments)
+    return utils_urls.url('game:places:api-list', **arguments)
 
 
 def api_show_url(place):
     arguments = {'api_version': conf.settings.API_SHOW_VERSION,
                  'api_client': django_settings.API_CLIENT}
 
-    return dext_urls.url('game:places:api-show', place.id, **arguments)
+    return utils_urls.url('game:places:api-show', place.id, **arguments)
 
 
 def refresh_all_places_attributes():
@@ -400,8 +344,13 @@ def get_start_place_for_race(race):
 
     choices = choices[:int(len(choices) * conf.settings.START_PLACE_SAFETY_PERCENTAGE) + 1]
 
-    if any(place.race == race for place in choices):
-        choices = [place for place in choices if place.race == race]
+    if not choices:
+        choices = list(storage.places.all())
+
+    race_choices = [place for place in choices if place.race == race]
+
+    if race_choices:
+        choices = race_choices
 
     return choices[0]
 
@@ -501,7 +450,7 @@ def register_effect(place_id, attribute, value, name, delta=None, info=None, ref
                                    delta=delta,
                                    info=info)
 
-    effect_id = tt_services.effects.cmd_register(effect)
+    effect_id = tt_services.effects.cmd_register(effect, unique=attribute.type.is_REWRITABLE)
 
     if refresh_effects:
         storage.effects.update_version()
@@ -534,5 +483,83 @@ def remove_effect(effect_id, place_id, refresh_effects=False, refresh_places=Fal
         places_storage.places.update_version()
 
 
-def task_board_places(x, y):
-    return storage.places.nearest_places(x, y, radius=tt_emissaries_constants.TASK_BOARD_RADIUS)
+def task_board_places(place):
+    return storage.places.nearest_places(place.id, number=tt_emissaries_constants.TASK_BOARD_PLACES_NUMBER)
+
+
+def protector_candidates(place_id):
+    clans_ids = set()
+
+    for emissary in emissaries_storage.emissaries.emissaries_in_place(place_id):
+        for event in emissaries_storage.events.emissary_events(emissary.id):
+            if event.concrete_event.TYPE.is_REVOLUTION:
+                clans_ids.add(emissary.clan_id)
+
+    return clans_ids
+
+
+def protector_candidates_for_ui(place_id):
+    candidates = [clans_storage.infos[clan_id] for clan_id in protector_candidates(place_id)]
+    candidates.sort(key=lambda info: info.name)
+
+    return candidates
+
+
+def remove_protectorat(place, refresh_effects=False, refresh_places=False):
+    clan_id = place.attrs.clan_protector
+
+    if clan_id is None:
+        return
+
+    tt_services.effects.cmd_remove_effects(entity=place.id,
+                                           attribute=relations.ATTRIBUTE.CLAN_PROTECTOR)
+
+    clan_info = clans_storage.infos[clan_id]
+
+    template = 'Последний эмиссар гильдии «[clan]» покинул [place|вн]. Гильдия перестала быть протектором города.'
+    message = linguistics_logic.technical_render(template,
+                                                 {'clan': lexicon_dictionary.text(clan_info.name),
+                                                  'place': place.utg_name_form})
+
+    emissaries_logic.notify_clans(place_id=place.id,
+                                  exclude_clans_ids=(),
+                                  message=message,
+                                  roles=clans_relations.ROLES_TO_NOTIFY)
+
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[clan_id],
+                                              event=clans_relations.EVENT.PROTECTORAT_LOST,
+                                              tags=[place.meta_object().tag],
+                                                    message=f'Потерян протекторат над городом «{place.name}»')
+
+    if refresh_effects:
+        storage.effects.update_version()
+        storage.effects.refresh()
+
+    if refresh_places and place.id is not None:
+        place = places_storage.places[place.id]
+
+        place.refresh_attributes()
+        places_logic.save_place(place)
+
+        places_storage.places.update_version()
+
+
+def sync_protectorat(place):
+    clan_id = place.attrs.clan_protector
+
+    if clan_id is None:
+        return
+
+    emissaries_in_place = emissaries_storage.emissaries.emissaries_in_place(place.id)
+
+    if clan_id in {emissary.clan_id for emissary in emissaries_in_place}:
+        return
+
+    remove_protectorat(place,
+                       refresh_effects=True,
+                       refresh_places=True)
+
+
+def monitor_protectorates():
+    for place in storage.places.all():
+        sync_protectorat(place)

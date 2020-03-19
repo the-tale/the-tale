@@ -5,8 +5,8 @@ smart_imports.all()
 
 
 class BaseForm(forms.BaseUserForm):
-    new_place = dext_fields.ChoiceField(label='Новый город')
-    person = dext_fields.ChoiceField(label='Мастер')
+    new_place = utils_fields.ChoiceField(label='Новый город')
+    person = utils_fields.ChoiceField(label='Мастер')
 
     def __init__(self, choosen_person_id, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -16,8 +16,8 @@ class BaseForm(forms.BaseUserForm):
     def clean_new_place(self):
         place_id = int(self.cleaned_data['new_place'])
 
-        if len(places_storage.places[place_id].persons) >= c.PLACE_MAX_PERSONS:
-            raise django_forms.ValidationError('В городе достигнут максимум Мастеров. Чтобы переселить Мастера, необходимо кого-нибудь выселить.')
+        if len(places_storage.places[place_id].persons) >= c.PLACE_ABSOLUTE_MAX_PERSONS:
+            raise django_forms.ValidationError('В городе достигнут абсолютный максимум Мастеров. Чтобы переселить Мастера, необходимо кого-нибудь выселить.')
 
         return place_id
 
@@ -96,14 +96,15 @@ class PersonMove(base_person_bill.BasePersonBill):
         return self.new_place_name != self.new_place.name
 
     @property
-    def actors(self): return [self.place, self.new_place, self.person]
+    def actors(self):
+        return [self.place, self.new_place, self.person]
 
     def has_meaning(self):
         return (self.person.place.id != self.new_place_id and
                 not self.person.on_move_timeout and
                 not self.person.has_building and
                 len(self.person.place.persons) > c.PLACE_MIN_PERSONS and
-                len(self.new_place.persons) < c.PLACE_MAX_PERSONS)
+                len(self.new_place.persons) < c.PLACE_ABSOLUTE_MAX_PERSONS)
 
     def apply(self, bill=None):
         if not self.has_meaning():

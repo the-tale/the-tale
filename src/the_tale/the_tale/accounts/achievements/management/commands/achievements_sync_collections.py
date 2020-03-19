@@ -4,11 +4,13 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
-    help = 'Recalculate mights of accounts'
+    help = 'sync achievements collections'
 
-    def handle(self, *args, **options):
+    LOCKS = ['portal_commands']
+
+    def _handle(self, *args, **options):
 
         for achievements in models.AccountAchievements.objects.all().iterator():
             prototype = prototypes.AccountAchievementsPrototype(achievements)

@@ -6,7 +6,6 @@ smart_imports.all()
 class MapInfoStorage(utils_storage.SingleStorage):
     SETTINGS_KEY = 'map info change time'
     EXCEPTION = map_exceptions.MapStorageError
-    PROTOTYPE = map_prototypes.MapInfoPrototype
 
     def _construct_zero_item(self):
         return None
@@ -20,7 +19,7 @@ class MapInfoStorage(utils_storage.SingleStorage):
         except IndexError:
             self._item = None
 
-        self._version = dext_settings.settings[self.SETTINGS_KEY]
+        self._version = global_settings[self.SETTINGS_KEY]
 
     def _get_next_version(self):
         return '%d-%f' % (game_turn.number(), time.time())
@@ -90,35 +89,10 @@ class CellInfo:
         for road_id in self.roads_ids:
             yield roads_storage.roads[road_id]
 
-    def object_effect_name(self):
-        if self.place_id is not None:
-            return self.place().name
-
-        elif self.building_id is not None:
-            return self.building().name
-
-        else:
-            return 'дорога из {}'.format(self.dominant_place().utg_name.forms[1])
-
     def _transport_effects(self):
         yield ('мир', c.CELL_TRANSPORT_BASE)
 
-        if self.terrain.meta_height.is_HILLS:
-            yield ('холмы', c.CELL_TRANSPORT_HILLS)
-
-        if self.terrain.meta_height.is_MOUNTAINS:
-            yield ('горы', c.CELL_TRANSPORT_MOUNTAINS)
-
         if not self.contains_object():
-            if self.terrain.meta_vegetation.is_TREES:
-                yield ('леса', c.CELL_TRANSPORT_TREES)
-
-            if self.terrain.meta_terrain.is_SWAMP:
-                yield ('болота', c.CELL_TRANSPORT_SWAMP)
-
-            if self.terrain.meta_terrain.is_JUNGLE:
-                yield ('джунгли', c.CELL_TRANSPORT_JUNGLE)
-
             yield ('магические потоки', c.CELL_TRANSPORT_MAGIC)
 
         dominant_place = self.dominant_place()
@@ -131,13 +105,13 @@ class CellInfo:
 
         yield (dominant_place.name, dominant_place.attrs.transport)
 
-        if self.roads_ids:
+        if self.place_id:
+            yield ('городские дороги', c.CELL_TRANSPORT_HAS_MAIN_ROAD)
+
+        elif self.roads_ids:
             # дороги всегда должны иметь бонус к транспорту по сравниению с любым другим объектом (кроме города)
             # чтобы при прочих равных герой двигался по дорогам
-            yield (self.object_effect_name(), c.CELL_TRANSPORT_HAS_MAIN_ROAD)
-
-        elif self.place_id:
-            return
+            yield (f'дорога из {self.dominant_place().utg_name.forms[1]}', c.CELL_TRANSPORT_HAS_MAIN_ROAD)
 
         else:
             # building or none
@@ -155,15 +129,6 @@ class CellInfo:
 
     def _safety_effects(self):
         yield ('мир', 1.0 - c.BATTLES_PER_TURN)
-
-        if self.terrain.meta_height.is_HILLS:
-            yield ('холмы', c.CELL_SAFETY_HILLS)
-
-        if self.terrain.meta_height.is_MOUNTAINS:
-            yield ('горы', c.CELL_SAFETY_MOUNTAINS)
-
-        if self.terrain.meta_vegetation.is_TREES:
-            yield ('леса', c.CELL_SAFETY_TREES)
 
         dominant_place = self.dominant_place()
 
@@ -188,8 +153,8 @@ class CellInfo:
         if safety < c.CELL_SAFETY_MIN:
             effects.append(('Серый Орден', c.CELL_SAFETY_MIN - safety))
 
-        if safety > 1:
-            effects.append(('демоны', 1 - safety))
+        if safety > c.CELL_SAFETY_MAX:
+            effects.append(('демоны', c.CELL_SAFETY_MAX - safety))
 
         return effects
 
@@ -202,13 +167,8 @@ class CellInfo:
                                                       expected_battle_complexity=expected_battle_complexity)
 
 
-class CellsStorage:
-    __slots__ = ('_places_version',
-                 '_buildings_version',
-                 '_roads_version',
-                 '_map_info_version',
-
-                 '_map',
+class CellsStorage(utils_storage.DependentStorage):
+    __slots__ = ('_map',
 
                  '_places_terrains',
                  '_places_area',
@@ -217,11 +177,6 @@ class CellsStorage:
                  '_navigators')
 
     def __init__(self):
-        self._places_version = None
-        self._buildings_version = None
-        self._roads_version = None
-        self._map_info_version = None
-
         self._map = []
         self._places_terrains = {}
         self._places_area = {}
@@ -233,23 +188,13 @@ class CellsStorage:
         for y in range(map_conf.settings.HEIGHT):
             self._map.append([CellInfo() for x in range(map_conf.settings.WIDTH)])
 
-    def is_changed(self):
-        return (places_storage.places.version != self._places_version or
-                places_storage.buildings.version != self._buildings_version or
-                roads_storage.roads.version != self._roads_version or
-                map_info.version != self._map_info_version)
+        super().__init__()
 
-    def actualize_versions(self):
-        self._places_version = places_storage.places.version
-        self._buildings_version = places_storage.buildings.version
-        self._roads_version = roads_storage.roads.version
-        self._map_info_version = map_info.version
-
-    def reset_versions(self):
-        self._places_version = None
-        self._buildings_version = None
-        self._roads_version = None
-        self._map_info_version = None
+    def expected_version(self):
+        return (places_storage.places.version,
+                places_storage.buildings.version,
+                roads_storage.roads.version,
+                map_info.version)
 
     def _cells_iterator(self):
         for y in range(map_conf.settings.HEIGHT):
@@ -276,13 +221,7 @@ class CellsStorage:
         self.sync()
         return self._places_cells[place_id]
 
-    def sync(self, force=False):
-
-        if not force and not self.is_changed():
-            return
-
-        self.reset()
-
+    def recalculate(self):
         nearest_cells.update(self._map)
 
         self.sync_terrain()
@@ -296,12 +235,10 @@ class CellsStorage:
                                                            expected_battle_complexity=risk_level.expected_battle_complexity)
             self._navigators[risk_level].sync(travel_cost)
 
-        self.actualize_versions()
-
     def reset(self):
-        from the_tale.game.places import storage as places_storage
+        super().reset()
 
-        self.reset_versions()
+        from the_tale.game.places import storage as places_storage
 
         for x, y, cell in self._cells_iterator():
             cell.reset()

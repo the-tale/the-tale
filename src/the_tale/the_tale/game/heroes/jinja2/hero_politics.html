@@ -1,0 +1,88 @@
+<div class="easy-block">
+
+  <h2>
+    Влияние на политику
+    <small><a href="{{url('game:politic-power:history', account=resource.hero.id)}}" target="_blank">история</a></small>
+  </h2>
+
+  <h3>Влиятельность</h3>
+
+  <p>Величина влияния героя на политику определяется суммой нескольких факторов.</p>
+
+  <table class="table table-condensed table-striped table-bordered">
+    <tbody>
+      <tr>
+        <th>параметр</th>
+        <th>влияние</th>
+      </tr>
+      <tr><td>базовое</td><td>{{100}}%</td></tr>
+      <tr><td>от уровня</td><td>{{resource.hero.politics_power_level|percents(2)}}</td></tr>
+      <tr><td>от могущества Хранителя</td><td>{{resource.hero.politics_power_might|percents(2)}}</td></tr>
+      <tr><td>от принятых записей в Книге Судеб</td><td>{{resource.hero.politics_power_bills|percents(2)}}</td></tr>
+      <tr><td>от риска</td><td>{{resource.hero.preferences.risk_level.power_modifier|percents(2)}}</td></tr>
+      <tr><td>от остального (способностей, предпочтений, спутников, артефактов)</td><td>{{resource.hero.politics_power_modifier|percents(2)}}</td></tr>
+      <tr><td>итого</td><td>{{resource.hero.politics_power_multiplier()|percents(2)}}</td></tr>
+  </table>
+
+  <p>Когда герой помогает соратнику, вредит противнику или посещает родной город, он оказывает на них дополнительное влияние.</p>
+
+  <table class="table table-condensed table-striped table-bordered">
+    <tbody>
+      <tr>
+        <th>действие</th>
+        <th>влияние</th>
+      </tr>
+      <tr>
+        <td>помощь соратнику</td>
+        <td>+{{resource.hero.friend_power_modifier|percents(2)}}</td>
+      </tr>
+      <tr>
+        <td>вред противнику</td>
+        <td>-{{resource.hero.enemy_power_modifier|percents(2)}}</td>
+      </tr>
+      <tr>
+        <td>помощь родному городу</td>
+        <td>+{{resource.hero.place_power_modifier|percents(2)}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Известность</h3>
+
+  <p>Известность героя в городах Пандоры. Чем чаще герой помогает городу, тем больше его известность.</p>
+
+  BILLS_FAME_BORDER
+
+  {% set popularity = hero_popularity(resource.hero.id) %}
+
+  {% if popularity.has_popularity() %}
+    <div class="pgf-scrollable" style="overflow-y: auto; max-height: {{1+27*(1+12)}}px;">
+
+      <table class="table table-condensed table-striped table-bordered">
+        <tbody>
+          <tr>
+            <th width="30px">№</th>
+            <th >город</th>
+            <th width="100px">известность</th>
+          </tr>
+          {% set places = value('the_tale.game.places.storage', 'places') %}
+          {% for place_id, fame in popularity.places_rating() %}
+            <tr>
+              <td>{{loop.index}}</td>
+              <td><a href="{{url('game:places:show', place_id)}}">{{places[place_id].name}}</a></td>
+              <td>{{fame}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    </div>
+
+  {% else %}
+
+    <p class="alert alert-info pgf-no-common-places-message">
+      Герой ещё не помог ни одному городу.
+    </p>
+  {% endif %}
+
+</div>

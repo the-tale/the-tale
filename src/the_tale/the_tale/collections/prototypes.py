@@ -22,7 +22,7 @@ class CollectionPrototype(utils_prototypes.BasePrototype):
         return cls._db_all()
 
     @property
-    def description_html(self): return utils_bbcode.render(self.description)
+    def description_html(self): return bbcode_renderers.default.render(self.description)
 
     @classmethod
     def create(cls, caption, description, approved=False):
@@ -68,7 +68,7 @@ class KitPrototype(utils_prototypes.BasePrototype):
         return cls._db_all()
 
     @property
-    def description_html(self): return utils_bbcode.render(self.description)
+    def description_html(self): return bbcode_renderers.default.render(self.description)
 
     @property
     def collection(self):
@@ -118,7 +118,7 @@ class ItemPrototype(utils_prototypes.BasePrototype):
         return storage.kits[self.kit_id]
 
     @property
-    def text_html(self): return utils_bbcode.render(self.text)
+    def text_html(self): return bbcode_renderers.default.render(self.text)
 
     @classmethod
     def create(cls, kit, caption, text, approved=False):

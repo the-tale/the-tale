@@ -40,7 +40,7 @@ class RoadsStorageTests(utils_testcase.TestCase):
         self.storage.sync()
         self.assertFalse(self.storage[road.id].length == 666)
 
-        dext_settings.settings[self.storage.SETTINGS_KEY] = uuid.uuid4().hex
+        global_settings[self.storage.SETTINGS_KEY] = uuid.uuid4().hex
 
         self.storage.sync()
         self.assertTrue(self.storage[road.id].length == 666)

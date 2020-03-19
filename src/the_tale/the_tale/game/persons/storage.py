@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class PersonsStorage(dext_storage.Storage):
+class PersonsStorage(utils_storage.Storage):
     SETTINGS_KEY = 'persons change time'
     EXCEPTION = exceptions.PersonsStorageError
 
@@ -21,7 +21,7 @@ class PersonsStorage(dext_storage.Storage):
 persons = PersonsStorage()
 
 
-class SocialConnectionsStorage(dext_storage.CachedStorage):
+class SocialConnectionsStorage(utils_storage.CachedStorage):
     SETTINGS_KEY = 'social-connections-storage'
     EXCEPTION = exceptions.PersonsStorageError
 

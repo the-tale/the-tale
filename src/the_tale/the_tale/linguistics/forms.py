@@ -17,10 +17,10 @@ def get_fields(word_type):
         choices = [(r, r.text) for r in static_property.records]
         if not required:
             choices = [('', ' — ')] + choices
-        field = dext_fields.TypedChoiceField(label=property_type.text,
-                                             choices=choices,
-                                             coerce=static_property.get_from_name,
-                                             required=False)
+        field = utils_fields.TypedChoiceField(label=property_type.text,
+                                              choices=choices,
+                                              coerce=static_property.get_from_name,
+                                              required=False)
 
         form_fields['%s_%s' % (WORD_FIELD_PREFIX, static_property.__name__)] = field
 
@@ -66,20 +66,33 @@ class WordWidget(django_forms.MultiWidget):
     def decompress(self, value):
         return decompress_word(self.word_type, value)
 
-    def format_output(self, rendered_widgets):
+    def render(self, name, value, attrs=None, renderer=None):
         fields = get_fields(self.word_type)
         keys = {key: i for i, key in enumerate(sorted(fields.keys()))}
 
-        widgets = {key: rendered_widgets[keys[key]] for key in keys}
+        widgets = {}
 
-        drawer = word_drawer.FormFieldDrawer(type=self.word_type, widgets=widgets, skip_markers=self.skip_markers, show_properties=self.show_properties)
+        subwidgets_context = self.get_context(name, value, attrs)['widget']['subwidgets']
 
-        return jinja2.Markup(dext_jinja2.render('linguistics/words/field.html', context={'drawer': drawer}))
+        for key in keys:
+            subwidget = self.widgets[keys[key]]
+            context = subwidgets_context[keys[key]]
+
+            widgets[key] = subwidget.render(name=context['name'],
+                                            value=context['value'],
+                                            attrs=context['attrs'])
+
+        drawer = word_drawer.FormFieldDrawer(type=self.word_type,
+                                             widgets=widgets,
+                                             skip_markers=self.skip_markers,
+                                             show_properties=self.show_properties)
+
+        return jinja2.Markup(utils_jinja2.render('linguistics/words/field.html', context={'drawer': drawer}))
 
 
 class SimpleNounWidget(WordWidget):
 
-    def format_output(self, rendered_widgets):
+    def render(self, name, value, attrs=None, renderer=None):
         fields = get_fields(self.word_type)
         keys = {key: i for i, key in enumerate(sorted(fields.keys()))}
 
@@ -88,14 +101,29 @@ class SimpleNounWidget(WordWidget):
                                 key={utg_relations.NUMBER: utg_relations.NUMBER.SINGULAR,
                                      utg_relations.NOUN_FORM: utg_relations.NOUN_FORM.NORMAL})
 
-        widgets = {key: rendered_widgets[keys[key]] for key in keys}
+        widgets = {}
 
-        drawer = word_drawer.FormFieldDrawer(type=self.word_type, widgets=widgets, skip_markers=self.skip_markers, show_properties=self.show_properties)
-        return jinja2.Markup(dext_jinja2.render('linguistics/words/simple_noun_field.html', context={'drawer': drawer,
-                                                                                                     'leaf': leaf}))
+        subwidgets_context = self.get_context(name, value, attrs)['widget']['subwidgets']
+
+        for key in keys:
+            subwidget = self.widgets[keys[key]]
+            context = subwidgets_context[keys[key]]
+
+            widgets[key] = subwidget.render(name=context['name'],
+                                            value=context['value'],
+                                            attrs=context['attrs'])
+
+        drawer = word_drawer.FormFieldDrawer(type=self.word_type,
+                                             widgets=widgets,
+                                             skip_markers=self.skip_markers,
+                                             show_properties=self.show_properties)
+
+        return jinja2.Markup(utils_jinja2.render('linguistics/words/simple_noun_field.html',
+                                                 context={'drawer': drawer,
+                                                          'leaf': leaf}))
 
 
-@dext_fields.pgf
+@utils_fields.pgf
 class WordField(django_forms.MultiValueField):
     LABEL_SUFFIX = ''
 
@@ -186,9 +214,9 @@ def get_word_fields_dict(word_type):
     form_fields = {}
 
     for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[word_type]):
-        form_fields['%s_%d' % (WORD_FIELD_PREFIX, i)] = dext_fields.CharField(label='',
-                                                                              max_length=models.Word.MAX_FORM_LENGTH,
-                                                                              required=False)
+        form_fields['%s_%d' % (WORD_FIELD_PREFIX, i)] = utils_fields.CharField(label='',
+                                                                               max_length=models.Word.MAX_FORM_LENGTH,
+                                                                               required=False)
 
     return form_fields
 
@@ -202,7 +230,7 @@ def get_word_forms(form, word_type):
     return [getattr(form.c, '%s_%d' % (WORD_FIELD_PREFIX, i)) for i in range(len(utg_data.INVERTED_WORDS_CACHES[word_type]))]
 
 
-class BaseWordForm(dext_forms.Form):
+class BaseWordForm(utils_forms.Form):
     WORD_TYPE = None
 
 
@@ -219,8 +247,8 @@ WORD_FORMS = {word_type: create_word_type_form(word_type)
               for word_type in utg_relations.WORD_TYPE.records}
 
 
-class TemplateForm(dext_forms.Form):
-    template = dext_fields.TextField(label='Шаблон', min_length=1, widget=django_forms.Textarea(attrs={'rows': 3}))
+class TemplateForm(utils_forms.Form):
+    template = utils_fields.TextField(label='Шаблон', min_length=1, widget=django_forms.Textarea(attrs={'rows': 3}))
 
     def __init__(self, key, verificators, *args, **kwargs):
         self.template_id = kwargs.pop('template_id', None)
@@ -230,7 +258,7 @@ class TemplateForm(dext_forms.Form):
         self.verificators = copy.deepcopy(verificators)
 
         for i, verificator in enumerate(self.verificators):
-            self.fields['verificator_%d' % i] = dext_fields.TextField(label=verificator.get_label(), required=False, widget=django_forms.Textarea(attrs={'rows': 3}))
+            self.fields['verificator_%d' % i] = utils_fields.TextField(label=verificator.get_label(), required=False, widget=django_forms.Textarea(attrs={'rows': 3}))
 
         for variable in self.key.variables:
             for restrictions_group in variable.type.restrictions:
@@ -247,7 +275,7 @@ class TemplateForm(dext_forms.Form):
                 else:
                     choices += restrictions_choices
 
-                self.fields[field_name] = dext_fields.ChoiceField(label=restrictions_group.text, required=False, choices=choices)
+                self.fields[field_name] = utils_fields.ChoiceField(label=restrictions_group.text, required=False, choices=choices)
 
     def verificators_fields(self):
         return [self['verificator_%d' % i] for i, verificator in enumerate(self.verificators)]
@@ -368,12 +396,12 @@ for group in lexicon_groups_relations.LEXICON_GROUP.records:
     KEY_CHOICES.append((group.text, keys))
 
 
-class TemplateKeyForm(dext_forms.Form):
+class TemplateKeyForm(utils_forms.Form):
     key = django_forms.TypedChoiceField(label='Тип фразы', choices=KEY_CHOICES, coerce=lexicon_keys.LEXICON_KEY.get_from_name)
 
 
-class LoadDictionaryForm(dext_forms.Form):
-    words = dext_fields.TextField(label='Данные словаря')
+class LoadDictionaryForm(utils_forms.Form):
+    words = utils_fields.TextField(label='Данные словаря')
 
     def clean_words(self):
         data = self.cleaned_data.get('words')

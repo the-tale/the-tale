@@ -11,6 +11,8 @@ BEST_PERSON_BONUSES = {places_relations.ATTRIBUTE.PRODUCTION: c.PLACE_GOODS_FROM
                        places_relations.ATTRIBUTE.CULTURE: c.PLACE_CULTURE_FROM_BEST_PERSON,
                        places_relations.ATTRIBUTE.STABILITY: c.PLACE_STABILITY_FROM_BEST_PERSON}
 
+MAXIMUM_RAW_ECONOMIC_ATTRIBUTE = 3.0
+
 
 class Person(game_names.ManageNameMixin2):
     __slots__ = ('id',
@@ -77,7 +79,7 @@ class Person(game_names.ManageNameMixin2):
 
     @property
     def url(self):
-        return dext_urls.url('game:persons:show', self.id)
+        return utils_urls.url('game:persons:show', self.id)
 
     def name_from(self, with_url=True):
         if with_url:
@@ -142,7 +144,7 @@ class Person(game_names.ManageNameMixin2):
         return sorted(choices, key=lambda choice: choice[0])
 
     def get_economic_modifier(self, attribute):
-        return self.economic_attributes[attribute] / 3.0 * BEST_PERSON_BONUSES[attribute]
+        return self.economic_attributes[attribute] / MAXIMUM_RAW_ECONOMIC_ATTRIBUTE * BEST_PERSON_BONUSES[attribute]
 
     def get_economic_modifiers(self):
         for attribute in self.economic_attributes.keys():
@@ -196,41 +198,41 @@ class Person(game_names.ManageNameMixin2):
             if specialization.points_attribute is None:
                 continue
 
-            yield game_effects.Effect(name=self.name,
-                                      attribute=specialization.points_attribute,
-                                      value=self.modify_specialization_points(points))
+            yield tt_api_effects.Effect(name=self.name,
+                                        attribute=specialization.points_attribute,
+                                        value=self.modify_specialization_points(points))
 
     def place_effects(self):
         effect_name = 'Мастер {}'.format(self.name)
 
         for attribute, modifier in self.get_economic_modifiers():
-            yield game_effects.Effect(name=effect_name, attribute=attribute, value=modifier)
+            yield tt_api_effects.Effect(name=effect_name, attribute=attribute, value=modifier)
 
         yield from self.specialization_effects()
 
         if self.attrs.terrain_radius_bonus != 0:
-            yield game_effects.Effect(name=effect_name,
-                                      attribute=places_relations.ATTRIBUTE.TERRAIN_RADIUS,
-                                      value=self.attrs.terrain_radius_bonus)
+            yield tt_api_effects.Effect(name=effect_name,
+                                        attribute=places_relations.ATTRIBUTE.TERRAIN_RADIUS,
+                                        value=self.attrs.terrain_radius_bonus)
 
         if self.attrs.politic_radius_bonus != 0:
-            yield game_effects.Effect(name=effect_name,
-                                      attribute=places_relations.ATTRIBUTE.POLITIC_RADIUS,
-                                      value=self.attrs.politic_radius_bonus)
+            yield tt_api_effects.Effect(name=effect_name,
+                                        attribute=places_relations.ATTRIBUTE.POLITIC_RADIUS,
+                                        value=self.attrs.politic_radius_bonus)
 
         if self.attrs.stability_renewing_bonus != 0:
-            yield game_effects.Effect(name=effect_name,
-                                      attribute=places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED,
-                                      value=self.attrs.stability_renewing_bonus)
+            yield tt_api_effects.Effect(name=effect_name,
+                                        attribute=places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED,
+                                        value=self.attrs.stability_renewing_bonus)
 
         if self.has_building:
-            yield game_effects.Effect(name='стабилизация {} ({})'.format(self.building.name, effect_name),
-                                      attribute=places_relations.ATTRIBUTE.PRODUCTION,
-                                      value=-c.CELL_STABILIZATION_PRICE)
+            yield tt_api_effects.Effect(name='стабилизация {} ({})'.format(self.building.name, effect_name),
+                                        attribute=places_relations.ATTRIBUTE.PRODUCTION,
+                                        value=-c.CELL_STABILIZATION_PRICE)
 
-            yield game_effects.Effect(name='ремонт {} ({})'.format(self.building.name, effect_name),
-                                      attribute=places_relations.ATTRIBUTE.PRODUCTION,
-                                      value=-self.attrs.building_support_cost)
+            yield tt_api_effects.Effect(name='ремонт {} ({})'.format(self.building.name, effect_name),
+                                        attribute=places_relations.ATTRIBUTE.PRODUCTION,
+                                        value=-self.attrs.building_support_cost)
 
     def refresh_attributes(self):
         self.attrs.reset()

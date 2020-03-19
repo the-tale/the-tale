@@ -12,7 +12,7 @@ _UID_REGEX = re.compile(r'(\d+)#(\d+)')
 
 def _register_meta_relations(container, candidates):
 
-    for candidate in dext_discovering.discover_classes(candidates, objects.MetaRelation):
+    for candidate in utils_discovering.discover_classes(candidates, objects.MetaRelation):
         if candidate.TYPE in container:
             raise exceptions.DuplicateRelationError(type=candidate.TYPE)
         if candidate.TYPE is None:
@@ -20,14 +20,14 @@ def _register_meta_relations(container, candidates):
         container[candidate.TYPE] = candidate
 
 
-@dext_discovering.automatic_discover(_RELATIONS, 'meta_relations')
+@utils_discovering.automatic_discover(_RELATIONS, 'meta_relations')
 def autodiscover_relations(container, module):
     _register_meta_relations(container, [getattr(module, name) for name in dir(module)])
 
 
 def _register_meta_types(container, candidates):
 
-    for candidate in dext_discovering.discover_classes(candidates, objects.MetaType):
+    for candidate in utils_discovering.discover_classes(candidates, objects.MetaType):
         if candidate.TYPE in container:
             raise exceptions.DuplicateTypeError(type=candidate.TYPE)
         if candidate.TYPE is None:
@@ -35,7 +35,7 @@ def _register_meta_types(container, candidates):
         container[candidate.TYPE] = candidate
 
 
-@dext_discovering.automatic_discover(_TYPES, 'meta_relations')
+@utils_discovering.automatic_discover(_TYPES, 'meta_relations')
 def autodiscover_types(container, module):
     _register_meta_types(container, [getattr(module, name) for name in dir(module)])
 

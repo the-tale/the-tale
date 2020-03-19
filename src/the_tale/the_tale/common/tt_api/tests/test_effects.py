@@ -30,6 +30,29 @@ class TTAPiTests(utils_testcase.TestCase):
 
         self.assertEqual(loaded_effects[0], effect)
 
+    def test_register__unique(self):
+        effect_1 = create_effect(uid=1)
+
+        effect_2 = create_effect(uid=2)
+        effect_2.entity = effect_1.entity
+        effect_2.attribute = effect_1.attribute
+
+        effect_3 = create_effect(uid=3)
+        effect_3.entity = 100500
+
+        self.assertNotEqual(effect_1.entity, effect_3.entity)
+        self.assertNotEqual(effect_2.entity, effect_3.entity)
+
+        effect_1.id = effects_client.cmd_register(effect_1)
+        effect_2.id = effects_client.cmd_register(effect_2, unique=True)
+        effect_3.id = effects_client.cmd_register(effect_3, unique=True)
+
+        loaded_effects = effects_client.cmd_list()
+
+        loaded_effects.sort(key=lambda effect: effect.id)
+
+        self.assertEqual(loaded_effects, [effect_2, effect_3])
+
     def test_remove(self):
         effect = create_effect(uid=1)
 

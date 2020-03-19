@@ -36,7 +36,7 @@ class HistoryTests(utils_testcase.TestCase):
         if person_id is not None:
             arguments['person'] = person_id
 
-        return dext_urls.url('game:politic-power:history', **arguments)
+        return utils_urls.url('game:politic-power:history', **arguments)
 
     def test_wrong_account(self):
         self.check_html_ok(self.request_html(self.url(account_id='saasda')), texts=[('pgf-error-account.wrong_format', 1)])

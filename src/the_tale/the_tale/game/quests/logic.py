@@ -4,8 +4,6 @@ import smart_imports
 smart_imports.all()
 
 
-QUESTS_LOGGER = logging.getLogger('the-tale.game.quests')
-
 WORLD_RESTRICTIONS = [questgen_restrictions.SingleLocationForObject(),
                       questgen_restrictions.ReferencesIntegrity()]
 QUEST_RESTRICTIONS = [questgen_restrictions.SingleStartStateWithNoEnters(),
@@ -28,12 +26,13 @@ class HeroQuestInfo(object):
                  'level',
                  'position_place_id',
                  'is_first_quest_path_required',
-                 'is_short_quest_path_required',
                  'preferences_mob_id',
                  'preferences_place_id',
                  'preferences_friend_id',
                  'preferences_enemy_id',
                  'preferences_equipment_slot',
+                 'preferences_quests_region_id',
+                 'preferences_quests_region_size',
                  'interfered_persons',
                  'quests_priorities',
                  'excluded_quests',
@@ -44,12 +43,13 @@ class HeroQuestInfo(object):
                  level,
                  position_place_id,
                  is_first_quest_path_required,
-                 is_short_quest_path_required,
                  preferences_mob_id,
                  preferences_place_id,
                  preferences_friend_id,
                  preferences_enemy_id,
                  preferences_equipment_slot,
+                 preferences_quests_region_id,
+                 preferences_quests_region_size,
                  interfered_persons,
                  quests_priorities,
                  excluded_quests,
@@ -58,32 +58,38 @@ class HeroQuestInfo(object):
         self.level = level
         self.position_place_id = position_place_id
         self.is_first_quest_path_required = is_first_quest_path_required
-        self.is_short_quest_path_required = is_short_quest_path_required
         self.preferences_mob_id = preferences_mob_id
         self.preferences_place_id = preferences_place_id
         self.preferences_friend_id = preferences_friend_id
         self.preferences_enemy_id = preferences_enemy_id
         self.preferences_equipment_slot = preferences_equipment_slot
+        self.preferences_quests_region_id = preferences_quests_region_id
+        self.preferences_quests_region_size = preferences_quests_region_size
         self.interfered_persons = interfered_persons
         self.quests_priorities = quests_priorities
         self.excluded_quests = excluded_quests
         self.prefered_quest_markers = prefered_quest_markers
+
+    @property
+    def position_place(self):
+        return places_storage.places[self.position_place_id]
 
     def serialize(self):
         return {'id': self.id,
                 'level': self.level,
                 'position_place_id': self.position_place_id,
                 'is_first_quest_path_required': self.is_first_quest_path_required,
-                'is_short_quest_path_required': self.is_short_quest_path_required,
                 'preferences_mob_id': self.preferences_mob_id,
                 'preferences_place_id': self.preferences_place_id,
                 'preferences_friend_id': self.preferences_friend_id,
                 'preferences_enemy_id': self.preferences_enemy_id,
                 'preferences_equipment_slot': self.preferences_equipment_slot.value if self.preferences_equipment_slot else None,
+                'preferences_quests_region_id': self.preferences_quests_region_id if self.preferences_quests_region_id else None,
+                'preferences_quests_region_size': self.preferences_quests_region_size,
                 'interfered_persons': self.interfered_persons,
                 'quests_priorities': [(quest_type.value, priority) for quest_type, priority in self.quests_priorities],
-                'excluded_quests': list(self.excluded_quests),
-                'prefered_quest_markers': list(self.prefered_quest_markers)}
+                'excluded_quests': list(sorted(self.excluded_quests)),
+                'prefered_quest_markers': list(sorted(self.prefered_quest_markers))}
 
     @classmethod
     def deserialize(cls, data):
@@ -91,12 +97,13 @@ class HeroQuestInfo(object):
                    level=data['level'],
                    position_place_id=data['position_place_id'],
                    is_first_quest_path_required=data['is_first_quest_path_required'],
-                   is_short_quest_path_required=data['is_short_quest_path_required'],
                    preferences_mob_id=data['preferences_mob_id'],
                    preferences_place_id=data['preferences_place_id'],
                    preferences_friend_id=data['preferences_friend_id'],
                    preferences_enemy_id=data['preferences_enemy_id'],
                    preferences_equipment_slot=heroes_relations.EQUIPMENT_SLOT(data['preferences_equipment_slot']) if data['preferences_equipment_slot'] is not None else None,
+                   preferences_quests_region_id=data['preferences_quests_region_id'],
+                   preferences_quests_region_size=data['preferences_quests_region_size'],
                    interfered_persons=data['interfered_persons'],
                    quests_priorities=[(relations.QUESTS(quest_type), priority) for quest_type, priority in data['quests_priorities']],
                    excluded_quests=set(data['excluded_quests']),
@@ -110,7 +117,7 @@ class HeroQuestInfo(object):
 
 
 def choose_quest_path_url():
-    return dext_urls.url('game:quests:api-choose', api_version='1.0', api_client=django_settings.API_CLIENT)
+    return utils_urls.url('game:quests:api-choose', api_version='1.0', api_client=django_settings.API_CLIENT)
 
 
 def fact_place(place):
@@ -150,63 +157,8 @@ def fact_located_in(person):
     return questgen_facts.LocatedIn(object=uids.person(person.id), place=uids.place(person.place.id))
 
 
-def fill_places_for_first_quest(kb, hero_info):
-    best_distance = c.QUEST_AREA_MAXIMUM_RADIUS
-    best_destination = None
-
-    hero_place = places_storage.places[hero_info.position_place_id]
-
-    for place in places_storage.places.all():
-        if place.id == hero_info.position_place_id:
-            continue
-
-        path_length = navigation_logic.manhattan_distance(hero_place.x,
-                                                          hero_place.y,
-                                                          place.x,
-                                                          place.y)
-
-        if path_length < best_distance:
-            best_distance = path_length
-            best_destination = place
-
-    kb += fact_place(best_destination)
-    kb += fact_place(places_storage.places[hero_info.position_place_id])
-
-
-def fill_places(kb, hero_info, max_distance):
-    places = []
-
-    hero_place = places_storage.places[hero_info.position_place_id]
-
-    for place in places_storage.places.all():
-        path_length = navigation_logic.manhattan_distance(hero_place.x,
-                                                          hero_place.y,
-                                                          place.x,
-                                                          place.y)
-
-        if path_length > max_distance:
-            continue
-
-        places.append((path_length, place))
-
-    places.sort(key=lambda x: x[0])
-
-    chosen_places = []
-
-    for base_distance, place in places:
-        for chosen_place in chosen_places:
-            path_length = navigation_logic.manhattan_distance(chosen_place.x,
-                                                              chosen_place.y,
-                                                              place.x,
-                                                              place.y)
-
-            if path_length > max_distance:
-                break
-
-        else:
-            chosen_places.append(place)
-
-    for place in chosen_places:
+def fill_places(kb, places):
+    for place in places:
         uid = uids.place(place.id)
 
         if uid in kb:
@@ -216,21 +168,29 @@ def fill_places(kb, hero_info, max_distance):
 
 
 def setup_places(kb, hero_info):
+    center_place_id = hero_info.position_place_id
+    quests_region_size = hero_info.preferences_quests_region_size
+
+    if hero_info.preferences_quests_region_id is not None:
+        center_place_id = hero_info.preferences_quests_region_id
+
     if hero_info.is_first_quest_path_required:
-        fill_places_for_first_quest(kb, hero_info)
-    elif hero_info.is_short_quest_path_required:
-        fill_places(kb, hero_info, max_distance=c.QUEST_AREA_SHORT_RADIUS)
-    else:
-        fill_places(kb, hero_info, max_distance=c.QUEST_AREA_RADIUS)
+        quests_region_size = 2
+
+    places = places_storage.places.nearest_places(center_place_id,
+                                                  number=quests_region_size)
+
+    if len(places) < 2:
+        places = places_storage.places.all()
+
+    fill_places(kb, places)
 
     hero_position_uid = uids.place(hero_info.position_place_id)
+
     if hero_position_uid not in kb:
         kb += fact_place(places_storage.places[hero_info.position_place_id])
 
     kb += questgen_facts.LocatedIn(object=uids.hero(hero_info.id), place=hero_position_uid)
-
-    if len(list(kb.filter(questgen_facts.Place))) < 2:
-        fill_places(kb, hero_info, max_distance=c.QUEST_AREA_MAXIMUM_RADIUS)
 
 
 def setup_persons(kb, hero_info):
@@ -333,7 +293,8 @@ def get_knowledge_base(hero_info, without_restrictions=False):  # pylint: disabl
 
 
 def create_random_quest_for_hero(hero_info, logger):
-    constructor = place_quest_constructor_fabric(place_uid=uids.place(hero_info.position_place_id))
+    constructor = place_quest_constructor_fabric(place=hero_info.position_place,
+                                                 person_action=None)
 
     return create_random_quest_with_constructor(hero_info,
                                                 constructor,
@@ -342,14 +303,45 @@ def create_random_quest_for_hero(hero_info, logger):
                                                 no_restrictions_on_fail=True)
 
 
+def create_random_quest_for_place(hero_info, place, person_action, logger):
+
+    constructor = place_quest_constructor_fabric(place=place,
+                                                 person_action=person_action)
+
+    excluded_quests = [record.quest_class.TYPE
+                       for record in relations.QUESTS.records
+                       if not record.allowed_for_cards]
+
+    return create_random_quest_with_constructor(hero_info,
+                                                constructor,
+                                                logger,
+                                                excluded_quests=excluded_quests,
+                                                no_restrictions_on_fail=False)
+
+
+def create_random_quest_for_person(hero_info, person, person_action, logger):
+
+    constructor = person_quest_constructor_fabric(person=person,
+                                                  person_action=person_action)
+
+    excluded_quests = [record.quest_class.TYPE
+                       for record in relations.QUESTS.records
+                       if not record.allowed_for_cards]
+
+    return create_random_quest_with_constructor(hero_info,
+                                                constructor,
+                                                logger,
+                                                excluded_quests=excluded_quests,
+                                                no_restrictions_on_fail=False)
+
+
 def create_random_quest_for_emissary(hero_info, emissary, person_action, logger):
-    constructor = emissary_quest_constructor_fabric(hero_uid=uids.hero(hero_info.id),
-                                                    emissary=emissary,
+    constructor = emissary_quest_constructor_fabric(emissary=emissary,
                                                     person_action=person_action)
 
     excluded_quests = [record.quest_class.TYPE
                        for record in relations.QUESTS.records
-                       if not record.allowed_for_emissary]
+                       if not record.allowed_for_cards]
 
     return create_random_quest_with_constructor(hero_info,
                                                 constructor,
@@ -423,7 +415,8 @@ def try_to_create_random_quest_for_hero(hero_info, quests, excluded_quests, with
     return None, None
 
 
-@dext_decorators.retry_on_exception(max_retries=conf.settings.MAX_QUEST_GENERATION_RETRIES, exceptions=[questgen_exceptions.RollBackError])
+@utils_decorators.retry_on_exception(max_retries=conf.settings.MAX_QUEST_GENERATION_RETRIES,
+                                     exceptions=[questgen_exceptions.RollBackError])
 def _create_random_quest_for_hero(hero_info, constructor, start_quests, without_restrictions=False):
     knowledge_base = get_knowledge_base(hero_info, without_restrictions=without_restrictions)
 
@@ -443,15 +436,38 @@ def _create_random_quest_for_hero(hero_info, constructor, start_quests, without_
     return knowledge_base
 
 
-def place_quest_constructor_fabric(place_uid):
+def place_quest_constructor_fabric(place, person_action):
 
     def constructor(selector, start_quests):
-        initiator_position = selector._kb[place_uid]
+        f_place = fact_place(place)
 
-        selector.reserve(initiator_position)
+        if f_place.uid not in selector._kb:
+            selector._kb += f_place
+
+        if person_action is not None:
+            if person_action.is_HELP:
+                selector._kb += questgen_facts.OnlyGoodBranches(object=f_place.uid)
+
+            elif person_action.is_HARM:
+                selector._kb += questgen_facts.OnlyBadBranches(object=f_place.uid)
+
+            for person in place.persons:
+                f_person = fact_person(person)
+
+                if f_person.uid not in selector._kb:
+                    selector._kb += f_person
+                    selector._kb += questgen_facts.LocatedIn(object=f_person.uid, place=f_place.uid)
+
+                if person_action.is_HELP:
+                    selector._kb += questgen_facts.OnlyGoodBranches(object=f_person.uid)
+
+                elif person_action.is_HARM:
+                    selector._kb += questgen_facts.OnlyBadBranches(object=f_person.uid)
+
+        selector.reserve(f_place)
 
         return selector.create_quest_from_place(nesting=0,
-                                                initiator_position=initiator_position,
+                                                initiator_position=f_place,
                                                 allowed=start_quests,
                                                 excluded=[],
                                                 tags=('can_start', ))
@@ -459,7 +475,7 @@ def place_quest_constructor_fabric(place_uid):
     return constructor
 
 
-def emissary_quest_constructor_fabric(hero_uid, emissary, person_action):
+def emissary_quest_constructor_fabric(emissary, person_action):
 
     def constructor(selector, start_quests):
         f_emissary = fact_emissary(emissary)
@@ -490,6 +506,38 @@ def emissary_quest_constructor_fabric(hero_uid, emissary, person_action):
     return constructor
 
 
+def person_quest_constructor_fabric(person, person_action):
+
+    def constructor(selector, start_quests):
+        f_person = fact_person(person)
+        f_person_place = fact_place(person.place)
+
+        if f_person_place.uid not in selector._kb:
+            selector._kb += f_person_place
+
+        if f_person.uid not in selector._kb:
+            selector._kb += f_person
+            selector._kb += questgen_facts.LocatedIn(object=f_person.uid, place=f_person_place.uid)
+
+        if person_action.is_HELP:
+            selector._kb += questgen_facts.OnlyGoodBranches(object=f_person.uid)
+        elif person_action.is_HARM:
+            selector._kb += questgen_facts.OnlyBadBranches(object=f_person.uid)
+        else:
+            raise NotImplementedError
+
+        selector.reserve(f_person)
+        selector.reserve(f_person_place)
+
+        return selector.create_quest_from_person(nesting=0,
+                                                 initiator=f_person,
+                                                 allowed=start_quests,
+                                                 excluded=[],
+                                                 tags=('can_start', ))
+
+    return constructor
+
+
 def create_hero_info(hero):
     quests_priorities = hero.get_quests_priorities()
 
@@ -497,23 +545,26 @@ def create_hero_info(hero):
                          level=hero.level,
                          position_place_id=hero.position.cell().nearest_place_id,
                          is_first_quest_path_required=hero.is_first_quest_path_required,
-                         is_short_quest_path_required=hero.is_short_quest_path_required,
                          preferences_mob_id=hero.preferences.mob.id if hero.preferences.mob else None,
                          preferences_place_id=hero.preferences.place.id if hero.preferences.place else None,
                          preferences_friend_id=hero.preferences.friend.id if hero.preferences.friend else None,
                          preferences_enemy_id=hero.preferences.enemy.id if hero.preferences.enemy else None,
                          preferences_equipment_slot=hero.preferences.equipment_slot,
+                         preferences_quests_region_id=hero.preferences.quests_region.id if hero.preferences.quests_region else None,
+                         preferences_quests_region_size=hero.preferences.quests_region_size,
                          interfered_persons=hero.quests.get_interfered_persons(),
                          quests_priorities=quests_priorities,
                          excluded_quests=hero.quests.excluded_quests(len(quests_priorities) // 2),
                          prefered_quest_markers=hero.prefered_quest_markers())
 
 
-def request_quest_for_hero(hero, emissary_id=None, person_action=None):
+def request_quest_for_hero(hero, emissary_id=None, place_id=None, person_id=None, person_action=None):
     hero_info = create_hero_info(hero)
     amqp_environment.environment.workers.quests_generator.cmd_request_quest(hero.account_id,
                                                                             hero_info.serialize(),
                                                                             emissary_id=emissary_id,
+                                                                            place_id=place_id,
+                                                                            person_id=person_id,
                                                                             person_action=person_action)
 
 
@@ -529,10 +580,18 @@ def setup_quest_for_hero(hero, knowledge_base_data):
 
     quest = prototypes.QuestPrototype(hero=hero, knowledge_base=knowledge_base, states_to_percents=states_to_percents)
 
+    # устанавливаем квест перед его началом,
+    # чтобы он корректно записался в стек
+    hero.actions.current_action.setup_quest(quest)
+
     if quest.machine.can_do_step():
         quest.machine.step()  # do first step to setup pointer
 
-    hero.actions.current_action.setup_quest(quest)
+        # заставляем героя выполнить условия стартового узла задания
+        # необходимо для случая, когда квест инициирует игрок и героя не находится в точке начала задания
+        quest.machine.check_requirements(quest.machine.current_state)
+        quest.machine.satisfy_requirements(quest.machine.current_state)
+
 
 
 def extract_person_type(fact):

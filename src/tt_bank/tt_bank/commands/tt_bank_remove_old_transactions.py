@@ -18,7 +18,7 @@ def main():
 
     config = utils.load_config(args.config)
 
-    async def utility(loop):
+    async def utility():
         await operations.remove_old_transactions(timeout=args.timeout)
 
     service.run_utility(config, utility)

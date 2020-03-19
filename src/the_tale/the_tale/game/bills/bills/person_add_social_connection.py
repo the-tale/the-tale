@@ -5,9 +5,9 @@ smart_imports.all()
 
 
 class BaseForm(forms.BaseUserForm):
-    person_1 = dext_fields.ChoiceField(label='Первый Мастер')
-    person_2 = dext_fields.ChoiceField(label='Второй Мастер')
-    connection_type = dext_fields.RelationField(label='Тип связи', relation=persons_relations.SOCIAL_CONNECTION_TYPE)
+    person_1 = utils_fields.ChoiceField(label='Первый Мастер')
+    person_2 = utils_fields.ChoiceField(label='Второй Мастер')
+    connection_type = utils_fields.RelationField(label='Тип связи', relation=persons_relations.SOCIAL_CONNECTION_TYPE)
 
     def __init__(self, person_1_id, person_2_id, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -114,7 +114,8 @@ class PersonAddSocialConnection(base_bill.BaseBill):
     def place_2(self): return places_storage.places[self.place_2_id]
 
     @property
-    def actors(self): return [self.place_1, self.place_2, self.person_1, self.person_2]
+    def actors(self):
+        return [self.place_1, self.place_2, self.person_1, self.person_2]
 
     def user_form_initials(self):
         return {'person_1': self.person_1_id,

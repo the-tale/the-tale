@@ -4,12 +4,12 @@ import smart_imports
 smart_imports.all()
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def region_url(turn=None):
     return logic.region_url(turn=turn)
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def power_color(power, percents, reverse):
     if percents:
         if power > 0.01:

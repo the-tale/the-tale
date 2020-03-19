@@ -42,8 +42,8 @@ def forum_common(limit, exclude_subcategories=()):
                     url=thread.paginator.last_page_url) for thread in forum_threads]
 
     return Block(title='Горячие темы',
-                 rss=dext_urls.url('forum:feed'),
-                 url=dext_urls.url('forum:'),
+                 rss=utils_urls.url('forum:feed'),
+                 url=utils_urls.url('forum:'),
                  events=events)
 
 
@@ -61,7 +61,7 @@ def forum_subcategory(title, subcategory, limit):
 
     return Block(title=title,
                  rss=None,
-                 url=dext_urls.url('forum:subcategories:show', subcategory.id),
+                 url=utils_urls.url('forum:subcategories:show', subcategory.id),
                  events=events)
 
 
@@ -75,11 +75,11 @@ def blogs_common(limit):
                     initiator=post.author.nick_verbose if post.author else None,
                     title=post.caption,
                     operation=None,
-                    url=dext_urls.url('blogs:posts:show', post.id)) for post in blog_posts]
+                    url=utils_urls.url('blogs:posts:show', post.id)) for post in blog_posts]
 
     return Block(title='Фольклор',
                  rss=None,
-                 url=dext_urls.url('blogs:posts:'),
+                 url=utils_urls.url('blogs:posts:'),
                  events=events)
 
 
@@ -90,9 +90,9 @@ def bills_common(limit):
                     initiator=None,
                     title=bill.caption,
                     operation=bill.last_bill_event_text,
-                    url=dext_urls.url('game:bills:show', bill.id)) for bill in bills]
+                    url=utils_urls.url('game:bills:show', bill.id)) for bill in bills]
 
     return Block(title='Книга Судеб',
                  rss=None,
-                 url=dext_urls.url('game:bills:'),
+                 url=utils_urls.url('game:bills:'),
                  events=events)

@@ -35,8 +35,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('result', rels.django.RelationIntegerField(db_index=True)),
-                ('participant_1', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('participant_2', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL)),
+                ('participant_1', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
+                ('participant_2', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },

@@ -23,9 +23,7 @@ class CARD(rels.Relation):
     effect = rels.Column(unique=False, primary=False, single_type=False)
     combiners = rels.Column(unique=False, primary=False, single_type=False)
 
-    records = (('LEVEL_UP', 1, 'озарение', FOR_ALL, LEGENDARY, effects.LevelUp(), []),
-
-               ('ADD_BONUS_ENERGY_COMMON', 5, 'капля энергии', FOR_ALL, COMMON,
+    records = (('ADD_BONUS_ENERGY_COMMON', 5, 'капля энергии', FOR_ALL, COMMON,
                 effects.AddBonusEnergy(base=10, level=1), [reactors.Simple3()]),
                ('ADD_BONUS_ENERGY_UNCOMMON', 6, 'чаша Силы', FOR_ALL, UNCOMMON,
                 effects.AddBonusEnergy(base=10, level=2), [reactors.Simple3()]),
@@ -76,15 +74,6 @@ class CARD(rels.Relation):
                 effects.KeepersGoods(base=1, level=4), [reactors.Simple3()]),
                ('KEEPERS_GOODS_LEGENDARY', 0, 'рог изобилия', FOR_PREMIUMS, LEGENDARY,
                 effects.KeepersGoods(base=1, level=5), []),
-
-               ('MOST_COMMON_PLACES_UNCOMMON', 70, 'ошибка в архивах', FOR_ALL, UNCOMMON,
-                effects.PlaceFame(base=c.HERO_FAME_PER_HELP, level=1), [reactors.Simple3()]),
-               ('MOST_COMMON_PLACES_RARE', 71, 'фальшивые рекомендации', FOR_ALL, RARE,
-                effects.PlaceFame(base=c.HERO_FAME_PER_HELP, level=2), [reactors.Simple3()]),
-               ('MOST_COMMON_PLACES_EPIC', 72, 'застолье в Совете', FOR_ALL, EPIC,
-                effects.PlaceFame(base=c.HERO_FAME_PER_HELP, level=3), [reactors.Simple3()]),
-               ('MOST_COMMON_PLACES_LEGENDARY', 73, 'интриги', FOR_ALL, LEGENDARY,
-                effects.PlaceFame(base=c.HERO_FAME_PER_HELP, level=4), []),
 
                ('ADD_EXPERIENCE_COMMON', 74, 'удачная мысль', FOR_ALL, COMMON,
                 effects.AddExperience(base=50, level=1), [reactors.Simple3()]),
@@ -166,30 +155,8 @@ class CARD(rels.Relation):
                ('CHANGE_HABIT_LEGENDARY', 122, 'экзистенциальный кризис', FOR_ALL, LEGENDARY,
                 effects.ChangeHabit(base=10, level=5), [reactors.Same2()]),
 
-               ('ADD_PERSON_POWER_COMMON', 123, 'случай', FOR_PREMIUMS, COMMON,
-                effects.AddPersonPower(base=c.MINIMUM_CARD_POWER, level=1), [reactors.SameEqual2(), reactors.SamePower3()]),
-               ('ADD_PERSON_POWER_UNCOMMON', 124, 'происки судьбы', FOR_PREMIUMS, UNCOMMON,
-                effects.AddPersonPower(base=c.MINIMUM_CARD_POWER, level=2), [reactors.SameEqual2(), reactors.SamePower3()]),
-               ('ADD_PERSON_POWER_RARE', 125, 'неожиданное обстоятельство', FOR_PREMIUMS, RARE,
-                effects.AddPersonPower(base=c.MINIMUM_CARD_POWER, level=3), [reactors.SameEqual2(), reactors.SamePower3()]),
-               ('ADD_PERSON_POWER_EPIC', 126, 'афера', FOR_PREMIUMS, EPIC,
-                effects.AddPersonPower(base=c.MINIMUM_CARD_POWER, level=4), [reactors.SameEqual2(), reactors.SamePower3()]),
-               ('ADD_PERSON_POWER_LEGENDARY', 127, 'преступление века', FOR_PREMIUMS, LEGENDARY,
-                 effects.AddPersonPower(base=c.MINIMUM_CARD_POWER, level=5), [reactors.SameEqual2()]),
-
-               ('ADD_PLACE_POWER_COMMON', 128, 'странные деньки', FOR_PREMIUMS, COMMON,
-                effects.AddPlacePower(base=c.MINIMUM_CARD_POWER, level=1), [reactors.SameEqual2(), reactors.SamePower3()]),
-               ('ADD_PLACE_POWER_UNCOMMON', 129, 'происшествие', FOR_PREMIUMS, UNCOMMON,
-                effects.AddPlacePower(base=c.MINIMUM_CARD_POWER, level=2), [reactors.SameEqual2(), reactors.SamePower3()]),
-               ('ADD_PLACE_POWER_RARE', 130, 'судьбоносный день', FOR_PREMIUMS, RARE,
-                effects.AddPlacePower(base=c.MINIMUM_CARD_POWER, level=3), [reactors.SameEqual2(), reactors.SamePower3()]),
-               ('ADD_PLACE_POWER_EPIC', 131, 'экономический кризис', FOR_PREMIUMS, EPIC,
-                effects.AddPlacePower(base=c.MINIMUM_CARD_POWER, level=4), [reactors.SameEqual2(), reactors.SamePower3()]),
-               ('ADD_PLACE_POWER_LEGENDARY', 132, 'политический кризис', FOR_PREMIUMS, LEGENDARY,
-                 effects.AddPlacePower(base=c.MINIMUM_CARD_POWER, level=5), [reactors.SameEqual2()]),
-
                ('CREATE_CLAN', 133, 'братство', FOR_ALL, RARE,
-                effects.CreateClan(), [reactors.Special(1, 'EMISSARY_QUEST', new_cards_number=9)]),
+                effects.CreateClan(), [reactors.Special(1, 'QUEST_FOR_EMISSARY', new_cards_number=9)]),
 
                ('ADD_GOLD_EPIC', 136, 'клад', FOR_PREMIUMS, EPIC,
                 effects.AddGold(base=1000, level=4), [reactors.Simple3()]),
@@ -239,14 +206,21 @@ class CARD(rels.Relation):
                 effects.AddClansPoints(base=tt_clans_constants.TOP_CARD_POINTS_BONUS, level=1), []),
 
                 # id типа этой карты проброшен в gui объединения карт
-               ('EMISSARY_QUEST', 157, 'Гильдейские дела', FOR_ALL, COMMON,
-                effects.EmissaryQuest(), [reactors.SameEqual2(),
-                                          reactors.Special(2, 'STOP_IDLENESS', new_cards_number=1),
-                                          reactors.Special(9, 'CREATE_CLAN', new_cards_number=1)]),
+               ('QUEST_FOR_EMISSARY', 157, 'гильдейские дела', FOR_ALL, COMMON,
+                effects.QuestForEmissary(), [reactors.SameEqual2(),
+                                             reactors.Special(2, 'STOP_IDLENESS', new_cards_number=1),
+                                             reactors.Special(9, 'CREATE_CLAN', new_cards_number=1)]),
 
-               ('STOP_IDLENESS', 156, 'Снова в путь', FOR_ALL, COMMON,
-                effects.StopIdleness(), [reactors.Special(2, 'EMISSARY_QUEST', new_cards_number=1)]),
+               ('STOP_IDLENESS', 156, 'снова в путь', FOR_ALL, COMMON,
+                effects.StopIdleness(), [reactors.Special(2, 'QUEST_FOR_EMISSARY', new_cards_number=1)]),
 
+               ('QUEST_FOR_PLACE', 158, 'общественные дела', FOR_PREMIUMS, RARE,
+                effects.QuestForPlace(), [reactors.SameEqual2(),
+                                          reactors.Special(3, 'QUEST_FOR_PERSON', new_cards_number=1)]),
+
+               ('QUEST_FOR_PERSON', 159, 'личные дела', FOR_PREMIUMS, EPIC,
+                effects.QuestForPerson(), [reactors.SameEqual2(),
+                                           reactors.Special(1, 'QUEST_FOR_PLACE', new_cards_number=3)]),
                )
 
 

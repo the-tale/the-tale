@@ -90,23 +90,6 @@ class InvertModificatorBase(ModificatorBase):
         return self.base / tt_cards_constants.LEVEL_MULTIPLIERS[self.level - 1]
 
 
-class LevelUp(BaseEffect):
-    __slots__ = ()
-
-    def get_form(self, card, hero, data):
-        return forms.Empty(data)
-
-    def __init__(self):
-        pass
-
-    DESCRIPTION = 'Герой получает новый уровень. Накопленный опыт не сбрасывается.'
-
-    def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
-        task.hero.increment_level(send_message=False)
-        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id)
-        return task.logic_result()
-
-
 class AddExperience(ModificatorBase):
     __slots__ = ()
 
@@ -175,7 +158,7 @@ class AddBonusEnergy(ModificatorBase):
         game_tt_services.energy.cmd_change_balance(account_id=task.hero.account_id,
                                                    type='card',
                                                    amount=int(self.modificator),
-                                                   async=True,
+                                                   asynchronous=True,
                                                    autocommit=True)
         return task.logic_result()
 
@@ -604,165 +587,6 @@ class GiveStability(ModificatorBase):
                                            'card_type': task.data['card']['data']['type']})
 
         return task.logic_result()
-
-
-class AddPersonPower(ModificatorBase):
-    __slots__ = ()
-
-    def get_form(self, card, hero, data):
-        return forms.Person(data)
-
-    @property
-    def DESCRIPTION(self):
-        return 'Моментально изменяет влияние Мастера на {} единиц в указанную в названии сторону. Влияние засчитывается так, как если бы герой имел Мастера в предпочтении. Влияние засчитывается напрямую, без бонусов и штрафов от чего либо. Известность героя не меняется.'.format(int(self.modificator))
-
-    def use(self, task, storage, highlevel=None, **kwargs):  # pylint: disable=R0911,W0613
-
-        card = objects.Card.deserialize(uuid.UUID(task.data['card']['id']), task.data['card']['data'])
-
-        delta = card.data['direction'] * self.modificator
-
-        person_id = task.data.get('value')
-
-        if person_id not in persons_storage.persons:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Мастер не найден.')
-
-        impacts = [game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
-                                                              hero_id=task.hero.id,
-                                                              person_id=person_id,
-                                                              amount=delta),
-                   game_tt_services.PowerImpact.hero_2_person_job(hero_id=task.hero.id,
-                                                                  person_id=person_id,
-                                                                  amount=delta)]
-
-        politic_power_logic.add_power_impacts(impacts)
-
-        return task.logic_result(message='Влияние Мастера изменено')
-
-    def allowed_directions(self):
-        return (-1, 1)
-
-    def create_card(self, type, available_for_auction, direction=None, uid=None):
-        if direction is None:
-            direction = random.choice(self.allowed_directions())
-
-        return objects.Card(type=type,
-                            available_for_auction=available_for_auction,
-                            data={'direction': direction},
-                            uid=uid if uid else uuid.uuid4())
-
-    def _item_full_type(self, type, direction):
-        return '{}-{:+d}'.format(type.value, direction)
-
-    def item_full_type(self, card):
-        return self._item_full_type(card.type, card.data['direction'])
-
-    def full_type_names(self, card_type):
-        names = {}
-
-        for direction in self.allowed_directions():
-            full_type = self._item_full_type(card_type, direction)
-            names[full_type] = self._name_for_card(card_type, direction)
-
-        return names
-
-    def _name_for_card(self, type, direction):
-        return '{}: {:+d}'.format(type.text, int(self.modificator * direction))
-
-    def name_for_card(self, card):
-        return self._name_for_card(card.type, card.data['direction'])
-
-
-class AddPlacePower(ModificatorBase):
-    __slots__ = ()
-
-    def get_form(self, card, hero, data):
-        return forms.Place(data)
-
-    @property
-    def DESCRIPTION(self):
-        return 'Моментально изменяет влияние города на {} единиц в указанную в названии сторону. Влияние засчитывается так, как если бы герой имел город в предпочтении. Влияние засчитывается напрямую, без бонусов и штрафов от чего либо. Известность героя не меняется.'.format(int(self.modificator))
-
-    def use(self, task, storage, highlevel=None, **kwargs):  # pylint: disable=R0911,W0613
-
-        card = objects.Card.deserialize(uuid.UUID(task.data['card']['id']), task.data['card']['data'])
-
-        delta = card.data['direction'] * self.modificator
-
-        place_id = task.data.get('value')
-
-        if place_id not in places_storage.places:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Город не найден.')
-
-        impacts = [game_tt_services.PowerImpact.hero_2_place(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
-                                                             hero_id=task.hero.id,
-                                                             place_id=place_id,
-                                                             amount=delta),
-                   game_tt_services.PowerImpact.hero_2_place_job(hero_id=task.hero.id,
-                                                                 place_id=place_id,
-                                                                 amount=delta)]
-
-        politic_power_logic.add_power_impacts(impacts)
-
-        return task.logic_result(message='Влияние города изменено.')
-
-    def allowed_directions(self):
-        return (-1, 1)
-
-    def create_card(self, type, available_for_auction, direction=None, uid=None):
-        if direction is None:
-            direction = random.choice(self.allowed_directions())
-
-        return objects.Card(type=type,
-                            available_for_auction=available_for_auction,
-                            data={'direction': direction},
-                            uid=uid if uid else uuid.uuid4())
-
-    def _item_full_type(self, type, direction):
-        return '{}-{:+d}'.format(type.value, direction)
-
-    def item_full_type(self, card):
-        return self._item_full_type(card.type, card.data['direction'])
-
-    def full_type_names(self, card_type):
-        names = {}
-
-        for direction in self.allowed_directions():
-            full_type = self._item_full_type(card_type, direction)
-            names[full_type] = self._name_for_card(card_type, direction)
-
-        return names
-
-    def _name_for_card(self, type, direction):
-        return '{}: {:+d}'.format(type.text, int(self.modificator * direction))
-
-    def name_for_card(self, card):
-        return self._name_for_card(card.type, card.data['direction'])
-
-
-class PlaceFame(ModificatorBase):
-    __slots__ = ()
-
-    def get_form(self, card, hero, data):
-        return forms.Place(data)
-
-    @property
-    def DESCRIPTION(self):
-        return 'Увеличивает известность героя в городе на {}'.format(int(self.modificator))
-
-    @property
-    def success_message(self):
-        return 'Известность героя увеличена на {}'.format(int(self.modificator))
-
-    def use(self, task, storage, **kwargs):
-        place_id = task.data.get('value')
-
-        if place_id not in places_storage.places:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Город не найден.')
-
-        places_logic.add_fame(hero_id=task.hero_id, fames=[(place_id, self.modificator)])
-
-        return task.logic_result(message=self.success_message)
 
 
 class ShortTeleport(BaseEffect):
@@ -1210,7 +1034,7 @@ class AddClansPoints(InvertModificatorBase):
         status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=clan_id,
                                                                                  type='card',
                                                                                  amount=self.upper_modificator,
-                                                                                 async=False,
+                                                                                 asynchronous=False,
                                                                                  autocommit=True,
                                                                                  currency=clans_relations.CURRENCY.ACTION_POINTS,
                                                                                  restrictions=restrictions)
@@ -1234,15 +1058,55 @@ class AddClansPoints(InvertModificatorBase):
         return task.logic_result(message='Ваша гильдия получила {points} очков действия.'.format(points=self.upper_modificator))
 
 
-class EmissaryQuest(BaseEffect):
+QUEST_CARD_COMMON_RULES = f'Если герой выполняет задания, все они отменяются. Если герой сражается с монстром, тот будет убит. Карту нельзя использовать, когда герой сражается на Арене. Величина влияния за задание рассчитывается по общим правилам.'
+
+
+class _QuestMixin:
+
+    def allowed_actions(self):
+        return [quests_relations.PERSON_ACTION.HELP,
+                quests_relations.PERSON_ACTION.HARM]
+
+    def create_card(self, type, available_for_auction, action=None, uid=None):
+        if action is None:
+            action = random.choice(self.allowed_actions())
+
+        return objects.Card(type=type,
+                            available_for_auction=available_for_auction,
+                            data={'action': action.value},
+                            uid=uid if uid else uuid.uuid4())
+
+    def _item_full_type(self, type, action_value):
+        return '{}-{:+d}'.format(type.value, action_value)
+
+    def item_full_type(self, card):
+        return self._item_full_type(card.type, card.data['action'])
+
+    def full_type_names(self, card_type):
+        names = {}
+
+        for action in self.allowed_actions():
+            full_type = self._item_full_type(card_type, action.value)
+            names[full_type] = self._name_for_card(card_type, action)
+
+        return names
+
+    def _name_for_card(self, type, action):
+        return '{}: {}'.format(type.text, action.text)
+
+    def name_for_card(self, card):
+        return self._name_for_card(card.type, quests_relations.PERSON_ACTION(card.data['action']))
+
+
+class QuestForEmissary(_QuestMixin, BaseEffect):
     __slots__ = ()
 
     def get_form(self, card, hero, data):
-        return forms.Emissary(data)
+        return forms.Emissary(data, clan_id=hero.clan_id.id)
 
     @property
     def DESCRIPTION(self):
-        return 'Моментально выдаёт герою задание на помощь или вред эмиссару. Эффект указан в названии карты. Если герой выполняет задания, все они отменяются. Если герой сражается с монстром, тот будет убит. Карту нельзя использовать, когда герой сражается на Арене. Величина влияния за задание рассчитывается по общим правилам. Начать задание может член гильдии с соответствующими правами. Если карту нельзя продать на аукционе (карта получена неподписчиком), её можно будет использовать только на эмиссарах своей гильдии и при её использовании будет отнято одно свободное задание гильдии. Выполнять задания, связанные с эмиссарами чужих гильдий, могут только члены гильдии с достаточно развитым эмиссаром.'
+        return f'Моментально выдаёт герою задание на помощь или вред эмиссару. Эффект указан в названии карты. {QUEST_CARD_COMMON_RULES} Начать задание может член гильдии с соответствующими правами. Если карту нельзя продать на аукционе (карта получена неподписчиком), её можно будет использовать только на эмиссарах своей гильдии и при её использовании будет отнято одно свободное задание гильдии. Выполнять задания, связанные с эмиссарами чужих гильдий, могут только члены гильдии с достаточно развитым эмиссаром.'
 
     def use(self, task, storage, highlevel=None, **kwargs):  # pylint: disable=R0911,W0613
 
@@ -1297,7 +1161,7 @@ class EmissaryQuest(BaseEffect):
             status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=membership.clan_id,
                                                                                      type='emissary_quest_card',
                                                                                      amount=-1,
-                                                                                     async=False,
+                                                                                     asynchronous=False,
                                                                                      autocommit=True,
                                                                                      currency=clans_relations.CURRENCY.FREE_QUESTS)
 
@@ -1370,3 +1234,73 @@ class StopIdleness(BaseEffect):
         task.hero.actions.current_action.process_turn()
 
         return task.logic_result()
+
+
+class QuestForPlace(_QuestMixin, BaseEffect):
+    __slots__ = ()
+
+    def get_form(self, card, hero, data):
+        return forms.Place(data)
+
+    @property
+    def DESCRIPTION(self):
+        return f'Моментально выдаёт герою задание на помощь или вред городу. Эффект указан в названии карты. Влияние засчитывается так, как если бы герой имел город в предпочтении. {QUEST_CARD_COMMON_RULES}'
+
+    def use(self, task, storage, highlevel=None, **kwargs):  # pylint: disable=R0911,W0613
+
+        card = objects.Card.deserialize(uuid.UUID(task.data['card']['id']), task.data['card']['data'])
+
+        action = quests_relations.PERSON_ACTION(card.data['action'])
+
+        place_id = task.data.get('value')
+
+        if place_id not in places_storage.places:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Город не найден.')
+
+        if task.hero.actions.has_proxy_actions():
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Карту нельзя использовать, когда герой сражается на Арене.')
+
+        actions_logic.force_new_hero_quest(hero=task.hero,
+                                           logger=None,
+                                           place_id=place_id,
+                                           person_action=action,
+                                           inner_circle_place_id=place_id)
+
+        return task.logic_result(message='Герой получит задание в ближайшее время.')
+
+
+class QuestForPerson(_QuestMixin, BaseEffect):
+    __slots__ = ()
+
+    def get_form(self, card, hero, data):
+        return forms.Person(data)
+
+    @property
+    def DESCRIPTION(self):
+        return f'Моментально выдаёт герою задание на помощь или вред Мастеру. Эффект указан в названии карты. Влияние засчитывается так, как если бы герой имел Мастера в предпочтении. {QUEST_CARD_COMMON_RULES}'
+
+    def use(self, task, storage, highlevel=None, **kwargs):  # pylint: disable=R0911,W0613
+
+        card = objects.Card.deserialize(uuid.UUID(task.data['card']['id']), task.data['card']['data'])
+
+        action = quests_relations.PERSON_ACTION(card.data['action'])
+
+        person_id = task.data.get('value')
+
+        if person_id not in persons_storage.persons:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Мастер не найден.')
+
+        if task.hero.actions.has_proxy_actions():
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Карту нельзя использовать, когда герой сражается на Арене.')
+
+        actions_logic.force_new_hero_quest(hero=task.hero,
+                                           logger=None,
+                                           person_id=person_id,
+                                           person_action=action,
+                                           inner_circle_person_id=person_id)
+
+        return task.logic_result(message='Герой получит задание в ближайшее время.')

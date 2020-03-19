@@ -44,7 +44,7 @@ class ShowTests(BaseRequestsTests):
                                         concrete_event=concrete_event,
                                         days=7)
 
-        self.url = dext_urls.url('game:emissaries:show', self.emissary.id)
+        self.url = utils_urls.url('game:emissaries:show', self.emissary.id)
 
     def test_success__unauthorized(self):
         self.request_logout()
@@ -82,7 +82,7 @@ class CreateDialogTests(BaseRequestsTests):
 
     def setUp(self):
         super().setUp()
-        self.url = dext_urls.url('game:emissaries:create-dialog')
+        self.url = utils_urls.url('game:emissaries:create-dialog')
 
         self.request_login(self.account_1.email)
 
@@ -128,7 +128,7 @@ class CreateTests(BaseRequestsTests):
 
     def setUp(self):
         super().setUp()
-        self.url = dext_urls.url('game:emissaries:create')
+        self.url = utils_urls.url('game:emissaries:create')
 
         clans_tt_services.currencies.cmd_debug_clear_service()
 
@@ -241,12 +241,12 @@ class StartEventDialogTests(BaseRequestsTests):
                                              initiator=self.account_1,
                                              place_id=self.places[0].id)
 
-        self.url = dext_urls.url('game:emissaries:start-event-dialog', self.emissary.id, event_type=relations.EVENT_TYPE.REST.value)
+        self.url = utils_urls.url('game:emissaries:start-event-dialog', self.emissary.id, event_type=relations.EVENT_TYPE.REST.value)
 
         self.request_login(self.account_1.email)
 
     def test_no_event_type(self):
-        url = dext_urls.url('game:emissaries:start-event-dialog', self.emissary.id)
+        url = utils_urls.url('game:emissaries:start-event-dialog', self.emissary.id)
 
         self.check_html_ok(self.request_ajax_html(url), texts=['event_type.not_specified'])
 
@@ -279,6 +279,46 @@ class StartEventDialogTests(BaseRequestsTests):
 
     def test_success(self):
         self.check_html_ok(self.request_ajax_html(self.url), texts=[('emissaries.no_rights', 0),
+                                                                    'form'])
+
+    def test_success__power_warnging(self):
+
+        game_tt_services.emissary_impacts.cmd_debug_clear_service()
+
+        max_power_to_spend = events.Rest.power_cost(self.emissary, days=events.Rest.max_event_length())
+
+        current_power = politic_power_logic.get_emissaries_power(emissaries_ids=[self.emissary.id])[self.emissary.id]
+
+        power_delta = max_power_to_spend + conf.settings.SHOW_START_EVENT_WARNING_BARRIER - current_power
+
+        politic_power_logic.add_power_impacts([game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.EMISSARY_POWER,
+                                                                            actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                            actor_id=self.account_1.id,
+                                                                            target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
+                                                                            target_id=self.emissary.id,
+                                                                            amount=power_delta - 1)])
+
+        self.check_html_ok(self.request_ajax_html(self.url), texts=[('pgf-power-warning', 1),
+                                                                     'form'])
+
+        politic_power_logic.add_power_impacts([game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.EMISSARY_POWER,
+                                                                            actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                            actor_id=self.account_1.id,
+                                                                            target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
+                                                                            target_id=self.emissary.id,
+                                                                            amount=1)])
+
+        self.check_html_ok(self.request_ajax_html(self.url), texts=[('pgf-power-warning', 1),
+                                                                     'form'])
+
+        politic_power_logic.add_power_impacts([game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.EMISSARY_POWER,
+                                                                            actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                            actor_id=self.account_1.id,
+                                                                            target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
+                                                                            target_id=self.emissary.id,
+                                                                            amount=1)])
+
+        self.check_html_ok(self.request_ajax_html(self.url), texts=[('pgf-power-warning', 0),
                                                                      'form'])
 
     def test_banned(self):
@@ -295,7 +335,7 @@ class StartEventTests(BaseRequestsTests):
                                              initiator=self.account_1,
                                              place_id=self.places[0].id)
 
-        self.url = dext_urls.url('game:emissaries:start-event', self.emissary.id, event_type=relations.EVENT_TYPE.REST.value)
+        self.url = utils_urls.url('game:emissaries:start-event', self.emissary.id, event_type=relations.EVENT_TYPE.REST.value)
 
         self.request_login(self.account_1.email)
 
@@ -407,7 +447,7 @@ class StartEventTests(BaseRequestsTests):
         self.emissary.place_rating_position = 0
         logic.save_emissary(self.emissary)
 
-        url = dext_urls.url('game:emissaries:start-event', self.emissary.id, event_type=relations.EVENT_TYPE.ARTISANS_SUPPORT.value)
+        url = utils_urls.url('game:emissaries:start-event', self.emissary.id, event_type=relations.EVENT_TYPE.ARTISANS_SUPPORT.value)
 
         self.check_ajax_ok(self.post_ajax_json(url, self.get_post_data()))
 
@@ -476,7 +516,7 @@ class StartEventTests(BaseRequestsTests):
 
         places_tt_services.effects.cmd_debug_clear_service()
 
-        url = dext_urls.url('game:emissaries:start-event', self.emissary.id, event_type=relations.EVENT_TYPE.ARTISANS_SUPPORT.value)
+        url = utils_urls.url('game:emissaries:start-event', self.emissary.id, event_type=relations.EVENT_TYPE.ARTISANS_SUPPORT.value)
 
         self.emissary.place_rating_position = 0
 
@@ -498,7 +538,7 @@ class StartEventTests(BaseRequestsTests):
 
         places_tt_services.effects.cmd_debug_clear_service()
 
-        url = dext_urls.url('game:emissaries:start-event', self.emissary.id, event_type=event_type.value)
+        url = utils_urls.url('game:emissaries:start-event', self.emissary.id, event_type=event_type.value)
 
         self.emissary.place_rating_position = 0
 
@@ -528,7 +568,7 @@ class StopEventTests(BaseRequestsTests):
                                         concrete_event=concrete_event,
                                         days=7)
 
-        self.url = dext_urls.url('game:emissaries:stop-event', self.emissary.id, event=self.event.id)
+        self.url = utils_urls.url('game:emissaries:stop-event', self.emissary.id, event=self.event.id)
 
         self.request_login(self.account_1.email)
 
@@ -607,7 +647,7 @@ class StopEventTests(BaseRequestsTests):
                                               initiator=self.account_1,
                                               place_id=self.places[0].id)
 
-        url = dext_urls.url('game:emissaries:stop-event', wrong_emissary.id, event=self.event.id)
+        url = utils_urls.url('game:emissaries:stop-event', wrong_emissary.id, event=self.event.id)
 
         with self.check_no_actions_applied():
             self.check_ajax_error(self.post_ajax_json(url), 'emissaries.wrong_emissary')

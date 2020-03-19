@@ -32,11 +32,11 @@ ALLOWED_EXCHANGE_TYPES_CHOICES = [(record, record.text) for record in ALLOWED_EX
 
 
 class BaseForm(forms.BaseUserForm):
-    place_1 = dext_fields.ChoiceField(label='Первый город')
-    place_2 = dext_fields.ChoiceField(label='Второй город')
+    place_1 = utils_fields.ChoiceField(label='Первый город')
+    place_2 = utils_fields.ChoiceField(label='Второй город')
 
-    resource_1 = dext_fields.TypedChoiceField(label='Ресурс от первого города', choices=ALLOWED_EXCHANGE_TYPES_CHOICES, coerce=places_relations.RESOURCE_EXCHANGE_TYPE.get_from_name)
-    resource_2 = dext_fields.TypedChoiceField(label='Ресурс от второго города', choices=ALLOWED_EXCHANGE_TYPES_CHOICES, coerce=places_relations.RESOURCE_EXCHANGE_TYPE.get_from_name)
+    resource_1 = utils_fields.TypedChoiceField(label='Ресурс от первого города', choices=ALLOWED_EXCHANGE_TYPES_CHOICES, coerce=places_relations.RESOURCE_EXCHANGE_TYPE.get_from_name)
+    resource_2 = utils_fields.TypedChoiceField(label='Ресурс от второго города', choices=ALLOWED_EXCHANGE_TYPES_CHOICES, coerce=places_relations.RESOURCE_EXCHANGE_TYPE.get_from_name)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)

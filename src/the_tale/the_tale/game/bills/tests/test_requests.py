@@ -475,7 +475,7 @@ class TestCreateRequests(BaseTestRequests):
                      'chronicle_on_accepted': 'chronicle-on-accepted',
                      'depends_on': depends_on_id,
                      'place': self.place1.id})
-        return data
+        return {key: value if value is not None else '' for key, value in data.items()}
 
     def test_unlogined(self):
         self.request_logout()
@@ -579,46 +579,46 @@ class TestVoteRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(dext_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'common.login_required')
+        self.check_ajax_error(self.client.post(utils_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'common.login_required')
 
     def test_is_fast(self):
         self.account2.is_fast = True
         self.account2.save()
-        self.check_ajax_error(self.client.post(dext_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'common.fast_account')
+        self.check_ajax_error(self.client.post(utils_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'common.fast_account')
         self.check_bill_votes(self.bill.id, 1, 0)
 
     @mock.patch('the_tale.game.bills.views.BillResource.can_participate_in_politics', False)
     def test__can_not_participate_in_politics(self):
-        self.check_ajax_error(self.client.post(dext_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'bills.can_not_participate_in_politics')
+        self.check_ajax_error(self.client.post(utils_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'bills.can_not_participate_in_politics')
         self.check_bill_votes(self.bill.id, 1, 0)
 
     def test___banned(self):
         self.account2.ban_game(30)
         self.account2.save()
-        self.check_ajax_error(self.client.post(dext_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'common.ban_any')
+        self.check_ajax_error(self.client.post(utils_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'common.ban_any')
         self.check_bill_votes(self.bill.id, 1, 0)
 
     def test_bill_not_exists(self):
-        self.check_ajax_error(self.client.post(dext_urls.url('game:bills:vote', 666, type=relations.VOTE_TYPE.FOR.value), {}), 'bills.bill.not_found')
+        self.check_ajax_error(self.client.post(utils_urls.url('game:bills:vote', 666, type=relations.VOTE_TYPE.FOR.value), {}), 'bills.bill.not_found')
 
     def test_wrong_value(self):
-        self.check_ajax_error(self.client.post(dext_urls.url('game:bills:vote', self.bill.id, type='bla-bla'), {}), 'bills.vote.type.wrong_format')
+        self.check_ajax_error(self.client.post(utils_urls.url('game:bills:vote', self.bill.id, type='bla-bla'), {}), 'bills.vote.type.wrong_format')
         self.check_bill_votes(self.bill.id, 1, 0)
 
     def test_bill_accepted(self):
         self.bill.state = relations.BILL_STATE.ACCEPTED
         self.bill.save()
-        self.check_ajax_error(self.client.post(dext_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'bills.voting_state_required')
+        self.check_ajax_error(self.client.post(utils_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'bills.voting_state_required')
         self.check_bill_votes(self.bill.id, 1, 0)
 
     def test_bill_rejected(self):
         self.bill.state = relations.BILL_STATE.REJECTED
         self.bill.save()
-        self.check_ajax_error(self.client.post(dext_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'bills.voting_state_required')
+        self.check_ajax_error(self.client.post(utils_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'bills.voting_state_required')
         self.check_bill_votes(self.bill.id, 1, 0)
 
     def test_success_for(self):
-        self.check_ajax_ok(self.client.post(dext_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}))
+        self.check_ajax_ok(self.client.post(utils_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}))
         vote = prototypes.VotePrototype(models.Vote.objects.all()[1])
         self.check_vote(vote, self.account2, relations.VOTE_TYPE.FOR, self.bill.id)
         self.check_bill_votes(self.bill.id, 2, 0)
@@ -629,18 +629,18 @@ class TestVoteRequests(BaseTestRequests):
 
         heroes_logic.save_hero(self.hero)
 
-        self.check_ajax_error(self.client.post(dext_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'bills.vote.can_not_vote')
+        self.check_ajax_error(self.client.post(utils_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'bills.vote.can_not_vote')
         self.check_bill_votes(self.bill.id, 1, 0)
 
     def test_success_agains(self):
-        self.check_ajax_ok(self.client.post(dext_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.AGAINST.value), {}))
+        self.check_ajax_ok(self.client.post(utils_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.AGAINST.value), {}))
         vote = prototypes.VotePrototype(models.Vote.objects.all()[1])
         self.check_vote(vote, self.account2, relations.VOTE_TYPE.AGAINST, self.bill.id)
         self.check_bill_votes(self.bill.id, 1, 1)
 
     def test_already_exists(self):
-        self.check_ajax_ok(self.client.post(dext_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}))
-        self.check_ajax_error(self.client.post(dext_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'bills.vote.vote_exists')
+        self.check_ajax_ok(self.client.post(utils_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}))
+        self.check_ajax_error(self.client.post(utils_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}), 'bills.vote.vote_exists')
         self.check_bill_votes(self.bill.id, 2, 0)
 
 
@@ -726,7 +726,7 @@ class TestUpdateRequests(BaseTestRequests):
                      'chronicle_on_accepted': 'chronicle-on-accepted-2',
                      'depends_on': depends_on_id,
                      'place': self.place2.id})
-        return data
+        return {key: value if value is not None else '' for key, value in data.items()}
 
     def test_unlogined(self):
         self.request_logout()
@@ -883,7 +883,7 @@ class TestModerateRequests(BaseTestRequests):
         data = self.bill.user_form_initials
         data.update(linguistics_helpers.get_word_post_data(self.bill.data.name_forms, prefix='name'))
         data['approved'] = True
-        return data
+        return {key: value if value is not None else '' for key, value in data.items()}
 
     def test_unlogined(self):
         self.request_logout()
@@ -919,7 +919,7 @@ class TestModerateRequests(BaseTestRequests):
         self.account2.prolong_premium(30)
         self.account2.save()
 
-        self.check_ajax_ok(self.client.post(dext_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}))
+        self.check_ajax_ok(self.client.post(utils_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}))
 
         with self.check_not_changed(forum_models.Post.objects.count):
             with self.check_not_changed(lambda: prototypes.BillPrototype.get_by_id(self.bill.id).updated_at):

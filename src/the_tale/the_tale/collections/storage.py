@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class CollectionsStorage(utils_storage.Storage):
+class CollectionsStorage(utils_storage.PrototypeStorage):
     SETTINGS_KEY = 'collections change time'
     EXCEPTION = exceptions.CollectionsError
     PROTOTYPE = prototypes.CollectionPrototype
@@ -13,7 +13,7 @@ class CollectionsStorage(utils_storage.Storage):
         return [('', '----')] + [(c.id, c.caption) for c in self.all()]
 
 
-class KitsStorage(utils_storage.Storage):
+class KitsStorage(utils_storage.PrototypeStorage):
     SETTINGS_KEY = 'kits change time'
     EXCEPTION = exceptions.CollectionsError
     PROTOTYPE = prototypes.KitPrototype
@@ -22,7 +22,7 @@ class KitsStorage(utils_storage.Storage):
         return [('', '----')] + [(k.id, k.caption) for k in self.all()]
 
 
-class ItemsStorage(utils_storage.Storage):
+class ItemsStorage(utils_storage.PrototypeStorage):
     SETTINGS_KEY = 'items change time'
     EXCEPTION = exceptions.CollectionsError
     PROTOTYPE = prototypes.ItemPrototype

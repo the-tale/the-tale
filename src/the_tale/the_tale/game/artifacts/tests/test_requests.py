@@ -258,30 +258,30 @@ class TestInfoRequests(BaseTestRequests):
         super(TestInfoRequests, self).setUp()
 
     def test_wrong_artifact_id(self):
-        self.check_html_ok(self.request_html(dext_urls.url('guide:artifacts:info', 'adsd')), texts=[('artifacts.artifact.wrong_format', 1)])
+        self.check_html_ok(self.request_html(utils_urls.url('guide:artifacts:info', 'adsd')), texts=[('artifacts.artifact.wrong_format', 1)])
 
     def test_no_artifact(self):
-        self.check_html_ok(self.request_html(dext_urls.url('guide:artifacts:info', 666)), texts=[('artifacts.artifact.not_found', 1)], status_code=404)
+        self.check_html_ok(self.request_html(utils_urls.url('guide:artifacts:info', 666)), texts=[('artifacts.artifact.not_found', 1)], status_code=404)
 
     def test_disabled_artifact_disabled(self):
         artifact = logic.create_random_artifact_record(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.request_html(dext_urls.url('guide:artifacts:info', artifact.id)), texts=[('artifacts.artifact_disabled', 1)], status_code=404)
+        self.check_html_ok(self.request_html(utils_urls.url('guide:artifacts:info', artifact.id)), texts=[('artifacts.artifact_disabled', 1)], status_code=404)
 
     def test_disabled_artifact_accepted_for_create_rights(self):
         self.request_logout()
         self.request_login(self.account_2.email)
         artifact = logic.create_random_artifact_record(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.request_html(dext_urls.url('guide:artifacts:info', artifact.id)), texts=[artifact.name.capitalize()])
+        self.check_html_ok(self.request_html(utils_urls.url('guide:artifacts:info', artifact.id)), texts=[artifact.name.capitalize()])
 
     def test_disabled_artifact_accepted_for_add_rights(self):
         self.request_logout()
         self.request_login(self.account_3.email)
         artifact = logic.create_random_artifact_record(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.request_html(dext_urls.url('guide:artifacts:info', artifact.id)), texts=[artifact.name.capitalize()])
+        self.check_html_ok(self.request_html(utils_urls.url('guide:artifacts:info', artifact.id)), texts=[artifact.name.capitalize()])
 
     def test_simple(self):
         artifact = models.ArtifactRecord.objects.all()[0]
-        self.check_html_ok(self.request_html(dext_urls.url('guide:artifacts:info', artifact.id)), texts=[(artifact.name.capitalize(), 1),
+        self.check_html_ok(self.request_html(utils_urls.url('guide:artifacts:info', artifact.id)), texts=[(artifact.name.capitalize(), 1),
                                                                                                          ('pgf-no-description', 0),
                                                                                                          ('pgf-moderate-button', 0),
                                                                                                          ('pgf-edit-button', 0),
@@ -295,7 +295,7 @@ class TestInfoRequests(BaseTestRequests):
         blogs_helpers.create_post_for_meta_object(self.account_1, 'folclor-1-caption', 'folclor-1-text', meta_relations.Artifact.create_from_object(artifact))
         blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-2-caption', 'folclor-2-text', meta_relations.Artifact.create_from_object(artifact))
 
-        self.check_html_ok(self.request_html(dext_urls.url('guide:artifacts:info', artifact.id)), texts=[('pgf-no-folclor', 0),
+        self.check_html_ok(self.request_html(utils_urls.url('guide:artifacts:info', artifact.id)), texts=[('pgf-no-folclor', 0),
                                                                                                          'folclor-1-caption',
                                                                                                          'folclor-2-caption'])
 
@@ -303,7 +303,7 @@ class TestInfoRequests(BaseTestRequests):
         artifact = storage.artifacts.all()[0]
         artifact.description = ''
         logic.save_artifact_record(artifact)
-        self.check_html_ok(self.request_html(dext_urls.url('guide:artifacts:info', artifact.id)), texts=[('pgf-no-description', 1)])
+        self.check_html_ok(self.request_html(utils_urls.url('guide:artifacts:info', artifact.id)), texts=[('pgf-no-description', 1)])
 
 
 class TestEditRequests(BaseTestRequests):

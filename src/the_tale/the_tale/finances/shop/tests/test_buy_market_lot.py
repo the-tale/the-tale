@@ -15,7 +15,7 @@ class BuyMarketLotPosponedTaskTests(base_buy_task._BaseBuyPosponedTaskTests, per
         tt_services.market.cmd_debug_clear_service()
         cards_tt_services.storage.cmd_debug_clear_service()
 
-        self.card = cards_types.CARD.LEVEL_UP.effect.create_card(available_for_auction=True, type=cards_types.CARD.LEVEL_UP)
+        self.card = cards_types.CARD.CANCEL_QUEST.effect.create_card(available_for_auction=True, type=cards_types.CARD.CANCEL_QUEST)
 
         cards_logic.change_cards(accounts_logic.get_system_user_id(), operation_type='#test', to_add=[self.card])
 

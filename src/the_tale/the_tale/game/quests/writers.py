@@ -4,9 +4,6 @@ import smart_imports
 smart_imports.all()
 
 
-logger = logging.getLogger('the-tale.workers.game_logic')
-
-
 class Writer(object):
     __slots__ = ('type', 'message', 'substitution', 'hero')
 

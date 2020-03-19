@@ -1,0 +1,16 @@
+
+<div class="alert alert-info">
+  <p>
+    При переселении Мастера должны соблюдаться следующие правила:
+  </p>
+
+  <ul>
+    <li>Мастер может переселяться не чаще раза в {{c.PERSON_MOVE_DELAY_IN_WEEKS}} недели.</li>
+    <li>В городе не может остаться менее {{c.PLACE_MIN_PERSONS}} Мастеров.</li>
+    <li>В городе не может стать более {{c.PLACE_ABSOLUTE_MAX_PERSONS}} Мастеров.</li>
+  </ul>
+
+</div>
+
+{{form.person.widget}}
+{{form.new_place.widget}}

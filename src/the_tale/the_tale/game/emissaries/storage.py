@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class EmissariesStorage(dext_storage.CachedStorage):
+class EmissariesStorage(utils_storage.CachedStorage):
     SETTINGS_KEY = 'emissaries change time'
     EXCEPTION = exceptions.EmissariesStorageError
 
@@ -31,6 +31,11 @@ class EmissariesStorage(dext_storage.CachedStorage):
         self.sync()
         return self._emissaries_by_clan
 
+    def emissaries_in_place(self, place_id):
+        return [emissary
+                for emissary in self.all()
+                if emissary.place_id == place_id]
+
     def get_or_load(self, emissary_id):
         if emissary_id in self:
             return self[emissary_id]
@@ -41,7 +46,7 @@ class EmissariesStorage(dext_storage.CachedStorage):
 emissaries = EmissariesStorage()
 
 
-class EventsStorage(dext_storage.CachedStorage):
+class EventsStorage(utils_storage.CachedStorage):
     SETTINGS_KEY = 'events change time'
     EXCEPTION = exceptions.EventsStorageError
 
@@ -66,6 +71,17 @@ class EventsStorage(dext_storage.CachedStorage):
     def emissary_events(self, emissary_id):
         self.sync()
         return self._events_by_emissary.get(emissary_id, ())
+
+    def clan_events(self, clan_id):
+        self.sync()
+
+        events = []
+
+        for emissary in emissaries.emissaries_by_clan.get(clan_id, ()):
+            for event in self._events_by_emissary.get(emissary.id, ()):
+                events.append(event)
+
+        return events
 
     def get_or_load(self, event_id):
         if event_id in self:

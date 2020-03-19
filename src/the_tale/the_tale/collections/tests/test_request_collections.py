@@ -65,11 +65,11 @@ class CollectionsIndexTests(BaseRequestTests, CollectionVisibilityAllMixin):
 
     def setUp(self):
         super(CollectionsIndexTests, self).setUp()
-        self.test_url = dext_urls.url('collections:collections:', account=self.account_1.id)
+        self.test_url = utils_urls.url('collections:collections:', account=self.account_1.id)
 
     def test_redirect__redirect(self):
         self.request_login(self.account_3.email)
-        self.check_redirect(dext_urls.url('collections:collections:'), dext_urls.url('collections:collections:', account=self.account_3.id))
+        self.check_redirect(utils_urls.url('collections:collections:'), utils_urls.url('collections:collections:', account=self.account_3.id))
 
     def test_success__moderator(self):
         self.request_login(self.account_2.email)
@@ -79,7 +79,7 @@ class CollectionsIndexTests(BaseRequestTests, CollectionVisibilityAllMixin):
                                   self.collection_2.caption])
 
     def test_without_account(self):
-        self.check_html_ok(self.request_html(dext_urls.url('collections:collections:')),
+        self.check_html_ok(self.request_html(utils_urls.url('collections:collections:')),
                            texts=[('pgf-add-collection-button', 0),
                                   ('pgf-last-items', 0),
                                   (self.collection_1.caption, 0),
@@ -156,7 +156,7 @@ class CollectionsNewTests(BaseRequestTests, CollectionVisibilityAllMixin):
 
     def setUp(self):
         super(CollectionsNewTests, self).setUp()
-        self.test_url = dext_urls.url('collections:collections:new')
+        self.test_url = utils_urls.url('collections:collections:new')
 
     def test_login_required(self):
         self.check_redirect(self.test_url, accounts_logic.login_page_url(self.test_url))
@@ -176,7 +176,7 @@ class CollectionsCreateTests(BaseRequestTests):
 
     def setUp(self):
         super(CollectionsCreateTests, self).setUp()
-        self.test_url = dext_urls.url('collections:collections:create')
+        self.test_url = utils_urls.url('collections:collections:create')
 
     def get_post_data(self):
         return {'caption': 'caption_3',
@@ -216,11 +216,11 @@ class CollectionsShowTests(BaseRequestTests, CollectionVisibilityApprovedMixin):
 
     def setUp(self):
         super(CollectionsShowTests, self).setUp()
-        self.test_url = dext_urls.url('collections:collections:show', self.collection_2.id, account=self.account_1.id)
+        self.test_url = utils_urls.url('collections:collections:show', self.collection_2.id, account=self.account_1.id)
 
     def test_redirect__redirect(self):
         self.request_login(self.account_3.email)
-        self.check_redirect(dext_urls.url('collections:collections:show', self.collection_2.id), dext_urls.url('collections:collections:show', self.collection_2.id, account=self.account_3.id))
+        self.check_redirect(utils_urls.url('collections:collections:show', self.collection_2.id), utils_urls.url('collections:collections:show', self.collection_2.id, account=self.account_3.id))
 
     def test_success__no_approved_kits(self):
         prototypes.KitPrototype._db_all().update(approved=False)
@@ -242,7 +242,7 @@ class CollectionsShowTests(BaseRequestTests, CollectionVisibilityApprovedMixin):
                                   ('pgf-no-kits-message', 0)])
 
     def test_access_restricted(self):
-        self.check_html_ok(self.request_html(dext_urls.url('collections:collections:show', self.collection_1.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('collections:collections:show', self.collection_1.id)),
                            status_code=404,
                            texts=[(self.collection_1.caption, 0),
                                   (self.kit_1.caption, 0),
@@ -428,7 +428,7 @@ class CollectionsEditTests(BaseRequestTests, CollectionVisibilityAllMixin):
 
     def setUp(self):
         super(CollectionsEditTests, self).setUp()
-        self.test_url = dext_urls.url('collections:collections:edit', self.collection_1.id)
+        self.test_url = utils_urls.url('collections:collections:edit', self.collection_1.id)
 
     def test_login_required(self):
         self.check_redirect(self.test_url, accounts_logic.login_page_url(self.test_url))
@@ -466,7 +466,7 @@ class CollectionsUpdateTests(BaseRequestTests):
 
     def setUp(self):
         super(CollectionsUpdateTests, self).setUp()
-        self.test_url = dext_urls.url('collections:collections:update', self.collection_1.id)
+        self.test_url = utils_urls.url('collections:collections:update', self.collection_1.id)
 
     def get_post_data(self):
         return {'caption': 'collection_edited',
@@ -528,7 +528,7 @@ class CollectionsApproveTests(BaseRequestTests):
 
     def setUp(self):
         super(CollectionsApproveTests, self).setUp()
-        self.approve_url = dext_urls.url('collections:collections:approve', self.collection_1.id)
+        self.approve_url = utils_urls.url('collections:collections:approve', self.collection_1.id)
 
     def test_login_required(self):
         self.check_ajax_error(self.post_ajax_json(self.approve_url), 'common.login_required')
@@ -549,7 +549,7 @@ class CollectionsDisapproveTests(BaseRequestTests):
 
     def setUp(self):
         super(CollectionsDisapproveTests, self).setUp()
-        self.disapprove_url = dext_urls.url('collections:collections:disapprove', self.collection_1.id)
+        self.disapprove_url = utils_urls.url('collections:collections:disapprove', self.collection_1.id)
 
     def test_login_required(self):
         self.check_ajax_error(self.post_ajax_json(self.disapprove_url), 'common.login_required')

@@ -4,9 +4,6 @@ import smart_imports
 smart_imports.all()
 
 
-logger = logging.getLogger('the-tale.quests')
-
-
 E = 0.001
 
 
@@ -245,7 +242,15 @@ NO_QUEST_INFO__OUT_PLACE = QuestInfo(type='no-quest',
 
 
 class QuestPrototype(object):
-    __slots__ = ('knowledge_base', 'quests_stack', 'created_at', 'states_to_percents', 'hero', 'paths_cache', 'machine')
+    __slots__ = ('knowledge_base',
+                 'quests_stack',
+                 'created_at',
+                 'states_to_percents',
+                 'hero',
+                 'paths_cache',
+                 'machine',
+                 'inner_circle_places',
+                 'inner_circle_persons')
 
     def __init__(self,
                  knowledge_base,
@@ -253,7 +258,9 @@ class QuestPrototype(object):
                  created_at=None,
                  states_to_percents=None,
                  hero=None,
-                 paths_cache=None):
+                 paths_cache=None,
+                 inner_circle_places=None,
+                 inner_circle_persons=None):
         self.hero = hero
         self.quests_stack = [] if quests_stack is None else quests_stack
         self.knowledge_base = knowledge_base
@@ -262,6 +269,19 @@ class QuestPrototype(object):
         self.created_at = datetime.datetime.now() if created_at is None else created_at
         self.states_to_percents = states_to_percents if states_to_percents is not None else {}
         self.paths_cache = paths_cache if paths_cache is not None else {}
+
+        self.inner_circle_places = set(inner_circle_places) if inner_circle_places else set()
+        self.inner_circle_persons = set(inner_circle_persons) if inner_circle_persons else set()
+
+    def extend_inner_circle(self, inner_circle_places, inner_circle_persons):
+        if not inner_circle_places:
+            inner_circle_places = set()
+
+        if not inner_circle_persons:
+            inner_circle_persons = set()
+
+        self.inner_circle_places = inner_circle_places
+        self.inner_circle_persons = inner_circle_persons
 
     @property
     def current_info(self):
@@ -272,7 +292,9 @@ class QuestPrototype(object):
                 'knowledge_base': self.knowledge_base.serialize(short=True),
                 'created_at': time.mktime(self.created_at.timetuple()),
                 'states_to_percents': self.states_to_percents,
-                'paths_cache': {key: path.serialize() for key, path in self.paths_cache.items()} }
+                'paths_cache': {key: path.serialize() for key, path in self.paths_cache.items()},
+                'inner_circle_places': list(self.inner_circle_places),
+                'inner_circle_persons': list(self.inner_circle_persons)}
 
     @classmethod
     def deserialize(cls, data):
@@ -280,7 +302,9 @@ class QuestPrototype(object):
                    quests_stack=[QuestInfo.deserialize(info_data) for info_data in data['quests_stack']],
                    created_at=datetime.datetime.fromtimestamp(data['created_at']),
                    states_to_percents=data['states_to_percents'],
-                   paths_cache={key: navigation_path.Path.deserialize(path) for key, path in data.get('paths_cache', {}).items()})
+                   paths_cache={key: navigation_path.Path.deserialize(path) for key, path in data.get('paths_cache', {}).items()},
+                   inner_circle_places=set(data.get('inner_circle_places', ())),
+                   inner_circle_persons=set(data.get('inner_circle_persons', ())))
 
     @property
     def percents(self):
@@ -391,17 +415,17 @@ class QuestPrototype(object):
         else:
             real_break_at = (percents - nearest_percents) / (1 - nearest_percents)
 
-        log_data = {'hero_id': self.hero.id,
-                    'percents': percents,
-                    'nearest_percents': nearest_percents,
-                    'hero_coordinates': (self.hero.position.x, self.hero.position.y),
-                    'path_coordinates': (x, y),
-                    'place_from': place_from.id,
-                    'place_to': place_to.id,
-                    'path_to': path_to.serialize(),
-                    'real_break_at': real_break_at}
+        # log_data = {'hero_id': self.hero.id,
+        #             'percents': percents,
+        #             'nearest_percents': nearest_percents,
+        #             'hero_coordinates': (self.hero.position.x, self.hero.position.y),
+        #             'path_coordinates': (x, y),
+        #             'place_from': place_from.id,
+        #             'place_to': place_to.id,
+        #             'path_to': path_to.serialize(),
+        #             'real_break_at': real_break_at}
 
-        logger.info('_move_hero_on_road for hero %s, properties: %s', self.hero.id, log_data)
+        # logger.info('_move_hero_on_road for hero %s, properties: %s', self.hero.id, log_data)
 
         actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
                                                             path=path_to,
@@ -447,8 +471,10 @@ class QuestPrototype(object):
         power = self.finish_quest_person_power(result, object_fact.uid)
 
         return persons_logic.impacts_from_hero(hero,
-                                               persons_storage.persons[person_id],
-                                               power)
+                                               person=persons_storage.persons[person_id],
+                                               power=power,
+                                               inner_circle_persons=self.inner_circle_persons,
+                                               inner_circle_places=self.inner_circle_places)
 
     def give_power_to_emissary(self, hero, object_fact, result):
         emissary_id = object_fact.externals['id']
@@ -458,6 +484,14 @@ class QuestPrototype(object):
         power = self.finish_quest_emissary_power(result, object_fact.uid)
 
         return emissaries_logic.impacts_from_hero(hero, emissary, power)
+
+    def give_power_to_place(self, hero, object_fact, result):
+        power = self.finish_quest_place_power(result, object_fact.uid)
+
+        return places_logic.impacts_from_hero(hero,
+                                              place=places_storage.places[object_fact.externals['id']],
+                                              power=power,
+                                              inner_circle_places=self.inner_circle_places)
 
     def _finish_quest(self, finish, hero):
 
@@ -470,7 +504,8 @@ class QuestPrototype(object):
         hero.statistics.change_quests_done(1)
 
         if hero.companion:
-            hero.companion.add_experience(c.COMPANIONS_COHERENCE_EXP_PER_QUEST)
+            expected_quest_path = places_storage.places.expected_minimum_quest_distance()
+            hero.companion.add_experience(companions_logic.coherence_exp_per_quest(expected_quest_path))
 
         power_impacts = []
 
@@ -491,11 +526,7 @@ class QuestPrototype(object):
                 power_impacts.extend(impacts)
 
             elif isinstance(object_fact, questgen_facts.Place):
-                power = self.finish_quest_place_power(result, object_uid)
-
-                power_impacts.extend(places_logic.impacts_from_hero(self.hero,
-                                                                    places_storage.places[object_fact.externals['id']],
-                                                                    power))
+                power_impacts.extend(self.give_power_to_place(hero, object_fact, result))
 
             else:
                 raise exceptions.UnknownPowerRecipientError(recipient=object_fact)
@@ -589,7 +620,7 @@ class QuestPrototype(object):
         game_tt_services.energy.cmd_change_balance(account_id=self.hero.account_id,
                                                    type='for_quest',
                                                    amount=energy,
-                                                   async=True,
+                                                   asynchronous=True,
                                                    autocommit=True)
 
     def _give_reward(self, hero, reward_type, scale):
@@ -734,13 +765,12 @@ class QuestPrototype(object):
             yield participant
 
     def get_expirience_for_quest(self, quest_uid, hero):
-        experience = f.experience_for_quest(c.QUEST_AREA_RADIUS)
 
         if hero.statistics.quests_done == 0:
-            # since we get shortest path for first quest
-            # and want to give exp as fast as can
-            # and do not want to give more exp than level up required
-            experience = int(experience / 2)
+            # для первого задания даём столько опыта, чтобы почти получить уровень, но не получить
+            return hero.experience_to_next_level - 1
+
+        experience = f.experience_for_quest(places_storage.places.expected_minimum_quest_distance())
 
         place_experience_bonuses = {}
         person_experience_bonuses = {}
@@ -778,7 +808,7 @@ class QuestPrototype(object):
         return max(1, experience)
 
     def get_politic_power_for_quest(self, quest_uid, hero):
-        base_politic_power = f.person_power_for_quest(c.QUEST_AREA_RADIUS)
+        base_politic_power = f.person_power_for_quest(places_storage.places.expected_minimum_quest_distance())
 
         for participant in self.quest_participants(quest_uid):
 

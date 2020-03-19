@@ -73,6 +73,9 @@ class Emissary(game_names.ManageNameMixin2):
         if self.place_rating_position is None:
             return False
 
+        if self.state.is_OUT_GAME:
+            return False
+
         return self.place_rating_position < tt_emissaries_constants.PLACE_LEADERS_NUMBER
 
     @property
@@ -84,7 +87,7 @@ class Emissary(game_names.ManageNameMixin2):
 
     @property
     def url(self):
-        return dext_urls.url('game:persons:show', self.id)
+        return utils_urls.url('game:persons:show', self.id)
 
     def meta_object(self):
         return meta_relations.Emissary.create_from_object(self)
@@ -95,43 +98,43 @@ class Emissary(game_names.ManageNameMixin2):
                 linguistics_restrictions.get(self.race))
 
     def _effects_generator(self):
-        yield game_effects.Effect(name='телосложение',
-                                  attribute=relations.ATTRIBUTE.MAX_HEALTH,
-                                  value=tt_emissaries_constants.MAXIMUM_HEALTH)
+        yield tt_api_effects.Effect(name='телосложение',
+                                    attribute=relations.ATTRIBUTE.MAX_HEALTH,
+                                    value=tt_emissaries_constants.MAXIMUM_HEALTH)
 
         for ability in relations.ABILITY.records:
-            yield game_effects.Effect(name='способности',
-                                      attribute=getattr(relations.ATTRIBUTE, 'ATTRIBUTE_MAXIMUM__{}'.format(ability.name)),
-                                      value=tt_emissaries_constants.NORMAL_ATTRIBUTE_MAXIMUM)
+            yield tt_api_effects.Effect(name='способности',
+                                        attribute=getattr(relations.ATTRIBUTE, 'ATTRIBUTE_MAXIMUM__{}'.format(ability.name)),
+                                        value=tt_emissaries_constants.NORMAL_ATTRIBUTE_MAXIMUM)
 
-            yield game_effects.Effect(name='способности',
-                                      attribute=getattr(relations.ATTRIBUTE, 'ATTRIBUTE_GROW_SPEED__{}'.format(ability.name)),
-                                      value=tt_emissaries_constants.ATTRIBUT_INCREMENT_DELTA)
+            yield tt_api_effects.Effect(name='способности',
+                                        attribute=getattr(relations.ATTRIBUTE, 'ATTRIBUTE_GROW_SPEED__{}'.format(ability.name)),
+                                        value=tt_emissaries_constants.ATTRIBUT_INCREMENT_DELTA)
 
-        yield game_effects.Effect(name='телосложение',
-                                  attribute=relations.ATTRIBUTE.DAMAGE_TO_HEALTH,
-                                  value=tt_emissaries_constants.NORMAL_DAMAGE_TO_HEALTH)
+        yield tt_api_effects.Effect(name='телосложение',
+                                    attribute=relations.ATTRIBUTE.DAMAGE_TO_HEALTH,
+                                    value=tt_emissaries_constants.NORMAL_DAMAGE_TO_HEALTH)
 
-        yield game_effects.Effect(name='способности',
-                                  attribute=relations.ATTRIBUTE.MAXIMUM_SIMULTANEOUSLY_EVENTS,
-                                  value=tt_clans_constants.SIMULTANEOUS_EMISSARY_EVENTS)
+        yield tt_api_effects.Effect(name='способности',
+                                    attribute=relations.ATTRIBUTE.MAXIMUM_SIMULTANEOUSLY_EVENTS,
+                                    value=tt_clans_constants.SIMULTANEOUS_EMISSARY_EVENTS)
 
-        yield game_effects.Effect(name='способности',
-                                  attribute=relations.ATTRIBUTE.POSITIVE_POWER,
-                                  value=1.0)
+        yield tt_api_effects.Effect(name='способности',
+                                    attribute=relations.ATTRIBUTE.POSITIVE_POWER,
+                                    value=1.0)
 
-        yield game_effects.Effect(name='способности',
-                                  attribute=relations.ATTRIBUTE.NEGATIVE_POWER,
-                                  value=1.0)
+        yield tt_api_effects.Effect(name='способности',
+                                    attribute=relations.ATTRIBUTE.NEGATIVE_POWER,
+                                    value=1.0)
 
-        yield game_effects.Effect(name='способности',
-                                  attribute=relations.ATTRIBUTE.CLAN_EXPERIENCE,
-                                  value=1.0)
+        yield tt_api_effects.Effect(name='способности',
+                                    attribute=relations.ATTRIBUTE.CLAN_EXPERIENCE,
+                                    value=1.0)
 
         for trait in self.traits:
-            yield game_effects.Effect(name=trait.text,
-                                      attribute=trait.attribute,
-                                      value=trait.modification)
+            yield tt_api_effects.Effect(name=trait.text,
+                                        attribute=trait.attribute,
+                                        value=trait.modification)
 
     def effects_generator(self, order):
         for effect in self._effects_generator():
@@ -166,6 +169,14 @@ class Emissary(game_names.ManageNameMixin2):
 
     def can_participate_in_pvp(self):
         return tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP <= self.abilities.total_level()
+
+    def protectorat_event_bonus(self):
+        region = places_storage.clans_regions.region_for_place(self.place_id)
+
+        if region.clan_id != self.clan_id:
+            return 0
+
+        return region.event_bonus()
 
     def ui_info(self):
         clan_info = clans_storage.infos[self.clan_id]

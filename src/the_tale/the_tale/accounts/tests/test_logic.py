@@ -23,7 +23,7 @@ class TestLogic(utils_testcase.TestCase):
         self.assertEqual(models.Account.objects.all().count(), 2)
         self.assertEqual(heroes_models.Hero.objects.all().count(), 2)
 
-        logic.block_expired_accounts(logger=logging.getLogger('dummy'))
+        logic.block_expired_accounts(logger=mock.Mock())
 
         self.assertEqual(achievements_models.AccountAchievements.objects.all().count(), 1)
         self.assertEqual(heroes_models.Hero.objects.all().count(), 1)
@@ -246,3 +246,105 @@ class ChangeCredentialsTests(utils_testcase.TestCase, personal_messages_helpers.
         self.assertEqual(self.account.email, 'test_user@test.ru')
         self.assertEqual(django_auth.authenticate(nick=nick, password='111111').id, self.account.id)
         self.assertEqual(django_auth.authenticate(nick=nick, password='111111').nick, nick)
+
+
+class MaxMoneyToTransferTests(bank_helpers.BankTestsMixin, utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.places = game_logic.create_test_map()
+
+        self.account = self.accounts_factory.create_account()
+
+        bank_prototypes.AccountPrototype.get_for_or_create(entity_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                                                           entity_id=self.account.id,
+                                                           currency=bank_relations.CURRENCY_TYPE.PREMIUM)
+
+    def test_no_transactions(self):
+        self.assertEqual(logic.max_money_to_transfer(self.account), 0)
+
+    def prepair_data(self, account_2, account_3):
+        self.create_invoice(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                            recipient_id=self.account.id,
+                            sender_type=bank_relations.ENTITY_TYPE.XSOLLA,
+                            sender_id=0,
+                            amount=1,
+                            state=bank_relations.INVOICE_STATE.CONFIRMED,
+                            operation_uid=xsolla_prototypes.BANK_OPERATION_UID)
+
+        self.create_invoice(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                            recipient_id=self.account.id,
+                            sender_type=bank_relations.ENTITY_TYPE.GAME_LOGIC,
+                            sender_id=0,
+                            amount=10,
+                            state=bank_relations.INVOICE_STATE.CONFIRMED,
+                            operation_uid=shop_goods.PURCHAGE_UID.format(shop_price_list.SUBSCRIPTION_INFINIT_UID))
+
+        self.create_invoice(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                            recipient_id=account_2.id,
+                            sender_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                            sender_id=self.account.id,
+                            amount=100,
+                            state=bank_relations.INVOICE_STATE.CONFIRMED,
+                            operation_uid=accounts_postponed_tasks.TRANSFER_MONEY_UID)
+
+        self.create_invoice(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                            recipient_id=self.account.id,
+                            sender_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                            sender_id=account_3.id,
+                            amount=1000,
+                            state=bank_relations.INVOICE_STATE.CONFIRMED,
+                            operation_uid=accounts_postponed_tasks.TRANSFER_MONEY_UID)
+
+        self.create_invoice(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                            recipient_id=account_2.id,
+                            sender_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                            sender_id=self.account.id,
+                            amount=10000,
+                            state=bank_relations.INVOICE_STATE.CONFIRMED,
+                            operation_uid='xxx-yyy')
+
+        self.create_invoice(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                            recipient_id=self.account.id,
+                            sender_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                            sender_id=account_3.id,
+                            amount=1000000,
+                            state=bank_relations.INVOICE_STATE.CONFIRMED,
+                            operation_uid='zzz-xxx')
+
+        self.create_invoice(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                            recipient_id=account_2.id,
+                            sender_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                            sender_id=account_3.id,
+                            amount=10000000,
+                            state=bank_relations.INVOICE_STATE.CONFIRMED,
+                            operation_uid=accounts_postponed_tasks.TRANSFER_MONEY_UID)
+
+    def test_complex_history(self):
+        self.prepair_data(account_2=self.accounts_factory.create_account(),
+                          account_3=self.accounts_factory.create_account())
+
+        self.assertEqual(logic.max_money_to_transfer(self.account), 1 - 10 - 100 + 1000)
+
+    def test_complex_history__multiple_transactions(self):
+        self.prepair_data(account_2=self.accounts_factory.create_account(),
+                          account_3=self.accounts_factory.create_account())
+
+        self.prepair_data(account_2=self.accounts_factory.create_account(),
+                          account_3=self.accounts_factory.create_account())
+
+        self.assertEqual(logic.max_money_to_transfer(self.account), 2 * (1 - 10 - 100 + 1000))
+
+    def test_complex_history__below_zero(self):
+        self.prepair_data(account_2=self.accounts_factory.create_account(),
+                          account_3=self.accounts_factory.create_account())
+
+        self.create_invoice(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                            recipient_id=self.accounts_factory.create_account().id,
+                            sender_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                            sender_id=self.account.id,
+                            amount=6666666,
+                            state=bank_relations.INVOICE_STATE.CONFIRMED,
+                            operation_uid=accounts_postponed_tasks.TRANSFER_MONEY_UID)
+
+        self.assertEqual(logic.max_money_to_transfer(self.account), 1 - 10 - 100 + 1000 - 6666666)

@@ -50,7 +50,7 @@ class EffectsTests(utils_testcase.TestCase):
 
         storage.cells.sync(force=True)
 
-        self.assertAlmostEqual(storage.cells(self.place_1.x, self.place_1.y).safety, 1)
+        self.assertAlmostEqual(storage.cells(self.place_1.x, self.place_1.y).safety, c.CELL_SAFETY_MAX)
 
     def test_transport__min_value(self):
         places_logic.register_effect(place_id=self.place_1.id,

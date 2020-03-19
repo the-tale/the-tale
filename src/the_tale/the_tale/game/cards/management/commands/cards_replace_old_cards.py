@@ -9,9 +9,24 @@ class FakeEffect(effects.BaseEffect):
 
 
 class ALL_CARDS(types.CARD):
-    records = (('REPAIR_BUILDING_UNCOMMON', 57, 'волшебный инструмен', types.FOR_PREMIUMS, types.UNCOMMON, FakeEffect(), []),
-               ('REPAIR_BUILDING_COMMON', 134, 'должок мастеровых', types.FOR_PREMIUMS, types.COMMON, FakeEffect(), []),
-               ('REPAIR_BUILDING_RARE', 135, 'домовой', types.FOR_PREMIUMS, types.RARE, FakeEffect(), []),)
+    records = (('MOST_COMMON_PLACES_UNCOMMON', 70, 'ошибка в архивах', types.FOR_ALL, types.UNCOMMON, FakeEffect(), []),
+               ('MOST_COMMON_PLACES_RARE', 71, 'фальшивые рекомендации', types.FOR_ALL, types.RARE, FakeEffect(), []),
+               ('MOST_COMMON_PLACES_EPIC', 72, 'застолье в Совете', types.FOR_ALL, types.EPIC, FakeEffect(), []),
+               ('MOST_COMMON_PLACES_LEGENDARY', 73, 'интриги', types.FOR_ALL, types.LEGENDARY, FakeEffect(), []),
+
+               ('ADD_PERSON_POWER_COMMON', 123, 'случай', types.FOR_PREMIUMS, types.COMMON, FakeEffect(), []),
+               ('ADD_PERSON_POWER_UNCOMMON', 124, 'происки судьбы', types.FOR_PREMIUMS, types.UNCOMMON, FakeEffect(), []),
+               ('ADD_PERSON_POWER_RARE', 125, 'неожиданное обстоятельство', types.FOR_PREMIUMS, types.RARE, FakeEffect(), []),
+               ('ADD_PERSON_POWER_EPIC', 126, 'афера', types.FOR_PREMIUMS, types.EPIC, FakeEffect(), []),
+               ('ADD_PERSON_POWER_LEGENDARY', 127, 'преступление века', types.FOR_PREMIUMS, types.LEGENDARY, FakeEffect(), []),
+
+               ('ADD_PLACE_POWER_COMMON', 128, 'странные деньки', types.FOR_PREMIUMS, types.COMMON, FakeEffect(), []),
+               ('ADD_PLACE_POWER_UNCOMMON', 129, 'происшествие', types.FOR_PREMIUMS, types.UNCOMMON, FakeEffect(), []),
+               ('ADD_PLACE_POWER_RARE', 130, 'судьбоносный день', types.FOR_PREMIUMS, types.RARE, FakeEffect(), []),
+               ('ADD_PLACE_POWER_EPIC', 131, 'экономический кризис', types.FOR_PREMIUMS, types.EPIC, FakeEffect(), []),
+               ('ADD_PLACE_POWER_LEGENDARY', 132, 'политический кризис', types.FOR_PREMIUMS, types.LEGENDARY, FakeEffect(), []),
+
+               ('LEVEL_UP', 1, 'озарение', types.FOR_ALL, types.LEGENDARY, FakeEffect(), []))
 
 
 def constructor(type, **kwargs):
@@ -25,9 +40,24 @@ def constructor(type, **kwargs):
 
 
 CONSTRUCTORS_MAP = {
-    '57': constructor(type=types.CARD.ADD_PLACE_POWER_UNCOMMON, direction=1),
-    '134': constructor(type=types.CARD.ADD_PLACE_POWER_COMMON, direction=1),
-    '135': constructor(type=types.CARD.ADD_PLACE_POWER_RARE, direction=1)
+    '1': constructor(type=types.CARD.ADD_EXPERIENCE_LEGENDARY),
+
+    '70': constructor(type=types.CARD.ADD_POWER_UNCOMMON),
+    '71': constructor(type=types.CARD.QUEST_FOR_PLACE),
+    '72': constructor(type=types.CARD.QUEST_FOR_PERSON),
+    '73': constructor(type=types.CARD.ADD_POWER_LEGENDARY),
+
+    '123': constructor(type=types.CARD.QUEST_FOR_EMISSARY),
+    '124': constructor(type=types.CARD.ADD_POWER_UNCOMMON),
+    '125': constructor(type=types.CARD.QUEST_FOR_PLACE),
+    '126': constructor(type=types.CARD.QUEST_FOR_PERSON),
+    '127': constructor(type=types.CARD.ADD_POWER_LEGENDARY),
+
+    '128': constructor(type=types.CARD.QUEST_FOR_EMISSARY),
+    '129': constructor(type=types.CARD.ADD_POWER_UNCOMMON),
+    '130': constructor(type=types.CARD.QUEST_FOR_PLACE),
+    '131': constructor(type=types.CARD.QUEST_FOR_PERSON),
+    '132': constructor(type=types.CARD.ADD_POWER_LEGENDARY)
     }
 
 
@@ -41,14 +71,13 @@ class DepreactedStorageClient(tt_services.StorageClient):
 depreacted_storage = DepreactedStorageClient(entry_point=conf.settings.TT_STORAGE_ENTRY_POINT)
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'replace old cards by new (for all players)'
 
-    def add_arguments(self, parser):
-        super(Command, self).add_arguments(parser)
+    LOCKS = ['portal_commands']
 
-    def handle(self, *args, **options):
+    def _handle(self, *args, **options):
 
         accounts_ids = accounts_models.Account.objects.values_list('id', flat=True)
 
@@ -57,7 +86,7 @@ class Command(django_management.BaseCommand):
         total_replaced = 0
 
         for i, account_id in enumerate(accounts_ids):
-            print('process {} / {}'.format(i, accounts_number))
+            self.logger.info('process {} / {}'.format(i, accounts_number))
 
             cards = depreacted_storage.cmd_get_items(account_id)
 
@@ -80,8 +109,8 @@ class Command(django_management.BaseCommand):
                                to_remove=removed_cards,
                                storage=relations.STORAGE.NEW)
 
-            print('replaced: ', len(added_cards))
+            self.logger.info('replaced: ', len(added_cards))
 
             total_replaced += len(added_cards)
 
-        print('total replaced: ', total_replaced)
+        self.logger.info(f'total replaced: {total_replaced}')

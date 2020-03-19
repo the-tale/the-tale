@@ -1,0 +1,127 @@
+{% extends "bills/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+{% import 'bills/macros.html' as bills_macros with context %}
+{% import 'forum/thread_page.html' as thread_page with context %}
+{% import 'blogs/macros.html' as blogs_macros with context %}
+
+{% block title %} {{ bill.caption }} | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Информация о записи «{{ bill.caption }}».{% endblock %}
+
+{% block bills_content %}
+
+<h3>{{ bill.caption }} {{base_macros.magnet(bill_meta_object)}}</h3>
+
+{{ bills_macros.bill_info(bill, vote) }}
+
+<div class="pagination">
+  <ul>
+
+    {% if bill.state.is_VOTING %}
+
+      {% if resource.account == bill.owner %}
+        <li><a class="" style="margin-bottom: 1em; display: inline-block;" href="{{ url('game:bills:edit', bill.id) }}">редактировать</a></li>
+      {% endif %}
+
+      {% if resource.can_moderate_bill() %}
+        <li><a class="" style="margin-bottom: 1em; display: inline-block;" href="{{ url('game:bills:moderate', bill.id) }}">администрировать</a></li>
+      {% endif %}
+
+      {% if resource.account == bill.owner or resource.can_moderate_bill() %}
+        <a href="{{ url('game:bills:delete', bill.id) }}"
+           class="pull-right pgf-remove-button pgf-forms-post-simple"
+           data-action-type="redirect"
+           data-redirect-url="{{ url('game:bills:') }}"
+           data-confirmation="Вы действительно хотите удалить запись?"
+           style="color: red;">
+          удалить
+        </a>
+      {% endif %}
+
+    {% endif %}
+  </ul>
+</div>
+
+
+{% if vote is none %}
+
+  {% if not bill.state.is_VOTING %}
+    {# display nothing #}
+  {% elif not resource.account.is_authenticated %}
+    {{ base_macros.registration_required_message("иметь возможность создавать записи и голосовать.") }}
+  {% elif not resource.can_vote %}
+
+    <p class="alert alert-info pgf-can-not-participate-in-politics">
+      Голосовать могут только подписчики, оформить подписку можно на странице <a href="{{url('shop:')}}">магазина</a>.
+    </p>
+
+  {% elif not can_vote %}
+
+    <div class="alert alert-info pgf-can-not-vote-message">
+      <p>
+        Вы не можете участвовать в голосовании по этой записи. Возможные причины:
+      </p>
+
+      <ul>
+        <li>Запись касается городов, в которых Ваш герой недостаточно известен.</li>
+      </ul>
+    </div>
+
+  {% else %}
+    <div class="well pgf-voting-block">
+      <h3>Идёт голосование</h3>
+
+      <ul>
+        <li>Вы не сможете изменить своё решение, будьте аккуратны в выборе!</li>
+        <li>Отдав свой голос, пригласите своих друзей сделать то же самое.</li>
+      </ul>
+
+      <p>
+        голосовать
+        <a class="btn btn-success pgf-forms-post-simple" href="{{ url('game:bills:vote', bill.id) }}?type={{VOTE_TYPE.FOR.value}}">«за»</a>
+        <a class="btn btn-danger pgf-forms-post-simple" href="{{ url('game:bills:vote', bill.id) }}?type={{VOTE_TYPE.AGAINST.value}}">«против»</a>
+        <a class="btn btn-info pgf-forms-post-simple" href="{{ url('game:bills:vote', bill.id) }}?type={{VOTE_TYPE.REFRAINED.value}}">«воздержаться»</a>
+      </p>
+
+    </div>
+
+  {% endif %}
+
+{% endif %}
+
+<h3 style="margin-bottom: 0.5em;">{{ bill.data.CAPTION }}</h3>
+
+<ul style="font-size: 14px;" class="unstyled">
+  {% include bill.data.show_template() with context %}
+</ul>
+
+{% if bill.chronicle_on_accepted %}
+<h4>
+  Запись в летописи о принятии
+  <small>количество символов: {{bill.chronicle_on_accepted|length}}</small>
+</h4>
+<p>{{ bill.chronicle_on_accepted|bb_chronicle }}</p>
+{% endif %}
+
+{% set folclor_objects = posts_about(bill_meta_object) %}
+
+{% if folclor_objects %}
+  <h4><a href="{{folclor_objects[0].url}}" target="_blank">{{folclor_objects[0].caption}}</a></h4>
+
+  {{folclor_objects[0].object.text_html|safe}}
+
+  {% if folclor_objects|length > 1 %}
+    <br/>
+    <br/>
+
+    <h4>Прочие произведения</h4>
+
+    {{ blogs_macros.meta_posts_list(folclor_objects) }}
+
+  {% endif %}
+
+{% endif %}
+
+{{ thread_page.thread_page(thread_data) }}
+
+{% endblock %}

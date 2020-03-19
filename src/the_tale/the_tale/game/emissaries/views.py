@@ -8,7 +8,7 @@ smart_imports.all()
 # processors
 ########################################
 
-class EmissaryProcessor(dext_views.ArgumentProcessor):
+class EmissaryProcessor(utils_views.ArgumentProcessor):
     CONTEXT_NAME = 'current_emissary'
     DEFAULT_VALUE = None
     ERROR_MESSAGE = 'Неверный идентификатор эмиссара'
@@ -27,9 +27,9 @@ class EmissaryProcessor(dext_views.ArgumentProcessor):
         return emissary
 
 
-class EmissaryClanRightsProcessor(dext_views.BaseViewProcessor):
-    ARG_EMISSARY_ATTRIBUTE = dext_views.ProcessorArgument(default='current_emissary')
-    ARG_EMISSARY_CLAN_RIGHTS_ATTRIBUTE = dext_views.ProcessorArgument(default='emissary_clan_rights')
+class EmissaryClanRightsProcessor(utils_views.BaseViewProcessor):
+    ARG_EMISSARY_ATTRIBUTE = utils_views.ProcessorArgument(default='current_emissary')
+    ARG_EMISSARY_CLAN_RIGHTS_ATTRIBUTE = utils_views.ProcessorArgument(default='emissary_clan_rights')
 
     def preprocess(self, context):
         emissary = getattr(context, self.emissary_attribute, None)
@@ -47,18 +47,18 @@ class EmissaryClanRightsProcessor(dext_views.BaseViewProcessor):
                                               is_moderator=False))
 
 
-class EmissaryInGameProcessor(dext_views.BaseViewProcessor):
-    ARG_EMISSARY_ATTRIBUTE = dext_views.ProcessorArgument(default='current_emissary')
+class EmissaryInGameProcessor(utils_views.BaseViewProcessor):
+    ARG_EMISSARY_ATTRIBUTE = utils_views.ProcessorArgument(default='current_emissary')
 
     def preprocess(self, context):
         if getattr(context, self.emissary_attribute).state.is_IN_GAME:
             return
 
-        raise dext_views.ViewError(code='emissary.emissary_is_not_in_game',
-                                   message='Эмиссар уже не участвует в игре (убит или уволен)')
+        raise utils_views.ViewError(code='emissary.emissary_is_not_in_game',
+                                    message='Эмиссар уже не участвует в игре (убит или уволен)')
 
 
-class EventTypeProcessor(dext_views.ArgumentProcessor):
+class EventTypeProcessor(utils_views.ArgumentProcessor):
     CONTEXT_NAME = 'event_type'
     DEFAULT_VALUE = NotImplemented
     ERROR_MESSAGE = 'Неверный идентификатор мероприятия'
@@ -72,7 +72,7 @@ class EventTypeProcessor(dext_views.ArgumentProcessor):
         return relations.EVENT_TYPE(event_value)
 
 
-class EventIdProcessor(dext_views.ArgumentProcessor):
+class EventIdProcessor(utils_views.ArgumentProcessor):
     CONTEXT_NAME = 'current_event_id'
     DEFAULT_VALUE = NotImplemented
     ERROR_MESSAGE = 'Неверный идентификатор события'
@@ -86,11 +86,11 @@ class EventIdProcessor(dext_views.ArgumentProcessor):
         return event_id
 
 
-class EventPermissionProcessor(dext_views.AccessProcessor):
+class EventPermissionProcessor(utils_views.AccessProcessor):
     ERROR_CODE = 'emissaries.no_rights'
     ERROR_MESSAGE = 'Вы не можете проводить эту операцию'
 
-    ARG_PERMISSIONS_ATTRIBUTE = dext_views.ProcessorArgument(default='emissary_clan_rights')
+    ARG_PERMISSIONS_ATTRIBUTE = utils_views.ProcessorArgument(default='emissary_clan_rights')
 
     def check(self, context):
         rights = getattr(context, self.permissions_attribute)
@@ -112,7 +112,7 @@ class EventPermissionProcessor(dext_views.AccessProcessor):
 ########################################
 # resource and global processors
 ########################################
-resource = dext_views.Resource(name='emissaries')
+resource = utils_views.Resource(name='emissaries')
 resource.add_processor(accounts_views.CurrentAccountProcessor())
 resource.add_processor(utils_views.FakeResourceProcessor())
 resource.add_processor(clans_views.AccountClanProcessor(account_attribute='account', clan_attribute='clan'))
@@ -125,8 +125,8 @@ resource.add_processor(EmissaryClanRightsProcessor())
 def show(context):
 
     if context.current_emissary is None:
-        raise dext_views.ViewError(code='emissaries.not_found',
-                                   message='Эмиссар не найден.')
+        raise utils_views.ViewError(code='emissaries.not_found',
+                                    message='Эмиссар не найден.')
 
     clan_events = None
 
@@ -149,28 +149,28 @@ def show(context):
 
     all_emissary_events = [events.TYPES[event] for event in sorted(relations.EVENT_TYPE.records, key=lambda e: e.text)]
 
-    return dext_views.Page('emissaries/show.html',
-                           content={'resource': context.resource,
-                                    'emissary': context.current_emissary,
-                                    'clan_events': clan_events,
-                                    'game_events': game_events,
-                                    'clan': clans_logic.load_clan(clan_id=context.current_emissary.clan_id),
-                                    'emissary_clan_rights': context.emissary_clan_rights,
-                                    'emissary_power': emissary_power,
-                                    'active_emissary_events_types': active_emissary_events_types,
-                                    'all_emissary_events': all_emissary_events})
+    return utils_views.Page('emissaries/show.html',
+                            content={'resource': context.resource,
+                                     'emissary': context.current_emissary,
+                                     'clan_events': clan_events,
+                                     'game_events': game_events,
+                                     'clan': clans_logic.load_clan(clan_id=context.current_emissary.clan_id),
+                                     'emissary_clan_rights': context.emissary_clan_rights,
+                                     'emissary_power': emissary_power,
+                                     'active_emissary_events_types': active_emissary_events_types,
+                                     'all_emissary_events': all_emissary_events})
 
 
 def check_clan_restrictions(clan_id):
     clan_attributes = clans_logic.load_attributes(clan_id)
 
     if clan_attributes.fighters_maximum < clans_logic.get_combat_personnel(clan_id):
-        raise dext_views.ViewError(code='emissaries.maximum_fighters',
-                                   message='Боевой состав вашей гильдии превышает максимально допустимый..')
+        raise utils_views.ViewError(code='emissaries.maximum_fighters',
+                                    message='Боевой состав вашей гильдии превышает максимально допустимый..')
 
     if not logic.has_clan_space_for_emissary(clan_id, clan_attributes):
-        raise dext_views.ViewError(code='emissaries.maximum_emissaries',
-                                   message='Ваша гильдия уже наняла максимально возможное количество эмиссаров.')
+        raise utils_views.ViewError(code='emissaries.maximum_emissaries',
+                                    message='Ваша гильдия уже наняла максимально возможное количество эмиссаров.')
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -181,17 +181,17 @@ def create_dialog(context):
 
     check_clan_restrictions(context.clan.id)
 
-    return dext_views.Page('emissaries/create_dialog.html',
-                           content={'clan': context.clan,
-                                    'form': forms.EmissaryForm(),
-                                    'tt_clans_constants': tt_clans_constants,
-                                    'resource': context.resource})
+    return utils_views.Page('emissaries/create_dialog.html',
+                            content={'clan': context.clan,
+                                     'form': forms.EmissaryForm(),
+                                     'tt_clans_constants': tt_clans_constants,
+                                     'resource': context.resource})
 
 
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanGameProcessor()
 @clans_views.ClanStaticOperationAccessProcessor(permissions_attribute='clan_rights', permission='can_emissaries_relocation')
-@dext_views.FormProcessor(form_class=forms.EmissaryForm)
+@utils_views.FormProcessor(form_class=forms.EmissaryForm)
 @resource('create', method='POST')
 def create(context):
 
@@ -211,7 +211,7 @@ def create(context):
                                              utg_name=game_names.generator().get_name(context.form.c.race,
                                                                                       context.form.c.gender))
 
-        return dext_views.AjaxOk(content={'next_url': dext_urls.url('game:emissaries:show', emissary.id)})
+        return utils_views.AjaxOk(content={'next_url': utils_urls.url('game:emissaries:show', emissary.id)})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -222,28 +222,37 @@ def create(context):
 def start_event_dialog(context):
 
     if context.event_type is None:
-        raise dext_views.ViewError(code='common.argument_required', message='Не указан тип мероприятия')
+        raise utils_views.ViewError(code='common.argument_required', message='Не указан тип мероприятия')
 
     event_class = events.TYPES[context.event_type]
-    return dext_views.Page('emissaries/start_event_dialog.html',
-                           content={'emissary': context.current_emissary,
-                                    'form': event_class.form(emissary=context.current_emissary),
-                                    'event_class': event_class,
-                                    'resource': context.resource})
+
+    max_power_to_spend = event_class.power_cost(context.current_emissary, days=event_class.max_event_length())
+
+    current_power = politic_power_logic.get_emissaries_power(emissaries_ids=[context.current_emissary.id])[context.current_emissary.id]
+
+    show_power_warning = (current_power <= max_power_to_spend + conf.settings.SHOW_START_EVENT_WARNING_BARRIER)
+
+    return utils_views.Page('emissaries/start_event_dialog.html',
+                            content={'emissary': context.current_emissary,
+                                     'form': event_class.form(emissary=context.current_emissary),
+                                     'event_class': event_class,
+                                     'resource': context.resource,
+                                     'current_power': current_power,
+                                     'show_power_warning': show_power_warning})
 
 
 def _check_emissaries_events(emissary, event_class):
 
     if emissary.attrs.maximum_simultaneously_events <= len(emissary.active_events()):
-        raise dext_views.ViewError(code='emissaies.maximum_simultaneously_events',
-                                   message='У эмиссара слишком много активных мероприятий. Дождитесь их завершения или отмените одно.')
+        raise utils_views.ViewError(code='emissaies.maximum_simultaneously_events',
+                                    message='У эмиссара слишком много активных мероприятий. Дождитесь их завершения или отмените одно.')
 
     if event_class.TYPE in {event.concrete_event.TYPE for event in emissary.active_events()}:
-        raise dext_views.ViewError(code='emissaies.dublicate_event',
-                                   message='Нельзя запустить два мероприятия одного типа.')
+        raise utils_views.ViewError(code='emissaies.dublicate_event',
+                                    message='Нельзя запустить два мероприятия одного типа.')
 
     if not event_class.is_available(emissary=emissary, active_events={event.concrete_event.TYPE for event in emissary.active_events()}):
-        raise dext_views.ViewError(code='emissaries.event_not_available', message='Нельзя начать это мероприятие.')
+        raise utils_views.ViewError(code='emissaries.event_not_available', message='Нельзя начать это мероприятие.')
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -261,12 +270,12 @@ def start_event(context):
                             post=context.django_request.POST)
 
     if not form.is_valid():
-        raise dext_views.ViewError(code='form_errors', message=form.errors)
+        raise utils_views.ViewError(code='form_errors', message=form.errors)
 
     with django_transaction.atomic():
 
         if not logic.lock_emissary_for_update(emissary.id):
-            raise dext_views.ViewError(code='emissaies.no_emissary_found', message='Активный эмиссар не найден')
+            raise utils_views.ViewError(code='emissaies.no_emissary_found', message='Активный эмиссар не найден')
 
         _check_emissaries_events(emissary, event_class)
 
@@ -281,7 +290,7 @@ def start_event(context):
             required_power = event_class.power_cost(emissary, days)
 
             if current_power < required_power:
-                raise dext_views.ViewError(code='emissaies.no_enough_power', message='У эмиссара недостаточно влияния')
+                raise utils_views.ViewError(code='emissaies.no_enough_power', message='У эмиссара недостаточно влияния')
 
             concrete_event = event_class.construct_by_form(emissary, form)
 
@@ -306,10 +315,10 @@ def start_event(context):
                 logic.save_event(event)
 
             except exceptions.OnEventCreateError:
-                raise dext_views.ViewError(code='emissaries.on_create_error',
-                                           message='Не выполнено одно из специфичных для мероприятия условий')
+                raise utils_views.ViewError(code='emissaries.on_create_error',
+                                            message='Не выполнено одно из специфичных для мероприятия условий')
 
-    return dext_views.AjaxOk(content={'next_url': dext_urls.url('game:emissaries:show', emissary.id)})
+    return utils_views.AjaxOk(content={'next_url': utils_urls.url('game:emissaries:show', emissary.id)})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -324,11 +333,11 @@ def stop_event(context):
     emissary = context.current_emissary
 
     if event.state.is_STOPPED:
-        return dext_views.AjaxOk(content={'next_url': dext_urls.url('game:emissaries:show', emissary.id)})
+        return utils_views.AjaxOk(content={'next_url': utils_urls.url('game:emissaries:show', emissary.id)})
 
     if event.emissary_id != emissary.id:
-        raise dext_views.ViewError(code='emissaries.wrong_emissary', message='Эмиссар не проводит это мероприятие')
+        raise utils_views.ViewError(code='emissaries.wrong_emissary', message='Эмиссар не проводит это мероприятие')
 
     logic.cancel_event(initiator=context.account, event=event)
 
-    return dext_views.AjaxOk(content={'next_url': dext_urls.url('game:emissaries:show', emissary.id)})
+    return utils_views.AjaxOk(content={'next_url': utils_urls.url('game:emissaries:show', emissary.id)})

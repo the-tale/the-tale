@@ -5,23 +5,23 @@ smart_imports.all()
 
 
 def create_sell_lot_url():
-    return dext_urls.url('shop:create-sell-lot')
+    return utils_urls.url('shop:create-sell-lot')
 
 
 def close_sell_lot_url():
-    return dext_urls.url('shop:close-sell-lot')
+    return utils_urls.url('shop:close-sell-lot')
 
 
 def cancel_sell_lot_url():
-    return dext_urls.url('shop:cancel-sell-lot')
+    return utils_urls.url('shop:cancel-sell-lot')
 
 
 def info_url():
-    return dext_urls.url('shop:info')
+    return utils_urls.url('shop:info')
 
 
 def item_type_prices_url():
-    return dext_urls.url('shop:item-type-prices')
+    return utils_urls.url('shop:item-type-prices')
 
 
 def real_amount_to_game(amount):
@@ -105,11 +105,14 @@ def cancel_lots_by_type(item_type):
     lots = tt_services.market.cmd_cancel_lots_by_type(item_type=item_type)
 
     for lot in lots:
-        cards_logic.change_owner(old_owner_id=accounts_logic.get_system_user_id(),
-                                 new_owner_id=lot.owner_id,
-                                 operation_type='#cancel_sell_lots',
-                                 new_storage=cards_relations.STORAGE.FAST,
-                                 cards_ids=[lot.item_id])
+        try:
+            cards_logic.change_owner(old_owner_id=accounts_logic.get_system_user_id(),
+                                     new_owner_id=lot.owner_id,
+                                     operation_type='#cancel_sell_lots',
+                                     new_storage=cards_relations.STORAGE.FAST,
+                                     cards_ids=[lot.item_id])
+        except Exception as e:
+            print(e)
 
     return lots
 

@@ -79,7 +79,7 @@ class TestIndexRequests(BaseTestRequests):
         super().setUp()
 
     def test_no_clans(self):
-        self.check_html_ok(self.request_html(dext_urls.url('clans:')),
+        self.check_html_ok(self.request_html(utils_urls.url('clans:')),
                            texts=[('pgf-no-clans-message', 1)])
 
     @mock.patch('the_tale.clans.conf.settings.CLANS_ON_PAGE', 4)
@@ -87,14 +87,14 @@ class TestIndexRequests(BaseTestRequests):
         for i in range(6):
             self.create_clan(self.accounts_factory.create_account(), i)
 
-        self.check_html_ok(self.request_html(dext_urls.url('clans:')),
+        self.check_html_ok(self.request_html(utils_urls.url('clans:')),
                            texts=[('a-%d' % i, 1) for i in range(4)] + [('pgf-no-clans-message', 0)])
 
-        self.check_html_ok(self.request_html(dext_urls.url('clans:', page=2)),
+        self.check_html_ok(self.request_html(utils_urls.url('clans:', page=2)),
                            texts=[('a-%d' % i, 1) for i in range(4, 6)] + [('pgf-no-clans-message', 0)])
 
-        self.check_redirect(dext_urls.url('clans:', page=3),
-                            dext_urls.url('clans:', page=2, order_by=relations.ORDER_BY.ACTIVE_MEMBERS_NUMBER_DESC.value))
+        self.check_redirect(utils_urls.url('clans:', page=3),
+                            utils_urls.url('clans:', page=2, order_by=relations.ORDER_BY.ACTIVE_MEMBERS_NUMBER_DESC.value))
 
 
 class TestShowRequests(BaseTestRequests):
@@ -102,7 +102,7 @@ class TestShowRequests(BaseTestRequests):
     def setUp(self):
         super().setUp()
         self.clan = self.create_clan(self.account, 0)
-        self.show_url = dext_urls.url('clans:show', self.clan.id)
+        self.show_url = utils_urls.url('clans:show', self.clan.id)
 
     def test_ok(self):
         self.check_html_ok(self.request_html(self.show_url), texts=['pgf-no-folclor',
@@ -176,7 +176,7 @@ class TestShowRequests(BaseTestRequests):
                                   ('pgf-clans-points-dummy', 0)])
 
         clan_2 = self.create_clan(self.accounts_factory.create_account(), 1)
-        self.check_html_ok(self.request_html(dext_urls.url('clans:show', clan_2.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('clans:show', clan_2.id)),
                            texts=[('pgf-clans-points-amount', 0),
                                   ('pgf-clans-points-dummy', 1)])
 
@@ -191,7 +191,7 @@ class TestShowRequests(BaseTestRequests):
                                   ('pgf-clans-free-quests-dummy', 0)])
 
         clan_2 = self.create_clan(self.accounts_factory.create_account(), 1)
-        self.check_html_ok(self.request_html(dext_urls.url('clans:show', clan_2.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('clans:show', clan_2.id)),
                            texts=[('pgf-clans-free-quests-amount', 0),
                                   ('pgf-clans-free-quests-dummy', 1)])
 
@@ -206,10 +206,9 @@ class TestShowRequests(BaseTestRequests):
                                   ('pgf-experience-dummy', 0)])
 
         clan_2 = self.create_clan(self.accounts_factory.create_account(), 1)
-        self.check_html_ok(self.request_html(dext_urls.url('clans:show', clan_2.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('clans:show', clan_2.id)),
                            texts=[('pgf-experience-amount', 0),
                                   ('pgf-experience-dummy', 1)])
-
 
 
 class TestChronicleRequests(BaseTestRequests):
@@ -217,7 +216,7 @@ class TestChronicleRequests(BaseTestRequests):
     def setUp(self):
         super().setUp()
         self.clan = self.create_clan(self.account, 0)
-        self.chronicle_url = dext_urls.url('clans:chronicle', self.clan.id)
+        self.chronicle_url = utils_urls.url('clans:chronicle', self.clan.id)
 
     def test_login_required(self):
         self.request_logout()
@@ -273,7 +272,7 @@ class TestEditRequests(BaseTestRequests):
     def setUp(self):
         super().setUp()
         self.clan = self.create_clan(self.account, 0)
-        self.edit_url = dext_urls.url('clans:edit', self.clan.id)
+        self.edit_url = utils_urls.url('clans:edit', self.clan.id)
         self.request_login(self.account.email)
 
     def test_login_required(self):
@@ -284,7 +283,7 @@ class TestEditRequests(BaseTestRequests):
         account = self.accounts_factory.create_account()
         clan = self.create_clan(account, 1)
 
-        self.check_html_ok(self.request_html(dext_urls.url('clans:edit', clan.id)), texts=['clans.no_rights'])
+        self.check_html_ok(self.request_html(utils_urls.url('clans:edit', clan.id)), texts=['clans.no_rights'])
 
     def test_rights(self):
         account = self.accounts_factory.create_account()
@@ -292,7 +291,7 @@ class TestEditRequests(BaseTestRequests):
 
         self.request_login(account.email)
 
-        self.check_html_ok(self.request_html(dext_urls.url('clans:edit', self.clan.id)), texts=['clans.no_rights'])
+        self.check_html_ok(self.request_html(utils_urls.url('clans:edit', self.clan.id)), texts=['clans.no_rights'])
 
     def test_no_rights(self):
         self.check_no_righs__html(clan=self.clan,
@@ -317,7 +316,7 @@ class TestUpdateRequests(BaseTestRequests):
     def setUp(self):
         super().setUp()
         self.clan = self.create_clan(self.account, 0)
-        self.update_url = dext_urls.url('clans:update', self.clan.id)
+        self.update_url = utils_urls.url('clans:update', self.clan.id)
         self.request_login(self.account.email)
 
     def update_data(self, name=None, abbr=None):
@@ -358,7 +357,7 @@ class TestUpdateRequests(BaseTestRequests):
 
     def test_no_rights(self):
         self.check_no_righs__ajax(self.clan,
-                                  url=dext_urls.url('clans:update', self.clan.id),
+                                  url=utils_urls.url('clans:update', self.clan.id),
                                   data=self.update_data(),
                                   permission=relations.PERMISSION.EDIT)
 
@@ -407,7 +406,7 @@ class TestRemoveRequests(BaseTestRequests):
     def setUp(self):
         super().setUp()
         self.clan = self.create_clan(self.account, 0)
-        self.remove_url = dext_urls.url('clans:remove', self.clan.id)
+        self.remove_url = utils_urls.url('clans:remove', self.clan.id)
         self.request_login(self.account.email)
 
     def test_login_required(self):
@@ -419,19 +418,19 @@ class TestRemoveRequests(BaseTestRequests):
         account = self.accounts_factory.create_account()
         clan = self.create_clan(account, 1)
 
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:remove', clan.id)), 'clans.no_rights')
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:remove', clan.id)), 'clans.no_rights')
         self.assertEqual(models.Clan.objects.count(), 2)
 
     def test_no_rights(self):
         self.check_no_righs__ajax(self.clan,
-                                  url=dext_urls.url('clans:remove', self.clan.id),
+                                  url=utils_urls.url('clans:remove', self.clan.id),
                                   data={},
                                   permission=relations.PERMISSION.DESTROY)
 
     def test_not_empty(self):
         logic._add_member(clan=self.clan, account=self.accounts_factory.create_account(), role=relations.MEMBER_ROLE.RECRUIT)
 
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:remove', self.clan.id)), 'clans.remove.not_empty_clan')
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:remove', self.clan.id)), 'clans.remove.not_empty_clan')
         self.assertEqual(models.Clan.objects.count(), 1)
 
         self.clan = logic.load_clan(clan_id=self.clan.id)
@@ -468,7 +467,7 @@ class MembershipForClanRequestsTests(BaseMembershipRequestsTests):
         self.clan = self.create_clan(self.account, 0)
         self.request_login(self.account.email)
 
-        self.for_clan_url = dext_urls.url('clans:join-requests', self.clan.id)
+        self.for_clan_url = utils_urls.url('clans:join-requests', self.clan.id)
 
     def test_login_required(self):
         self.request_logout()
@@ -526,7 +525,7 @@ class MembershipForAccountRequestsTests(BaseMembershipRequestsTests):
 
     def setUp(self):
         super().setUp()
-        self.for_account_url = dext_urls.url('clans:invites')
+        self.for_account_url = utils_urls.url('clans:invites')
         self.request_login(self.account.email)
 
     def test_login_required(self):
@@ -579,7 +578,7 @@ class MembershipInviteDialogRequestsTests(BaseMembershipRequestsTests):
         super().setUp()
         self.clan = self.create_clan(self.account, 0)
         self.account_2 = self.accounts_factory.create_account()
-        self.invite_url = dext_urls.url('clans:invite-dialog', self.clan.id, account=self.account_2.id)
+        self.invite_url = utils_urls.url('clans:invite-dialog', self.clan.id, account=self.account_2.id)
         self.request_login(self.account.email)
 
     def test_login_required(self):
@@ -596,9 +595,9 @@ class MembershipInviteDialogRequestsTests(BaseMembershipRequestsTests):
         self.check_html_ok(self.request_ajax_html(self.invite_url), texts=['clans.other_already_in_clan'])
 
     def test_wrong_account(self):
-        self.check_html_ok(self.request_ajax_html(dext_urls.url('clans:invite-dialog', self.clan.id, account=666)),
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('clans:invite-dialog', self.clan.id, account=666)),
                            texts=['account.wrong_value'])
-        self.check_html_ok(self.request_ajax_html(dext_urls.url('clans:invite-dialog', self.clan.id, account='bla-bla')),
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('clans:invite-dialog', self.clan.id, account='bla-bla')),
                            texts=['account.wrong_format'])
 
     def test_invite_exist__from_clan(self):
@@ -642,7 +641,7 @@ class MembershipRequestDialogRequestsTests(BaseMembershipRequestsTests):
         super().setUp()
         self.clan = self.create_clan(self.account, 0)
         self.account_2 = self.accounts_factory.create_account()
-        self.request_url = dext_urls.url('clans:request-dialog', self.clan.id)
+        self.request_url = utils_urls.url('clans:request-dialog', self.clan.id)
         self.request_login(self.account_2.email)
 
     def test_login_required(self):
@@ -654,9 +653,9 @@ class MembershipRequestDialogRequestsTests(BaseMembershipRequestsTests):
         self.check_html_ok(self.request_ajax_html(self.request_url), texts=['clans.already_in_clan'])
 
     def test_wrong_clan(self):
-        self.check_html_ok(self.request_ajax_html(dext_urls.url('clans:request-dialog', 666)),
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('clans:request-dialog', 666)),
                            texts=['clan.wrong_value'])
-        self.check_html_ok(self.request_ajax_html(dext_urls.url('clans:request-dialog', 'bla-bla')),
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('clans:request-dialog', 'bla-bla')),
                            texts=['clan.wrong_format'])
 
     def test_request_exist__from_clan(self):
@@ -703,7 +702,7 @@ class MembershipInviteRequestsTests(BaseMembershipRequestsTests):
 
         self.clan = self.create_clan(self.account, 0)
         self.account_2 = self.accounts_factory.create_account()
-        self.invite_url = dext_urls.url('clans:invite', self.clan.id, account=self.account_2.id)
+        self.invite_url = utils_urls.url('clans:invite', self.clan.id, account=self.account_2.id)
         self.request_login(self.account.email)
 
     def post_data(self):
@@ -731,9 +730,9 @@ class MembershipInviteRequestsTests(BaseMembershipRequestsTests):
         self.assertEqual(models.MembershipRequest.objects.count(), 0)
 
     def test_wrong_account(self):
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:invite', self.clan.id, account=666), self.post_data()),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:invite', self.clan.id, account=666), self.post_data()),
                               'account.wrong_value')
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:invite', self.clan.id, account='bla-bla'), self.post_data()),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:invite', self.clan.id, account='bla-bla'), self.post_data()),
                               'account.wrong_format')
         self.assertEqual(models.MembershipRequest.objects.count(), 0)
 
@@ -798,7 +797,7 @@ class MembershipRequestRequestsTests(BaseMembershipRequestsTests):
         super().setUp()
         self.clan = self.create_clan(self.account, 0)
         self.account_2 = self.accounts_factory.create_account()
-        self.request_url = dext_urls.url('clans:request', self.clan.id)
+        self.request_url = utils_urls.url('clans:request', self.clan.id)
         self.request_login(self.account_2.email)
 
     def post_data(self):
@@ -815,9 +814,9 @@ class MembershipRequestRequestsTests(BaseMembershipRequestsTests):
         self.assertEqual(models.MembershipRequest.objects.count(), 0)
 
     def test_wrong_clan(self):
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:request', 666), self.post_data()),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:request', 666), self.post_data()),
                               'clan.wrong_value')
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:request', 'bla-bla'), self.post_data()),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:request', 'bla-bla'), self.post_data()),
                               'clan.wrong_format')
         self.assertEqual(models.MembershipRequest.objects.count(), 0)
 
@@ -885,7 +884,7 @@ class MembershipAcceptRequestRequestsTests(BaseMembershipRequestsTests):
                                                clan=self.clan,
                                                text='request')
 
-        self.accept_url = dext_urls.url('clans:accept-request', self.clan.id, request=self.request_id)
+        self.accept_url = utils_urls.url('clans:accept-request', self.clan.id, request=self.request_id)
         self.request_login(self.account.email)
 
     def test_login_required(self):
@@ -912,16 +911,16 @@ class MembershipAcceptRequestRequestsTests(BaseMembershipRequestsTests):
         account_3 = self.accounts_factory.create_account()
         clan_2 = self.create_clan(account_3, 1)
 
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:accept-request', clan_2.id, request=self.request_id)),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:accept-request', clan_2.id, request=self.request_id)),
                               'clans.not_your_clan_request')
 
         self.assertEqual(models.MembershipRequest.objects.count(), 1)
         self.assertEqual(models.Membership.objects.count(), 2)
 
     def test_wrong_request_id(self):
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:accept-request', self.clan.id, request=666)),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:accept-request', self.clan.id, request=666)),
                               'request.wrong_value')
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:accept-request', self.clan.id, request='bla-bla')),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:accept-request', self.clan.id, request='bla-bla')),
                               'request.wrong_format')
         self.assertEqual(models.MembershipRequest.objects.count(), 1)
         self.assertEqual(models.Membership.objects.count(), 1)
@@ -953,7 +952,7 @@ class MembershipAcceptInviteRequestsTests(BaseMembershipRequestsTests):
                                               clan=self.clan,
                                               text='request')
 
-        self.accept_url = dext_urls.url('clans:accept-invite', self.clan.id, request=self.request_id)
+        self.accept_url = utils_urls.url('clans:accept-invite', self.clan.id, request=self.request_id)
         self.request_login(self.account_2.email)
 
     def test_login_required(self):
@@ -972,7 +971,7 @@ class MembershipAcceptInviteRequestsTests(BaseMembershipRequestsTests):
         account_3 = self.accounts_factory.create_account()
         clan_2 = self.create_clan(account_3, 1)
 
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:accept-invite', clan_2.id, request=self.request_id)),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:accept-invite', clan_2.id, request=self.request_id)),
                               'clans.not_your_clan_request')
 
         self.assertEqual(models.MembershipRequest.objects.count(), 1)
@@ -989,9 +988,9 @@ class MembershipAcceptInviteRequestsTests(BaseMembershipRequestsTests):
         self.assertEqual(models.Membership.objects.count(), 2)
 
     def test_wrong_request_id(self):
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:accept-invite', self.clan.id, request=666)),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:accept-invite', self.clan.id, request=666)),
                               'request.wrong_value')
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:accept-invite', self.clan.id, request='bla-bla')),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:accept-invite', self.clan.id, request='bla-bla')),
                               'request.wrong_format')
         self.assertEqual(models.MembershipRequest.objects.count(), 1)
         self.assertEqual(models.Membership.objects.count(), 1)
@@ -1020,7 +1019,7 @@ class MembershipRejectRequestRequestsTests(BaseMembershipRequestsTests):
                                                clan=self.clan,
                                                text='request')
 
-        self.reject_url = dext_urls.url('clans:reject-request', self.clan.id, request=self.request_id)
+        self.reject_url = utils_urls.url('clans:reject-request', self.clan.id, request=self.request_id)
         self.request_login(self.account.email)
 
     def test_login_required(self):
@@ -1047,16 +1046,16 @@ class MembershipRejectRequestRequestsTests(BaseMembershipRequestsTests):
         account_3 = self.accounts_factory.create_account()
         clan_2 = self.create_clan(account_3, 1)
 
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:reject-request', clan_2.id, request=self.request_id)),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:reject-request', clan_2.id, request=self.request_id)),
                               'clans.not_your_clan_request')
 
         self.assertEqual(models.MembershipRequest.objects.count(), 1)
         self.assertEqual(models.Membership.objects.count(), 2)
 
     def test_wrong_request_id(self):
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:reject-request', self.clan.id, request=666)),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:reject-request', self.clan.id, request=666)),
                               'request.wrong_value')
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:reject-request', self.clan.id, request='bla-bla')),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:reject-request', self.clan.id, request='bla-bla')),
                               'request.wrong_format')
         self.assertEqual(models.MembershipRequest.objects.count(), 1)
         self.assertEqual(models.Membership.objects.count(), 1)
@@ -1089,7 +1088,7 @@ class MembershipRejectInviteRequestsTests(BaseMembershipRequestsTests):
                                               clan=self.clan,
                                               text='request')
 
-        self.reject_url = dext_urls.url('clans:reject-invite', self.clan.id, request=self.request_id)
+        self.reject_url = utils_urls.url('clans:reject-invite', self.clan.id, request=self.request_id)
         self.request_login(self.account_2.email)
 
     def test_login_required(self):
@@ -1108,7 +1107,7 @@ class MembershipRejectInviteRequestsTests(BaseMembershipRequestsTests):
         account_3 = self.accounts_factory.create_account()
         clan_2 = self.create_clan(account_3, 1)
 
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:reject-invite', clan_2.id, request=self.request_id)),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:reject-invite', clan_2.id, request=self.request_id)),
                               'clans.not_your_clan_request')
 
         self.assertEqual(models.MembershipRequest.objects.count(), 1)
@@ -1125,9 +1124,9 @@ class MembershipRejectInviteRequestsTests(BaseMembershipRequestsTests):
         self.assertEqual(models.Membership.objects.count(), 2)
 
     def test_wrong_request_id(self):
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:reject-invite', self.clan.id, request=666)),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:reject-invite', self.clan.id, request=666)),
                               'request.wrong_value')
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:reject-invite', self.clan.id, request='bla-bla')),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:reject-invite', self.clan.id, request='bla-bla')),
                               'request.wrong_format')
         self.assertEqual(models.MembershipRequest.objects.count(), 1)
         self.assertEqual(models.Membership.objects.count(), 1)
@@ -1155,7 +1154,7 @@ class MembershipRemoveFromClanRequestsTests(BaseMembershipRequestsTests):
         self.account_2 = self.accounts_factory.create_account()
         logic._add_member(clan=self.clan, account=self.account_2, role=relations.MEMBER_ROLE.RECRUIT)
 
-        self.remove_url = dext_urls.url('clans:remove-member', self.clan.id, account=self.account_2.id)
+        self.remove_url = utils_urls.url('clans:remove-member', self.clan.id, account=self.account_2.id)
         self.request_login(self.account.email)
 
     def test_login_required(self):
@@ -1164,9 +1163,9 @@ class MembershipRemoveFromClanRequestsTests(BaseMembershipRequestsTests):
         self.assertEqual(models.Membership.objects.count(), 2)
 
     def test_wrong_account_id(self):
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:remove-member', self.clan.id, account=666)),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:remove-member', self.clan.id, account=666)),
                               'account.wrong_value')
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:remove-member', self.clan.id, account='bla-bla')),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:remove-member', self.clan.id, account='bla-bla')),
                               'account.wrong_format')
         self.assertEqual(models.Membership.objects.count(), 2)
 
@@ -1214,7 +1213,7 @@ class MembershipLeaveClanRequestsTests(BaseMembershipRequestsTests):
         self.account_2 = self.accounts_factory.create_account()
         logic._add_member(clan=self.clan, account=self.account_2, role=relations.MEMBER_ROLE.RECRUIT)
 
-        self.leave_url = dext_urls.url('clans:leave-clan', self.clan.id)
+        self.leave_url = utils_urls.url('clans:leave-clan', self.clan.id)
         self.request_login(self.account_2.email)
 
     def test_login_required(self):
@@ -1230,7 +1229,7 @@ class MembershipLeaveClanRequestsTests(BaseMembershipRequestsTests):
     def test_leader(self):
         self.request_logout()
         self.request_login(self.account.email)
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:leave-clan', self.clan.id)), 'clans.leave_clan.leader')
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:leave-clan', self.clan.id)), 'clans.leave_clan.leader')
         self.assertEqual(models.Membership.objects.count(), 2)
 
     def test_success(self):
@@ -1264,7 +1263,7 @@ class ChangeRoleRequestsTests(BaseMembershipRequestsTests):
 
         models.Membership.objects.filter(account_id=self.account_2.id).update(updated_at=far_updated_time)
 
-        self.change_role_url = dext_urls.url('clans:change-role', self.clan.id, account=self.account_2.id)
+        self.change_role_url = utils_urls.url('clans:change-role', self.clan.id, account=self.account_2.id)
         self.request_login(self.account.email)
 
         self.data = {'role': relations.MEMBER_ROLE.FIGHTER}
@@ -1275,9 +1274,9 @@ class ChangeRoleRequestsTests(BaseMembershipRequestsTests):
         self.assertTrue(models.Membership.objects.filter(account_id=self.account_2.id, role=relations.MEMBER_ROLE.RECRUIT).exists())
 
     def test_wrong_account_id(self):
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:change-role', self.clan.id, account=666), self.data),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:change-role', self.clan.id, account=666), self.data),
                               'account.wrong_value')
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:change-role', self.clan.id, account='bla-bla'), self.data),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:change-role', self.clan.id, account='bla-bla'), self.data),
                               'account.wrong_format')
         self.assertTrue(models.Membership.objects.filter(account_id=self.account_2.id, role=relations.MEMBER_ROLE.RECRUIT).exists())
 
@@ -1368,7 +1367,7 @@ class ChangeOwnershipTests(BaseMembershipRequestsTests):
         self.account_2 = self.accounts_factory.create_account()
         logic._add_member(clan=self.clan, account=self.account_2, role=relations.MEMBER_ROLE.RECRUIT)
 
-        self.change_ownership_url = dext_urls.url('clans:change-ownership', self.clan.id, account=self.account_2.id)
+        self.change_ownership_url = utils_urls.url('clans:change-ownership', self.clan.id, account=self.account_2.id)
         self.request_login(self.account.email)
 
     def test_login_required(self):
@@ -1383,9 +1382,9 @@ class ChangeOwnershipTests(BaseMembershipRequestsTests):
         self.assertFalse(logic.get_membership(account_id).is_freezed())
 
     def test_wrong_account_id(self):
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:change-ownership', self.clan.id, account=666)),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:change-ownership', self.clan.id, account=666)),
                               'account.wrong_value')
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('clans:change-ownership', self.clan.id, account='bla-bla')),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:change-ownership', self.clan.id, account='bla-bla')),
                               'account.wrong_format')
         self.assertTrue(models.Membership.objects.filter(account_id=self.account_2.id, role=relations.MEMBER_ROLE.RECRUIT).exists())
 
@@ -1451,7 +1450,7 @@ class TestEditMemberRequests(BaseTestRequests):
         self.account_2 = self.accounts_factory.create_account()
         logic._add_member(clan=self.clan, account=self.account_2, role=relations.MEMBER_ROLE.RECRUIT)
 
-        self.edit_member_url = dext_urls.url('clans:edit-member', self.clan.id, account=self.account_2.id)
+        self.edit_member_url = utils_urls.url('clans:edit-member', self.clan.id, account=self.account_2.id)
 
     def test_login_required(self):
         self.request_logout()

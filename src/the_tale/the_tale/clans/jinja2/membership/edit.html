@@ -1,0 +1,113 @@
+{% extends "clans/base.html" %}
+
+{% block title %}Управление членом гильдии {{edited_account.nick_verbose}}{% endblock %}
+{% block description %}Управление членом гильдии {{edited_account.nick_verbose}}{% endblock %}
+
+{% block clans_content %}
+
+<h2 style="margin-bottom: 0.5em;">
+  <a href="{{url('clans:show', current_clan.id)}}">[{{current_clan.abbr}}] {{current_clan.name}}</a>
+  —
+  Хранитель {{edited_account.nick_verbose}}
+</h2>
+
+<h3>Изменить звание</h3>
+
+{% include "clans/permissions_help.html" %}
+
+{% if current_clan_rights.can_change_role(edited_membership) %}
+
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+    var changeRoleForm = new pgf.forms.Form(jQuery('#pgf-change-role-form'),
+                                     {OnSuccess: function(instance, data){location.href = "{{url('clans:show', current_clan.id)}}";}});
+
+});
+
+</script>
+
+<p>
+  <i>Максимальный боевой состав гильдии: {{attributes.fighters_maximum}}</i>
+  <i class="icon-info-sign"
+     rel="tooltip"
+     title="Количество членов гильдии в звании {{value('the_tale.clans.relations').MEMBER_ROLE.FIGHTER.text}} или выше. Чтобы увеличить максимальный размер гильдии, развивайте её с помощью эмиссаров."></i>
+</p>
+
+<form id="pgf-change-role-form" method="post" action="{{ url('clans:change-role', current_clan.id, account=edited_account.id) }}">
+  {{ change_role_form.errors_container }}
+
+  {{ change_role_form.role.widget }}
+
+  <div class="widget">
+    <input type="submit" accesskey="s" class="btn btn-info" value="Изменить"/>
+  </div>
+
+</form>
+
+{% else %}
+
+{% if edited_membership.role.is_MASTER %}
+<p class="alert alert-info">
+  Нельзя изменять звание магистра гильдии.
+</p>
+{% else %}
+<p class="alert alert-info pgf-change-role-not-allower">
+  Вы не можете изменить звание этого Хранителя. Ваше звание должно быть выше его звания и вы должны обладать правом изменять звания. Также Хранитель не должен быть «заморожен».
+</p>
+{% endif %}
+{% endif %}
+
+<h3>Исключение из гильдии</h3>
+
+{% if current_clan_rights.can_remove_member(edited_membership) %}
+
+{% if edited_membership.role.is_MASTER %}
+<p class="alert alert-info">
+  Магистра гильдии нельзя исключить из неё.
+</p>
+{% else %}
+
+<a class="btn btn-danger pgf-forms-post-simple pgf-remove-member-action"
+   href="{{ url('clans:remove-member', current_clan.id, account=edited_account.id) }}"
+   data-action-type="redirect"
+   data-redirect-url="{{ url('clans:show', current_clan.id) }}"
+   data-confirmation="Вы действительно хотите исключить Хранителя {{edited_account.nick_verbose}} из гильдии?">исключить из гильдии</a>
+
+{% endif %}
+
+{% else %}
+<p class="alert alert-info pgf-remove-member-not-allowed">
+  Вы не можете исключить Хранителя из гильдии. Ваше звание должно быть выше его звания и вы должны обладать правом исключать Хранителей.
+</p>
+{% endif %}
+
+<h3>Передача владения гильдией</h3>
+
+{% if current_clan_rights.can_change_owner(edited_membership) %}
+
+{% if edited_membership.role.is_MASTER %}
+<p class="alert alert-info">
+  Хранитель уже является магистром этой гильдии.
+</p>
+{% else %}
+
+<p>
+<a class="btn btn-danger pgf-forms-post-simple pgf-change-owner-action"
+   href="{{ url('clans:change-ownership', current_clan.id, account=edited_account.id) }}"
+   data-action-type="redirect"
+   data-redirect-url="{{ url('clans:show', current_clan.id) }}"
+   data-confirmation="Вы действительно хотите передать владение гильдией Хранителю {{edited_account.nick_verbose}}?">Передать владение гильдией</a>
+</p>
+{% endif %}
+
+{% else %}
+<p class="alert alert-info pgf-change-owner-not-allowed">
+  Вы не можете передать владение гильдией этому Хранителю. Передать владение может только магистр гильдии. Также Хранитель не должен быть «заморожен».<br/>
+</p>
+{% endif %}
+
+<p class="alert alert-info">
+  Если магистр гильдии не был в игре больше месяца, активный член гильдии может обратиться к администрации игры, с просьбой передать владение гильдией активному члену гильдии с самым высоким званием.
+</p>
+
+{% endblock %}

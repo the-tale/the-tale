@@ -77,10 +77,19 @@ class BillPrototypeTests(helpers.BaseTestPrototypes):
     def test_can_vote__places_restrictions__allowed_place(self):
         bill = self.create_bill()
 
-        places_logic.add_fame(self.hero.id, fames=[(self.place2.id, 1000)])
+        places_logic.add_fame(self.hero.id, fames=[(self.place2.id, c.BILLS_FAME_BORDER)])
 
         with mock.patch('the_tale.game.bills.bills.place_renaming.PlaceRenaming.actors', [self.place1, self.place2, self.place3]):
             self.assertTrue(bill.can_vote(self.hero))
+
+    @mock.patch('the_tale.game.places.objects.Place.is_new', False)
+    def test_can_vote__places_restrictions__fame_border(self):
+        bill = self.create_bill()
+
+        places_logic.add_fame(self.hero.id, fames=[(self.place2.id, c.BILLS_FAME_BORDER-1)])
+
+        with mock.patch('the_tale.game.bills.bills.place_renaming.PlaceRenaming.actors', [self.place1, self.place2, self.place3]):
+            self.assertFalse(bill.can_vote(self.hero))
 
     def test_remove_duplicate_actors(self):
         bill = self.create_bill()

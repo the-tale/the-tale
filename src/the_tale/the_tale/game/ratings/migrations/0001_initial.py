@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                 ('achievements_points_place', models.IntegerField(default=0, db_index=True)),
                 ('help_count_place', models.IntegerField(default=0, db_index=True)),
                 ('gifts_returned_place', models.IntegerField(default=0, db_index=True)),
-                ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
                 ('achievements_points', models.IntegerField(default=0, db_index=True)),
                 ('help_count', models.IntegerField(default=0, db_index=True)),
                 ('gifts_returned', models.IntegerField(default=0, db_index=True)),
-                ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },

@@ -28,7 +28,6 @@
       mode: 0755
     with_items:
       - local.the-tale
-      - /etc/letsencrypt/live/docs.local.the-tale
       - /etc/letsencrypt/live/temp-informer.local.the-tale
 
   - name: copy certificates

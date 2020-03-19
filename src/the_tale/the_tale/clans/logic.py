@@ -27,7 +27,9 @@ def sync_clan_statistics(clan):
 
     clan.premium_members_number = premium_members_number
 
-    clan.might = accounts_models.Account.objects.filter(clan_id=clan.id).aggregate(might=django_models.Sum('might')).get('might', 0)
+    clan_might = accounts_models.Account.objects.filter(clan_id=clan.id).aggregate(might=django_models.Sum('might')).get('might')
+
+    clan.might = clan_might if clan_might is not None else 0
 
     clan.statistics_refreshed_at = datetime.datetime.now()
 
@@ -132,14 +134,14 @@ def create_clan(owner, abbr, name, motto, description):
     tt_services.currencies.cmd_change_balance(account_id=clan.id,
                                               type='initial',
                                               amount=tt_clans_constants.INITIAL_POINTS,
-                                              async=False,
+                                              asynchronous=False,
                                               autocommit=True,
                                               currency=relations.CURRENCY.ACTION_POINTS)
 
     tt_services.currencies.cmd_change_balance(account_id=clan.id,
                                               type='initial',
                                               amount=tt_clans_constants.INITIAL_FREE_QUESTS,
-                                              async=False,
+                                              asynchronous=False,
                                               autocommit=True,
                                               currency=relations.CURRENCY.FREE_QUESTS)
 
@@ -268,9 +270,9 @@ def remove_member(initiator, clan, member):
     _remove_member(clan, member)
 
     message = 'Хранитель {initiator}s исключил(а) вас из гильдии {clan_link}.'
-    message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
+    message = message.format(initiator='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', initiator.id),
                                                                initiator.nick_verbose),
-                             clan_link='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'clans:show', clan.id), clan.name))
+                             clan_link='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'clans:show', clan.id), clan.name))
 
     personal_messages_logic.send_message(sender_id=initiator.id,
                                          recipients_ids=[member.id],
@@ -307,9 +309,9 @@ def change_role(clan, initiator, member, new_role):
                                                                                    updated_at=datetime.datetime.now())
 
     message = 'Хранитель {initiator} изменил(а) ваше звание в гильдии {clan_link} на «{new_role}».'
-    message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
+    message = message.format(initiator='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', initiator.id),
                                                                initiator.nick_verbose),
-                             clan_link='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'clans:show', clan.id),
+                             clan_link='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'clans:show', clan.id),
                                                                clan.name),
                              new_role=new_role.text)
 
@@ -328,7 +330,7 @@ def change_role(clan, initiator, member, new_role):
                                         tags=[initiator.meta_object().tag,
                                               member.meta_object().tag],
                                         message=message)
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 @django_transaction.atomic
@@ -337,9 +339,9 @@ def change_ownership(clan, initiator, member):
     models.Membership.objects.filter(clan_id=clan.id, account_id=member.id).update(role=relations.MEMBER_ROLE.MASTER)
 
     message = 'Магистр гильдии {initiator} передал(а) вам владение гильдией {clan_link}.'
-    message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
+    message = message.format(initiator='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', initiator.id),
                                                                initiator.nick_verbose),
-                             clan_link='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'clans:show', clan.id),
+                             clan_link='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'clans:show', clan.id),
                                                                clan.name))
 
     personal_messages_logic.send_message(sender_id=initiator.id,
@@ -355,7 +357,7 @@ def change_ownership(clan, initiator, member):
                                         tags=[initiator.meta_object().tag,
                                               member.meta_object().tag],
                                         message=message)
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 
@@ -369,10 +371,10 @@ def _message_about_new_request(initiator, clan, recipient_id, text):
 ----------
 принять или отклонить предложение вы можете на этой странице: {invites_link}
 '''
-    message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
+    message = message.format(initiator='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', initiator.id),
                                                                initiator.nick_verbose),
                              text=text,
-                             invites_link='[url="%s"]Заявки в гильдию[/url]' % dext_urls.full_url('https', 'clans:join-requests', clan.id))
+                             invites_link='[url="%s"]Заявки в гильдию[/url]' % utils_urls.full_url('https', 'clans:join-requests', clan.id))
 
     personal_messages_logic.send_message(sender_id=initiator.id,
                                          recipients_ids=[recipient_id],
@@ -428,12 +430,12 @@ def create_invite(initiator, clan, member, text):
 принять или отклонить предложение вы можете на этой странице: {invites_link}
 '''
 
-    message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
+    message = message.format(initiator='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', initiator.id),
                                                                initiator.nick_verbose),
                              text=text,
-                             clan_link='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'clans:show', clan.id),
+                             clan_link='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'clans:show', clan.id),
                                                                clan.name),
-                             invites_link='[url="%s"]Приглашения в гильдию [/url]' % dext_urls.full_url('https', 'clans:invites'))
+                             invites_link='[url="%s"]Приглашения в гильдию [/url]' % utils_urls.full_url('https', 'clans:invites'))
 
     personal_messages_logic.send_message(sender_id=initiator.id,
                                          recipients_ids=[member.id],
@@ -510,7 +512,7 @@ def reject_invite(membership_request):
     clan = load_clan(membership_request.clan_id)
 
     message = 'Хранитель {keeper} отказался вступить в вашу гильдию.'
-    message = message.format(keeper='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', account.id),
+    message = message.format(keeper='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', account.id),
                                                             account.nick_verbose))
 
     personal_messages_logic.send_message(sender_id=account.id,
@@ -535,9 +537,9 @@ def reject_request(initiator, membership_request):
     clan = load_clan(membership_request.clan_id)
 
     message = 'Хранитель {initiator} отказал вам в принятии в гильдию {clan_link}.'
-    message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
+    message = message.format(initiator='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', initiator.id),
                                                                initiator.nick_verbose),
-                             clan_link='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'clans:show', clan.id),
+                             clan_link='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'clans:show', clan.id),
                                                                clan.name))
 
     personal_messages_logic.send_message(sender_id=initiator.id,
@@ -582,9 +584,9 @@ def accept_request(initiator, membership_request):
     _add_member(clan=clan, account=account, role=relations.MEMBER_ROLE.RECRUIT)
 
     message = 'Хранитель {initiator} принял вас в гильдию {clan_link}.'
-    message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
-                                                                initiator.nick_verbose),
-                             clan_link='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'clans:show', clan.id),
+    message = message.format(initiator='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', initiator.id),
+                                                               initiator.nick_verbose),
+                             clan_link='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'clans:show', clan.id),
                                                                clan.name))
 
     personal_messages_logic.send_message(sender_id=initiator.id,
@@ -622,7 +624,7 @@ def give_points_for_time(clan_id, interval):
     status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=clan_id,
                                                                              type='time',
                                                                              amount=amount,
-                                                                             async=False,
+                                                                             asynchronous=False,
                                                                              autocommit=True,
                                                                              restrictions=restrictions,
                                                                              currency=relations.CURRENCY.ACTION_POINTS)
@@ -640,7 +642,7 @@ def reset_free_quests(clan_id):
     status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=clan_id,
                                                                              type='time',
                                                                              amount=tt_clans_constants.MAXIMUM_FREE_QUESTS,
-                                                                             async=False,
+                                                                             asynchronous=False,
                                                                              autocommit=True,
                                                                              restrictions=restrictions,
                                                                              currency=relations.CURRENCY.FREE_QUESTS)
@@ -658,7 +660,11 @@ def lock_clan_for_update(clan_id):
 
 
 def get_combat_personnel(clan_id):
-    return sum(1 for membership in get_clan_memberships(clan_id).values()
+    return get_combat_personnel__by_memberships(get_clan_memberships(clan_id))
+
+
+def get_combat_personnel__by_memberships(memberships):
+    return sum(1 for membership in memberships.values()
                if relations.PERMISSION.EMISSARIES_QUESTS in membership.role.permissions)
 
 
@@ -685,3 +691,8 @@ def is_role_change_get_into_limit(clan_id, old_role, new_role):
         delta += 1
 
     return is_clan_in_fighters_limit(clan_id, delta)
+
+
+def get_members_with_roles(clans_ids, roles):
+    return set(models.Membership.objects.filter(clan_id__in=clans_ids,
+                                                role__in=roles).values_list('account_id', flat=True))

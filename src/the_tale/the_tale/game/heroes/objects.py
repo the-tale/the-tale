@@ -202,7 +202,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
             personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
                                                  recipients_ids=[self.account_id],
                                                  body='Поздравляем, Ваш герой получил {} уровень!'.format(self.level),
-                                                 async=True)
+                                                 asynchronous=True)
 
     def add_experience(self, value, without_modifications=False):
         real_experience = int(value) if without_modifications else int(value * self.experience_modifier)
@@ -581,9 +581,12 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         return self.cached_ui_info_key_for_hero(self.account_id)
 
     @classmethod
-    def cached_ui_info_for_hero(cls, account_id, recache_if_required, patch_turns, for_last_turn):
+    def reset_ui_cache(cls, account_id):
+        utils_cache.delete(cls.cached_ui_info_key_for_hero(account_id))
 
-        data = dext_cache.get(cls.cached_ui_info_key_for_hero(account_id))
+    @classmethod
+    def cached_ui_info_for_hero(cls, account_id, recache_if_required, patch_turns, for_last_turn):
+        data = utils_cache.get(cls.cached_ui_info_key_for_hero(account_id))
 
         if data is None:
             hero = logic.load_hero(account_id=account_id)

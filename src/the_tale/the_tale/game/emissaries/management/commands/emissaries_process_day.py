@@ -4,11 +4,13 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'process everyday operations for emissaries'
 
-    def handle(self, *args, **options):
+    LOCKS = ['game_commands']
+
+    def _handle(self, *args, **options):
         emissaries_logic.add_clan_experience()
 
         emissaries_logic.add_emissaries_experience()

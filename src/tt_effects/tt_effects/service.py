@@ -7,20 +7,20 @@ from tt_web import log
 from tt_web import postgresql
 
 
-async def initialize(config, loop):
-    await postgresql.initialize(config['database'], loop=loop)
+async def initialize(config):
+    await postgresql.initialize(config['database'])
 
 
-async def deinitialize(config, loop):
+async def deinitialize(config):
     await postgresql.deinitialize()
 
 
 async def on_startup(app):
-    await initialize(app['config'], loop=app.loop)
+    await initialize(app['config'])
 
 
 async def on_cleanup(app):
-    await deinitialize(app['config'], loop=app.loop)
+    await deinitialize(app['config'])
 
 
 def register_routers(app):
@@ -35,7 +35,7 @@ def register_routers(app):
 
 
 def create_application(config, loop=None):
-    app = web.Application(loop=loop)
+    app = web.Application()
 
     app['config'] = config
 
@@ -53,7 +53,7 @@ def run_utility(config, utility):
     loop = asyncio.get_event_loop()
 
     async def runner():
-        await initialize(config, loop=loop)
+        await initialize(config)
 
         log.initilize(config['log'])
 

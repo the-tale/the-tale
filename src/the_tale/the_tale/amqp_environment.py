@@ -1,12 +1,11 @@
 
 
-from dext.common.amqp_queues.environment import BaseEnvironment
+from the_tale.common.amqp_queues.environment import BaseEnvironment
 
 
 class Environment(BaseEnvironment):
 
     def initialize(self):
-        from the_tale.portal.workers import long_commands as portal_long_commands
         from the_tale.common.postponed_tasks.workers import refrigerator
         from the_tale.collections.workers import items_manager
         from the_tale.finances.bank.workers import bank_processor
@@ -19,9 +18,7 @@ class Environment(BaseEnvironment):
 
         from the_tale.game.workers import supervisor
         from the_tale.game.workers import logic
-        from the_tale.game.workers import highlevel
         from the_tale.game.workers import turns_loop
-        from the_tale.game.workers import long_commands as game_long_commands
         from the_tale.game.quests.workers import quests_generator
 
         self.workers.bank_processor = bank_processor.Worker(name='bank_processor')
@@ -32,15 +29,12 @@ class Environment(BaseEnvironment):
         self.workers.accounts_manager = accounts_manager.Worker(name='accounts_manager')
         self.workers.achievements_manager = achievements_manager.Worker(name='achievements_manager')
         self.workers.items_manager = items_manager.Worker(name='items_manager')
-        self.workers.portal_long_commands = portal_long_commands.Worker(name='portal_long_commands')
         self.workers.linguistics_manager = linguistics_manager.Worker(name='linguistics_manager')
 
         self.workers.supervisor = supervisor.Worker(name='supervisor')
         self.workers.logic_1 = logic.Worker(name='logic_1')
         self.workers.logic_2 = logic.Worker(name='logic_2')
-        self.workers.highlevel = highlevel.Worker(name='highlevel')
         self.workers.turns_loop = turns_loop.Worker(name='turns_loop')
-        self.workers.game_long_commands = game_long_commands.Worker(name='game_long_commands')
         self.workers.quests_generator = quests_generator.Worker(name='quests_generator')
 
         super(Environment, self).initialize()

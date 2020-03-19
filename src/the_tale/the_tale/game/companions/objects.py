@@ -379,7 +379,7 @@ class CompanionRecord(game_names.ManageNameMixin2):
                    weapons=weapons)
 
     @property
-    def description_html(self): return utils_bbcode.render(self.description)
+    def description_html(self): return bbcode_renderers.default.render(self.description)
 
     def __eq__(self, other):
         return all(getattr(self, field, None) == getattr(other, field, None)

@@ -83,7 +83,9 @@ class EVENT(rels_django.DjangoEnum):
                event('EMISSARY_EVENT_CREATED', 19, 'начало мероприятия'),
                event('EMISSARY_EVENT_CANCELED', 20, 'мероприятие отменено'),
                event('EMISSARY_EVENT_FINISHED', 21, 'мероприятие остановлено'),
-               event('EMISSARY_RENAMED', 22, 'эмиссар сменил имя'))
+               event('EMISSARY_RENAMED', 22, 'эмиссар сменил имя'),
+               event('PROTECTORAT_ESTABLISHED', 23, 'установлен протекторат'),
+               event('PROTECTORAT_LOST', 24, 'потерян протекторат'))
 
 
 class PERMISSION(rels_django.DjangoEnum):
@@ -101,6 +103,7 @@ class PERMISSION(rels_django.DjangoEnum):
                ('TAKE_MEMBER', 7, 'Принятие в гильдию', False, 'В звании рекрута', False),
                ('REMOVE_MEMBER', 8, 'Исключение из гильдии', True, 'Если ваше звание выше', False),
                ('FORUM_MODERATION', 9, 'Модерация гильдейского форума', False, None, True),
+               ('RECEIVE_MESSAGES', 13, 'Получает личные сообщения о важных событиях', False, None, False),
                ('ACCESS_CHRONICLE', 10, 'Просмотр событий гильдии', False, None, False),
                ('BULK_MAILING', 11, 'Массовая рассылка сообщений', False, 'Отключён интерфейс', False),
                ('EMISSARIES_QUESTS', 12, 'Выполнение заданий эмиссаров', False, None, False))
@@ -123,7 +126,8 @@ class MEMBER_ROLE(rels_django.DjangoEnum):
                  PERMISSION.REMOVE_MEMBER,
                  PERMISSION.FORUM_MODERATION,
                  PERMISSION.ACCESS_CHRONICLE,
-                 PERMISSION.BULK_MAILING)),
+                 PERMISSION.BULK_MAILING,
+                 PERMISSION.RECEIVE_MESSAGES)),
 
                ('COMANDOR', 2, 'Командор', 1,
                 (PERMISSION.EDIT,
@@ -136,7 +140,8 @@ class MEMBER_ROLE(rels_django.DjangoEnum):
                  PERMISSION.REMOVE_MEMBER,
                  PERMISSION.FORUM_MODERATION,
                  PERMISSION.ACCESS_CHRONICLE,
-                 PERMISSION.BULK_MAILING)),
+                 PERMISSION.BULK_MAILING,
+                 PERMISSION.RECEIVE_MESSAGES)),
 
                ('OFFICER', 3, 'Офицер', 2,
                 (PERMISSION.EMISSARIES_PLANING,
@@ -145,7 +150,8 @@ class MEMBER_ROLE(rels_django.DjangoEnum):
                  PERMISSION.REMOVE_MEMBER,
                  PERMISSION.FORUM_MODERATION,
                  PERMISSION.ACCESS_CHRONICLE,
-                 PERMISSION.BULK_MAILING)),
+                 PERMISSION.BULK_MAILING,
+                 PERMISSION.RECEIVE_MESSAGES)),
 
                ('FIGHTER', 4, 'Боец', 3,
                 (PERMISSION.EMISSARIES_QUESTS,
@@ -154,6 +160,11 @@ class MEMBER_ROLE(rels_django.DjangoEnum):
 
                ('RECRUIT', 1, 'Рекрут', 4,
                 ()))
+
+
+ROLES_TO_NOTIFY = [role
+                   for role in MEMBER_ROLE.records
+                   if PERMISSION.RECEIVE_MESSAGES in role.permissions]
 
 
 class CURRENCY(rels_django.DjangoEnum):

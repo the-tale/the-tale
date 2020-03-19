@@ -117,7 +117,7 @@ class DevelopersInfoResource(utils_resources.Resource):
     def initialize(self, *args, **kwargs):
         super(DevelopersInfoResource, self).initialize(*args, **kwargs)
 
-    @dext_old_views.handler('', method='get')
+    @old_views.handler('', method='get')
     def index(self):
 
         registration_attemps_number = accounts_prototypes.AccountPrototype._model_class.objects.all().aggregate(django_models.Max('id'))['id__max']
@@ -179,7 +179,7 @@ class DevelopersInfoResource(utils_resources.Resource):
                               'PREMIUM_DAYS_FOR_HERO_OF_THE_DAY': portal_conf.settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY,
                               'page_type': 'index'})
 
-    @dext_old_views.handler('mobs-and-artifacts', method='get')
+    @old_views.handler('mobs-and-artifacts', method='get')
     def mobs_and_artifacts(self):  # pylint: disable=R0914
         mobs_without_loot = []
         mobs_without_artifacts = []

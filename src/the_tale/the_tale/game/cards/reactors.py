@@ -167,21 +167,21 @@ class SameEqual2(AutoNextCardReactor):
         return [new_card]
 
 
-class SamePower3(AutoNextCardReactor):
+# class SamePower3(AutoNextCardReactor):
 
-    def descrption(self):
-        return '3 x одинаковых «{}» => «{}» с тем же эффектом'.format(self.own_card_type.text, self.next_card_type.text)
+#     def descrption(self):
+#         return '3 x одинаковых «{}» => «{}» с тем же эффектом'.format(self.own_card_type.text, self.next_card_type.text)
 
-    def combine(self, combined_cards):
-        if len(combined_cards) != 3:
-            return None
+#     def combine(self, combined_cards):
+#         if len(combined_cards) != 3:
+#             return None
 
-        if not self.check_types(combined_cards):
-            return None
+#         if not self.check_types(combined_cards):
+#             return None
 
-        if not self.check_data_equality(combined_cards):
-            return None
+#         if not self.check_data_equality(combined_cards):
+#             return None
 
-        return [self.next_card_type.effect.create_card(available_for_auction=all(card.available_for_auction for card in combined_cards),
-                                                       type=self.next_card_type,
-                                                       direction=combined_cards[0].data['direction'])]
+#         return [self.next_card_type.effect.create_card(available_for_auction=all(card.available_for_auction for card in combined_cards),
+#                                                        type=self.next_card_type,
+#                                                        direction=combined_cards[0].data['direction'])]

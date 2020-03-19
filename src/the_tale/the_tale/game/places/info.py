@@ -101,14 +101,12 @@ def place_info(place, full_building_info):
             'demographics': place_info_demographics(place),
             'bills': place_info_bills(place),
             'habits': place_info_habits(place),
-            'job': place.job.ui_info(place.id),
             'chronicle': [event.ui_info() for event in events],
             'accounts': None,
             'clans': None}
 
     accounts_ids = set()
-    accounts_ids.update(data['politic_power']['heroes']['positive'])
-    accounts_ids.update(data['politic_power']['heroes']['negative'])
+    accounts_ids.update(hero_id for hero_id, power in data['politic_power']['heroes']['rating'])
 
     data['accounts'] = game_logic.accounts_info(accounts_ids)
     data['clans'] = game_logic.clans_info(data['accounts'])

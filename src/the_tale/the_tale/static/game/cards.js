@@ -48,6 +48,7 @@ pgf.game.widgets.CreateCardTooltip = function (data, cssClass) {
 
 pgf.game.widgets.GetCardsTooltipArgs = function() {
     var cardTooltipArgs = jQuery.extend({}, pgf.base.tooltipsArgs);
+
     cardTooltipArgs.placement = function(tip, element) {
         var offset = jQuery(element).offset();
         if (offset.left == 0 && offset.top == 0) {
@@ -55,7 +56,12 @@ pgf.game.widgets.GetCardsTooltipArgs = function() {
         }
         // по-умолчанию показываем слева, так как названия карт всегда выравнены по левому краю
         // поэтому тултип слева всегда будет около названия, а справа может появиться далеко в случае широкого поля или короткого названия карты
-        return 'left';
+        if (offset.left < pgf.base.TOOLTIP_WIDTH) {
+            return 'right'
+        }
+        else {
+            return 'left'
+        }
     }
 
     return cardTooltipArgs;
@@ -757,8 +763,7 @@ pgf.game.widgets.CARDS_STORAGE_DIALOG = `
 
     <ul>
       <li>Карты хранилища доступны в интерфейсах рынка и превращения карт, перекладывать их обратно в руку не надо.</li>
-      <li>Первыми в хранилище будут отправляться продаваемые карты.</li>
-      <li>Первыми в руку будут отправляться непродаваемые карты.</li>
+      <li>Первыми всегда перекладываются продаваемые карты.</li>
     </ul>
 
     <ul class="pgf-card-amount-choice nav nav-pills">

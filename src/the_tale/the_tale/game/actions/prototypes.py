@@ -19,6 +19,7 @@ class ActionBase(object):
                  'created_at_turn',
                  'context',
                  'place_id',
+                 'person_id',
                  'emissary_id',
                  'person_action',
                  'mob',
@@ -31,7 +32,9 @@ class ActionBase(object):
                  'info_link',
                  'saved_meta_action',
                  'replane_required',
-                 'path')
+                 'path',
+                 'inner_circle_places',
+                 'inner_circle_persons')
 
     class STATE:
         UNINITIALIZED = 'uninitialized'
@@ -54,6 +57,7 @@ class ActionBase(object):
                  context=None,
                  description=None,
                  place_id=None,
+                 person_id=None,
                  emissary_id=None,
                  person_action=None,
                  mob=None,
@@ -67,7 +71,9 @@ class ActionBase(object):
                  meta_action=None,
                  replane_required=False,
                  hero=None,
-                 path=None):
+                 path=None,
+                 inner_circle_places=None,
+                 inner_circle_persons=None):
 
         self.hero = hero
 
@@ -92,6 +98,7 @@ class ActionBase(object):
             self.mob_context = mob_context if mob_context is None or isinstance(mob_context, self.CONTEXT_MANAGER) else self.CONTEXT_MANAGER.deserialize(mob_context)
 
         self.place_id = place_id
+        self.person_id = person_id
         self.emissary_id = emissary_id
 
         self.person_action = None
@@ -123,6 +130,9 @@ class ActionBase(object):
         else:
             self.path = path
 
+        self.inner_circle_places = set(inner_circle_places) if inner_circle_places else set()
+        self.inner_circle_persons = set(inner_circle_persons) if inner_circle_persons else set()
+
     def serialize(self):
         data = {'type': self.TYPE.value,
                 'bundle_id': self.bundle_id,
@@ -136,6 +146,8 @@ class ActionBase(object):
             data['context'] = self.context.serialize()
         if self.place_id is not None:
             data['place_id'] = self.place_id
+        if self.person_id is not None:
+            data['person_id'] = self.person_id
         if self.emissary_id is not None:
             data['emissary_id'] = self.emissary_id
         if self.person_action is not None:
@@ -160,6 +172,10 @@ class ActionBase(object):
             data['info_link'] = self.info_link
         if self.path is not None:
             data['path'] = self.path.serialize()
+        if self.inner_circle_places:
+            data['inner_circle_places'] = list(self.inner_circle_places)
+        if self.inner_circle_persons:
+            data['inner_circle_persons'] = list(self.inner_circle_persons)
 
         return data
 
@@ -195,6 +211,10 @@ class ActionBase(object):
     @property
     def place(self):
         return places_storage.places.get(self.place_id)
+
+    @property
+    def person(self):
+        return persons_storage.persons.get(self.person_id)
 
     @property
     def meta_action(self):
@@ -439,8 +459,7 @@ class ActionIdlenessPrototype(ActionBase):
         if self.hero.clan_id is None:
             return None
 
-        for place in places_logic.task_board_places(self.hero.position.place.x,
-                                                    self.hero.position.place.y):
+        for place in places_logic.task_board_places(self.hero.position.place):
 
             if self.hero.clan_id in place.attrs.task_board:
                 return place
@@ -536,12 +555,24 @@ class ActionQuestPrototype(ActionBase):
     ###########################################
 
     @classmethod
-    def _create(cls, hero, bundle_id, emissary_id=None, person_action=None):
+    def _create(cls,
+                hero,
+                bundle_id,
+                emissary_id=None,
+                place_id=None,
+                person_id=None,
+                person_action=None,
+                inner_circle_places=None,
+                inner_circle_persons=None):
         return cls(hero=hero,
                    bundle_id=bundle_id,
                    state=cls.STATE.SEARCHING,
                    emissary_id=emissary_id,
-                   person_action=person_action)
+                   place_id=place_id,
+                   person_id=person_id,
+                   person_action=person_action,
+                   inner_circle_places=inner_circle_places,
+                   inner_circle_persons=inner_circle_persons)
 
     @property
     def searching_quest(self):
@@ -550,6 +581,9 @@ class ActionQuestPrototype(ActionBase):
     def setup_quest(self, quest):
         if self.state != self.STATE.SEARCHING:
             return
+
+        quest.extend_inner_circle(inner_circle_places=self.inner_circle_places,
+                                  inner_circle_persons=self.inner_circle_persons)
 
         self.hero.quests.push_quest(quest)
 
@@ -574,10 +608,14 @@ class ActionQuestPrototype(ActionBase):
                 if self.technical_setup_quest_required():
                     quests_helpers.setup_quest(self.hero,
                                                emissary_id=self.emissary_id,
+                                               place_id=self.place_id,
+                                               person_id=self.person_id,
                                                person_action=self.person_action)
                 else:
                     quests_logic.request_quest_for_hero(self.hero,
                                                         emissary_id=self.emissary_id,
+                                                        place_id=self.place_id,
+                                                        person_id=self.person_id,
                                                         person_action=self.person_action)
 
         if self.state == self.STATE.EQUIPPING:
@@ -632,7 +670,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
     ###########################################
 
     def get_info_link(self):
-        return dext_urls.url('guide:mobs:info', self.mob.record.id)
+        return utils_urls.url('guide:mobs:info', self.mob.record.id)
 
     @classmethod
     def _create(cls, hero, bundle_id, mob):
@@ -927,6 +965,12 @@ class ActionInPlacePrototype(ActionBase):
                         bundle_id=bundle_id,
                         state=cls.STATE.SPEND_MONEY)
 
+        if hero.companion and hero.position.moved_out_place:
+            # спутники, покидающие героя, должны уходить до входа в город
+            if random.random() < hero.companion_leave_in_place_probability:
+                hero.add_message('companions_left', diary=True, companion_owner=hero, companion=hero.companion)
+                hero.remove_companion()
+
         if hero.health < hero.max_health and random.random() < hero.position.place.attrs.hero_regen_chance:
             hero.health = hero.max_health
             hero.add_message('action_inplace_instant_heal',
@@ -967,7 +1011,7 @@ class ActionInPlacePrototype(ActionBase):
             game_tt_services.energy.cmd_change_balance(account_id=hero.account_id,
                                                        type='inplace_regen',
                                                        amount=c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE,
-                                                       async=True,
+                                                       asynchronous=True,
                                                        autocommit=True)
 
             hero.add_message('action_inplace_instant_energy_regen',
@@ -1007,10 +1051,6 @@ class ActionInPlacePrototype(ActionBase):
                 artifact = random.choice(list(hero.bag.values()))
                 hero.pop_loot(artifact)
                 hero.add_message('action_inplace_companion_drink_artifact', hero=hero, place=hero.position.place, artifact=artifact, companion=hero.companion)
-
-            if random.random() < hero.companion_leave_in_place_probability:
-                hero.add_message('companions_left', diary=True, companion_owner=hero, companion=hero.companion)
-                hero.remove_companion()
 
         hero.position.move_in_place()  # <- must be last method
 
@@ -1124,9 +1164,9 @@ class ActionInPlacePrototype(ActionBase):
         if not self.hero.can_change_person_power(person):
             return
 
-        power = power_direction * f.person_power_for_quest(c.QUEST_AREA_RADIUS)
+        power = power_direction * f.person_power_for_quest(places_storage.places.expected_minimum_quest_distance())
 
-        impacts = list(persons_logic.impacts_from_hero(self.hero, person, power))
+        impacts = list(persons_logic.impacts_from_hero(self.hero, person, power, inner_circle_places=set(), inner_circle_persons=set()))
 
         politic_power_logic.add_power_impacts(impacts)
 
@@ -1444,7 +1484,7 @@ class ActionRegenerateEnergyPrototype(ActionBase):
                     game_tt_services.energy.cmd_change_balance(account_id=self.hero.account_id,
                                                                type='energy_regeneration',
                                                                amount=energy_delta,
-                                                               async=True,
+                                                               asynchronous=True,
                                                                autocommit=True)
 
                     self.hero.add_message('%s_energy_received' % self.textgen_id, hero=self.hero, energy=energy_delta)
@@ -2045,4 +2085,4 @@ class ActionMoveSimplePrototype(ActionBase):
 
 
 ACTION_TYPES = {action_class.TYPE: action_class
-                for action_class in dext_discovering.discover_classes(list(globals().values()), ActionBase)}
+                for action_class in utils_discovering.discover_classes(list(globals().values()), ActionBase)}

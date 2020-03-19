@@ -49,13 +49,13 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                                description='Скорость производства товаров. Зависит от размера экономики города, площади владений, Мастеров и многих других эффектов. Если производство станет меньше нуля при отсутствии товаров на складах города и его единичном размере, то в городе начнётся производственный кризис. Для разрешения кризиса будет введена пошлина для всех проходящих героев.'),
                attributes.attr('GOODS', 5, 'товары', type=attributes.ATTRIBUTE_TYPE.CALCULATED, formatter=int,
                                description='Чтобы расти, город должен производить товары. Если их накапливается достаточно, то размер города увеличивается. Если товары кончаются, то уменьшается.'),
-               attributes.attr('SAFETY', 7, 'безопасность', verbose_units='%', formatter=attributes.delta_percents_formatter,
+               attributes.attr('SAFETY', 7, 'безопасность', verbose_units='%', formatter=attributes.percents_formatter,
                                description='Вклад города в безопасность в его окрестностях.'),
-               attributes.attr('TRANSPORT', 8, 'транспорт', verbose_units='%', formatter=attributes.delta_percents_formatter,
+               attributes.attr('TRANSPORT', 8, 'транспорт', verbose_units='%', formatter=attributes.percents_formatter,
                                description='Вклад города в развитие транспортной инфраструктуры в его окрестностях.'),
                attributes.attr('FREEDOM', 9, 'свобода', verbose_units='%', formatter=attributes.percents_formatter,
                                description='Насколько активна политическая жизнь в городе (как сильно изменяется влияние Мастеров от действий героев).'),
-               attributes.attr('TAX', 10, 'пошлина', verbose_units='%', formatter=attributes.percents_formatter,
+               attributes.attr('TAX', 10, 'пошлина', verbose_units='%', formatter=attributes.percents_formatter, order=3,
                                description='Размер пошлины, которую платят герои при посещении города (процент от наличности в кошельке героя).'),
                attributes.attr('STABILITY', 11, 'стабильность', order=0, verbose_units='%', formatter=attributes.percents_formatter,
                                description='Отражает текущую ситуацию в городе и влияет на многие его параметры. Уменьшается от изменений, происходящих в городе (при одобрении записи в Книге Судеб), и постепенно восстанавливается до 100%.'),
@@ -124,20 +124,28 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                                description='Перечень гильдий, которые предоставляют лечение спутникам своих героев.'),
 
                attributes.attr('DEMOGRAPHICS_PRESSURE_HUMAN', 39, 'бонус демографического давления людей',
-                               formatter=attributes.delta_percents_formatter,
+                               formatter=attributes.percents_formatter, verbose_units='%',
                                description='Модификация демографического давления мастеров людей.'),
                attributes.attr('DEMOGRAPHICS_PRESSURE_ELF', 40, 'бонус демографического давления эльфов',
-                               formatter=attributes.delta_percents_formatter,
+                               formatter=attributes.percents_formatter, verbose_units='%',
                                description='Модификация демографического давления мастеров эльфов.'),
                attributes.attr('DEMOGRAPHICS_PRESSURE_ORC', 41, 'бонус демографического давления орков',
-                               formatter=attributes.delta_percents_formatter,
+                               formatter=attributes.percents_formatter, verbose_units='%',
                                description='Модификация демографического давления мастеров орков.'),
                attributes.attr('DEMOGRAPHICS_PRESSURE_GOBLIN', 42, 'бонус демографического давления гоблинов',
-                               formatter=attributes.delta_percents_formatter,
+                               formatter=attributes.percents_formatter, verbose_units='%',
                                description='Модификация демографического давления мастеров гоблинов.'),
                attributes.attr('DEMOGRAPHICS_PRESSURE_DWARF', 43, 'бонус демографического давления дварфов',
-                               formatter=attributes.delta_percents_formatter,
-                               description='Модификация демографического давления мастеров дварфов.'),)
+                               formatter=attributes.percents_formatter, verbose_units='%',
+                               description='Модификация демографического давления мастеров дварфов.'),
+
+               attributes.attr('TAX_SIZE_BORDER', 44, 'поддерживаемый размер', default=lambda: 1,
+                               type=attributes.ATTRIBUTE_TYPE.CALCULATED,
+                               description=f'Если есть риск уменьшения размера города ниже этого значения, город автоматически введёт пошлину, чтобы компенсировать недостаток производства. В городах размером больше 1, пошлина может компенсировать не более {c.MAX_PRODUCTION_FROM_TAX} производства.'),
+
+               attributes.attr('CLAN_PROTECTOR', 45, 'гильдия-протектор', default=lambda: None,
+                               apply=game_attributes.replace_applier, type=game_attributes.ATTRIBUTE_TYPE.REWRITABLE,
+                               description='Гильдия, протекторатом которого является город. Мероприятяи эмиссаров гильдии-протектора, проводимые в городе, получают дополнительные и/или усиленные эффекты.'))
 
 
 ATTRIBUTE.EFFECTS_ORDER = sorted(set(record.order for record in ATTRIBUTE.records))
@@ -151,7 +159,7 @@ class RESOURCE_EXCHANGE_TYPE(rels_django.DjangoEnum):
     PRODUCTION_BASE = int(c.PLACE_GOODS_BONUS / 2)
     SAFETY_BASE = c.PLACE_SAFETY_FROM_BEST_PERSON / 4
     TRANSPORT_BASE = c.PLACE_TRANSPORT_FROM_BEST_PERSON / 4
-    TAX_BASE = 0.025
+    TAX_BASE = PRODUCTION_BASE * c.PLACE_TAX_PER_ONE_GOODS
     CULTURE_BASE = c.PLACE_CULTURE_FROM_BEST_PERSON / 4
 
     records = (('NONE', 0, 'ничего', None, 0, 0),

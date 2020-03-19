@@ -219,3 +219,11 @@ def create_companion(companion_record):
                              coherence=c.COMPANIONS_MIN_COHERENCE,
                              experience=0,
                              healed_at_turn=game_turn.number())
+
+
+def coherence_exp_per_quest(expected_quest_path):
+    turns_in_quest = f.path_to_turns(expected_quest_path)
+
+    quests_requied = c.EXPECTED_FULL_COHERENCE_TIME / (turns_in_quest * c.TURN_DELTA)
+
+    return int(((1 + 100) * 100 / 2) / quests_requied)

@@ -1,0 +1,13 @@
+{% import 'bills/macros.html' as bills_macros with context %}
+{% import 'emissaries/macros.html' as emissaries_macros with context %}
+
+<li>
+  <strong>Эмиссар:</strong>
+  {{emissaries_macros.emissary_verbose(bill.data.emissary, description=true, clan=value("the_tale.clans.logic").load_clan(bill.data.emissary.clan_id), show_place=false)}}
+</li>
+
+<li><strong>из города:</strong> <a href="{{url('game:places:show', bill.data.origin_emissary_place_id)}}">{{bill.data.origin_place.name}}</a></li>
+
+{% if bill.data.place_name_changed %}
+<li><strong>название города во время создания записи:</strong> {{bill.data.old_place_name}}</li>
+{% endif %}

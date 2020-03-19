@@ -5,10 +5,10 @@ smart_imports.all()
 
 
 class BaseForm(forms.BaseUserForm):
-    place = dext_fields.ChoiceField(label='Город')
-    new_race = dext_fields.TypedChoiceField(label='Новая раса',
-                                            choices=sorted([(record, record.multiple_text) for record in game_relations.RACE.records], key=lambda g: g[1]),
-                                            coerce=game_relations.RACE.get_from_name)
+    place = utils_fields.ChoiceField(label='Город')
+    new_race = utils_fields.TypedChoiceField(label='Новая раса',
+                                             choices=sorted([(record, record.multiple_text) for record in game_relations.RACE.records], key=lambda g: g[1]),
+                                             coerce=game_relations.RACE.get_from_name)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)

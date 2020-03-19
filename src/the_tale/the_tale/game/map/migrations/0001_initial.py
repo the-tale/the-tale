@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='mapinfo',
             name='world',
-            field=models.ForeignKey(related_name='+', to='map.WorldInfo'),
+            field=models.ForeignKey(related_name='+', to='map.WorldInfo', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

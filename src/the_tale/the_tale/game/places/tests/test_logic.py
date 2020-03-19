@@ -60,16 +60,16 @@ class TTPowerImpactsTests(utils_testcase.TestCase):
                                               fame=self.fame))
 
         self.assertCountEqual(impacts,
-                              [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                              [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.place_1.id,
                                                             amount=self.expected_power),
-                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
+                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
-                                                            target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.place_1.id,
                                                             amount=self.expected_power),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.FAME,
@@ -110,18 +110,18 @@ class TTPowerImpactsTests(utils_testcase.TestCase):
                                               fame=-self.fame))
 
         self.assertCountEqual(impacts,
-                              [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                              [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.place_1.id,
                                                             amount=-self.expected_power),
-                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
+                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
-                                                            target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.place_1.id,
-                                                            amount=abs(self.expected_power))])
+                                                            amount=-self.expected_power)])
 
     def test_fame_only_for_hero(self):
         actor_type = tt_api_impacts.OBJECT_TYPE.random(exclude=(tt_api_impacts.OBJECT_TYPE.HERO,))
@@ -134,16 +134,16 @@ class TTPowerImpactsTests(utils_testcase.TestCase):
                                               fame=self.fame))
 
         self.assertCountEqual(impacts,
-                              [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                              [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
                                                             actor_type=actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.place_1.id,
                                                             amount=self.expected_power),
-                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
+                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                             actor_type=actor_type,
                                                             actor_id=self.actor_id,
-                                                            target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.place_1.id,
                                                             amount=self.expected_power)])
 
@@ -156,16 +156,16 @@ class TTPowerImpactsTests(utils_testcase.TestCase):
                                               fame=0))
 
         self.assertCountEqual(impacts,
-                              [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                              [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.place_1.id,
                                                             amount=0),
-                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
+                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
-                                                            target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.place_1.id,
                                                             amount=0)])
 
@@ -188,6 +188,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
         impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
                                                         place=self.place_1,
                                                         power=1000,
+                                                        inner_circle_places=set(),
                                                         impacts_generator=fake_tt_power_impacts))
         self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
                                              'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
@@ -201,6 +202,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
         impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
                                                         place=self.place_1,
                                                         power=1000,
+                                                        inner_circle_places={self.place_2.id},
                                                         impacts_generator=fake_tt_power_impacts))
         self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
                                              'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
@@ -216,6 +218,21 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
         impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
                                                         place=self.place_1,
                                                         power=1000,
+                                                        inner_circle_places=set(),
+                                                        impacts_generator=fake_tt_power_impacts))
+        self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
+                                             'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
+                                             'amount': 1000,
+                                             'fame': c.HERO_FAME_PER_HELP,
+                                             'inner_circle': True,
+                                             'place': self.place_1}])
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, place: True)
+    def test_inner_circle__extended_inner_circle(self):
+        impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
+                                                        place=self.place_1,
+                                                        power=1000,
+                                                        inner_circle_places={self.place_1.id},
                                                         impacts_generator=fake_tt_power_impacts))
         self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
                                              'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
@@ -231,6 +248,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
         impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
                                                         place=self.place_1,
                                                         power=-1000,
+                                                        inner_circle_places=set(),
                                                         impacts_generator=fake_tt_power_impacts))
         self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
                                              'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
@@ -238,54 +256,6 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                              'fame': 0,
                                              'inner_circle': True,
                                              'place': self.place_1}])
-
-
-class PlaceJobTests(utils_testcase.TestCase):
-
-    def setUp(self):
-        super().setUp()
-        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
-
-        game_tt_services.debug_clear_service()
-
-        self.job = jobs_logic.create_job(logic.PlaceJob)
-
-    def test_static_values(self):
-        self.assertEqual(self.job.ACTOR, 'place')
-        self.assertTrue(self.job.ACTOR_TYPE.is_PLACE)
-        self.assertTrue(self.job.POSITIVE_TARGET_TYPE.is_JOB_PLACE_POSITIVE)
-        self.assertTrue(self.job.NEGATIVE_TARGET_TYPE.is_JOB_PLACE_NEGATIVE)
-        self.assertEqual(self.job.NORMAL_POWER, f.normal_job_power(politic_power_conf.settings.PLACE_INNER_CIRCLE_SIZE) * 2)
-
-    def test_load_power(self):
-        with mock.patch('the_tale.game.politic_power.logic.get_job_power', mock.Mock(return_value=666)) as get_job_power:
-            self.assertEqual(self.job.load_power(self.place_1.id), 666)
-
-        get_job_power.assert_called_once_with(place_id=self.place_1.id)
-
-    def test_load_inner_circle(self):
-        with mock.patch('the_tale.game.politic_power.logic.get_inner_circle', mock.Mock(return_value=666)) as get_inner_circle:
-            self.assertEqual(self.job.load_inner_circle(self.place_1.id), 666)
-
-        get_inner_circle.assert_called_once_with(place_id=self.place_1.id)
-
-    def test_get_job_power(self):
-        with mock.patch('the_tale.game.politic_power.storage.PowerStorage.total_power_fraction',
-                        lambda self, target_id: 0.5):
-            self.assertEqual(self.job.get_job_power(self.place_1.id), 0.875)
-
-    def test_get_project_name(self):
-        name = self.place_1.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))
-        self.assertEqual(self.job.get_project_name(self.place_1.id), 'Проект города {name}'.format(name=name))
-
-    def test_get_objects(self):
-        self.assertEqual(self.job.get_objects(self.place_1.id),
-                         {'person': None,
-                          'place': self.place_1})
-
-    def test_get_effects_priorities(self):
-        self.assertEqual(self.job.get_effects_priorities(self.place_1.id),
-                         {effect: 1 for effect in jobs_effects.EFFECT.records})
 
 
 class GetStartPlaceForRaceTests(utils_testcase.TestCase):
@@ -642,6 +612,44 @@ class RegisterEffectTests(utils_testcase.TestCase):
                                               delta=3,
                                               info={'test': 'tset'})
 
+    def test_rewritable_type(self):
+        self.assertTrue(relations.ATTRIBUTE.CLAN_PROTECTOR.type.is_REWRITABLE)
+
+        with self.check_delta(lambda: len(storage.effects.all()), 1):
+            with self.check_changed(lambda: storage.places._version):
+                with self.check_changed(lambda: storage.effects._version):
+                    effect_1_id = logic.register_effect(place_id=self.places[0].id,
+                                                        attribute=relations.ATTRIBUTE.CLAN_PROTECTOR,
+                                                        value=33,
+                                                        name='test.effect',
+                                                        delta=3,
+                                                        info={'test': 'tset'},
+                                                        refresh_effects=True,
+                                                        refresh_places=True)
+
+                    effect_2_id = logic.register_effect(place_id=self.places[0].id,
+                                                        attribute=relations.ATTRIBUTE.CLAN_PROTECTOR,
+                                                        value=777,
+                                                        name='test.effect.2',
+                                                        delta=4,
+                                                        info={'test': 'tset.2'},
+                                                        refresh_effects=True,
+                                                        refresh_places=True)
+
+        self.assertEqual(self.places[0].attrs.clan_protector, 777)
+
+        self.assertNotIn(effect_1_id, storage.effects)
+
+        effect = storage.effects[effect_2_id]
+
+        self.assertEqual(effect.id, effect_2_id)
+        self.assertEqual(effect.entity, self.places[0].id)
+        self.assertTrue(effect.attribute.is_CLAN_PROTECTOR)
+        self.assertEqual(effect.value, 777)
+        self.assertEqual(effect.name, 'test.effect.2')
+        self.assertEqual(effect.delta, 4)
+        self.assertEqual(effect.info, {'test': 'tset.2'})
+
 
 class RemoveEffectTests(utils_testcase.TestCase):
 
@@ -682,3 +690,161 @@ class RemoveEffectTests(utils_testcase.TestCase):
                                             place_id=self.places[0].id)
 
         self.assertIn(self.effect_id, storage.effects)
+
+
+class ProtectorCandidatesTests(clans_helpers.ClansTestsMixin,
+                               emissaries_helpers.EmissariesTestsMixin,
+                               utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        tt_services.effects.cmd_debug_clear_service()
+
+        self.places = game_logic.create_test_map()
+
+        self.prepair_forum_for_clans()
+
+        self.accounts = []
+        self.clans = []
+        self.emissaries = []
+
+        for i in range(3):
+            self.accounts.append(self.accounts_factory.create_account())
+            self.clans.append(self.create_clan(owner=self.accounts[-1], uid=i))
+
+            if i == 2:
+                place_id = self.places[1].id
+            else:
+                place_id = self.places[0].id
+
+            self.emissaries.append(self.create_emissary(clan=self.clans[-1],
+                                                        initiator=self.accounts[-1],
+                                                        place_id=place_id))
+
+        for emissary in self.emissaries:
+            politic_power_logic.add_power_impacts([game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.EMISSARY_POWER,
+                                                                                actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                                actor_id=666,
+                                                                                target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
+                                                                                target_id=emissary.id,
+                                                                                amount=1000000)])
+
+    def test_no_candidates(self):
+        self.assertEqual(logic.protector_candidates(self.places[0].id), set())
+
+    def test_has_candidates(self):
+        emissaries_logic.create_event(initiator=self.accounts[0],
+                                      emissary=self.emissaries[0],
+                                      concrete_event=emissaries_events.Revolution(raw_ability_power=666),
+                                      days=7)
+
+        self.assertEqual(logic.protector_candidates(self.places[0].id), {self.clans[0].id})
+
+        emissaries_logic.create_event(initiator=self.accounts[1],
+                                      emissary=self.emissaries[1],
+                                      concrete_event=emissaries_events.Revolution(raw_ability_power=666),
+                                      days=7)
+
+        self.assertEqual(logic.protector_candidates(self.places[0].id), {self.clans[0].id, self.clans[1].id})
+
+        emissaries_logic.create_event(initiator=self.accounts[2],
+                                      emissary=self.emissaries[2],
+                                      concrete_event=emissaries_events.Revolution(raw_ability_power=666),
+                                      days=7)
+
+        self.assertEqual(logic.protector_candidates(self.places[0].id), {self.clans[0].id, self.clans[1].id})
+
+
+class RemoveProtectoratTests(helpers.PlacesTestsMixin,
+                             clans_helpers.ClansTestsMixin,
+                             emissaries_helpers.EmissariesTestsMixin,
+                             utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        tt_services.effects.cmd_debug_clear_service()
+
+        self.places = game_logic.create_test_map()
+
+        self.prepair_forum_for_clans()
+
+        self.account = self.accounts_factory.create_account()
+        self.clan = self.create_clan(owner=self.account, uid=1)
+
+    def test_no_protectorat(self):
+        self.assertEqual(self.places[0].attrs.clan_protector, None)
+
+        logic.remove_protectorat(self.places[0])
+
+        self.assertEqual(self.places[0].attrs.clan_protector, None)
+
+    def test_has_protectorat(self):
+
+        self.set_protector(place_id=self.places[0].id,
+                           clan_id=self.clan.id)
+
+        self.assertEqual(self.places[0].attrs.clan_protector, self.clan.id)
+
+        logic.remove_protectorat(self.places[0],
+                                 refresh_effects=True,
+                                 refresh_places=True)
+
+        self.assertEqual(self.places[0].attrs.clan_protector, None)
+
+
+class SyncProtectoratTests(helpers.PlacesTestsMixin,
+                           clans_helpers.ClansTestsMixin,
+                           emissaries_helpers.EmissariesTestsMixin,
+                           utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        tt_services.effects.cmd_debug_clear_service()
+
+        self.places = game_logic.create_test_map()
+
+        self.prepair_forum_for_clans()
+
+        self.account = self.accounts_factory.create_account()
+        self.clan = self.create_clan(owner=self.account, uid=1)
+
+    def test_no_protectorat(self):
+        self.assertEqual(self.places[0].attrs.clan_protector, None)
+
+        logic.sync_protectorat(self.places[0])
+
+        self.assertEqual(self.places[0].attrs.clan_protector, None)
+
+    def test_no_emissary(self):
+        self.set_protector(place_id=self.places[0].id,
+                           clan_id=self.clan.id)
+
+        # create emissary from other clan
+        account_2 = self.accounts_factory.create_account()
+        clan_2 = self.create_clan(owner=account_2, uid=2)
+        self.create_emissary(clan=clan_2,
+                             initiator=account_2,
+                             place_id=self.places[0].id)
+
+        self.assertEqual(self.places[0].attrs.clan_protector, self.clan.id)
+
+        logic.sync_protectorat(self.places[0])
+
+        self.assertEqual(self.places[0].attrs.clan_protector, None)
+
+    def test_has_emissary(self):
+        self.set_protector(place_id=self.places[0].id,
+                           clan_id=self.clan.id)
+
+        self.assertEqual(self.places[0].attrs.clan_protector, self.clan.id)
+
+        self.create_emissary(clan=self.clan,
+                             initiator=self.account,
+                             place_id=self.places[0].id)
+
+        logic.sync_protectorat(self.places[0])
+
+        self.assertEqual(self.places[0].attrs.clan_protector, self.clan.id)

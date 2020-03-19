@@ -91,6 +91,9 @@ class QuestsTests(utils_testcase.TestCase,
         with self.check_changed(lambda: politic_power_logic.get_emissaries_power([self.emissary.id])[self.emissary.id]):
             self.complete_quest(self.hero)
 
+    # этот тест проверяет логику выполнения условий стартового узла задания
+    # когда герой не находится в точке старта задания
+    # в случае переработки логики эмиссаров, необходимо сохранить эту проверку
     @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.check_is_alive', lambda *argv, **kwargs: True)
     def test_emissary_in_other_place_that_hero(self):
 
@@ -107,9 +110,23 @@ class QuestsTests(utils_testcase.TestCase,
                                            emissary_id=self.emissary.id,
                                            person_action=relations.PERSON_ACTION.random())
 
+        self.hero.actions.current_action.storage.process_turn(continue_steps_if_needed=False)
+
+        self.assertTrue(self.hero.quests.has_quests)
+
+        while not self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE:
+            self.hero.actions.current_action.storage.process_turn(continue_steps_if_needed=False)
+            game_turn.increment()
+
+        # проверяем, что первым делом герой идёт в город эмиссара
+        self.assertEqual(self.hero.actions.current_action.place_id, self.emissary.place_id)
+
         with self.check_changed(lambda: politic_power_logic.get_emissaries_power([self.emissary.id])[self.emissary.id]):
             self.complete_quest(self.hero)
 
+    # этот тест проверяет логику выполнения условий стартового узла задания
+    # когда герой не находится в точке старта задания
+    # в случае переработки логики эмиссаров, необходимо сохранить эту проверку
     @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.check_is_alive', lambda *argv, **kwargs: True)
     def test_emissary_hero_on_road(self):
 
@@ -123,6 +140,13 @@ class QuestsTests(utils_testcase.TestCase,
                                            logger=mock.Mock(),
                                            emissary_id=self.emissary.id,
                                            person_action=relations.PERSON_ACTION.random())
+
+        while not self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE:
+            self.hero.actions.current_action.storage.process_turn(continue_steps_if_needed=False)
+            game_turn.increment()
+
+        # проверяем, что первым делом герой идёт в город эмиссара
+        self.assertEqual(self.hero.actions.current_action.place_id, self.emissary.place_id)
 
         with self.check_changed(lambda: politic_power_logic.get_emissaries_power([self.emissary.id])[self.emissary.id]):
             self.complete_quest(self.hero)

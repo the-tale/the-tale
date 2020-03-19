@@ -11,7 +11,7 @@ class FriendsResource(utils_resources.Resource):
     def initialize(self, *args, **kwargs):
         super(FriendsResource, self).initialize(*args, **kwargs)
 
-    @dext_old_views.handler('', method='get')
+    @old_views.handler('', method='get')
     def friends(self):
         friends = prototypes.FriendshipPrototype.get_friends_for(self.account)
         candidates = prototypes.FriendshipPrototype.get_candidates_for(self.account)
@@ -25,7 +25,7 @@ class FriendsResource(utils_resources.Resource):
                               'heroes': heroes,
                               'clans': clans})
 
-    @dext_old_views.handler('candidates', method='get')
+    @old_views.handler('candidates', method='get')
     def candidates(self):
         candidates = prototypes.FriendshipPrototype.get_candidates_for(self.account)
         accounts_ids = [account.id for account in candidates]
@@ -37,8 +37,9 @@ class FriendsResource(utils_resources.Resource):
                               'heroes': heroes,
                               'clans': clans})
 
-    @dext_old_views.validate_argument('friend', accounts_prototypes.AccountPrototype.get_by_id, 'friends', 'Игрок не найден')
-    @dext_old_views.handler('request', method='get')
+    @accounts_views.validate_ban_forum()
+    @old_views.validate_argument('friend', accounts_prototypes.AccountPrototype.get_by_id, 'friends', 'Игрок не найден')
+    @old_views.handler('request', method='get')
     def request_dialog(self, friend):
 
         if friend.id == accounts_logic.get_system_user().id:
@@ -48,8 +49,9 @@ class FriendsResource(utils_resources.Resource):
                              {'friend': friend,
                               'form': forms.RequestForm()})
 
-    @dext_old_views.validate_argument('friend', accounts_prototypes.AccountPrototype.get_by_id, 'friends', 'Игрок не найден')
-    @dext_old_views.handler('request', method='post')
+    @accounts_views.validate_ban_forum()
+    @old_views.validate_argument('friend', accounts_prototypes.AccountPrototype.get_by_id, 'friends', 'Игрок не найден')
+    @old_views.handler('request', method='post')
     def request_friendship(self, friend):
 
         if friend.is_fast:
@@ -66,14 +68,14 @@ class FriendsResource(utils_resources.Resource):
         prototypes.FriendshipPrototype.request_friendship(self.account, friend, text=form.c.text)
         return self.json_ok()
 
-    @dext_old_views.validate_argument('friend', accounts_prototypes.AccountPrototype.get_by_id, 'friends', 'Игрок не найден')
-    @dext_old_views.handler('accept', method='post')
+    @old_views.validate_argument('friend', accounts_prototypes.AccountPrototype.get_by_id, 'friends', 'Игрок не найден')
+    @old_views.handler('accept', method='post')
     def accept_friendship(self, friend):
         prototypes.FriendshipPrototype.request_friendship(self.account, friend)
         return self.json_ok()
 
-    @dext_old_views.validate_argument('friend', accounts_prototypes.AccountPrototype.get_by_id, 'friends', 'Игрок не найден')
-    @dext_old_views.handler('remove', method='post')
+    @old_views.validate_argument('friend', accounts_prototypes.AccountPrototype.get_by_id, 'friends', 'Игрок не найден')
+    @old_views.handler('remove', method='post')
     def remove(self, friend):
         prototypes.FriendshipPrototype.remove_friendship(self.account, friend)
         return self.json_ok()

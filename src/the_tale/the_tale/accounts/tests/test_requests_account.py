@@ -40,10 +40,10 @@ class IndexRequestsTests(AccountRequestsTests):
         self.check_html_ok(self.request_html(django_reverse('accounts:') + '?page=2'), texts=(('pgf-account-record', 3),))
 
     def test_index_redirect_from_large_page(self):
-        self.check_redirect(dext_urls.url('accounts:', page=2), dext_urls.url('accounts:', page=1))
+        self.check_redirect(utils_urls.url('accounts:', page=2), utils_urls.url('accounts:', page=1))
 
     def test_accounts_not_found_message(self):
-        self.check_html_ok(self.request_html(dext_urls.url('accounts:', prefix='ac')), texts=(('pgf-account-record', 0),
+        self.check_html_ok(self.request_html(utils_urls.url('accounts:', prefix='ac')), texts=(('pgf-account-record', 0),
                                                                                               ('pgf-no-accounts-message', 1),
                                                                                               (self.account_bot.nick, 0),
                                                                                               (self.account_1.nick, 0),
@@ -62,7 +62,7 @@ class IndexRequestsTests(AccountRequestsTests):
             account = self.accounts_factory.create_account(nick='test_user_b_%d' % i)
             texts.append((account.nick, 1))
 
-        self.check_html_ok(self.request_html(dext_urls.url('accounts:', prefix='test_user_b')), texts=texts)
+        self.check_html_ok(self.request_html(utils_urls.url('accounts:', prefix='test_user_b')), texts=texts)
 
     def test_accounts_search_by_prefix_second_page(self):
         texts = [('pgf-account-record', 6),
@@ -80,7 +80,7 @@ class IndexRequestsTests(AccountRequestsTests):
             account = self.accounts_factory.create_account(nick='test_user_ba_%d' % i)
             texts.append((account.nick, 0))
 
-        self.check_html_ok(self.request_html(dext_urls.url('accounts:', prefix='test_user_b', page=2)), texts=texts)
+        self.check_html_ok(self.request_html(utils_urls.url('accounts:', prefix='test_user_b', page=2)), texts=texts)
 
 
 class ShowRequestsTests(AccountRequestsTests):
@@ -92,7 +92,13 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-friends-request-from', 0),
                  ('pgf-friends-request-to', 0),
                  ('pgf-ban-forum-message', 0),
-                 ('pgf-ban-game-message', 0)]
+                 ('pgf-ban-game-message', 0),
+                 ('pgf-technical', 0)]
+        self.check_html_ok(self.request_html(django_reverse('accounts:show', args=[self.account_1.id])), texts=texts)
+
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_technical', True)
+    def test_show__technical_message(self):
+        texts = [('pgf-technical', 1)]
         self.check_html_ok(self.request_html(django_reverse('accounts:show', args=[self.account_1.id])), texts=texts)
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_game', True)
@@ -192,11 +198,11 @@ class ShowApiRequestsTests(AccountRequestsTests):
 
     def test_show(self):
         hero = heroes_logic.load_hero(account_id=self.account_1.id)
-        self.check_ajax_ok(self.request_ajax_json(dext_urls.url('accounts:api-show', self.account_1.id, api_version='1.0', api_client=django_settings.API_CLIENT)),
+        self.check_ajax_ok(self.request_ajax_json(utils_urls.url('accounts:api-show', self.account_1.id, api_version='1.0', api_client=django_settings.API_CLIENT)),
                            data=logic.get_account_info(self.account_1, hero))
 
     def test_404(self):
-        self.check_ajax_error(self.request_ajax_json(dext_urls.url('accounts:api-show', 666, api_version='1.0', api_client=django_settings.API_CLIENT)),
+        self.check_ajax_error(self.request_ajax_json(utils_urls.url('accounts:api-show', 666, api_version='1.0', api_client=django_settings.API_CLIENT)),
                               'account.wrong_value')
 
 
@@ -223,7 +229,7 @@ class AdminRequestsTests(AccountRequestsTests):
 
     def test_unlogined(self):
         self.request_logout()
-        requested_url = dext_urls.url('accounts:admin', self.account_1.id)
+        requested_url = utils_urls.url('accounts:admin', self.account_1.id)
         self.check_redirect(requested_url, logic.login_page_url(requested_url))
 
     def test_no_rights(self):
@@ -404,48 +410,51 @@ class TransferMoneyDialogTests(AccountRequestsTests):
 
     def test_login_required(self):
         self.request_logout()
-        self.check_html_ok(self.request_ajax_html(dext_urls.url('accounts:transfer-money-dialog', self.account_2.id)), texts=['pgf-error-common.login_required'])
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('accounts:transfer-money-dialog', self.account_2.id)), texts=['pgf-error-common.login_required'])
 
     def test_full_sender_required(self):
         self.account_1.is_fast = True
         self.account_1.save()
-        self.check_html_ok(self.request_ajax_html(dext_urls.url('accounts:transfer-money-dialog', self.account_2.id)), texts=['pgf-error-common.fast_account'])
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('accounts:transfer-money-dialog', self.account_2.id)), texts=['pgf-error-common.fast_account'])
 
     def test_full_receiver_required(self):
         self.account_2.is_fast = True
         self.account_2.save()
-        self.check_html_ok(self.request_ajax_html(dext_urls.url('accounts:transfer-money-dialog', self.account_2.id)), texts=['pgf-error-receiver_is_fast'])
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('accounts:transfer-money-dialog', self.account_2.id)), texts=['pgf-error-receiver_is_fast'])
 
     def test_no_ban_sender_required(self):
         self.account_1.ban_game(1)
         self.account_1.save()
-        self.check_html_ok(self.request_ajax_html(dext_urls.url('accounts:transfer-money-dialog', self.account_2.id)), texts=['pgf-error-common.ban_any'])
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('accounts:transfer-money-dialog', self.account_2.id)), texts=['pgf-error-common.ban_any'])
 
     def test_no_ban_receiver_required(self):
         self.account_2.ban_game(1)
         self.account_2.save()
-        self.check_html_ok(self.request_ajax_html(dext_urls.url('accounts:transfer-money-dialog', self.account_2.id)), texts=['pgf-error-receiver_banned'])
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('accounts:transfer-money-dialog', self.account_2.id)), texts=['pgf-error-receiver_banned'])
 
     def test_same_accounts(self):
-        self.check_html_ok(self.request_ajax_html(dext_urls.url('accounts:transfer-money-dialog', self.account_1.id)), texts=['pgf-error-own_account'])
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('accounts:transfer-money-dialog', self.account_1.id)), texts=['pgf-error-own_account'])
 
     def test_show(self):
-        self.check_html_ok(self.request_ajax_html(dext_urls.url('accounts:transfer-money-dialog', self.account_2.id)))
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('accounts:transfer-money-dialog', self.account_2.id)))
 
     def test_404(self):
-        self.check_html_ok(self.request_ajax_html(dext_urls.url('accounts:transfer-money-dialog', 66666666)), texts=['pgf-error-account.wrong_value'])
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('accounts:transfer-money-dialog', 66666666)), texts=['pgf-error-account.wrong_value'])
 
 
-class TransferMoneyTests(AccountRequestsTests):
+class TransferMoneyTests(bank_helpers.BankTestsMixin, AccountRequestsTests):
 
     def setUp(self):
-        super(TransferMoneyTests, self).setUp()
+        super().setUp()
 
-        bank_account = bank_prototypes.AccountPrototype.create(entity_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
-                                                               entity_id=self.account_1.id,
-                                                               currency=bank_relations.CURRENCY_TYPE.PREMIUM)
-        bank_account.amount = 1000
-        bank_account.save()
+        invoice = self.create_invoice(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                                      recipient_id=self.account_1.id,
+                                      sender_type=bank_relations.ENTITY_TYPE.XSOLLA,
+                                      sender_id=0,
+                                      amount=1000,
+                                      operation_uid=xsolla_prototypes.BANK_OPERATION_UID,
+                                      force=True)
+        invoice.confirm()
 
         self.request_login(self.account_1.email)
 
@@ -456,53 +465,65 @@ class TransferMoneyTests(AccountRequestsTests):
     def test_login_required(self):
         self.request_logout()
         with self.check_not_changed(PostponedTaskPrototype._db_count):
-            self.check_ajax_error(self.post_ajax_json(dext_urls.url('accounts:transfer-money', self.account_2.id), self.post_data()), 'common.login_required')
+            self.check_ajax_error(self.post_ajax_json(utils_urls.url('accounts:transfer-money', self.account_2.id), self.post_data()), 'common.login_required')
 
     def test_full_sender_required(self):
         self.account_1.is_fast = True
         self.account_1.save()
         with self.check_not_changed(PostponedTaskPrototype._db_count):
-            self.check_ajax_error(self.post_ajax_json(dext_urls.url('accounts:transfer-money', self.account_2.id), self.post_data()), 'common.fast_account')
+            self.check_ajax_error(self.post_ajax_json(utils_urls.url('accounts:transfer-money', self.account_2.id), self.post_data()), 'common.fast_account')
 
     def test_full_receiver_required(self):
         self.account_2.is_fast = True
         self.account_2.save()
         with self.check_not_changed(PostponedTaskPrototype._db_count):
-            self.check_ajax_error(self.post_ajax_json(dext_urls.url('accounts:transfer-money', self.account_2.id), self.post_data()), 'receiver_is_fast')
+            self.check_ajax_error(self.post_ajax_json(utils_urls.url('accounts:transfer-money', self.account_2.id), self.post_data()), 'receiver_is_fast')
 
     def test_no_ban_sender_required(self):
         self.account_1.ban_game(1)
         self.account_1.save()
 
         with self.check_not_changed(PostponedTaskPrototype._db_count):
-            self.check_ajax_error(self.post_ajax_json(dext_urls.url('accounts:transfer-money', self.account_2.id), self.post_data()),
+            self.check_ajax_error(self.post_ajax_json(utils_urls.url('accounts:transfer-money', self.account_2.id), self.post_data()),
                                   'common.ban_any')
 
     def test_no_ban_receiver_required(self):
         self.account_2.ban_game(1)
         self.account_2.save()
         with self.check_not_changed(PostponedTaskPrototype._db_count):
-            self.check_ajax_error(self.post_ajax_json(dext_urls.url('accounts:transfer-money', self.account_2.id), self.post_data()),
+            self.check_ajax_error(self.post_ajax_json(utils_urls.url('accounts:transfer-money', self.account_2.id), self.post_data()),
                                   'receiver_banned')
 
     def test_same_accounts(self):
         with self.check_not_changed(PostponedTaskPrototype._db_count):
-            self.check_ajax_error(self.post_ajax_json(dext_urls.url('accounts:transfer-money', self.account_1.id), self.post_data()),
+            self.check_ajax_error(self.post_ajax_json(utils_urls.url('accounts:transfer-money', self.account_1.id), self.post_data()),
                                   'own_account')
 
     def test_success(self):
         with self.check_delta(PostponedTaskPrototype._db_count, 1):
-            response = self.post_ajax_json(dext_urls.url('accounts:transfer-money', self.account_2.id), self.post_data())
+            response = self.post_ajax_json(utils_urls.url('accounts:transfer-money', self.account_2.id), self.post_data())
         task = PostponedTaskPrototype._db_latest()
         self.check_ajax_processing(response, task.status_url)
 
     def test_404(self):
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('accounts:transfer-money', 666), self.post_data()), 'account.wrong_value')
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('accounts:transfer-money', 666), self.post_data()), 'account.wrong_value')
 
     def test_no_money(self):
+        amount = 1001
+
+        self.assertTrue(amount - logic.get_transfer_commission(amount) < logic.max_money_to_transfer(self.account_1))
+
         with self.check_not_changed(PostponedTaskPrototype._db_count):
-            self.check_ajax_error(self.post_ajax_json(dext_urls.url('accounts:transfer-money', self.account_2.id), self.post_data(money=1001)), 'not_enough_money')
+            self.check_ajax_error(self.post_ajax_json(utils_urls.url('accounts:transfer-money', self.account_2.id), self.post_data(money=amount)), 'not_enough_money')
+
+    def test_no_money__no_reserve(self):
+        amount = 10010
+
+        self.assertTrue(logic.max_money_to_transfer(self.account_1) < amount - logic.get_transfer_commission(amount))
+
+        with self.check_not_changed(PostponedTaskPrototype._db_count):
+            self.check_ajax_error(self.post_ajax_json(utils_urls.url('accounts:transfer-money', self.account_2.id), self.post_data(money=amount)), 'money_limit')
 
     def test_low_sum(self):
         with self.check_not_changed(PostponedTaskPrototype._db_count):
-            self.check_ajax_error(self.post_ajax_json(dext_urls.url('accounts:transfer-money', self.account_2.id), self.post_data(money=1)), 'form_errors')
+            self.check_ajax_error(self.post_ajax_json(utils_urls.url('accounts:transfer-money', self.account_2.id), self.post_data(money=1)), 'form_errors')

@@ -5,25 +5,25 @@ smart_imports.all()
 
 
 def pvp_page_url():
-    return dext_urls.url('game:pvp:')
+    return utils_urls.url('game:pvp:')
 
 
 def pvp_info_url():
-    return dext_urls.url('game:pvp:api-info',
-                         api_version=conf.settings.INFO_API_VERSION,
-                         api_client=django_settings.API_CLIENT)
+    return utils_urls.url('game:pvp:api-info',
+                          api_version=conf.settings.INFO_API_VERSION,
+                          api_client=django_settings.API_CLIENT)
 
 
 def pvp_call_to_arena_url():
-    return dext_urls.url('game:pvp:api-call-to-arena',
-                         api_version=conf.settings.CALL_TO_ARENA_API_VERSION,
-                         api_client=django_settings.API_CLIENT)
+    return utils_urls.url('game:pvp:api-call-to-arena',
+                          api_version=conf.settings.CALL_TO_ARENA_API_VERSION,
+                          api_client=django_settings.API_CLIENT)
 
 
 def pvp_leave_arena_url():
-    return dext_urls.url('game:pvp:api-leave-arena',
-                         api_version=conf.settings.LEAVE_ARENA_API_VERSION,
-                         api_client=django_settings.API_CLIENT)
+    return utils_urls.url('game:pvp:api-leave-arena',
+                          api_version=conf.settings.LEAVE_ARENA_API_VERSION,
+                          api_client=django_settings.API_CLIENT)
 
 
 def pvp_accept_arena_battle_url(battle_request_id=None):
@@ -33,14 +33,14 @@ def pvp_accept_arena_battle_url(battle_request_id=None):
     if battle_request_id is not None:
         arguments['battle_request_id'] = battle_request_id
 
-    return dext_urls.url('game:pvp:api-accept-arena-battle',
-                         **arguments)
+    return utils_urls.url('game:pvp:api-accept-arena-battle',
+                          **arguments)
 
 
 def pvp_create_arena_bot_battle_url():
-    return dext_urls.url('game:pvp:api-create-arena-bot-battle',
-                         api_version=conf.settings.CREATE_ARENA_BOT_BATTLE_API_VERSION,
-                         api_client=django_settings.API_CLIENT)
+    return utils_urls.url('game:pvp:api-create-arena-bot-battle',
+                          api_version=conf.settings.CREATE_ARENA_BOT_BATTLE_API_VERSION,
+                          api_client=django_settings.API_CLIENT)
 
 
 def initiate_battle(initiator_id, acceptor_id, battle_id):

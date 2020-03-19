@@ -349,4 +349,4 @@ class ArenaPvP1x1(MetaAction):
 
 
 ACTION_TYPES = {action_class.TYPE: action_class
-                for action_class in dext_discovering.discover_classes(globals().values(), MetaAction)}
+                for action_class in utils_discovering.discover_classes(globals().values(), MetaAction)}

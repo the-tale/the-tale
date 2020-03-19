@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class BaseForm(forms.BaseUserForm):
-    person = dext_fields.ChoiceField(label='Житель')
+    person = utils_fields.ChoiceField(label='Житель')
     name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN,
                                        label='Название',
                                        skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))

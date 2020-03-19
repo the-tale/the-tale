@@ -19,8 +19,8 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True, db_index=True)),
                 ('text', models.TextField(default='\u0414\u0430\u0432\u0430\u0439\u0442\u0435 \u0434\u0440\u0443\u0436\u0438\u0442\u044c')),
                 ('is_confirmed', models.BooleanField(default=False, db_index=True)),
-                ('friend_1', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('friend_2', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL)),
+                ('friend_1', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
+                ('friend_2', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },

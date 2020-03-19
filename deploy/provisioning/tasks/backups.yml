@@ -9,8 +9,7 @@
       pip:
         name: "{{item}}"
         virtualenv: "/root/venv_backups"
-        virtualenv_command: virtualenv
-        virtualenv_python: python3.5
+        virtualenv_command: "{{tt_python_venv_command}}"
       with_items:
         - awscli
 

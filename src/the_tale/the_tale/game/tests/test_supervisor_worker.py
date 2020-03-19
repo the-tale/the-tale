@@ -254,7 +254,6 @@ class SupervisorWorkerTests(utils_testcase.TestCase):
         self.assertFalse(account_3.id in self.worker.accounts_owners)
         self.assertTrue(account_3.id in self.worker.accounts_queues)
 
-    @mock.patch('the_tale.game.conf.settings.ENABLE_WORKER_HIGHLEVEL', True)
     def test_process_next_turn(self):
         self.worker.initialize()
 
@@ -272,7 +271,6 @@ class SupervisorWorkerTests(utils_testcase.TestCase):
         self.assertEqual(wait_answers_from.call_count, 1)
         self.assertTrue(self.worker.wait_next_turn_answer)
 
-    @mock.patch('the_tale.game.conf.settings.ENABLE_WORKER_HIGHLEVEL', True)
     def test_process_next_turn__timeout(self):
         self.worker.initialize()
 

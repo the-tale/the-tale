@@ -1,0 +1,32 @@
+
+
+{% macro records_list(events) %}
+
+<ul class="unstyled">
+  {% for event in events %}
+  {% set game_time = game_datetime(event.turn) %}
+  <li class="newspaper-link-list">
+    <span class="newspaper-link-time">
+      <span style="cursor: default;"
+            rel="tooltip"
+            title="<div style='text-align: left; white-space: nowrap;'>
+                   {{game_time.date.verbose_full()}} {{game_time.time.verbose()}}</br>
+                   В реальности: {{event.created_at|verbose_datetime}}
+                   </div>">
+        {{game_time.date.verbose_full()}}
+      </span>:
+
+      {% for meta_object in event.meta_objects %}
+        {%- if loop.index > 1 -%},{% endif %}
+        {% if meta_object.url %}
+          <a href="{{meta_object.url}}">{{meta_object.caption}}</a>
+        {% else %}
+          <a href="#" class="disabled">{{meta_object.caption}}</a>
+        {% endif %}
+      {% endfor %}
+    </span>
+    <br/>
+    <span>{{ event.message|bb_chronicle }}</span>
+  </li>
+  {% endfor %}
+{% endmacro %}

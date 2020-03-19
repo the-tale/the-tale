@@ -124,35 +124,33 @@ class LoadHistoryTests(Base):
     async def test_has_records(self):
         await helpers.call_change_balance(account_id=666, currency=1, amount=1000)
 
-        await operations.start_transaction(operations=[objects.Operation(account_id=666,
-                                                                         currency=1,
-                                                                         amount=1000,
-                                                                         type='x.1',
-                                                                         description='y.1'),
-                                                       objects.Operation(account_id=666,
-                                                                         currency=1,
-                                                                         amount=-300,
-                                                                         type='x.2',
-                                                                         description='y.2')],
-                                           lifetime=datetime.timedelta(seconds=1),
-                                           restrictions=objects.Restrictions(),
-                                           logger=helpers.TEST_LOGGER,
-                                           autocommit=True)
+        transactions = [objects.Operation(account_id=666,
+                                          currency=1,
+                                          amount=1000,
+                                          type='x.1',
+                                          description='y.1'),
+                        objects.Operation(account_id=666,
+                                          currency=1,
+                                          amount=-300,
+                                          type='x.2',
+                                          description='y.2'),
+                        objects.Operation(account_id=667,
+                                          currency=1,
+                                          amount=50,
+                                          type='x.3',
+                                          description='y.3'),
+                        objects.Operation(account_id=666,
+                                          currency=1,
+                                          amount=-1,
+                                          type='x.4',
+                                          description='y.4')]
 
-        await operations.start_transaction(operations=[objects.Operation(account_id=667,
-                                                                         currency=1,
-                                                                         amount=50,
-                                                                         type='x.3',
-                                                                         description='y.3'),
-                                                       objects.Operation(account_id=666,
-                                                                         currency=1,
-                                                                         amount=-1,
-                                                                         type='x.4',
-                                                                         description='y.4')],
-                                           lifetime=datetime.timedelta(seconds=1),
-                                           restrictions=objects.Restrictions(),
-                                           logger=helpers.TEST_LOGGER,
-                                           autocommit=True)
+        for transaction in transactions:
+            await operations.start_transaction(operations=[transaction],
+                                               lifetime=datetime.timedelta(seconds=1),
+                                               restrictions=objects.Restrictions(),
+                                               logger=helpers.TEST_LOGGER,
+                                               autocommit=True)
 
         history = await operations.load_history(account_id=666)
 

@@ -113,16 +113,16 @@ class QuestInfoTests(utils_testcase.TestCase, helpers.QuestTestsMixin):
         self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.0)
 
         self.quest_info.used_markers[questgen_relations.OPTION_MARKERS.DISHONORABLE] = True
-        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.0 + 0.3)
+        self.assertAlmostEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.0 + 0.3)
 
         self.quest_info.used_markers[questgen_relations.OPTION_MARKERS.AGGRESSIVE] = False
-        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.0 + 0.3 + 0.4)
+        self.assertAlmostEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.0 + 0.3 + 0.4)
 
         self.quest_info.used_markers[questgen_relations.OPTION_MARKERS.HONORABLE] = False
-        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), round(1.0 + 0.3 + 0.4 + 0.2, 2))
+        self.assertAlmostEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), round(1.0 + 0.3 + 0.4 + 0.2, 2))
 
         self.quest_info.used_markers[questgen_relations.OPTION_MARKERS.UNAGGRESSIVE] = True
-        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), round(1.0 + 0.3 + 0.4 + 0.2 + 0.5, 2))
+        self.assertAlmostEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), round(1.0 + 0.3 + 0.4 + 0.2 + 0.5, 2))
 
     @mock.patch('the_tale.game.heroes.objects.Hero.experience_modifier', 1)
     def test_ui_info__experience(self):

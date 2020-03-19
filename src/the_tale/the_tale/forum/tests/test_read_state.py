@@ -147,7 +147,7 @@ class ReadStateTests(utils_testcase.TestCase):
         self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))
 
         self.request_login(self.account_2.email)
-        self.client.post(dext_urls.url('forum:threads:create-post', self.thread.id), {'text': 'thread3-test-post'})
+        self.client.post(utils_urls.url('forum:threads:create-post', self.thread.id), {'text': 'thread3-test-post'})
 
         self.assertTrue(self.get_read_state().subcategory_has_new_messages(self.subcategory))
 
@@ -156,7 +156,7 @@ class ReadStateTests(utils_testcase.TestCase):
         self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))
 
         self.request_login(self.account.email)
-        self.client.post(dext_urls.url('forum:threads:create-post', self.thread.id), {'text': 'thread3-test-post'})
+        self.client.post(utils_urls.url('forum:threads:create-post', self.thread.id), {'text': 'thread3-test-post'})
 
         self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))
 

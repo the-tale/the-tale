@@ -57,11 +57,13 @@ def test_minimum_filled(templates_restrictions, groups):
     print_missed_restrictions(required_restrictions)
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'search missed history templates'
 
-    def handle(self, *args, **options):
+    LOCKS = ['portal_commands']
+
+    def _handle(self, *args, **options):
 
         restr = {}
 
@@ -71,16 +73,16 @@ class Command(django_management.BaseCommand):
             restr[key] = [frozenset((storage.restrictions[r].group, storage.restrictions[r].external_id) for v, r in rs)
                           for t, rs in ts]
 
-        test_minimum_filled(templates_restrictions=restr[keys.LEXICON_KEY.HERO_HISTORY_BIRTH],
+        test_minimum_filled(templates_restrictions=restr[lexicon_keys.LEXICON_KEY.HERO_HISTORY_BIRTH],
                             groups=[restrictions.GROUP.RACE,
                                     restrictions.GROUP.GENDER])
 
-        test_minimum_filled(templates_restrictions=restr[keys.LEXICON_KEY.HERO_HISTORY_CHILDHOOD],
+        test_minimum_filled(templates_restrictions=restr[lexicon_keys.LEXICON_KEY.HERO_HISTORY_CHILDHOOD],
                             groups=[restrictions.GROUP.UPBRINGING,
                                     restrictions.GROUP.HABIT_HONOR,
                                     restrictions.GROUP.HABIT_PEACEFULNESS])
 
-        test_minimum_filled(templates_restrictions=restr[keys.LEXICON_KEY.HERO_HISTORY_DEATH],
+        test_minimum_filled(templates_restrictions=restr[lexicon_keys.LEXICON_KEY.HERO_HISTORY_DEATH],
                             groups=[restrictions.GROUP.GENDER,
                                     restrictions.GROUP.AGE,
                                     restrictions.GROUP.ARCHETYPE,

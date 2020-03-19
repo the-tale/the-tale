@@ -103,6 +103,8 @@ pgf.base.InitializeTabs = function(settingName, def, tabs) {
     });
 };
 
+pgf.base.TOOLTIP_WIDTH = 400;
+
 pgf.base.TooltipPlacement = function (tip, element) {
     element = jQuery(element);
 

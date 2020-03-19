@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class BaseForm(forms.BaseUserForm):
-    person = dext_fields.ChoiceField(label='Житель')
+    person = utils_fields.ChoiceField(label='Житель')
 
     def __init__(self, choosen_person_id, *args, **kwargs):  # pylint: disable=W0613
         super(BaseForm, self).__init__(*args, **kwargs)

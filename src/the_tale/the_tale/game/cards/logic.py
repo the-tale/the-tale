@@ -5,41 +5,41 @@ smart_imports.all()
 
 
 def receive_cards_url():
-    return dext_urls.url('game:cards:api-receive-cards', api_version=conf.settings.RECEIVE_API_VERSION, api_client=django_settings.API_CLIENT)
+    return utils_urls.url('game:cards:api-receive-cards', api_version=conf.settings.RECEIVE_API_VERSION, api_client=django_settings.API_CLIENT)
 
 
 def combine_cards_url(api_version=None):
     if api_version is None:
         api_version = conf.settings.COMBINE_API_VERSION
 
-    return dext_urls.url('game:cards:api-combine', api_version=api_version, api_client=django_settings.API_CLIENT)
+    return utils_urls.url('game:cards:api-combine', api_version=api_version, api_client=django_settings.API_CLIENT)
 
 
 def move_to_storage_url():
-    return dext_urls.url('game:cards:api-move-to-storage', api_version=conf.settings.MOVE_TO_STORAGE_API_VERSION, api_client=django_settings.API_CLIENT)
+    return utils_urls.url('game:cards:api-move-to-storage', api_version=conf.settings.MOVE_TO_STORAGE_API_VERSION, api_client=django_settings.API_CLIENT)
 
 
 def move_to_hand_url():
-    return dext_urls.url('game:cards:api-move-to-hand', api_version=conf.settings.MOVE_TO_HAND_API_VERSION, api_client=django_settings.API_CLIENT)
+    return utils_urls.url('game:cards:api-move-to-hand', api_version=conf.settings.MOVE_TO_HAND_API_VERSION, api_client=django_settings.API_CLIENT)
 
 
 def use_card_url(card_uid):
-    return dext_urls.url('game:cards:api-use', card=card_uid, api_version=conf.settings.USE_API_VERSION, api_client=django_settings.API_CLIENT)
+    return utils_urls.url('game:cards:api-use', card=card_uid, api_version=conf.settings.USE_API_VERSION, api_client=django_settings.API_CLIENT)
 
 
 def get_cards_url():
-    return dext_urls.url('game:cards:api-get-cards', api_version=conf.settings.GET_CARDS_API_VERSION, api_client=django_settings.API_CLIENT)
+    return utils_urls.url('game:cards:api-get-cards', api_version=conf.settings.GET_CARDS_API_VERSION, api_client=django_settings.API_CLIENT)
 
 
 def transform_cards_url():
-    return dext_urls.url('game:cards:api-combine', api_version=conf.settings.COMBINE_API_VERSION, api_client=django_settings.API_CLIENT)
+    return utils_urls.url('game:cards:api-combine', api_version=conf.settings.COMBINE_API_VERSION, api_client=django_settings.API_CLIENT)
 
 
 def change_receive_mode_url(mode):
-    return dext_urls.url('game:cards:api-change-receive-mode',
-                         api_version=conf.settings.CHANGE_RECEIVE_MODE_API_VERSION,
-                         api_client=django_settings.API_CLIENT,
-                         mode=mode.value)
+    return utils_urls.url('game:cards:api-change-receive-mode',
+                          api_version=conf.settings.CHANGE_RECEIVE_MODE_API_VERSION,
+                          api_client=django_settings.API_CLIENT,
+                          mode=mode.value)
 
 
 def create_card(allow_premium_cards, rarity=None, exclude=(), available_for_auction=False):

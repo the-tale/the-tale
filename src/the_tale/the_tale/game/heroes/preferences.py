@@ -37,7 +37,13 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
     @classmethod
     def deserialize(cls, data):
         obj = cls()
+
+        # можно удалить после 0.4.0
+        if 'quests_region_size' not in data:
+            data['quests_region_size'] = {'value': c.DEFAULT_QUESTS_REGION_SIZE}
+
         obj.data = data
+
         return obj
 
     def value_to_set(self, value):
@@ -78,9 +84,11 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
 
         return mob
 
-    def _prepair_place(self, place_id): return places_storage.places.get(place_id)
+    def _prepair_place(self, place_id):
+        return places_storage.places.get(place_id)
 
-    def _prepair_person(self, person_id): return persons_storage.persons.get(person_id)
+    def _prepair_person(self, person_id):
+        return persons_storage.persons.get(person_id)
 
     def _prepair_energy_regeneration(self, energy_regeneration_id):
         return relations.ENERGY_REGENERATION.index_value.get(int(energy_regeneration_id))
@@ -110,6 +118,9 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
             return None
         return relations.COMPANION_EMPATHY.index_value.get(int(companion_empathy_id))
 
+    def _prepair_quests_region_size(self, value):
+        return int(value)
+
     def _get(self, preferences_type):
         if preferences_type.base_name not in self.data:
             return None
@@ -120,7 +131,7 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
 
     # helpers
 
-    def has_place_in_preferences(self, place):
+    def place_is_hometown(self, place):
         return self.place is not None and self.place.id == place.id
 
     def has_person_in_preferences(self, person):

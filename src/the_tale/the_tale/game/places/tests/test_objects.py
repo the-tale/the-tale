@@ -142,8 +142,6 @@ class PlaceTests(helpers.PlacesTestsMixin,
         self.p1.attrs.size = 2
         self.p1.refresh_attributes()
 
-        print(self.p1.attrs.production, self.p1.attrs.size)
-
         with self.check_not_changed(lambda: self.p1.attrs.production):
             self.p1.refresh_attributes()
 
@@ -153,11 +151,8 @@ class PlaceTests(helpers.PlacesTestsMixin,
                               name='test',
                               refresh_effects=True)
 
-        print(self.p1.attrs.production, self.p1.attrs.size)
-
         with self.check_decreased(lambda: self.p1.attrs.production):
             self.p1.refresh_attributes()
-            print(self.p1.attrs.production, self.p1.attrs.size)
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
@@ -206,6 +201,7 @@ class PlaceTests(helpers.PlacesTestsMixin,
         self.assertAlmostEqual(self.p1.attrs.production, expected_production)
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_MASTER', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 0.03)
     def test_refresh_attributes__safety(self):
@@ -253,6 +249,11 @@ class PlaceTests(helpers.PlacesTestsMixin,
 
         self.assertTrue(-0.001 < self.p1.attrs.culture - c.PLACE_MIN_CULTURE < 0.001)
 
+    def test_tax_order_equal_to_production_order(self):
+        # необходимо, чтобы корректно работали эффекты аттрибута tax_size_border
+        self.assertEqual(relations.ATTRIBUTE.PRODUCTION.order,
+                         relations.ATTRIBUTE.TAX.order)
+
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     def test_refresh_attributes__tax(self):
 
@@ -266,7 +267,7 @@ class PlaceTests(helpers.PlacesTestsMixin,
 
         self.p1.refresh_attributes()
 
-        self.assertEqual(self.p1.attrs.tax, 0.05)
+        self.assertEqual(self.p1.attrs.tax, 0.1)
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
@@ -291,7 +292,7 @@ class PlaceTests(helpers.PlacesTestsMixin,
         self.assertTrue(-0.001 < self.p1.attrs.freedom - c.PLACE_MIN_FREEDOM < 0.001)
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
-    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_MASTER', 0)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: -0.05)
     def test_refresh_attributes__stability(self):
         self.create_effect(self.p1.id, value=-0.5, attribute=relations.ATTRIBUTE.STABILITY)
@@ -319,16 +320,22 @@ class PlaceTests(helpers.PlacesTestsMixin,
         self.assertEqual(self.p1.attrs.stability, 1.0)
 
     def test_refresh_attributes__production__min_value(self):
-        self.create_effect(self.p1.id, value=-1000, attribute=relations.ATTRIBUTE.PRODUCTION)
-
         self.p1.attrs.size = 1
+        self.p1.attrs.goods = 1000
+        self.p1.refresh_attributes()
+
+        old_production = self.p1.attrs.production
+        old_tax = self.p1.attrs.tax
+
+        self.create_effect(self.p1.id, value=-500, attribute=relations.ATTRIBUTE.PRODUCTION)
+
         self.p1.attrs.goods = 0
 
         self.p1.refresh_attributes()
 
         self.assertTrue(-0.001 < self.p1.attrs.production < 0.001)
 
-        self.assertTrue(self.p1.attrs.tax > 0)
+        self.assertAlmostEqual(self.p1.attrs.tax, old_tax + abs(old_production - 500) * c.PLACE_TAX_PER_ONE_GOODS)
 
     def test_refresh_attributes__production__min_value__not_min_size(self):
         self.create_effect(self.p1.id, value=-1000, attribute=relations.ATTRIBUTE.PRODUCTION)
@@ -341,19 +348,102 @@ class PlaceTests(helpers.PlacesTestsMixin,
 
         self.assertEqual(self.p1.attrs.tax, 0)
 
-    @mock.patch('the_tale.game.persons.objects.Person.place_effects', lambda obj: [])
-    def test_refresh_attributes__stability_penalty_for_masters_number(self):
+    def test_refresh_attributes__tax_size_border__max_allowed_production(self):
+        self.p1.attrs.size = 7
+        self.p1.attrs.goods = 1000
+        self.p1.attrs.set_tax_size_border(7)
+
         self.p1.refresh_attributes()
 
+        old_production = self.p1.attrs.production
+
+        self.assertTrue(old_production < 0)
+
+        self.assertEqual(self.p1.attrs.tax, 0)
+
+        self.p1.attrs.goods = 0
+
+        self.p1.refresh_attributes()
+
+        self.assertAlmostEqual(self.p1.attrs.production, old_production + c.MAX_PRODUCTION_FROM_TAX)
+
+        self.assertAlmostEqual(self.p1.attrs.tax, c.MAX_PRODUCTION_FROM_TAX * c.PLACE_TAX_PER_ONE_GOODS)
+
+    def test_refresh_attributes__tax_size_border__medium_production(self):
+        self.p1.attrs.size = 7
+        self.p1.attrs.goods = 1000
+        self.p1.attrs.set_tax_size_border(7)
+
+        self.p1.refresh_attributes()
+
+        self.create_effect(self.p1.id, value=-self.p1.attrs.production, attribute=relations.ATTRIBUTE.PRODUCTION)
+        self.p1.refresh_attributes()
+
+        self.assertAlmostEqual(self.p1.attrs.production, 0)
+        self.assertEqual(self.p1.attrs.tax, 0)
+
+        test_production = 120
+
+        self.create_effect(self.p1.id, value=-test_production, attribute=relations.ATTRIBUTE.PRODUCTION)
+
+        self.p1.refresh_attributes()
+
+        self.assertAlmostEqual(self.p1.attrs.production, -test_production)
+
+        self.p1.attrs.goods = 0
+        self.p1.refresh_attributes()
+
+        self.assertAlmostEqual(self.p1.attrs.production, 0)
+
+        self.assertAlmostEqual(self.p1.attrs.tax, 120 * c.PLACE_TAX_PER_ONE_GOODS)
+
+    def test_refresh_attributes__tax_size_border__lower_size_with_positive_production(self):
+        self.p1.attrs.size = 7
+        self.p1.attrs.goods = 1000
+        self.p1.attrs.set_tax_size_border(7)
+
+        self.p1.refresh_attributes()
+
+        self.create_effect(self.p1.id, value=-self.p1.attrs.production , attribute=relations.ATTRIBUTE.PRODUCTION)
+        self.p1.refresh_attributes()
+
+        self.assertAlmostEqual(self.p1.attrs.production, 0)
+        self.assertEqual(self.p1.attrs.tax, 0)
+
+        test_production = 120
+
+        self.create_effect(self.p1.id, value=-test_production, attribute=relations.ATTRIBUTE.PRODUCTION)
+
+        self.p1.refresh_attributes()
+
+        self.assertAlmostEqual(self.p1.attrs.production, -test_production)
+
+        self.p1.attrs.size = 6
+        self.p1.attrs.goods = 0
+
+        self.p1.refresh_attributes()
+
+        self.assertAlmostEqual(self.p1.attrs.production, -test_production + c.PLACE_GOODS_BONUS + c.MAX_PRODUCTION_FROM_TAX)
+
+        self.assertAlmostEqual(self.p1.attrs.tax, c.PLACE_TAX_PER_ONE_GOODS * c.MAX_PRODUCTION_FROM_TAX)
+
+    @mock.patch('the_tale.game.persons.objects.Person.place_effects', lambda obj: [])
+    def test_refresh_attributes__stability_penalty_for_masters_number(self):
+
+        self.p1.attrs.size = 7
+        self.p1.refresh_attributes()
+
+        expected_max_persons = c.PLACE_MAX_PERSONS[self.p1.attrs.size]
+
         with self.check_not_changed(lambda: self.p1.attrs.stability):
-            while len(self.p1.persons) < c.PLACE_MAX_PERSONS:
+            while len(self.p1.persons) < expected_max_persons:
                 person = random.choice(list(persons_storage.persons.all()))
                 persons_logic.move_person_to_place(person, self.p1)
 
             self.p1.refresh_attributes()
 
         with self.check_delta(lambda: round(self.p1.attrs.stability, 2), -0.15000000000000002):
-            while len(self.p1.persons) <= c.PLACE_MAX_PERSONS:
+            while len(self.p1.persons) <= expected_max_persons:
                 person = random.choice(list(persons_storage.persons.all()))
                 persons_logic.move_person_to_place(person, self.p1)
 
@@ -487,3 +577,54 @@ class BuildingTests(utils_testcase.TestCase):
         logic.destroy_building(building)
         self.assertNotEqual(old_version, storage.buildings.version)
         self.assertFalse(building.id in storage.buildings)
+
+
+class ClanRegionTests(helpers.PlacesTestsMixin,
+                      utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.places = game_logic.create_test_map()
+
+        self.region = objects.ClanRegion(clan_id=666)
+
+    def test_initialization(self):
+        self.assertEqual(self.region.clan_id, 666)
+        self.assertEqual(self.region.places_ids, set())
+
+    def test_add_place(self):
+        self.region.add_place(1)
+        self.region.add_place(2)
+        self.region.add_place(1)
+        self.region.add_place(3)
+
+        self.assertEqual(self.region.places_ids, {1, 2, 3})
+
+    def test_size(self):
+        self.assertEqual(self.region.size(), 0)
+
+        self.region.add_place(1)
+        self.region.add_place(2)
+
+        self.assertEqual(self.region.size(), 2)
+
+    def test_merge(self):
+        self.region.add_place(1)
+        self.region.add_place(2)
+        self.region.add_place(3)
+
+        region_2 = objects.ClanRegion(clan_id=666)
+        region_2.add_place(4)
+        region_2.add_place(2)
+
+        self.region.merge(region_2)
+
+        self.assertEqual(self.region.places_ids, {1, 2, 3, 4})
+        self.assertEqual(region_2.places_ids, {2, 4})
+
+    def test_merge__different_clans(self):
+        region_2 = objects.ClanRegion(clan_id=777)
+
+        with self.assertRaises(ValueError):
+            self.region.merge(region_2)

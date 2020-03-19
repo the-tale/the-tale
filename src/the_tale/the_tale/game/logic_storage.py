@@ -141,9 +141,6 @@ class LogicStorage(object):
         number = action.hero.actions.number
         return (action.hero.id, number - 1 if action is action.hero.actions.current_action else number)
 
-    def on_highlevel_data_updated(self):
-        pass
-
     @contextlib.contextmanager
     def on_exception(self, logger, message, data, excluded_bundle_id):
         try:
@@ -314,7 +311,7 @@ class LogicStorage(object):
             to_cache[cache_key] = hero.ui_info(actual_guaranteed=True,
                                                old_info=None if force_full_data else self.previous_cache.get(cache_key))
 
-        dext_cache.set_many(to_cache, heroes_conf.settings.UI_CACHING_TIMEOUT)
+        utils_cache.set_many(to_cache, heroes_conf.settings.UI_CACHING_TIMEOUT)
 
         self.cache_queue.clear()
 

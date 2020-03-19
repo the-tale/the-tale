@@ -1,0 +1,446 @@
+{% extends "clans/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+{% import 'friends/macros.html' as friends_macros with context %}
+{% import 'blogs/macros.html' as blogs_macros with context %}
+{% import 'chronicle/macros.html' as chronicle_macros with context %}
+{% import 'emissaries/macros.html' as emissaries_macros with context %}
+{% import 'map/macros.html' as map_macros with context %}
+
+{% block title %}{{current_clan.name}} | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}[{{current_clan.abbr}}] {{current_clan.name}}{% endblock %}
+
+{% block head %}
+{{ super() }}
+{{friends_macros.messages_broadcast_script(uid='members')}}
+
+<script type="text/javascript">
+jQuery(document).ready(function(e){
+    pgf.base.InitializeTabs('clan-tabs', 'clan', [['.pgf-clan-description-button', 'description'],
+                                                  ['.pgf-clan-members-button', 'members'],
+                                                  ['.pgf-clan-events-button', 'events'],
+                                                  ['.pgf-clan-emissaries-button', 'emissaries']]);
+});
+</script>
+{% endblock %}
+
+{% block clans_content %}
+
+{% set has_clan = (resource.account.is_authenticated and resource.account.clan_id is not none) %}
+
+{% if current_clan.state.is_REMOVED %}
+<p class="alert alert-danger">
+  Гильдия распущена.
+</p>
+{% endif %}
+
+<h2>
+  [{{current_clan.abbr}}]
+  {{current_clan.name}}
+  {{base_macros.magnet(clan_meta_object)}}
+
+  <small class="pull-right"
+         style="font-size: 10pt; cursor: help;"
+         rel="tooltip"
+         title="Часть статистики гильдии обновляется с задержкой. В этой строке показано последнее время обновления данных.">
+    данные на
+    <span class="pgf-format-datetime" data-timestamp="{{ current_clan.statistics_refreshed_at|timestamp}}"></span>
+  </small>
+</h2>
+
+{% if resource.account.is_authenticated %}
+<div class="pagination">
+  <ul>
+    {% if is_own_clan %}
+    <li><a href="{{ url('forum:subcategories:show', current_clan.forum_subcategory_id) }}">форум</a></li>
+    {% endif %}
+
+    {% if current_clan_rights.can_access_chronicle() %}
+      <li><a href="{{ url('clans:chronicle', current_clan.id) }}">летопись</a></li>
+    {% endif %}
+
+    {% if current_clan_rights.can_take_member() %}
+      {% if requests_number_for_clan == 0 %}
+         <li><a href="{{url('clans:join-requests', current_clan.id)}}" class="disabled">нет заявок на вступление</a></li>
+       {% else %}
+         <li><a href="{{url('clans:join-requests', current_clan.id)}}">заявки на вступление</a></li>
+      {% endif %}
+    {% endif %}
+
+    {% if not has_clan %}
+      {% if request_to_this_clan is none %}
+        {% if current_clan_properties.accept_requests_from_players and current_clan.state.is_ACTIVE %}
+          <li><a class="pgf-dialog-simple-form btn btn-info" href="{{ url('clans:request-dialog', current_clan.id) }}">вступить</a></li>
+        {% else %}
+          <li><a href="#" class="disabled">гильдия не принимает новых игроков</a><li>
+        {% endif %}
+      {% elif request_to_this_clan.type.is_FROM_ACCOUNT %}
+        <li><a href="#" style="color: green !important;" class="disabled">ваш запрос рассматривается</a><li>
+      {% elif request_to_this_clan.type.is_FROM_CLAN %}
+        <li><a href="{{url('clans:invites')}}">вас приглашают в гильдию</a></li>
+      {% endif %}
+    {% endif %}
+
+    {% if current_clan_rights.can_edit() %}
+      <li><a href="{{url('clans:edit', current_clan.id)}}">редактировать</a></li>
+    {% endif %}
+
+    {% if is_own_clan %}
+      <li>
+        <a class="pull-right pgf-forms-post-simple"
+           style="color: red;"
+           href="{{url('clans:leave-clan', current_clan.id)}}"
+           data-confirmation="Вы действительно хотите покинуть гильдию?">покинуть гильдию</a>
+      </li>
+   {% endif %}
+  </ul>
+</div>
+{% endif %}
+
+<p style="color: gray; font-size: 14pt;">
+  <strong>Девиз:</strong> <i>{{current_clan.motto}}</i>
+</p>
+
+<table width="100%" style="text-align: center;">
+  <tbody>
+    <tr>
+      <td width="25%" style="vertical-align: middle; line-height: 2em;">
+        СОСТАВ<br/>
+        <span style="font-size: 20pt;">
+          {{current_clan.active_members_number}} / {{current_clan.premium_members_number}} / {{current_clan.members_number}}
+        </span>
+        <br/>
+        <span>активные / подписчики / всего</span>
+      </td>
+      <td width="25%" style="vertical-align: middle; line-height: 2em;">
+        ОБЩЕНИЕ
+        <br/>
+        <span style="font-size: 20pt;">
+          {% if forum_subcategory %}
+          {{forum_subcategory.threads_count}} / {{forum_subcategory.posts_count}}
+          {% else %}
+          —
+          {% endif %}
+        </span>
+        <br/>
+        <span>тем / сообщений на форуме</span>
+      </td>
+      <td width="25%" style="vertical-align: middle; line-height: 2em;">
+        ОБЩЕЕ МОГУЩЕСТВО<br/>
+        <span style="font-size: 20pt;">{{current_clan.might|pprint_int}}</span>
+        <br/>
+        <a href="{{url('guide:keepers')}}">путеводитель</a>
+      </td>
+      <td width="25%" style="vertical-align: middle; line-height: 2em;">
+        ОБЩАЯ ВЛИЯТЕЛЬНОСТЬ %<br/>
+        <span style="font-size: 20pt;">
+          {{(total_frontier_politic_power_multiplier*100)|pprint_int}}
+          /
+          {{(total_core_politic_power_multiplier*100)|pprint_int}}
+        </span>
+        <br/>
+        <span>
+          во фронтире / в ядре
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<br/>
+
+<ul class="nav nav-tabs" style="margin-top: -0.33em;">
+  <li style="width: 25%;" class="active">
+    <a href="#pgf-clan-description" class="pgf-clan-description-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
+      <h4 class="newspaper-column-header">Описание</h4>
+    </a>
+  </li>
+  <li style="width: 25%;">
+    <a href="#pgf-clan-members" class="pgf-clan-members-button"  data-toggle="tab" style="color: rgb(51, 51, 51);">
+      <h4 class="newspaper-column-header">Состав</h4>
+    </a>
+  </li>
+  <li style="width: 25%;">
+    <a href="#pgf-clan-emissaries" class="pgf-clan-emissaries-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
+      <h4 class="newspaper-column-header">Эмиссары</h4>
+    </a>
+  </li>
+  <li style="width: 25%;">
+    <a href="#pgf-clan-events" class="pgf-clan-events-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
+      <h4 class="newspaper-column-header">Летопись</h4>
+    </a>
+  </li>
+</ul>
+
+
+<div class="tab-content">
+
+  <div class="tab-pane active" id="pgf-clan-description">
+    {{current_clan.description_html|safe}}
+
+    {% set folclor_objects = posts_about(clan_meta_object) %}
+
+    <br/>
+    <br/>
+    <h3>Произведения о Гильдии</h3>
+
+    {% if folclor_objects %}
+    {{ blogs_macros.meta_posts_list(folclor_objects) }}
+    {% else %}
+    <p class="alert alert-info pgf-no-folclor">В настоящее время нет произведений о гильдии.</p>
+    {% endif %}
+
+  </div>
+
+  <div class="tab-pane" id="pgf-clan-members">
+
+    <p>
+      <i>Боевой состав гильдии: {{combat_personnel}}/{{attributes.fighters_maximum}}</i>
+      <i class="icon-info-sign"
+         rel="tooltip"
+         title="Количество членов гильдии в звании {{value('the_tale.clans.relations').MEMBER_ROLE.FIGHTER.text}} или выше. Чтобы увеличить максимальный размер гильдии, развивайте её с помощью эмиссаров."></i>
+    </p>
+
+    {% include "clans/permissions_help.html" %}
+
+    <small style="white-space: nowrap;">серым выделены игроки, остутствующие в игре дольше {{active_state_days}} дней.</small></br>
+
+    <table class="table table-condensed table-striped table-bordered">
+      <tr>
+        {% if current_clan_rights.can_bulk_mailing() %}
+        <th width="16px;"><input type="checkbox" class="pgf-members-checkbox-all" value="all"></th>
+        {% endif %}
+        <th width="20px">№</th>
+        <th width="100px">Игрок</th>
+        <th width="100px">Звание</th>
+        <th>Герой</th>
+        <th>Был в игре</th>
+        <th>Действия</th>
+      </tr>
+      {% for account in accounts %}
+
+      {% set membership = memberships[account.id] %}
+      {% set hero = heroes[account.id] %}
+
+      <tr>
+        {% if current_clan_rights.can_bulk_mailing() %}
+        <td><input type="checkbox" class="pgf-members-checkbox" value="{{account.id}}"></td>
+        {% endif %}
+        <td>
+          <span class="badge {% if account.can_affect_game%}badge-success{% endif %}"
+                style="cursor: pointer;"
+                rel="tooltip"
+                data-tooltip-placement="left"
+                title="{% if account.can_affect_game%}влияет на игру{% else %}не влияет на игру{% endif %}">
+            {{loop.index}}
+          </span>
+        </td>
+        <td style="white-space: nowrap;">
+          <a href="{{url('accounts:show', account.id)}}"
+             class="{% if not account.is_active %}disabled{% endif %}">
+            {{account.nick_verbose}}
+          </a>
+
+          {% if memberships[account.id].is_freezed() %}
+          <span class="label label-warning"
+                style="cursor: default;"
+                rel="tooltip"
+                title="Нельзя изменить звание ещё {{memberships[account.id].freeze_delta()|verbose_timedelta}}">
+            заморожен
+          </span>
+          {% endif %}
+        </td>
+        <td>{{membership.role.text}}</td>
+        <td>
+          {{hero.race_verbose}}
+          <a href="{{url('game:heroes:show', hero.id)}}">{{hero.name}}</a>
+          {{ hero.level }} уровня
+        </td>
+        <td>
+          <span class="pgf-format-date" data-timestamp="{{ account.was_in_game_at|timestamp}}"></span>
+        </td>
+        <td>
+          {% if current_clan_rights.can_edit_member(membership=membership) %}
+          <a href="{{url('clans:edit-member', current_clan.id, account=account.id)}}">изменить</a>
+          {% else %}
+          —
+          {% endif %}
+        </td>
+
+      </tr>
+      {% endfor %}
+    </table>
+
+    {% if current_clan_rights.can_bulk_mailing() %}
+    <a type="button" class="btn pgf-new-message-button disabled">отправить сообщение</a>
+    {% endif %}
+
+  </div>
+
+  <div class="tab-pane" id="pgf-clan-emissaries">
+
+    <p>
+      <a href="{{url('guide:emissaries')}}" target="blank_">Эмиссары</a> — представители гильдии в городах. Выполняя задания в поддержку эмиссаров своей гильдии, Хранители зарабатывают для них влияние. Влияние эмиссаров может быть потрачено на проведение мероприятий, которые помогают членам гильдии, городу или вредят вражеским гильдиям.
+    </p>
+
+    <table width="100%" class="table table-condensed">
+      <tbody>
+        <tr>
+          <th width="150px">Опыт</th>
+          <td width="250px">
+            {% if experience is not none %}
+            <span class="pgf-experience-amount">{{experience}}</span>
+            {% else %}
+            <span class="pgf-experience-dummy">скрыто</span>
+            {% endif %}
+          </td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <th>Очки действий</th>
+          <td>
+            {% if clan_points is not none %}
+            <span class="pgf-clans-points-amount">{{clan_points}}</span>
+            {% else %}
+            <span class="pgf-clans-points-dummy">скрыто</span>
+            {% endif %}
+
+            / {{tt_clans_constants.MAXIMUM_POINTS}}
+
+            <a href="javascript:void(0);"
+               class="info-link"
+               rel="tooltip"
+               title="{{map_macros.power_incoming_tooltip('Очки действий начисляются раз в час', action_points_effects, percents=false)}}">
+              + {{action_points_total}} в час
+            </a>
+
+          </td>
+          <td>уровень {{attributes.points_gain_level}} из {{tt_clans_constants.POINTS_GAIN_LEVEL_STEPS}}</td>
+        </tr>
+
+        <tr>
+          <th>Свободные задания</th>
+          <td>
+            {% if free_quests_points is not none %}
+            <span class="pgf-clans-free-quests-amount">{{free_quests_points}}</span>
+            {% else %}
+            <span class="pgf-clans-free-quests-dummy">скрыто</span>
+            {% endif %}
+
+            / {{attributes.free_quests_maximum}}
+
+            до возобновления {{verbose_to_datetime()}}
+
+            <i class="icon-info-sign"
+               rel="tooltip"
+               title="Количество заданий эмиссаров, которые могут быть выполнены Хранителями, не являющимися подписчиками. Одно очко заданий отнимается в момент активации карты «Гильдейские дела». Количество свободных заданий возобновляется раз в сутки."></i>
+          </td>
+          <td>уровень {{attributes.free_quests_maximum_level}} из {{tt_clans_constants.FREE_QUESTS_MAXIMUM_LEVEL_STEPS}}</td>
+        </tr>
+
+        <tr>
+          <th>Максимум эмиссаров</th>
+          <td>{{attributes.emissary_maximum}}</td>
+          <td>уровень {{attributes.emissary_maximum_level}} из {{tt_clans_constants.EMISSARY_MAXIMUM_LEVEL_STEPS}}</td>
+        </tr>
+
+        <tr>
+          <th>Максимальный боевой состав</th>
+          <td>{{attributes.fighters_maximum}} (занято мест: {{combat_personnel}})</td>
+          <td>уровень {{attributes.fighters_maximum_level}} из {{tt_clans_constants.FIGHTERS_MAXIMUM_LEVEL_STEPS}}</td>
+        </tr>
+
+        <tr>
+          <th>Сторонние задания</th>
+          <td>
+            {% if can_participate_in_pvp %}
+            доступны
+            {% else %}
+            недоступны
+            {% endif %}
+            {{emissaries_macros.pvp_access_marker()}}
+          </td>
+          <td>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+
+    {% if emissaries %}
+    {{ emissaries_macros.emissary_list(emissaries, powers=emissaries_powers, show_places=true) }}
+    {% else %}
+    <p class="alert alert-info">
+      У гильдии нет эмиссаров.
+    </p>
+    {% endif %}
+
+    {% if current_clan_rights.can_emissaries_relocation() %}
+    <p>
+      <a class="pgf-dialog-simple-form btn btn-primary" href="{{ url('game:emissaries:create-dialog') }}">
+        Нанять эмиссара: -{{tt_clans_constants.PRICE_CREATE_EMISSARY}} очков действий
+      </a>
+    </p>
+    {% endif %}
+
+    <h3>Подконтрольные города</h3>
+
+    <p>
+      Гильдия может объявить город своим протекторатом. В этом случае мероприятия её эмиссаров в этом городе усиливают свои эффекты и / или преобетают новые эффекты.
+    </p>
+
+    <p>
+      Связанные дорогами города-протектораты гильдии объединяются в общий регион. Бонусы в городах тем больше, чем больше регион.
+    </p>
+
+    {% if protected_places %}
+
+    <table width="100%" class="table table-condensed">
+      <thead>
+        <tr>
+          <th>город</th>
+          <th>количество городов в протекторате</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for place in protected_places %}
+        <tr>
+          <td>
+            <a href="{{url('game:places:show', place.id)}}">{{place.name}}</a>
+          </td>
+          <td>
+            {{clans_regions.region_for_place(place.id).size()}}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% else %}
+
+    <p class="alert alert-info">
+      У гильдии нет подконтрольных городов.
+    </p>
+
+    {% endif %}
+
+  </div>
+
+  <div class="tab-pane" id="pgf-clan-events">
+    <h3>Последние события в гильдии</h3>
+
+    {% if current_clan_rights.can_access_chronicle() %}
+    {{ chronicle_macros.records_list(chronicle_records) }}
+    {% else %}
+    <p class="alert alert-info">
+      У вас недостаточно прав, чтобы смотреть летопись гильдии.
+    </p>
+    {% endif %}
+  </div>
+
+</div>
+
+
+{% endblock %}

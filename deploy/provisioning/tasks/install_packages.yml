@@ -6,15 +6,17 @@
 
   tasks:
 
+    - name: add repository for newer python packages
+      apt_repository:
+        repo: ppa:deadsnakes/ppa
+
     - name: setup basic packages
-      apt: name={{item}} state=installed
+      apt: name={{item}} state=present
       with_items:
         - emacs
-        - python-dev
-        - python3-dev
-        - python-psycopg2
-        - virtualenv
-        - python-pip
+        - "{{tt_python}}"
+        - "{{tt_python}}-dev"
+        - "{{tt_python}}-venv"
         - supervisor
         - libffi-dev
         - g++

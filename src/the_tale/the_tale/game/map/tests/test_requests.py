@@ -74,13 +74,13 @@ class CellInfoTests(RequestsTestsBase):
         self.check_html_ok(self.request_html(django_reverse('game:map:cell-info') + ('?x=%d&y=%d' % (building.x, building.y))), texts=texts)
 
     def test_outside_map(self):
-        self.check_html_ok(self.request_html(dext_urls.url('game:map:cell-info', x=0, y=0)), texts=[('outside_map', 0)])
-        self.check_html_ok(self.request_html(dext_urls.url('game:map:cell-info', x=conf.settings.WIDTH - 1, y=conf.settings.HEIGHT - 1)), texts=[('outside_map', 0)])
+        self.check_html_ok(self.request_html(utils_urls.url('game:map:cell-info', x=0, y=0)), texts=[('outside_map', 0)])
+        self.check_html_ok(self.request_html(utils_urls.url('game:map:cell-info', x=conf.settings.WIDTH - 1, y=conf.settings.HEIGHT - 1)), texts=[('outside_map', 0)])
 
-        self.check_html_ok(self.request_html(dext_urls.url('game:map:cell-info', x=-1, y=0)), texts=[('outside_map', 1)])
-        self.check_html_ok(self.request_html(dext_urls.url('game:map:cell-info', x=0, y=-1)), texts=[('outside_map', 1)])
-        self.check_html_ok(self.request_html(dext_urls.url('game:map:cell-info', x=conf.settings.WIDTH, y=conf.settings.HEIGHT - 1)), texts=[('outside_map', 1)])
-        self.check_html_ok(self.request_html(dext_urls.url('game:map:cell-info', x=conf.settings.WIDTH - 1, y=conf.settings.HEIGHT)), texts=[('outside_map', 1)])
+        self.check_html_ok(self.request_html(utils_urls.url('game:map:cell-info', x=-1, y=0)), texts=[('outside_map', 1)])
+        self.check_html_ok(self.request_html(utils_urls.url('game:map:cell-info', x=0, y=-1)), texts=[('outside_map', 1)])
+        self.check_html_ok(self.request_html(utils_urls.url('game:map:cell-info', x=conf.settings.WIDTH, y=conf.settings.HEIGHT - 1)), texts=[('outside_map', 1)])
+        self.check_html_ok(self.request_html(utils_urls.url('game:map:cell-info', x=conf.settings.WIDTH - 1, y=conf.settings.HEIGHT)), texts=[('outside_map', 1)])
 
 
 class RegionTests(RequestsTestsBase):

@@ -45,7 +45,7 @@ def argument_to_power_type(value): return relations.ARTIFACT_POWER_TYPE(int(valu
 
 class ArtifactResourceBase(utils_resources.Resource):
 
-    @dext_old_views.validate_argument('artifact', argument_to_artifact, 'artifacts', 'Запись об артефакте не найдена')
+    @old_views.validate_argument('artifact', argument_to_artifact, 'artifacts', 'Запись об артефакте не найдена')
     def initialize(self, artifact=None, *args, **kwargs):
         super(ArtifactResourceBase, self).initialize(*args, **kwargs)
         self.artifact = artifact
@@ -54,19 +54,19 @@ class ArtifactResourceBase(utils_resources.Resource):
         self.can_moderate_artifact = self.account.has_perm('artifacts.moderate_artifactrecord')
 
 
-@dext_old_views.validator(code='artifacts.artifact_disabled', message='артефакт находится вне игры', status_code=404)
+@old_views.validator(code='artifacts.artifact_disabled', message='артефакт находится вне игры', status_code=404)
 def validate_artifact_disabled(resource, *args, **kwargs):
     return not resource.artifact.state.is_DISABLED or resource.can_create_artifact or resource.can_moderate_artifact
 
 
 class GuideArtifactResource(ArtifactResourceBase):
 
-    @dext_old_views.validate_argument('state', lambda v: relations.ARTIFACT_RECORD_STATE.index_value[int(v)], 'artifacts', 'неверное состояние записи об артефакте')
-    @dext_old_views.validate_argument('type', argument_to_artifact_type, 'artifacts', 'неверный тип слота экипировки')
-    @dext_old_views.validate_argument('effect', argument_to_effect_type, 'artifacts', 'неверный тип эффекта')
-    @dext_old_views.validate_argument('power_type', argument_to_power_type, 'artifacts', 'неверный тип артефакта')
-    @dext_old_views.validate_argument('order_by', relations.INDEX_ORDER_TYPE, 'artifacts', 'неверный тип сортировки')
-    @dext_old_views.handler('', method='get')
+    @old_views.validate_argument('state', lambda v: relations.ARTIFACT_RECORD_STATE.index_value[int(v)], 'artifacts', 'неверное состояние записи об артефакте')
+    @old_views.validate_argument('type', argument_to_artifact_type, 'artifacts', 'неверный тип слота экипировки')
+    @old_views.validate_argument('effect', argument_to_effect_type, 'artifacts', 'неверный тип эффекта')
+    @old_views.validate_argument('power_type', argument_to_power_type, 'artifacts', 'неверный тип артефакта')
+    @old_views.validate_argument('order_by', relations.INDEX_ORDER_TYPE, 'artifacts', 'неверный тип сортировки')
+    @old_views.handler('', method='get')
     def index(self,
               state=relations.ARTIFACT_RECORD_STATE.ENABLED,
               effect=None,
@@ -101,7 +101,7 @@ class GuideArtifactResource(ArtifactResourceBase):
         else:
             IndexFilter = BaseIndexFilter
 
-        url_builder = dext_urls.UrlBuilder(django_reverse('guide:artifacts:'), arguments={'state': state.value if state else None,
+        url_builder = utils_urls.UrlBuilder(django_reverse('guide:artifacts:'), arguments={'state': state.value if state else None,
                                                                                           'type': type.value if type else None,
                                                                                           'power_type': power_type.value if power_type else None,
                                                                                           'effect': effect.value if effect else None,
@@ -126,7 +126,7 @@ class GuideArtifactResource(ArtifactResourceBase):
                               'EFFECTS': sorted(list(effects.EFFECTS.values()), key=lambda v: v.TYPE.text)})
 
     @validate_artifact_disabled()
-    @dext_old_views.handler('#artifact', name='show', method='get')
+    @old_views.handler('#artifact', name='show', method='get')
     def show(self):
         return self.template('artifacts/show.html', {'artifact': self.artifact,
                                                      'artifact_meta_object': meta_relations.Artifact.create_from_object(self.artifact),
@@ -134,22 +134,22 @@ class GuideArtifactResource(ArtifactResourceBase):
                                                      'EFFECTS': effects.EFFECTS})
 
     @validate_artifact_disabled()
-    @dext_old_views.handler('#artifact', 'info', method='get')
+    @old_views.handler('#artifact', 'info', method='get')
     def show_dialog(self):
         return self.template('artifacts/info.html', {'artifact': self.artifact,
                                                      'artifact_meta_object': meta_relations.Artifact.create_from_object(self.artifact),
                                                      'EFFECTS': effects.EFFECTS})
 
 
-@dext_old_views.validator(code='artifacts.create_artifact_rights_required', message='Вы не можете создавать артефакты')
+@old_views.validator(code='artifacts.create_artifact_rights_required', message='Вы не можете создавать артефакты')
 def validate_create_rights(resource, *args, **kwargs): return resource.can_create_artifact
 
 
-@dext_old_views.validator(code='artifacts.moderate_artifact_rights_required', message='Вы не можете принимать артефакты в игру')
+@old_views.validator(code='artifacts.moderate_artifact_rights_required', message='Вы не можете принимать артефакты в игру')
 def validate_moderate_rights(resource, *args, **kwargs): return resource.can_moderate_artifact
 
 
-@dext_old_views.validator(code='artifacts.disabled_state_required', message='Для проведения этой операции артефакт должен быть убран из игры')
+@old_views.validator(code='artifacts.disabled_state_required', message='Для проведения этой операции артефакт должен быть убран из игры')
 def validate_disabled_state(resource, *args, **kwargs): return resource.artifact.state.is_DISABLED
 
 
@@ -157,7 +157,7 @@ class GameArtifactResource(ArtifactResourceBase):
 
     @utils_decorators.login_required
     @validate_create_rights()
-    @dext_old_views.handler('new', method='get')
+    @old_views.handler('new', method='get')
     def new(self):
         form = forms.ArtifactRecordForm(initial={'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
                                                  'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
@@ -166,7 +166,7 @@ class GameArtifactResource(ArtifactResourceBase):
 
     @utils_decorators.login_required
     @validate_create_rights()
-    @dext_old_views.handler('create', method='post')
+    @old_views.handler('create', method='post')
     def create(self):
 
         form = forms.ArtifactRecordForm(self.request.POST)
@@ -194,7 +194,7 @@ class GameArtifactResource(ArtifactResourceBase):
     @utils_decorators.login_required
     @validate_disabled_state()
     @validate_create_rights()
-    @dext_old_views.handler('#artifact', 'edit', name='edit', method='get')
+    @old_views.handler('#artifact', 'edit', name='edit', method='get')
     def edit(self):
         form = forms.ArtifactRecordForm(initial=forms.ArtifactRecordForm.get_initials(self.artifact))
 
@@ -204,7 +204,7 @@ class GameArtifactResource(ArtifactResourceBase):
     @utils_decorators.login_required
     @validate_disabled_state()
     @validate_create_rights()
-    @dext_old_views.handler('#artifact', 'update', name='update', method='post')
+    @old_views.handler('#artifact', 'update', name='update', method='post')
     def update(self):
 
         form = forms.ArtifactRecordForm(self.request.POST)
@@ -218,7 +218,7 @@ class GameArtifactResource(ArtifactResourceBase):
 
     @utils_decorators.login_required
     @validate_moderate_rights()
-    @dext_old_views.handler('#artifact', 'moderate', name='moderate', method='get')
+    @old_views.handler('#artifact', 'moderate', name='moderate', method='get')
     def moderation_page(self):
         form = forms.ModerateArtifactRecordForm(initial=forms.ModerateArtifactRecordForm.get_initials(self.artifact))
 
@@ -227,7 +227,7 @@ class GameArtifactResource(ArtifactResourceBase):
 
     @utils_decorators.login_required
     @validate_moderate_rights()
-    @dext_old_views.handler('#artifact', 'moderate', name='moderate', method='post')
+    @old_views.handler('#artifact', 'moderate', name='moderate', method='post')
     def moderate(self):
         form = forms.ModerateArtifactRecordForm(self.request.POST)
 

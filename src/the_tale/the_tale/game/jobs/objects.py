@@ -24,7 +24,7 @@ class JobPower:
 
 
 class Job(object):
-    __slots__ = ('name', 'created_at_turn', 'effect', 'power_required')
+    __slots__ = ('name', 'created_at_turn', 'effect')
 
     ACTOR = NotImplemented
     ACTOR_TYPE = NotImplemented
@@ -32,24 +32,28 @@ class Job(object):
     NEGATIVE_TARGET_TYPE = NotImplemented
     NORMAL_POWER = NotImplemented
 
-    def __init__(self, name, created_at_turn, effect, power_required):
+    def __init__(self, name, created_at_turn, effect):
         self.name = name
         self.created_at_turn = created_at_turn
         self.effect = effect
-        self.power_required = power_required
+
+    @property
+    def power_required(self):
+        try:
+            return self.effect.logic.power_required(self.NORMAL_POWER)
+        except Exception as e:
+            print(e)
 
     def serialize(self):
         return {'name': self.name,
                 'created_at_turn': self.created_at_turn,
-                'effect': self.effect.value,
-                'power_required': self.power_required}
+                'effect': self.effect.value}
 
     @classmethod
     def deserialize(cls, data):
         return cls(name=data['name'],
                    created_at_turn=data['created_at_turn'],
-                   effect=effects.EFFECT(data['effect']),
-                   power_required=data['power_required'])
+                   effect=effects.EFFECT(data['effect']))
 
     def ui_info(self, actor_id):
         power = self.load_power(actor_id)
@@ -60,7 +64,16 @@ class Job(object):
                 'negative_power': int(power.negative),
                 'power_required': int(self.power_required)}
 
+    def can_be_completed_at_turn(self):
+        return int(self.created_at_turn + c.NORMAL_JOB_LENGTH * 24 * c.TURNS_IN_HOUR)
+
+    def will_be_completed_after(self):
+        return datetime.timedelta(seconds=((self.can_be_completed_at_turn() - game_turn.number()) * c.TURN_DELTA))
+
     def is_completed(self, job_power):
+        if game_turn.number() < self.can_be_completed_at_turn():
+            return False
+
         return (job_power.positive >= self.power_required or
                 job_power.negative >= self.power_required)
 

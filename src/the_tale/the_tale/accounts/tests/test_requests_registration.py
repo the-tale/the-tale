@@ -27,7 +27,7 @@ class RequestsRegistrationTests(utils_testcase.TestCase):
                               for key, value in self.arguments.items()}
 
     def check_logined(self):
-        self.check_html_ok(self.request_html(dext_urls.url('accounts:profile:show')))
+        self.check_html_ok(self.request_html(utils_urls.url('accounts:profile:show')))
 
     def last_account(self):
         return models.Account.objects.order_by('-created_at')[0]
@@ -115,13 +115,13 @@ class CreateHeroTests(utils_testcase.TestCase):
         super().setUp()
         game_logic.create_test_map()
 
-        self.url = dext_urls.url('accounts:registration:create-hero')
+        self.url = utils_urls.url('accounts:registration:create-hero')
 
     def test_authenticated(self):
         account = self.accounts_factory.create_account()
         self.request_login(account.email)
 
-        self.check_redirect(self.url, dext_urls.url('game:'))
+        self.check_redirect(self.url, utils_urls.url('game:'))
 
     def test_not_authenticated(self):
         self.check_html_ok(self.request_html(self.url))

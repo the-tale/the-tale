@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                 ('type', rels.django.RelationIntegerField()),
                 ('integrity', models.FloatField(default=1.0)),
                 ('data', models.TextField(default='{}')),
-                ('person', models.ForeignKey(to='persons.Person', unique=True)),
+                ('person', models.ForeignKey(to='persons.Person', unique=True, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -81,8 +81,8 @@ class Migration(migrations.Migration):
                 ('resource_1', rels.django.RelationIntegerField()),
                 ('resource_2', rels.django.RelationIntegerField()),
                 ('bill', models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.SET_NULL, blank=True, to='bills.Bill', null=True)),
-                ('place_1', models.ForeignKey(related_name='+', to='places.Place', null=True)),
-                ('place_2', models.ForeignKey(related_name='+', to='places.Place', null=True)),
+                ('place_1', models.ForeignKey(related_name='+', to='places.Place', null=True, on_delete=models.CASCADE)),
+                ('place_2', models.ForeignKey(related_name='+', to='places.Place', null=True, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -91,7 +91,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='building',
             name='place',
-            field=models.ForeignKey(to='places.Place'),
+            field=models.ForeignKey(to='places.Place', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

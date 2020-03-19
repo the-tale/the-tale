@@ -12,7 +12,7 @@ class BankTests(utils_testcase.TestCase, helpers.BankTestsMixin):
         amqp_environment.environment.deinitialize()
         amqp_environment.environment.initialize()
 
-        dext_settings.settings[conf.settings.SETTINGS_ALLOWED_KEY] = 'allowed'
+        global_settings[conf.settings.SETTINGS_ALLOWED_KEY] = 'allowed'
 
         self.worker = amqp_environment.environment.workers.bank_processor
 
@@ -32,7 +32,7 @@ class BankTests(utils_testcase.TestCase, helpers.BankTestsMixin):
 
     @mock.patch('the_tale.finances.bank.conf.settings.BANK_PROCESSOR_SLEEP_TIME', 0)
     def test_init_invoice__turn_off_by_settings(self):
-        del dext_settings.settings[conf.settings.SETTINGS_ALLOWED_KEY]
+        del global_settings[conf.settings.SETTINGS_ALLOWED_KEY]
         invoice = self.create_invoice()
         self.worker.process_init_invoice()
         invoice.reload()

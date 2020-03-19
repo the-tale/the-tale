@@ -4,30 +4,25 @@ import smart_imports
 smart_imports.all()
 
 
-class Command(django_management.BaseCommand):
+class Command(utilities_base.Command):
 
     help = 'Remove most of users from database, reatain only specified amount + all clan, forumm, folclor users. Also actualize their active states.'
+
+    LOCKS = ['game_commands', 'portal_commands']
+
+    GAME_MUST_BE_STOPPED = True
+    GAME_MUST_BE_IN_DEBUG_MODE = True
 
     requires_model_validation = False
 
     def add_arguments(self, parser):
-        super(Command, self).add_arguments(parser)
-        parser.add_argument('-n', '--number', action='store', type=int, dest='accounts_number', default=1000, help='howe many accounts muse be remained')
+        super().add_arguments(parser)
+        parser.add_argument('-n', '--number',
+                            action='store',
+                            type=int,
+                            dest='accounts_number',
+                            default=1000,
+                            help='howe many accounts muse be remained')
 
-    def handle(self, *args, **options):
-
-        for proc in psutil.process_iter():
-            try:
-                process_cmdline = ' '.join(proc.cmdline())
-
-                if 'django-admin' in process_cmdline and 'supervisor' in process_cmdline and 'the-tale' in process_cmdline:
-                    print('game MUST be stopped befor run this command')
-                    return
-            except psutil.NoSuchProcess:
-                pass
-
-        if not django_settings.DEBUG:
-            print('DEBUG MUST be True to run this command (command must be runned only in development environment)')
-            return
-
-        logic.thin_out_accounts(options['accounts_number'], 30 * 24 * 60 * 60, logger=logging.getLogger('the-tale'))
+    def _handle(self, *args, **options):
+        logic.thin_out_accounts(options['accounts_number'], 30 * 24 * 60 * 60, logger=self.logger)

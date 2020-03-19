@@ -11,7 +11,7 @@ smart_imports.all()
 ########################################
 # resource and global processors
 ########################################
-resource = dext_views.Resource(name='map')
+resource = utils_views.Resource(name='map')
 resource.add_processor(accounts_views.CurrentAccountProcessor())
 resource.add_processor(utils_views.FakeResourceProcessor())
 
@@ -22,13 +22,13 @@ resource.add_processor(utils_views.FakeResourceProcessor())
 
 @resource('')
 def index(context):
-    return dext_views.Page('map/index.html',
-                           content={'current_map_version': storage.map_info.version,
-                                    'resource': context.resource})
+    return utils_views.Page('map/index.html',
+                            content={'current_map_version': storage.map_info.version,
+                                     'resource': context.resource})
 
 
 @utils_api.Processor(versions=(conf.settings.REGION_API_VERSION,))
-@dext_views.IntArgumentProcessor(error_message='Неверный формат номера хода', get_name='turn', context_name='turn', default_value=None)
+@utils_views.IntArgumentProcessor(error_message='Неверный формат номера хода', get_name='turn', context_name='turn', default_value=None)
 @resource('api', 'region', name='api-region')
 def region(context):
     if context.turn is None:
@@ -37,27 +37,27 @@ def region(context):
         try:
             region = models.MapRegion.objects.get(turn_number=context.turn)
         except models.MapRegion.DoesNotExist:
-            raise dext_views.ViewError(code='no_region_found', message='Описание карты для заданного хода не найдено')
+            raise utils_views.ViewError(code='no_region_found', message='Описание карты для заданного хода не найдено')
 
-    return dext_views.AjaxOk(content={'region': region.data,
-                                      'turn': region.turn_number})
+    return utils_views.AjaxOk(content={'region': region.data,
+                                       'turn': region.turn_number})
 
 
 @utils_api.Processor(versions=(conf.settings.REGION_VERSIONS_API_VERSION,))
 @resource('api', 'region-versions', name='api-region-versions')
 def region_versions(context):
-    return dext_views.AjaxOk(content={'turns': list(models.MapRegion.objects.values_list('turn_number', flat=True))})
+    return utils_views.AjaxOk(content={'turns': list(models.MapRegion.objects.values_list('turn_number', flat=True))})
 
 
-@dext_views.IntArgumentProcessor(error_message='Неверная X координата', get_name='x', context_name='x')
-@dext_views.IntArgumentProcessor(error_message='Неверная Y координата', get_name='y', context_name='y')
+@utils_views.IntArgumentProcessor(error_message='Неверная X координата', get_name='x', context_name='x')
+@utils_views.IntArgumentProcessor(error_message='Неверная Y координата', get_name='y', context_name='y')
 @resource('cell-info')
 def cell_info(context):
 
     x, y = context.x, context.y
 
     if x < 0 or y < 0 or x >= conf.settings.WIDTH or y >= conf.settings.HEIGHT:
-        raise dext_views.ViewError(code='outside_map', message='Запрашиваемая зона не принадлежит карте')
+        raise utils_views.ViewError(code='outside_map', message='Запрашиваемая зона не принадлежит карте')
 
     map_info = storage.map_info.item
 
@@ -87,10 +87,14 @@ def cell_info(context):
         hero = heroes_logic.load_hero(account_id=context.account.id)
 
     emissaries = None
-    clans = None
     emissaries_powers = {}
 
+    clan_region = None
+    protector_candidates = None
+
     if place:
+        clan_region = places_storage.clans_regions.region_for_place(place.id)
+
         place_inner_circle = politic_power_logic.get_inner_circle(place_id=place.id)
         persons_inner_circles = {person.id: politic_power_logic.get_inner_circle(person_id=person.id)
                                  for person in place.persons}
@@ -103,11 +107,11 @@ def cell_info(context):
         emissaries = emissaries_logic.load_emissaries_for_place(place.id)
         emissaries = [emissary for emissary in emissaries if emissary.state.is_IN_GAME]
 
-        clans = {clan.id: clan for clan in clans_logic.load_clans([emissary.clan_id for emissary in emissaries])}
-
         emissaries_powers = politic_power_logic.get_emissaries_power([emissary.id for emissary in emissaries])
 
-        emissaries.sort(key=lambda emissary: (emissary.state.value, clans[emissary.clan_id].name, -emissaries_powers[emissary.id]))
+        emissaries_logic.sort_for_ui(emissaries, emissaries_powers)
+
+        protector_candidates = places_logic.protector_candidates_for_ui(place.id)
 
     path_modifier = None
     path_modifier_effects = None
@@ -118,28 +122,30 @@ def cell_info(context):
         path_modifier_effects.sort(key=lambda effect: effect[1])
         path_modifier = sum(value for name, value in path_modifier_effects)
 
-    return dext_views.Page('map/cell_info.html',
-                           content={'place': place,
-                                    'building': storage.cells(x, y).building(),
-                                    'places_power_storage': politic_power_storage.places,
-                                    'persons_power_storage': politic_power_storage.persons,
-                                    'persons_inner_circles': persons_inner_circles,
-                                    'place_inner_circle': place_inner_circle,
-                                    'place_bills': places_info.place_info_bills(place) if place else None,
-                                    'place_chronicle': events,
-                                    'exchanges': exchanges,
-                                    'cell': cell,
-                                    'terrain': terrain,
-                                    'nearest_place_name': nearest_place_name,
-                                    'x': x,
-                                    'y': y,
-                                    'terrain_points': terrain_points,
-                                    'hero': hero,
-                                    'resource': context.resource,
-                                    'ABILITY_TYPE': abilities_relations.ABILITY_TYPE,
-                                    'cells': storage.cells,
-                                    'path_modifier': path_modifier,
-                                    'path_modifier_effects': path_modifier_effects,
-                                    'emissaries': emissaries,
-                                    'emissaries_powers': emissaries_powers,
-                                    'clans': clans})
+    return utils_views.Page('map/cell_info.html',
+                            content={'place': place,
+                                     'building': storage.cells(x, y).building(),
+                                     'places_power_storage': politic_power_storage.places,
+                                     'persons_power_storage': politic_power_storage.persons,
+                                     'persons_inner_circles': persons_inner_circles,
+                                     'place_inner_circle': place_inner_circle,
+                                     'place_bills': places_info.place_info_bills(place) if place else None,
+                                     'place_chronicle': events,
+                                     'exchanges': exchanges,
+                                     'cell': cell,
+                                     'terrain': terrain,
+                                     'nearest_place_name': nearest_place_name,
+                                     'x': x,
+                                     'y': y,
+                                     'terrain_points': terrain_points,
+                                     'hero': hero,
+                                     'resource': context.resource,
+                                     'ABILITY_TYPE': abilities_relations.ABILITY_TYPE,
+                                     'cells': storage.cells,
+                                     'path_modifier': path_modifier,
+                                     'path_modifier_effects': path_modifier_effects,
+                                     'emissaries': emissaries,
+                                     'emissaries_powers': emissaries_powers,
+                                     'clans_infos': clans_storage.infos,
+                                     'clan_region': clan_region,
+                                     'protector_candidates': protector_candidates})

@@ -40,7 +40,7 @@ def save_emissary(emissary, new=False):
     storage.emissaries.update_version()
 
     if not emissary.state.is_IN_GAME:
-        storage.emissaries.refresh()
+        storage.emissaries.remove_item(emissary.id)
 
 
 def create_emissary(initiator, clan, place_id, gender, race, utg_name):
@@ -177,7 +177,7 @@ def dismiss_emissary(emissary_id):
     message = linguistics_logic.technical_render('Эмиссар [emissary] [покинул|emissary] гильдию',
                                                  {'emissary': emissary.utg_name_form})
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_DISSMISSED,
                                               tags=[emissary.meta_object().tag,
                                                     emissary.place.meta_object().tag],
@@ -192,7 +192,7 @@ def kill_emissary(emissary_id):
     message = linguistics_logic.technical_render('Эмиссар [emissary] [убит|emissary]',
                                                  {'emissary': emissary.utg_name_form})
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_KILLED,
                                               tags=[emissary.meta_object().tag],
                                               message=message)
@@ -216,7 +216,7 @@ def damage_emissary(emissary_id):
     message = linguistics_logic.technical_render('На эмиссара [emissary|вн] совершено покушение',
                                                  {'emissary': emissary.utg_name_form})
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_DAMAGED,
                                               tags=[emissary.meta_object().tag],
                                               message=message)
@@ -280,7 +280,7 @@ def move_emissary(emissary_id, new_place_id):
                                                   'old_place': old_place.utg_name_form,
                                                   'new_place': new_place.utg_name_form})
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_MOVED,
                                               tags=[emissary.meta_object().tag,
                                                     old_place.meta_object().tag,
@@ -297,6 +297,8 @@ def rename_emissary(emissary_id, new_name):
 
         emissary = storage.emissaries[emissary_id]
 
+        game_names.sync_properties(new_name, emissary.gender)
+
         old_name = emissary.utg_name
 
         emissary.utg_name = new_name
@@ -307,7 +309,7 @@ def rename_emissary(emissary_id, new_name):
                                                  {'old_name': utg_words.WordForm(old_name),
                                                   'new_name': utg_words.WordForm(new_name)})
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_RENAMED,
                                               tags=[emissary.meta_object().tag,
                                                     emissary.place.meta_object().tag],
@@ -346,11 +348,11 @@ def impacts_from_hero(hero, emissary, power, impacts_generator=tt_power_impacts)
 
     emissary_power = hero.modify_politics_power(power, emissary=emissary)
 
-    has_place_in_preferences = hero.preferences.has_place_in_preferences(emissary.place)
+    place_is_hometown = hero.preferences.place_is_hometown(emissary.place)
 
     can_change_power = hero.can_change_place_power(emissary.place)
 
-    yield from impacts_generator(place_inner_circle=has_place_in_preferences,
+    yield from impacts_generator(place_inner_circle=place_is_hometown,
                                  can_change_place_power=can_change_power,
                                  actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                  actor_id=hero.id,
@@ -359,7 +361,7 @@ def impacts_from_hero(hero, emissary, power, impacts_generator=tt_power_impacts)
                                  fame=c.HERO_FAME_PER_HELP if 0 < power else 0)
 
 
-def form_choices(empty_choice=True):
+def form_choices(empty_choice=True, own_clan_id=None):
     choices = []
 
     if empty_choice:
@@ -370,6 +372,8 @@ def form_choices(empty_choice=True):
 
     clans = {clan.id: clan for clan in clans}
 
+    own_clan_name = None
+
     for clan_id, emissaries in storage.emissaries.emissaries_by_clan.items():
 
         if clan_id not in clans:
@@ -377,13 +381,21 @@ def form_choices(empty_choice=True):
 
         clan = clans[clan_id]
 
-        clan_choices = [(emissary.id, emissary.name) for emissary in emissaries]
+        clan_choices = [(emissary.id, f'{emissary.name} из {emissary.place.utg_name.forms[1]}')
+                        for emissary in emissaries]
 
         clan_choices.sort(key=lambda choice: choice[1])
 
-        choices.append(('[{}] {}'.format(clan.abbr, clan.name), clan_choices))
+        clan_name = f'[{clan.abbr}] {clan.name}'
 
-    return sorted(choices, key=lambda choice: choice[0])
+        if clan_id == own_clan_id:
+            own_clan_name = clan_name
+
+        choices.append((clan_name, clan_choices))
+
+    choices.sort(key=lambda choice: (choice[0] != '', choice[0] != own_clan_name, choice[0]))
+
+    return choices
 
 
 def sync_power():
@@ -446,7 +458,7 @@ def save_event(event, new=False):
     storage.events.update_version()
 
     if not event.state.is_RUNNING:
-        storage.events.refresh()
+        storage.events.remove_item(event.id)
 
 
 def create_event(initiator, emissary, concrete_event, days):
@@ -532,7 +544,7 @@ def cancel_event(initiator, event):
                              emissary=event.emissary.utg_name.forms[1],
                              event=event.concrete_event.TYPE.text)
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(event.emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[event.emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_EVENT_CANCELED,
                                               tags=[event.emissary.meta_object().tag,
                                                     event.emissary.place.meta_object().tag,
@@ -554,7 +566,7 @@ def finish_event(event, with_error=False):
     message = message.format(emissary=emissary.utg_name.forms[1],
                              event=event.concrete_event.TYPE.text)
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_EVENT_FINISHED,
                                               tags=[emissary.meta_object().tag,
                                                     emissary.place.meta_object().tag,
@@ -571,7 +583,24 @@ def stop_event_due_emissary_left_game(event):
                                                  {'emissary': event.emissary.utg_name_form,
                                                   'event': lexicon_dictionary.text(event.concrete_event.TYPE.text)})
 
-    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(event.emissary.clan_id),
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[event.emissary.clan_id],
+                                              event=clans_relations.EVENT.EMISSARY_EVENT_FINISHED,
+                                              tags=[event.emissary.meta_object().tag,
+                                                    event.emissary.place.meta_object().tag,
+                                                    event.concrete_event.TYPE.meta_object().tag],
+                                              message=message)
+
+
+def stop_event_due_emissary_relocated(event):
+
+    _stop_event(event, reason=relations.EVENT_STOP_REASON.EMISSARY_RELOCATED)
+
+    message = 'Мероприятие эмиссара [emissary] «[event]» прекращено, так как [он|emissary] [переехал|emissary] в другой город.'
+    message = linguistics_logic.technical_render(message,
+                                                 {'emissary': event.emissary.utg_name_form,
+                                                  'event': lexicon_dictionary.text(event.concrete_event.TYPE.text)})
+
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_storage.infos[event.emissary.clan_id],
                                               event=clans_relations.EVENT.EMISSARY_EVENT_FINISHED,
                                               tags=[event.emissary.meta_object().tag,
                                                     event.emissary.place.meta_object().tag,
@@ -604,7 +633,6 @@ def do_event_step(event_id):
 
         if event.stop_after_steps <= event.steps_processed:
             success = event.concrete_event.on_finish(event)
-
             finish_event(event, with_error=not success)
 
     return True
@@ -627,7 +655,7 @@ def add_clan_experience():
         clans_tt_services.currencies.cmd_change_balance(account_id=event.emissary.clan_id,
                                                         type='event_experience',
                                                         amount=experience,
-                                                        async=False,
+                                                        asynchronous=False,
                                                         autocommit=True,
                                                         currency=clans_relations.CURRENCY.EXPERIENCE)
 
@@ -640,12 +668,12 @@ def add_emissaries_experience():
 
 
 def expected_power_per_day():
-    quest_card_probability = cards_logic.get_card_probability(cards_types.CARD.EMISSARY_QUEST)
+    quest_card_probability = cards_logic.get_card_probability(cards_types.CARD.QUEST_FOR_EMISSARY)
 
     quests_in_day = tt_cards_constants.PREMIUM_PLAYER_SPEED * quest_card_probability
 
     # TODO: get from statistics
-    power_for_quest = f.person_power_for_quest__real(c.QUEST_AREA_RADIUS) * c.EXPECTED_HERO_QUEST_POWER_MODIFIER
+    power_for_quest = f.person_power_for_quest__real(places_storage.places.expected_minimum_quest_distance()) * c.EXPECTED_HERO_QUEST_POWER_MODIFIER
 
     return int(math.ceil(quests_in_day *
                          power_for_quest *
@@ -653,7 +681,7 @@ def expected_power_per_day():
 
 
 def resource_id(clan_id, place_id):
-    return tt_services.events_effects_ids.cmd_get_id('{}_{}'.format(clan_id, place_id))
+    return tt_services.events_effects_ids.cmd_get_id(f'{clan_id}_{place_id}')
 
 
 def change_event_points(resource_id, type, currency, amount):
@@ -664,7 +692,7 @@ def change_event_points(resource_id, type, currency, amount):
     tt_services.events_currencies.cmd_change_balance(account_id=resource_id,
                                                      type=type,
                                                      amount=amount,
-                                                     async=False,
+                                                     asynchronous=False,
                                                      autocommit=True,
                                                      restrictions=restrictions,
                                                      currency=currency)
@@ -673,7 +701,10 @@ def change_event_points(resource_id, type, currency, amount):
 def withdraw_event_points(clan_id, place_id, currency):
     resource_id = emissaries_logic.resource_id(clan_id=clan_id,
                                                place_id=place_id)
+    withdraw_event_points_by_resource_id(resource_id, currency)
 
+
+def withdraw_event_points_by_resource_id(resource_id, currency):
     emissaries_logic.change_event_points(resource_id=resource_id,
                                          type='on_effect_activation',
                                          currency=currency,
@@ -706,3 +737,53 @@ def has_clan_space_for_emissary(clan_id, attributes):
     in_game_emissaries_number = count_active_emissaries_for_clan(clan_id)
 
     return in_game_emissaries_number < attributes.emissary_maximum
+
+
+def sort_for_ui(emissaries, powers):
+    emissaries.sort(key=lambda emissary: (emissary.state.value, -powers[emissary.id]))
+
+
+def cancel_events_except_one(event, cancel_event_callback):
+    for emissary_event in storage.events.emissary_events(event.emissary_id):
+        if emissary_event.id == event.id:
+            continue
+
+        cancel_event_callback(emissary_event)
+
+
+def notify_clans(place_id, message, roles, exclude_clans_ids):
+    clans_to_notify = {emissary.clan_id
+                       for emissary in storage.emissaries.emissaries_in_place(place_id)
+                       if emissary.state.is_IN_GAME and emissary.clan_id not in exclude_clans_ids}
+
+    accounts_to_notify = clans_logic.get_members_with_roles(clans_ids=clans_to_notify,
+                                                            roles=roles)
+
+    personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+                                         recipients_ids=accounts_to_notify,
+                                         body=message)
+
+
+def send_event_success_message(event, account, suffix):
+    emissaries_with_event = []
+
+    for event_candiate in storage.events.clan_events(event.emissary.clan_id):
+        if event_candiate.concrete_event.TYPE != event.concrete_event.TYPE:
+            continue
+
+        emissaries_with_event.append(event_candiate.emissary)
+
+    url_template = '[url="{}"]{}[/url]'
+
+    emissaries_text = ', '.join(url_template.format(utils_urls.full_url('https', 'game:emissaries:show', emissary.id),
+                                                    emissary.utg_name.forms[1])
+                                for emissary in emissaries_with_event)
+
+    if len(emissaries_with_event) == 1:
+        message = f'Благодаря усилиям эмиссара {emissaries_text} {suffix}'
+    else:
+        message = f'Благодаря усилиям эмиссаров {emissaries_text} {suffix}'
+
+    personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+                                         recipients_ids=[account.id],
+                                         body=message)

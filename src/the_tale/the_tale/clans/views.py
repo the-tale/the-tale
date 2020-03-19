@@ -8,7 +8,7 @@ smart_imports.all()
 # processors
 ########################################
 
-class ClanProcessor(dext_views.ArgumentProcessor):
+class ClanProcessor(utils_views.ArgumentProcessor):
     URL_NAME = 'clan'
     CONTEXT_NAME = 'current_clan'
     DEFAULT_VALUE = None
@@ -28,12 +28,12 @@ class ClanProcessor(dext_views.ArgumentProcessor):
         return clan
 
 
-class MembershipRequestProcessor(dext_views.ArgumentProcessor):
+class MembershipRequestProcessor(utils_views.ArgumentProcessor):
     GET_NAME = 'request'
     CONTEXT_NAME = 'membership_request'
     ERROR_MESSAGE = 'Неверный идентификатор запроса'
 
-    ARG_EXPECTED_TYPE = dext_views.ProcessorArgument()
+    ARG_EXPECTED_TYPE = utils_views.ProcessorArgument()
 
     def parse(self, context, raw_value):
         try:
@@ -47,18 +47,18 @@ class MembershipRequestProcessor(dext_views.ArgumentProcessor):
             self.raise_wrong_value()
 
         if self.expected_type is not None and request.type != self.expected_type:
-            raise dext_views.ViewError(code='clans.wrong_request_type',
-                                       message='Неверный тип запроса на вступление в гильдию')
+            raise utils_views.ViewError(code='clans.wrong_request_type',
+                                        message='Неверный тип запроса на вступление в гильдию')
 
         if context.current_clan.id != request.clan_id:
-            raise dext_views.ViewError(code='clans.not_your_clan_request',
-                                       message='Этот запрос относится к другому клану')
+            raise utils_views.ViewError(code='clans.not_your_clan_request',
+                                        message='Этот запрос относится к другому клану')
 
         return request
 
 
-class ClanRightsProcessor(dext_views.BaseViewProcessor):
-    ARG_CLAN_ATTRIBUTE = dext_views.ProcessorArgument()
+class ClanRightsProcessor(utils_views.BaseViewProcessor):
+    ARG_CLAN_ATTRIBUTE = utils_views.ProcessorArgument()
 
     def preprocess(self, context):
         rights_attribute = self.clan_attribute + '_rights'
@@ -74,9 +74,9 @@ class ClanRightsProcessor(dext_views.BaseViewProcessor):
                                                                    is_moderator=context.account.has_perm('clans.moderate_clan')))
 
 
-class AccountClanProcessor(dext_views.BaseViewProcessor):
-    ARG_ACCOUNT_ATTRIBUTE = dext_views.ProcessorArgument()
-    ARG_CLAN_ATTRIBUTE = dext_views.ProcessorArgument()
+class AccountClanProcessor(utils_views.BaseViewProcessor):
+    ARG_ACCOUNT_ATTRIBUTE = utils_views.ProcessorArgument()
+    ARG_CLAN_ATTRIBUTE = utils_views.ProcessorArgument()
 
     def preprocess(self, context):
         account = getattr(context, self.account_attribute, None)
@@ -85,17 +85,17 @@ class AccountClanProcessor(dext_views.BaseViewProcessor):
             setattr(context, self.clan_attribute, None)
             return
 
-        clan = account.clan if account.is_authenticated() else None
+        clan = account.clan if account.is_authenticated else None
 
         setattr(context, self.clan_attribute, clan)
 
 
-class ClanStaticOperationAccessProcessor(dext_views.AccessProcessor):
+class ClanStaticOperationAccessProcessor(utils_views.AccessProcessor):
     ERROR_CODE = 'clans.no_rights'
     ERROR_MESSAGE = 'Вам запрещено проводить эту операцию'
 
-    ARG_PERMISSION = dext_views.ProcessorArgument()
-    ARG_PERMISSIONS_ATTRIBUTE = dext_views.ProcessorArgument(default='current_clan_rights')
+    ARG_PERMISSION = utils_views.ProcessorArgument()
+    ARG_PERMISSIONS_ATTRIBUTE = utils_views.ProcessorArgument(default='current_clan_rights')
 
     def validate(self, argument):
         return getattr(argument, self.permission)()
@@ -109,11 +109,11 @@ class ClanStaticOperationAccessProcessor(dext_views.AccessProcessor):
         return getattr(rights, self.permission)()
 
 
-class ClanMemberOperationAccessProcessor(dext_views.AccessProcessor):
+class ClanMemberOperationAccessProcessor(utils_views.AccessProcessor):
     ERROR_CODE = 'clans.no_rights'
     ERROR_MESSAGE = 'Вам запрещено проводить эту операцию'
 
-    ARG_PERMISSION = dext_views.ProcessorArgument()
+    ARG_PERMISSION = utils_views.ProcessorArgument()
 
     def check(self, context):
         membership = logic.get_membership(context.target_account.id)
@@ -124,7 +124,7 @@ class ClanMemberOperationAccessProcessor(dext_views.AccessProcessor):
         return getattr(context.current_clan_rights, self.permission)(membership=membership)
 
 
-class CanBeInvitedProcessor(dext_views.FlaggedAccessProcessor):
+class CanBeInvitedProcessor(utils_views.FlaggedAccessProcessor):
     ERROR_CODE = 'clans.player_does_not_accept_invites_from_clans'
     ERROR_MESSAGE = 'Игрок не хочет прнимать приглашения от гильдий'
     ARGUMENT = 'target_account'
@@ -135,7 +135,7 @@ class CanBeInvitedProcessor(dext_views.FlaggedAccessProcessor):
         return accept_invites_from_clans
 
 
-class CanReceiveRequessProcessor(dext_views.FlaggedAccessProcessor):
+class CanReceiveRequessProcessor(utils_views.FlaggedAccessProcessor):
     ERROR_CODE = 'clans.clan_does_not_accept_requests_from_players'
     ERROR_MESSAGE = 'Гильдия не принимает запросы на вступление от игроков.'
     ARGUMENT = 'current_clan'
@@ -146,7 +146,7 @@ class CanReceiveRequessProcessor(dext_views.FlaggedAccessProcessor):
         return accept_requests_from_players
 
 
-class ClanIsActiveProcessor(dext_views.FlaggedAccessProcessor):
+class ClanIsActiveProcessor(utils_views.FlaggedAccessProcessor):
     ERROR_CODE = 'clans.removed'
     ERROR_MESSAGE = 'Гильдия распущена.'
     ARGUMENT = 'current_clan'
@@ -160,8 +160,8 @@ class ClanIsActiveProcessor(dext_views.FlaggedAccessProcessor):
 ########################################
 
 def change_balance_error_fabric():
-    return dext_views.ViewError(code='clans.no_enought_clan_points',
-                                message='У гильдии не хватает очков действий')
+    return utils_views.ViewError(code='clans.no_enought_clan_points',
+                                 message='У гильдии не хватает очков действий')
 
 
 points_banker = tt_services.currencies.banker(change_balance_error=change_balance_error_fabric,
@@ -170,7 +170,7 @@ points_banker = tt_services.currencies.banker(change_balance_error=change_balanc
 ########################################
 # resource and global processors
 ########################################
-resource = dext_views.Resource(name='clans')
+resource = utils_views.Resource(name='clans')
 resource.add_processor(accounts_views.CurrentAccountProcessor())
 resource.add_processor(utils_views.FakeResourceProcessor())
 resource.add_processor(accounts_views.AccountProcessor(get_name='account', context_name='target_account', default_value=None))
@@ -197,24 +197,24 @@ class IndexFilter(utils_list_filter.ListFilter):
 
 
 @utils_views.PageNumberProcessor()
-@dext_views.RelationArgumentProcessor(relation=relations.ORDER_BY,
-                                      default_value=relations.ORDER_BY.ACTIVE_MEMBERS_NUMBER_DESC,
-                                      error_message='неверный тип сортировки',
-                                      context_name='order_by', get_name='order_by')
+@utils_views.RelationArgumentProcessor(relation=relations.ORDER_BY,
+                                       default_value=relations.ORDER_BY.ACTIVE_MEMBERS_NUMBER_DESC,
+                                       error_message='неверный тип сортировки',
+                                       context_name='order_by', get_name='order_by')
 @utils_views.TextFilterProcessor(get_name='filter', context_name='filter', default_value=None)
 @resource('')
 def index(context):
     clans_query = models.Clan.objects.all()
 
     if context.filter:
-        clans_query = clans_query.filter(django_models.Q(abbr__icontains=context.filter)|
-                                         django_models.Q(name__icontains=context.filter))
+        clans_query = clans_query.filter(django_models.Q(abbr__icontains=context.filter.strip())|
+                                         django_models.Q(name__icontains=context.filter.strip()))
 
     clans_number = clans_query.count()
 
-    url_builder = dext_urls.UrlBuilder(dext_urls.url('clans:'),
-                                       arguments={'order_by': context.order_by.value,
-                                                  'filter': context.filter})
+    url_builder = utils_urls.UrlBuilder(utils_urls.url('clans:'),
+                                        arguments={'order_by': context.order_by.value,
+                                                   'filter': context.filter})
 
     index_filter = IndexFilter(url_builder=url_builder, values={'order_by': context.order_by.value,
                                                                 'filter': context.filter})
@@ -222,7 +222,7 @@ def index(context):
     paginator = utils_pagination.Paginator(context.page, clans_number, conf.settings.CLANS_ON_PAGE, url_builder)
 
     if paginator.wrong_page_number:
-        return dext_views.Redirect(paginator.last_page_url)
+        return utils_views.Redirect(paginator.last_page_url)
 
     clans_query = clans_query.order_by(*context.order_by.order_field)
 
@@ -241,16 +241,16 @@ def index(context):
     if context.account.is_authenticated and context.account.clan_id:
         user_clan = logic.load_clan(context.account.clan_id)
 
-    return dext_views.Page('clans/index.html',
-                           content={'resource': context.resource,
-                                    'clans': clans,
-                                    'page_id': relations.PAGE_ID.INDEX,
-                                    'paginator': paginator,
-                                    'index_filter': index_filter,
-                                    'accounts': accounts,
-                                    'leaders_ids': leaders_ids,
-                                    'user_clan': user_clan,
-                                    'current_clan': None})
+    return utils_views.Page('clans/index.html',
+                            content={'resource': context.resource,
+                                     'clans': clans,
+                                     'page_id': relations.PAGE_ID.INDEX,
+                                     'paginator': paginator,
+                                     'index_filter': index_filter,
+                                     'accounts': accounts,
+                                     'leaders_ids': leaders_ids,
+                                     'user_clan': user_clan,
+                                     'current_clan': None})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -268,11 +268,11 @@ def chronicle(context):
 
     page -= 1
 
-    url_builder = dext_urls.UrlBuilder(dext_urls.url('clans:chronicle', context.current_clan.id),
+    url_builder = utils_urls.UrlBuilder(utils_urls.url('clans:chronicle', context.current_clan.id),
                                        arguments={'page': context.page})
 
     if page != context.page and 'page' in context.django_request.GET:
-        return dext_views.Redirect(url_builder(page=page))
+        return utils_views.Redirect(url_builder(page=page))
 
     paginator = utils_pagination.Paginator(page,
                                            total_records,
@@ -282,13 +282,13 @@ def chronicle(context):
 
     tt_api_events_log.fill_events_wtih_meta_objects(events)
 
-    return dext_views.Page('clans/chronicle.html',
-                           content={'resource': context.resource,
-                                    'events': events,
-                                    'paginator': paginator,
-                                    'page_id': relations.PAGE_ID.CHRONICLE,
-                                    'url_builder': url_builder,
-                                    'current_clan': context.current_clan})
+    return utils_views.Page('clans/chronicle.html',
+                            content={'resource': context.resource,
+                                     'events': events,
+                                     'paginator': paginator,
+                                     'page_id': relations.PAGE_ID.CHRONICLE,
+                                     'url_builder': url_builder,
+                                     'current_clan': context.current_clan})
 
 
 @resource('#clan', name='show')
@@ -342,40 +342,58 @@ def show(context):
 
     emissaries_powers = politic_power_logic.get_emissaries_power([emissary.id for emissary in emissaries])
 
-    emissaries.sort(key=lambda e: (e.state.value, e.place.name, emissaries_powers[e.id]))
+    emissaries_logic.sort_for_ui(emissaries, emissaries_powers)
 
     attributes = logic.load_attributes(context.current_clan.id)
 
     can_participate_in_pvp = emissaries_logic.can_clan_participate_in_pvp(context.current_clan.id)
 
-    return dext_views.Page('clans/show.html',
-                           content={'resource': context.resource,
-                                    'page_id': relations.PAGE_ID.SHOW,
-                                    'clan_meta_object': meta_relations.Clan.create_from_object(context.current_clan),
-                                    'memberships': memberships,
-                                    'accounts': accounts,
-                                    'leader': accounts[0] if accounts else None,
-                                    'active_state_days': accounts_conf.settings.ACTIVE_STATE_TIMEOUT // (24 * 60 * 60),
-                                    'total_frontier_politic_power_multiplier': total_frontier_politic_power_multiplier,
-                                    'total_core_politic_power_multiplier': total_core_politic_power_multiplier,
-                                    'chronicle_records': events,
-                                    'total_chronicle_records': total_events,
-                                    'heroes': heroes,
-                                    'forum_subcategory': forum_subcategory,
-                                    'request_to_this_clan': request_to_this_clan,
-                                    'current_clan': context.current_clan,
-                                    'current_clan_rights': context.current_clan_rights,
-                                    'requests_number_for_clan': requests_number_for_clan,
-                                    'current_clan_properties': current_clan_properties,
-                                    'is_own_clan': is_own_clan,
-                                    'clan_points': clan_points,
-                                    'free_quests_points': free_quests_points,
-                                    'experience': experience,
-                                    'emissaries': emissaries,
-                                    'attributes': attributes,
-                                    'tt_clans_constants': tt_clans_constants,
-                                    'emissaries_powers': emissaries_powers,
-                                    'can_participate_in_pvp': can_participate_in_pvp})
+    # считаем дополнительный прирост очков гильдии от мероприятий
+    action_points_effects = [('гильдия', attributes.points_gain)]
+
+    for event in emissaries_storage.events.clan_events(context.current_clan.id):
+        if event.concrete_event.TYPE.is_RESERVES_SEARCH:
+            action_points_effects.append((f'эмиссар {event.emissary.name}',
+                                          event.concrete_event.action_points_per_step(event.concrete_event.raw_ability_power)))
+    action_points_effects.sort(key=lambda effect: effect[0])
+    action_points_total = sum(points for name, points in action_points_effects)
+
+    protected_places = [place for place in places_storage.places.all() if place.attrs.clan_protector == context.current_clan.id]
+    protected_places.sort(key=lambda place: place.name)
+
+    return utils_views.Page('clans/show.html',
+                            content={'resource': context.resource,
+                                     'page_id': relations.PAGE_ID.SHOW,
+                                     'clan_meta_object': meta_relations.Clan.create_from_object(context.current_clan),
+                                     'memberships': memberships,
+                                     'accounts': accounts,
+                                     'leader': accounts[0] if accounts else None,
+                                     'active_state_days': accounts_conf.settings.ACTIVE_STATE_TIMEOUT // (24 * 60 * 60),
+                                     'total_frontier_politic_power_multiplier': total_frontier_politic_power_multiplier,
+                                     'total_core_politic_power_multiplier': total_core_politic_power_multiplier,
+                                     'chronicle_records': events,
+                                     'total_chronicle_records': total_events,
+                                     'heroes': heroes,
+                                     'forum_subcategory': forum_subcategory,
+                                     'request_to_this_clan': request_to_this_clan,
+                                     'current_clan': context.current_clan,
+                                     'current_clan_rights': context.current_clan_rights,
+                                     'requests_number_for_clan': requests_number_for_clan,
+                                     'current_clan_properties': current_clan_properties,
+                                     'is_own_clan': is_own_clan,
+                                     'clan_points': clan_points,
+                                     'free_quests_points': free_quests_points,
+                                     'experience': experience,
+                                     'emissaries': emissaries,
+                                     'attributes': attributes,
+                                     'action_points_total': action_points_total,
+                                     'action_points_effects': action_points_effects,
+                                     'tt_clans_constants': tt_clans_constants,
+                                     'emissaries_powers': emissaries_powers,
+                                     'can_participate_in_pvp': can_participate_in_pvp,
+                                     'protected_places': protected_places,
+                                     'clans_regions': places_storage.clans_regions,
+                                     'combat_personnel': logic.get_combat_personnel__by_memberships(memberships)})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -393,27 +411,27 @@ def edit(context):
                                    'linguistics_name': context.current_clan.linguistics_name,
                                    'accept_requests_from_players': clan_properties.accept_requests_from_players})
 
-    return dext_views.Page('clans/edit.html',
-                           content={'resource': context.resource,
-                                    'form': form,
-                                    'page_id': relations.PAGE_ID.EDIT,
-                                    'current_clan': context.current_clan,
-                                    'current_clan_rights': context.current_clan_rights})
+    return utils_views.Page('clans/edit.html',
+                            content={'resource': context.resource,
+                                     'form': form,
+                                     'page_id': relations.PAGE_ID.EDIT,
+                                     'current_clan': context.current_clan,
+                                     'current_clan_rights': context.current_clan_rights})
 
 
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
 @ClanStaticOperationAccessProcessor(permission='can_edit')
-@dext_views.FormProcessor(form_class=forms.ClanForm)
+@utils_views.FormProcessor(form_class=forms.ClanForm)
 @resource('#clan', 'update', method='POST')
 def update(context):
     if models.Clan.objects.filter(name=context.form.c.name).exclude(id=context.current_clan.id).exists():
-        raise dext_views.ViewError(code='clans.update.name_exists',
-                                   message='Гильдия с таким названием уже существует')
+        raise utils_views.ViewError(code='clans.update.name_exists',
+                                    message='Гильдия с таким названием уже существует')
 
     if models.Clan.objects.filter(abbr=context.form.c.abbr).exclude(id=context.current_clan.id).exists():
-        raise dext_views.ViewError(code='clans.update.abbr_exists',
-                                   message='Гильдия с такой аббревиатурой уже существует')
+        raise utils_views.ViewError(code='clans.update.abbr_exists',
+                                    message='Гильдия с такой аббревиатурой уже существует')
 
     clan = context.current_clan
 
@@ -437,7 +455,7 @@ def update(context):
                                         tags=[context.account.meta_object().tag],
                                         message=message)
 
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -447,12 +465,12 @@ def update(context):
 def remove(context):
 
     if context.current_clan.members_number > 1:
-        raise dext_views.ViewError(code='clans.remove.not_empty_clan',
-                                   message='Можно удалить только «пустую» гильдию (сначала удалите всех членов кроме себя)')
+        raise utils_views.ViewError(code='clans.remove.not_empty_clan',
+                                    message='Можно удалить только «пустую» гильдию (сначала удалите всех членов кроме себя)')
 
     logic.remove_clan(context.current_clan)
 
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -464,12 +482,12 @@ def for_clan(context):
     accounts = {model.id: accounts_prototypes.AccountPrototype(model)
                 for model in accounts_prototypes.AccountPrototype._db_filter(id__in=[request.account_id for request in requests])}
 
-    return dext_views.Page('clans/membership/for_clan.html',
-                           content={'resource': context.resource,
-                                    'requests': requests,
-                                    'page_id': relations.PAGE_ID.FOR_CLAN,
-                                    'accounts': accounts,
-                                    'current_clan': context.current_clan})
+    return utils_views.Page('clans/membership/for_clan.html',
+                            content={'resource': context.resource,
+                                     'requests': requests,
+                                     'page_id': relations.PAGE_ID.FOR_CLAN,
+                                     'accounts': accounts,
+                                     'current_clan': context.current_clan})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -484,26 +502,26 @@ def for_account(context):
 
     clans = {clan.id: clan for clan in clans_logic.load_clans([request.clan_id for request in requests])}
 
-    return dext_views.Page('clans/membership/for_account.html',
-                           content={'resource': context.resource,
-                                    'requests': requests,
-                                    'accounts': accounts,
-                                    'clans': clans,
-                                    'page_id': relations.PAGE_ID.FOR_ACCOUNT,
-                                    'current_clan': None})
+    return utils_views.Page('clans/membership/for_account.html',
+                            content={'resource': context.resource,
+                                     'requests': requests,
+                                     'accounts': accounts,
+                                     'clans': clans,
+                                     'page_id': relations.PAGE_ID.FOR_ACCOUNT,
+                                     'current_clan': None})
 
 
 def check_request_exists(account_id, clan_id, code, message):
     has_invite = models.MembershipRequest.objects.filter(account_id=account_id, clan_id=clan_id).exists()
 
     if has_invite:
-        raise dext_views.ViewError(code=code, message=message)
+        raise utils_views.ViewError(code=code, message=message)
 
 
 def on_invite_checks(account, clan):
     if account.clan_id is not None:
-        raise dext_views.ViewError(code='clans.other_already_in_clan',
-                                   message='Игрок уже состоит в гильдии')
+        raise utils_views.ViewError(code='clans.other_already_in_clan',
+                                    message='Игрок уже состоит в гильдии')
 
     check_request_exists(account_id=account.id,
                          clan_id=clan.id,
@@ -513,8 +531,8 @@ def on_invite_checks(account, clan):
 
 def on_request_checks(account, clan):
     if account.clan_id is not None:
-        raise dext_views.ViewError(code='clans.already_in_clan',
-                                   message='Игрок уже состоит в гильдии')
+        raise utils_views.ViewError(code='clans.already_in_clan',
+                                    message='Игрок уже состоит в гильдии')
 
     check_request_exists(account_id=account.id,
                          clan_id=clan.id,
@@ -530,11 +548,11 @@ def on_request_checks(account, clan):
 def invite_dialog(context):
     on_invite_checks(context.target_account, context.current_clan)
 
-    return dext_views.Page('clans/membership/invite_dialog.html',
-                           content={'resource': context.resource,
-                                    'invited_account': context.target_account,
-                                    'current_clan': context.current_clan,
-                                    'form': forms.MembershipRequestForm()})
+    return utils_views.Page('clans/membership/invite_dialog.html',
+                            content={'resource': context.resource,
+                                     'invited_account': context.target_account,
+                                     'current_clan': context.current_clan,
+                                     'form': forms.MembershipRequestForm()})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -546,17 +564,17 @@ def request_dialog(context):
 
     on_request_checks(context.account, context.current_clan)
 
-    return dext_views.Page('clans/membership/request_dialog.html',
-                           content={'resource': context.resource,
-                                    'current_clan': context.current_clan,
-                                    'form': forms.MembershipRequestForm()})
+    return utils_views.Page('clans/membership/request_dialog.html',
+                            content={'resource': context.resource,
+                                     'current_clan': context.current_clan,
+                                     'form': forms.MembershipRequestForm()})
 
 
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
 @ClanStaticOperationAccessProcessor(permission='can_take_member')
 @CanBeInvitedProcessor()
-@dext_views.FormProcessor(form_class=forms.MembershipRequestForm)
+@utils_views.FormProcessor(form_class=forms.MembershipRequestForm)
 @resource('#clan', 'invite', method='POST')
 def invite(context):
     on_invite_checks(context.target_account, context.current_clan)
@@ -566,14 +584,14 @@ def invite(context):
                         member=context.target_account,
                         text=context.form.c.text)
 
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
 @CanReceiveRequessProcessor()
 @ClanIsActiveProcessor()
-@dext_views.FormProcessor(form_class=forms.MembershipRequestForm)
+@utils_views.FormProcessor(form_class=forms.MembershipRequestForm)
 @resource('#clan', 'request', method='POST')
 def request(context):
 
@@ -583,7 +601,7 @@ def request(context):
                          clan=context.current_clan,
                          text=context.form.c.text)
 
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 @django_transaction.atomic
@@ -597,7 +615,7 @@ def accept_request(context):
     logic.accept_request(initiator=context.account,
                          membership_request=context.membership_request)
 
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 @django_transaction.atomic
@@ -608,16 +626,16 @@ def accept_request(context):
 def accept_invite(context):
 
     if context.account.id != context.membership_request.account_id:
-        raise dext_views.ViewError(code='clans.accept_request.not_your_account',
-                                   message='Этот запрос относится к другому аккаунту')
+        raise utils_views.ViewError(code='clans.accept_request.not_your_account',
+                                    message='Этот запрос относится к другому аккаунту')
 
     if context.account.clan_id is not None:
-        raise dext_views.ViewError(code='clans.already_in_clan',
-                                   message='Игрок уже состоит в гильдии')
+        raise utils_views.ViewError(code='clans.already_in_clan',
+                                    message='Игрок уже состоит в гильдии')
 
     logic.accept_invite(membership_request=context.membership_request)
 
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 @django_transaction.atomic
@@ -631,7 +649,7 @@ def reject_request(context):
     logic.reject_request(initiator=context.account,
                          membership_request=context.membership_request)
 
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 @django_transaction.atomic
@@ -642,12 +660,12 @@ def reject_request(context):
 def reject_invite(context):
 
     if context.account.id != context.membership_request.account_id:
-        raise dext_views.ViewError(code='clans.accept_request.not_your_account',
-                                   message='Этот запрос относится к другому аккаунту')
+        raise utils_views.ViewError(code='clans.accept_request.not_your_account',
+                                    message='Этот запрос относится к другому аккаунту')
 
     logic.reject_invite(context.membership_request)
 
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -657,23 +675,23 @@ def reject_invite(context):
 def edit_member(context):
 
     if context.current_clan.id != context.target_account.clan_id:
-        raise dext_views.ViewError(code='clans.edit.different_clans',
-                                   message='Этот игрок состоит в другой гильдии')
+        raise utils_views.ViewError(code='clans.edit.different_clans',
+                                    message='Этот игрок состоит в другой гильдии')
 
     target_membership = logic.get_membership(context.target_account.id)
 
     attributes = logic.load_attributes(context.current_clan.id)
 
-    return dext_views.Page('clans/membership/edit.html',
-                           content={'resource': context.resource,
-                                    'current_clan': context.current_clan,
-                                    'edited_account': context.target_account,
-                                    'edited_membership': target_membership,
-                                    'change_role_form': forms.RoleForm(context.current_clan_rights.change_role_candidates(),
-                                                                       initial={'role': target_membership.role}),
-                                    'current_clan_rights': context.current_clan_rights,
-                                    'attributes': attributes,
-                                    'page_id': relations.PAGE_ID.EDIT_MEMBER})
+    return utils_views.Page('clans/membership/edit.html',
+                            content={'resource': context.resource,
+                                     'current_clan': context.current_clan,
+                                     'edited_account': context.target_account,
+                                     'edited_membership': target_membership,
+                                     'change_role_form': forms.RoleForm(context.current_clan_rights.change_role_candidates(),
+                                                                        initial={'role': target_membership.role}),
+                                     'current_clan_rights': context.current_clan_rights,
+                                     'attributes': attributes,
+                                     'page_id': relations.PAGE_ID.EDIT_MEMBER})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -685,7 +703,7 @@ def remove_from_clan(context):
                         clan=context.current_clan,
                         member=context.target_account)
 
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 # @django_transaction.atomic
@@ -699,7 +717,7 @@ def change_role(context):
                           context.django_request.POST)
 
     if not form.is_valid():
-        raise dext_views.ViewError(code='form_errors', message=form.errors)
+        raise utils_views.ViewError(code='form_errors', message=form.errors)
 
     with django_transaction.atomic():
         logic.lock_clan_for_update(context.current_clan.id)
@@ -709,15 +727,15 @@ def change_role(context):
         new_role = form.c.role
 
         if not logic.is_role_change_get_into_limit(context.current_clan.id, old_role, new_role):
-            raise dext_views.ViewError(code='clans.fighters_maximum',
-                                       message='Достигнут максимум боевого состава. Чтобы ввести Хранителя в боевой состав, необходимо сделать другого Хранителя рекрутом.')
+            raise utils_views.ViewError(code='clans.fighters_maximum',
+                                        message='Достигнут максимум боевого состава. Чтобы ввести Хранителя в боевой состав, необходимо сделать другого Хранителя рекрутом.')
 
         logic.change_role(clan=context.current_clan,
                           initiator=context.account,
                           member=context.target_account,
                           new_role=new_role)
 
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 @django_transaction.atomic
@@ -732,14 +750,14 @@ def change_ownership(context):
                                                old_role=logic.get_membership(context.target_account.id).role,
                                                # будущая роль старого владельца
                                                new_role=relations.MEMBER_ROLE.COMANDOR):
-        raise dext_views.ViewError(code='clans.fighters_maximum',
-                                   message='Передача владения гильдией этому Хранителю приведёт к превышению максимального количества боевого состава гильдии.')
+        raise utils_views.ViewError(code='clans.fighters_maximum',
+                                    message='Передача владения гильдией этому Хранителю приведёт к превышению максимального количества боевого состава гильдии.')
 
     logic.change_ownership(clan=context.current_clan,
                            initiator=context.account,
                            member=context.target_account)
 
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 @django_transaction.atomic
@@ -750,12 +768,12 @@ def leave_clan(context):
     role = logic.get_member_role(context.account, context.current_clan)
 
     if role is None:
-        return dext_views.AjaxOk()
+        return utils_views.AjaxOk()
 
     if role.is_MASTER:
-        raise dext_views.ViewError(code='clans.leave_clan.leader',
-                                   message='Лидер гильдии не может покинуть её. Передайте лидерство или расформируйте гильдию.')
+        raise utils_views.ViewError(code='clans.leave_clan.leader',
+                                    message='Лидер гильдии не может покинуть её. Передайте лидерство или расформируйте гильдию.')
 
     logic.leave_clan(initiator=context.account, clan=context.current_clan)
 
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
