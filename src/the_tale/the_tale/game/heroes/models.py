@@ -16,7 +16,7 @@ class Hero(django_models.Model):
 
     account = django_models.ForeignKey('accounts.Account', related_name='heroes', default=None, null=True, blank=True, on_delete=django_models.CASCADE)
 
-    clan_id = django_models.ForeignKey('clans.Clan', related_name='+', default=None, null=True, blank=True, on_delete=django_models.PROTECT)
+    clan = django_models.ForeignKey('clans.Clan', related_name='+', default=None, null=True, blank=True, on_delete=django_models.PROTECT)
 
     is_fast = django_models.BooleanField(default=True, db_index=True)  # copy from account.is_fast
     is_bot = django_models.BooleanField(default=False)

@@ -11,6 +11,7 @@ class Command(utilities_base.Command):
     LOCKS = []
     SKIP_IF_ALREADY_IN_QUEUE = False
     LOCK_RUNNING_IN_PARALLEL = False
+    GAME_CAN_BE_IN_MAINTENANCE_MODE = True
 
     def add_arguments(self, parser):
         super().add_arguments(parser)

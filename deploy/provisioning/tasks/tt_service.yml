@@ -31,6 +31,10 @@
   become_user: "{{user}}"
   tasks:
 
+    # use only if python version changed
+    # - name: remove virtual environment
+    #   shell: rm -rf "/home/{{user}}/current/venv"
+
     - name: create environment and install helpfull packages
       pip:
         name: "{{item.name}}"
@@ -41,7 +45,7 @@
         - {name: "pip"}
         - {name: "ipython"}
 
-    - name: create environment
+    - name: install other python packages
       pip:
         name: "{{item.name}}"
         virtualenv: "/home/{{user}}/current/venv"

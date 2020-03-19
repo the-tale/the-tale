@@ -350,14 +350,14 @@ class ClanLevelUpMixin:
         current_level, required_experience = self.experience_and_current_level(emissary, current_level=self.current_level)
 
         if required_experience is None:
-            return 'Увеличивает {self.PROPERTY.text}. Этот параметр гильдии уже достиг максимального значения.'
+            return f'Увеличивает {self.PROPERTY.text}. Этот параметр гильдии уже достиг максимального значения.'
 
         if self.TYPE.is_LEVEL_UP_POINTS_GANE:
-            delta = '{self.PROPERTY.delta} в день'
+            delta = f'{self.PROPERTY.delta} в день'
         else:
             delta = self.PROPERTY.delta
 
-        return 'Увеличивает {self.PROPERTY.text} на {delta}. Тратит {required_experience} опыта гильдии. Если одновременно запущено два мероприятия этого типа, то второе не будет иметь эффекта, потраченный опыт вернётся гильдии. При отмене мероприятия потраченный опыт возвращается гильдии.'
+        return f'Увеличивает {self.PROPERTY.text} на {delta}. Тратит {required_experience} опыта гильдии. Если одновременно запущено два мероприятия этого типа, то второе не будет иметь эффекта, потраченный опыт вернётся гильдии. При отмене мероприятия потраченный опыт возвращается гильдии.'
 
     @classmethod
     def experience_and_current_level(cls, emissary, current_level=None):
@@ -517,8 +517,8 @@ class Training(EventBase):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = 'Приносит гильдии дополнительно {experience} опыта каждый час.'
-        return text.format(experience=cls.experience_per_step(raw_ability_power))
+        experience = cls.experience_per_step(raw_ability_power)
+        return f'Приносит гильдии дополнительно {experience} опыта каждый час.'
 
 
 class ReservesSearch(EventBase):
@@ -682,7 +682,7 @@ class CountedMixin:
         return f'Накопившееся количество срабатываний: {effects_number:.2f}'
 
     def actual_info_help(self):
-        return 'Эффект мероприятия применится, как только количество срабатываний превысит 1 и выполнятся специфичные для мероприятия условия.'
+        return f'Эффект мероприятия применится, как только количество срабатываний превысит 1 и выполнятся специфичные для мероприятия условия.'
 
 
 class BaseCountedEvent(CountedMixin, PlaceEffectEvent):
@@ -1079,7 +1079,7 @@ class Revolution(EventBase):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = f'Делает гильдию эмиссара протектором города, в котором тот находится. Проваливается, если в момент завершения мероприятия эмиссар не находится в числе лидеров города, либо имеет не более {cls.POWER_BARRIER} влияния, либо имеет меньше влияния, чем эмиссар текущей гильдии-протектора. При начале и завершении мероприятия будет отправлено соответствующее сообщение всем членам гильдий (с эмиссарами в городе) с правом «{clans_relations.PERMISSION.RECEIVE_MESSAGES.text}». Начать мероприятие может только эмиссар с суммой способностей больше {tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP}'
+        text = f'Делает гильдию эмиссара протектором города, в котором тот находится. Проваливается, если в момент завершения мероприятия эмиссар не находится в числе лидеров города, либо имеет не более {cls.POWER_BARRIER} влияния, либо имеет меньше влияния, чем эмиссар текущей гильдии-протектора. При начале и завершении мероприятия будет отправлено соответствующее сообщение всем членам гильдий (с эмиссарами в городе) с правом «{clans_relations.PERMISSION.RECEIVE_MESSAGES.text}». Начать мероприятие может только эмиссар с суммой способностей больше {tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP}.'
         return text
 
 
@@ -1165,7 +1165,7 @@ class DarkRituals(CountedMixin, EventBase):
     def effect_description(cls, emissary, raw_ability_power):
         points = cls.tokens_per_day(raw_ability_power,
                                     bonus=0)
-        return f'Случайный игрок гильдии периодически получает 1 день подписки. Игрок выбирается из всех членов гильдии кроме замороженных и обладающих вечной подпиской. Количество срабатываний в сутки: {points}. Один и тот же Хранитель неможет получить день подписки не чаще одного раза в 12 часов.'
+        return f'Случайный игрок гильдии периодически получает 1 день подписки. Игрок выбирается из всех членов гильдии, кроме замороженных и обладающих вечной подпиской. Количество срабатываний в сутки: {points}. Один и тот же Хранитель может получить день подписки не чаще одного раза в 12 часов.'
 
 
 TYPES = {event_class.TYPE: event_class

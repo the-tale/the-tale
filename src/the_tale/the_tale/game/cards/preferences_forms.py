@@ -135,7 +135,7 @@ class QuestsRegiion(form(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION)):
 class QuestsRegiionSize(form(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE)):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['value'].choices = [(str(i), str(i)) for i in range(c.MINIMUM_QUESTS_REGION_SIZE, len(places_storage.places.all()))]
+        self.fields['value'].choices = [(str(i), str(i)) for i in range(c.MINIMUM_QUESTS_REGION_SIZE, len(places_storage.places.all())+1)]
 
 
 FORMS = {form_class.PREFERENCE: form_class

@@ -16,6 +16,20 @@
   become_user: root
   tasks:
     - cron:
+        name: HOME
+        env: yes
+        cron_file: the_tale
+        user: the_tale
+        job: /home/the_tale/
+
+    - cron:
+        name: PATH
+        env: yes
+        cron_file: the_tale
+        user: the_tale
+        job: "$PATH:/home/the_tale/current/venv/bin/"
+
+    - cron:
         name: soft currency rollback
         cron_file: tt_soft_currency
         minute: 0
