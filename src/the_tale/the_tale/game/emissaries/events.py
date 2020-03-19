@@ -357,7 +357,7 @@ class ClanLevelUpMixin:
         else:
             delta = self.PROPERTY.delta
 
-        return 'Увеличивает {self.PROPERTY.text} на {delta}. Тратит {required_experience} опыта гильдии. Если одновременно запущено два мероприятия этого типа, то второе не будет иметь эффекта, потраченный опыт вернётся гильдии. При отмене мероприятия потраченный опыт возвращается гильдии.'
+        return f'Увеличивает {self.PROPERTY.text} на {delta}. Тратит {required_experience} опыта гильдии. Если одновременно запущено два мероприятия этого типа, то второе не будет иметь эффекта, потраченный опыт вернётся гильдии. При отмене мероприятия потраченный опыт возвращается гильдии.'
 
     @classmethod
     def experience_and_current_level(cls, emissary, current_level=None):
