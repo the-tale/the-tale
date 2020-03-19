@@ -350,10 +350,10 @@ class ClanLevelUpMixin:
         current_level, required_experience = self.experience_and_current_level(emissary, current_level=self.current_level)
 
         if required_experience is None:
-            return 'Увеличивает {self.PROPERTY.text}. Этот параметр гильдии уже достиг максимального значения.'
+            return f'Увеличивает {self.PROPERTY.text}. Этот параметр гильдии уже достиг максимального значения.'
 
         if self.TYPE.is_LEVEL_UP_POINTS_GANE:
-            delta = '{self.PROPERTY.delta} в день'
+            delta = f'{self.PROPERTY.delta} в день'
         else:
             delta = self.PROPERTY.delta
 
@@ -517,7 +517,7 @@ class Training(EventBase):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = 'Приносит гильдии дополнительно {experience} опыта каждый час.'
+        text = f'Приносит гильдии дополнительно {experience} опыта каждый час.'
         return text.format(experience=cls.experience_per_step(raw_ability_power))
 
 
@@ -682,7 +682,7 @@ class CountedMixin:
         return f'Накопившееся количество срабатываний: {effects_number:.2f}'
 
     def actual_info_help(self):
-        return 'Эффект мероприятия применится, как только количество срабатываний превысит 1 и выполнятся специфичные для мероприятия условия.'
+        return f'Эффект мероприятия применится, как только количество срабатываний превысит 1 и выполнятся специфичные для мероприятия условия.'
 
 
 class BaseCountedEvent(CountedMixin, PlaceEffectEvent):
