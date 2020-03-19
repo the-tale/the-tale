@@ -517,8 +517,8 @@ class Training(EventBase):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = f'Приносит гильдии дополнительно {experience} опыта каждый час.'
-        return text.format(experience=cls.experience_per_step(raw_ability_power))
+        experience = cls.experience_per_step(raw_ability_power)
+        return f'Приносит гильдии дополнительно {experience} опыта каждый час.'
 
 
 class ReservesSearch(EventBase):
