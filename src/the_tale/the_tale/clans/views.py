@@ -354,7 +354,8 @@ def show(context):
     for event in emissaries_storage.events.clan_events(context.current_clan.id):
         if event.concrete_event.TYPE.is_RESERVES_SEARCH:
             action_points_effects.append((f'эмиссар {event.emissary.name}',
-                                          event.concrete_event.action_points_per_step(event.concrete_event.raw_ability_power)))
+                                          event.concrete_event.action_points_per_step(event.concrete_event.raw_ability_power,
+                                                                                      bonus=event.emissary.protectorat_event_bonus())))
     action_points_effects.sort(key=lambda effect: effect[0])
     action_points_total = sum(points for name, points in action_points_effects)
 
