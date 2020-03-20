@@ -89,7 +89,7 @@ class ChangePlaceAttribute(BaseEffect):
         self.base_value = base_value
 
     def effect_delta(self, value):
-        return value * (1.0 / (24 * c.PLACE_JOB_EFFECT_LIFETIME))
+        return value * (1.0 / (24 * c.PLACE_STANDARD_EFFECT_LENGTH))
 
     def positive_effect_value(self, job_power):
         return self.base_value * job_power

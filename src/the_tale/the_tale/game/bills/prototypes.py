@@ -208,16 +208,15 @@ class BillPrototype(utils_prototypes.BasePrototype):
 
             for actor in self.actors:
                 if isinstance(actor, places_objects.Place):
-                    effect = tt_api_effects.Effect(id=None,
-                                                   attribute=places_relations.ATTRIBUTE.STABILITY,
-                                                   entity=actor.id,
-                                                   value=-self.type.stability,
-                                                   name='запись №{}'.format(self.id))
-
-                    places_tt_services.effects.cmd_register(effect)
-
-                    places_storage.effects.update_version()
-                    places_storage.effects.refresh()
+                    places_logic.register_effect(place_id=actor.id,
+                                                 attribute=places_relations.ATTRIBUTE.STABILITY,
+                                                 value=-self.type.stability,
+                                                 name='запись №{}'.format(self.id),
+                                                 delta=actor.attrs.stability_renewing_speed,
+                                                 refresh_effects=True,
+                                                 refresh_places=True,
+                                                 info={'source': 'bills',
+                                                       'bills_id': self.id})
 
         logic.initiate_actual_bills_update(self._model.owner_id)
 
