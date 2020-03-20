@@ -102,7 +102,7 @@ class ChangePlaceAttribute(BaseEffect):
                                                      self.attribute.formatter(value),
                                                      self.attribute.verbose_units,
                                                      self.attribute.verbose_units,
-                                                     c.PLACE_JOB_EFFECT_LIFETIME)
+                                                     c.PLACE_STANDARD_EFFECT_LENGTH)
 
     def effect_type(self):
         return getattr(EFFECT, 'PLACE_{}'.format(self.attribute.name))
