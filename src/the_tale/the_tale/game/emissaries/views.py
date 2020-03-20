@@ -296,15 +296,6 @@ def start_event(context):
 
             try:
                 with concrete_event.on_create(context.current_emissary):
-                    impact = game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.EMISSARY_POWER,
-                                                          actor_type=tt_api_impacts.OBJECT_TYPE.ACCOUNT,
-                                                          actor_id=context.account.id,
-                                                          target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
-                                                          target_id=emissary.id,
-                                                          amount=-required_power)
-
-                    politic_power_logic.add_power_impacts([impact])
-
                     event = logic.create_event(initiator=context.account,
                                                emissary=context.current_emissary,
                                                concrete_event=concrete_event,
@@ -317,6 +308,18 @@ def start_event(context):
             except exceptions.OnEventCreateError:
                 raise utils_views.ViewError(code='emissaries.on_create_error',
                                             message='Не выполнено одно из специфичных для мероприятия условий')
+
+            # влияние отнимаем после успешног осоздания мероприятия
+            # так как при его создании могут возникунть ошибки, которые не должны влиять на списание влияния
+            # поскольку списание влияния не транзакционное и при ошибке оно не вернётся.
+            impact = game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.EMISSARY_POWER,
+                                                  actor_type=tt_api_impacts.OBJECT_TYPE.ACCOUNT,
+                                                  actor_id=context.account.id,
+                                                  target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
+                                                  target_id=emissary.id,
+                                                  amount=-required_power)
+
+            politic_power_logic.add_power_impacts([impact])
 
     return utils_views.AjaxOk(content={'next_url': utils_urls.url('game:emissaries:show', emissary.id)})
 
