@@ -47,7 +47,9 @@
 
 
 {% if key and resource.account.is_authenticated %}
-<a class="btn btn-success" href="{{url('linguistics:templates:new', key=key.value)}}">Добавить шаблон</a>
+<p>
+  <a class="btn btn-success" href="{{url('linguistics:templates:new', key=key.value)}}">Добавить шаблон</a>
+</p>
 {% endif %}
 
 {{ list_filter_macros.html_filter(index_filter) }}
