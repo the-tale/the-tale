@@ -367,19 +367,14 @@ def form_choices(empty_choice=True, own_clan_id=None):
     if empty_choice:
         choices.append(('', '----'))
 
-    clans = clans_logic.load_clans(clans_ids=list(storage.emissaries.emissaries_by_clan.keys()))
-    clans = [clan for clan in clans if clan.state.is_ACTIVE]
-
-    clans = {clan.id: clan for clan in clans}
-
     own_clan_name = None
 
     for clan_id, emissaries in storage.emissaries.emissaries_by_clan.items():
 
-        if clan_id not in clans:
+        if clan_id not in clans_storage.infos:
             continue
 
-        clan = clans[clan_id]
+        clan = clans_storage.infos[clan_id]
 
         clan_choices = [(emissary.id, f'{emissary.name} из {emissary.place.utg_name.forms[1]}')
                         for emissary in emissaries]
