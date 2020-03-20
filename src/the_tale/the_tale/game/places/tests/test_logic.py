@@ -414,52 +414,6 @@ class SyncMoneyEconomicTests(utils_testcase.TestCase):
         self.assertEqual(self.places[2].attrs.money_economic, 3)
 
 
-class UpdateStabilityEffectsDeltasTests(utils_testcase.TestCase):
-
-    def create_stability_effect(self, id, value):
-        return tt_api_effects.Effect(id=id,
-                                     attribute=places_relations.ATTRIBUTE.STABILITY,
-                                     entity=666,
-                                     value=value,
-                                     name='test')
-
-    def test_reduce_effects(self):
-        effects = [self.create_stability_effect(1, value=-0.5),
-                   self.create_stability_effect(2, value=0.25)]
-
-        logic.update_stability_effects_deltas(c.PLACE_STABILITY_RECOVER_SPEED, effects)
-
-        self.assertEqual(effects[0].delta, c.PLACE_STABILITY_RECOVER_SPEED * (3 / 4))
-        self.assertEqual(effects[1].delta, c.PLACE_STABILITY_RECOVER_SPEED * (1 / 4))
-
-    def test_stability_deltas_sum_equal_to_stability_renewing_speed(self):
-        effects = [self.create_stability_effect(1, value=-0.5),
-                   self.create_stability_effect(2, value=0.25),
-                   self.create_stability_effect(3, value=-0.5)]
-
-        logic.update_stability_effects_deltas(0.25, effects)
-
-        for i in range(len(effects) - 1):
-            self.assertTrue(effects[i].delta >= effects[i + 1].delta)
-
-        self.assertEqual(0.25, sum(effect.delta for effect in effects))
-
-    def test_stability_deltas_sum_equal_to_stability_renewing_speed__a_lot_of_effects(self):
-
-        effects = []
-
-        for i in range(10):
-            effects.append(self.create_stability_effect(i, value=100 * random.choice([-1, 1])))
-
-        logic.update_stability_effects_deltas(0.25, effects)
-
-        for i in range(len(effects) - 1):
-            self.assertTrue(effects[i].delta >= effects[i + 1].delta)
-
-        self.assertEqual(0.25, sum(effect.delta for effect in effects))
-        self.assertEqual(0.25, sum(abs(effect.delta) for effect in effects))
-
-
 class UpdateEffectsTests(utils_testcase.TestCase):
 
     def setUp(self):
@@ -484,17 +438,17 @@ class UpdateEffectsTests(utils_testcase.TestCase):
 
         tt_services.effects.cmd_debug_clear_service()
 
-        effect_1_id = self.create_effect(self.places[0].id, -0.5, places_relations.ATTRIBUTE.STABILITY)
-        effect_2_id = self.create_effect(self.places[0].id, 0.25, places_relations.ATTRIBUTE.STABILITY)
-        effect_3_id = self.create_effect(self.places[1].id, 0.5, places_relations.ATTRIBUTE.STABILITY)
+        effect_1_id = self.create_effect(self.places[0].id, -0.5, places_relations.ATTRIBUTE.STABILITY, delta=0.1)
+        effect_2_id = self.create_effect(self.places[0].id, 0.25, places_relations.ATTRIBUTE.STABILITY, delta=0.2)
+        effect_3_id = self.create_effect(self.places[1].id, 0.5, places_relations.ATTRIBUTE.STABILITY, delta=0.6)
 
         places_storage.effects.refresh()
 
         logic.update_effects()
 
-        self.assertAlmostEqual(storage.effects[effect_1_id].value, -0.5 + self.places[0].attrs.stability_renewing_speed * (3 / 4))
-        self.assertAlmostEqual(storage.effects[effect_2_id].value, 0.25 - self.places[0].attrs.stability_renewing_speed * (1 / 4))
-        self.assertAlmostEqual(storage.effects[effect_3_id].value, 0.5 - self.places[1].attrs.stability_renewing_speed)
+        self.assertAlmostEqual(storage.effects[effect_1_id].value, -0.4)
+        self.assertAlmostEqual(storage.effects[effect_2_id].value, 0.05)
+        self.assertNotIn(effect_3_id, storage.effects)
 
     def test_normal_attribute_reduce_effects(self):
         effect_1_id = self.create_effect(self.places[0].id, -500, places_relations.ATTRIBUTE.PRODUCTION, delta=100)

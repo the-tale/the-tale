@@ -276,10 +276,6 @@ class ConstantsTest(utils_testcase.TestCase):
 
         self.assertEqual(c.PLACE_STABILITY_UNIT, 0.1)
 
-        self.assertEqual(c.PLACE_STABILITY_FROM_BEST_PERSON, 0.06)
-
-        self.assertEqual(round(c.PLACE_STABILITY_RECOVER_SPEED, 4), 0.0006)
-
         self.assertEqual(c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY, -200)
         self.assertEqual(c.PLACE_STABILITY_MAX_SAFETY_PENALTY, -0.15)
         self.assertEqual(c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY, -0.75)
@@ -297,8 +293,6 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY, 10)
         self.assertEqual(c.PLACE_HABITS_EVENT_PROBABILITY, 0.025)
 
-        self.assertEqual(c.PLACE_JOB_EFFECT_LIFETIME, 8)
-
         self.assertEqual(c.JOB_PRODUCTION_BONUS, 100)
         self.assertAlmostEqual(c.JOB_SAFETY_BONUS, 0.025)
         self.assertEqual(c.JOB_TRANSPORT_BONUS, 0.125)
@@ -307,6 +301,9 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.JOB_CULTURE_BONUS, 0.15)
 
         self.assertEqual(c.RESOURCE_EXCHANGE_COST_PER_CELL, 2)
+
+        self.assertEqual(c.PLACE_STANDARD_EFFECT_LENGTH, 15)
+        self.assertEqual(round(c.PLACE_STABILITY_RECOVER_SPEED, 4), 0.0003)
 
         self.assertEqual(c.PERSON_MOVE_DELAY_IN_WEEKS, 2)
         self.assertEqual(c.PERSON_MOVE_DELAY, 120960)

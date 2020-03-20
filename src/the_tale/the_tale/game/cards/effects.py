@@ -532,7 +532,7 @@ class KeepersGoods(ModificatorBase):
     @property
     def DESCRIPTION(self):
         return 'Временно увеличивает производство в указанном городе на  %(goods)d. Бонус будет постепенно уменьшаться и исчезнет через %(days)s дней.' % {'goods': self.modificator,
-                   'days': c.NORMAL_JOB_LENGTH}
+                   'days': c.PLACE_STANDARD_EFFECT_LENGTH}
 
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
 
@@ -547,7 +547,7 @@ class KeepersGoods(ModificatorBase):
                                      attribute=places_relations.ATTRIBUTE.PRODUCTION,
                                      value=self.modificator,
                                      name='Хранитель {}'.format(account_nick),
-                                     delta=self.modificator * (1.0 / (24 * c.NORMAL_JOB_LENGTH)),
+                                     delta=self.modificator * (1.0 / (24 * c.PLACE_STANDARD_EFFECT_LENGTH)),
                                      refresh_effects=True,
                                      refresh_places=True,
                                      info={'source': 'cards',
@@ -565,7 +565,7 @@ class GiveStability(ModificatorBase):
 
     @property
     def DESCRIPTION(self):
-        return 'Увеличивает стабильность в указанном городе на {0:.1f}%. Бонус будет уменьшаться по стандартным правилам изменения стабильности.'.format(self.modificator * 100)
+        return 'Увеличивает стабильность в указанном городе на {:.1f}%. Бонус будет постепенно уменьшаться и исчезнет через {} дней.'.format(self.modificator * 100, c.PLACE_STANDARD_EFFECT_LENGTH)
 
     def use(self, task, storage, highlevel=None, **kwargs):  # pylint: disable=R0911,W0613
 
@@ -580,6 +580,7 @@ class GiveStability(ModificatorBase):
                                      attribute=places_relations.ATTRIBUTE.STABILITY,
                                      value=self.modificator,
                                      name='Хранитель {}'.format(account_nick),
+                                     delta=self.modificator * (1.0 / (24 * c.PLACE_STANDARD_EFFECT_LENGTH)),
                                      refresh_effects=True,
                                      refresh_places=True,
                                      info={'source': 'cards',

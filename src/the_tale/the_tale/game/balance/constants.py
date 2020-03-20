@@ -503,9 +503,6 @@ PLACE_RACE_CHANGE_DELTA = (PLACE_RACE_CHANGE_DELTA_IN_DAY * MAP_SYNC_TIME) / (24
 
 PLACE_STABILITY_UNIT = float(0.1)  # базовая единица изменения стабильности
 
-# считаем что штраф от одной записи в Книге Судеб должен восстанавливаться за неделю
-PLACE_STABILITY_RECOVER_SPEED = float(PLACE_STABILITY_UNIT / (7 * 24))  # стабильности в час
-
 PLACE_STABILITY_MAX_PRODUCTION_PENALTY = float(-PLACE_GOODS_BONUS * 2)
 PLACE_STABILITY_MAX_SAFETY_PENALTY = float(-0.15)
 PLACE_STABILITY_MAX_TRANSPORT_PENALTY = PLACE_STABILITY_MAX_SAFETY_PENALTY * _SAFETY_TO_TRANSPORT
@@ -534,8 +531,6 @@ PLACE_HABITS_CHANGE_SPEED_MAXIMUM = float(10)
 PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY = float(10)
 PLACE_HABITS_EVENT_PROBABILITY = float(0.025)
 
-PLACE_JOB_EFFECT_LIFETIME = int(NORMAL_JOB_LENGTH * 2)  # в днях
-
 JOB_PRODUCTION_BONUS = int(PLACE_GOODS_BONUS)
 JOB_SAFETY_BONUS = float(PLACE_SAFETY_FROM_BEST_PERSON)
 JOB_TRANSPORT_BONUS = float(PLACE_TRANSPORT_FROM_BEST_PERSON)
@@ -545,6 +540,14 @@ JOB_CULTURE_BONUS = float(PLACE_CULTURE_FROM_BEST_PERSON)
 
 
 RESOURCE_EXCHANGE_COST_PER_CELL = int(math.floor(PLACE_GOODS_BONUS / 40))
+
+# время жизни взято «на глаз», чтобы:
+# - с одной стороны, обеспечить значимость эффекта для города
+# - с другой, предотвратить скопление одинаковых эффектов (от проектов Мастеров, например)
+PLACE_STANDARD_EFFECT_LENGTH = int(15)  # в днях
+
+PLACE_STABILITY_RECOVER_SPEED = float(PLACE_STABILITY_UNIT / (PLACE_STANDARD_EFFECT_LENGTH * 24))  # стабильности в час
+
 
 ###########################
 # мастера

@@ -384,44 +384,11 @@ def register_money_transaction(hero_id, place_id, amount):
     politic_power_logic.add_power_impacts([spending])
 
 
-def update_stability_effects_deltas(renewing_speed, stability_effects):
-    if not stability_effects:
-        return
-
-    # getattr used for processing of old effects, can be removed after 0.3.30
-    stability_effects.sort(key=lambda effect: getattr(effect, 'id', 0))
-
-    divider = 2
-    speed_sum = 0
-
-    for effect in stability_effects:
-        delta = 0
-
-        if divider < 1000:
-            delta = renewing_speed / divider
-
-        effect.delta = delta
-        speed_sum += delta
-
-        divider *= 2
-
-    stability_effects[0].delta += (renewing_speed - speed_sum)
-
-
 def update_effects():
-    effects = list(storage.effects.all())
-
-    for place in storage.places.all():
-        stability_effects = [effect for effect in effects
-                             if effect.attribute.is_STABILITY and
-                                effect.entity == place.id]
-
-        update_stability_effects_deltas(place.attrs.stability_renewing_speed, stability_effects)
-
     effects_to_remove = []
     effects_to_update = []
 
-    for effect in effects:
+    for effect in storage.effects.all():
 
         if not effect.require_updating():
             continue
