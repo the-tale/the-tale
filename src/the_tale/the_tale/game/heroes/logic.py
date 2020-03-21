@@ -147,6 +147,7 @@ def save_hero(hero, new=False):
 
     arguments = dict(saved_at_turn=game_turn.number(),
                      saved_at=datetime.datetime.now(),
+                     clan_id=hero.clan_id,
                      data=data,
                      abilities=s11n.to_json(hero.abilities.serialize()),
                      actions=s11n.to_json(hero.actions.serialize()),
