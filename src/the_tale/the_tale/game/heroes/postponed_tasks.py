@@ -30,7 +30,8 @@ class ChooseHeroAbilityTask(PostponedLogic):
                 'state': self.state.value}
 
     @property
-    def error_message(self): return self.state.text
+    def error_message(self):
+        return self.state.text
 
     def process(self, main_task, storage):
 
@@ -148,7 +149,8 @@ class InvokeHeroMethodTask(PostponedLogic):
                 'method_kwargs': self.method_kwargs}
 
     @property
-    def error_message(self): return self.state.text
+    def error_message(self):
+        return self.state.text
 
     def process(self, main_task, storage):
 
