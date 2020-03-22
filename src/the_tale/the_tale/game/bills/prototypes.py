@@ -108,6 +108,8 @@ class BillPrototype(utils_prototypes.BasePrototype):
         actors = []
 
         for actor in self.data.actors:
+            if actor is None:
+                continue
             if actor not in actors:
                 actors.append(actor)
 
