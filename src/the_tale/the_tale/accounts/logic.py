@@ -232,8 +232,6 @@ def block_expired_accounts(logger):
 
 def thin_out_accounts(number, prolong_active_to, logger):
     restricted_accounts = set()
-    restricted_accounts |= set(models.RandomPremiumRequest.objects.values_list('initiator', flat=True))
-    restricted_accounts |= set(models.RandomPremiumRequest.objects.values_list('receiver', flat=True))
     restricted_accounts |= set(models.Account.objects.exclude(clan_id=None).values_list('id', flat=True))
     restricted_accounts |= set(bills_models.Bill.objects.values_list('owner_id', flat=True))
     restricted_accounts |= set(blogs_models.Post.objects.values_list('author_id', flat=True))

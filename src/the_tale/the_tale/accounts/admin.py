@@ -78,12 +78,7 @@ class ResetPasswordTaskAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'account', 'is_processed', 'uuid', 'created_at')
 
 
-class RandomPremiumRequestAdmin(django_admin.ModelAdmin):
-    list_display = ('id', 'initiator', 'receiver', 'state', 'created_at')
-
-
 django_admin.site.register(models.Account, AccountAdmin)
 django_admin.site.register(models.Award, AwardAdmin)
 django_admin.site.register(models.ChangeCredentialsTask, ChangeCredentialsTaskAdmin)
 django_admin.site.register(models.ResetPasswordTask, ResetPasswordTaskAdmin)
-django_admin.site.register(models.RandomPremiumRequest, RandomPremiumRequestAdmin)

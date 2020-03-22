@@ -32,32 +32,3 @@ class AccountsManagerTest(utils_testcase.TestCase):
                                                data={'days': 1})
         self.account.reload()
         self.assertTrue(self.account.is_premium)
-
-    def test_run_random_premium_requests_processing__no_requests(self):
-
-        with mock.patch('the_tale.accounts.prototypes.RandomPremiumRequestPrototype.process') as process:
-            self.worker.run_random_premium_requests_processing()
-
-        self.assertEqual(process.call_count, 0)
-
-    def test_run_random_premium_requests_processing__has_requests_can_not_process(self):
-
-        request = prototypes.RandomPremiumRequestPrototype.create(self.account.id, days=30)
-
-        self.worker.run_random_premium_requests_processing()
-
-        request.reload()
-        self.assertTrue(request.state.is_WAITING)
-
-    def test_run_random_premium_requests_processing__has_requests_can_process(self):
-        account_2 = self.accounts_factory.create_account()
-        prototypes.AccountPrototype._db_all().update(active_end_at=datetime.datetime.now() + datetime.timedelta(days=1),
-                                                     created_at=datetime.datetime.now() - conf.settings.RANDOM_PREMIUM_CREATED_AT_BARRIER)
-
-        request = prototypes.RandomPremiumRequestPrototype.create(self.account.id, days=30)
-
-        self.worker.run_random_premium_requests_processing()
-
-        request.reload()
-        self.assertTrue(request.state.is_PROCESSED)
-        self.assertEqual(request.receiver_id, account_2.id)
