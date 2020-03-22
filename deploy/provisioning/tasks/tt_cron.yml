@@ -95,13 +95,6 @@
         job: /home/the_tale/current/venv/bin/django-admin emissaries_process_day --settings the_tale.settings
 
     - cron:
-        name: periodicaly update map
-        cron_file: the_tale
-        minute: 0
-        user: the_tale
-        job: /home/the_tale/current/venv/bin/django-admin map_update_map --game-must-be-running --settings the_tale.settings
-
-    - cron:
         name: periodicaly apply bills
         cron_file: the_tale
         minute: "*/10"
