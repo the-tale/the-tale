@@ -50,7 +50,7 @@ setuptools.setup(
                       'requests==2.22.0',
                       'protobuf==3.11.1',
                       'gunicorn==20.0.4',
-                      'sentry-sdk==0.13.4',
+                      'sentry-sdk==0.14.3',
 
                       'pynames==0.2.2',
                       'utg==0.3.1',
