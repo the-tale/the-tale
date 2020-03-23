@@ -47,7 +47,7 @@ class QuestInfo(object):
         experience = int(self.experience * hero.experience_modifier) if hero is not None else self.experience
 
         # show power modified by hero level and abilities
-        power = int(self.power * hero.politics_power_multiplier()) if hero is not None else self.power
+        power = int((self.power + self.power_bonus) * hero.politics_power_multiplier()) if hero is not None else self.power
 
         return {'type': self.type,
                 'uid': self.uid,
@@ -56,7 +56,7 @@ class QuestInfo(object):
                 'choice': self.choice,
                 'choice_alternatives': self.choice_alternatives,
                 'experience': experience + self.experience_bonus,
-                'power': power + self.power_bonus,
+                'power': power,
                 'actors': self.actors_ui_info()}
 
     def prepair_actor_ui_info(self, role, actor_type):

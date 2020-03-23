@@ -129,7 +129,7 @@ class AddPoliticPower(ModificatorBase):
 
     @property
     def DESCRIPTION(self):
-        return 'Увеличивает влияние текущего задания, на {power} единиц. Можно использовать только одну карту на задание. Учтите, итоговое влияние задания зависит и от влиятельности вашего героя.'.format(power=self.modificator)
+        return 'Увеличивает влияние текущего задания, на {power} базовых единиц. Итоговый бонус зависит от влиятельности героя. Можно использовать только одну карту на задание.'.format(power=self.modificator)
 
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
         if not task.hero.quests.has_quests:
