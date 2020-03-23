@@ -810,6 +810,8 @@ class QuestPrototype(object):
     def get_politic_power_for_quest(self, quest_uid, hero):
         base_politic_power = f.person_power_for_quest(places_storage.places.expected_minimum_quest_distance())
 
+        politic_power_modifier = 1.0
+
         for participant in self.quest_participants(quest_uid):
 
             fact = self.knowledge_base[participant.participant]
@@ -821,7 +823,7 @@ class QuestPrototype(object):
 
             if person_type.is_PERSON:
                 person = persons_storage.persons.get(fact.externals['id'])
-                base_politic_power += person.attrs.politic_power_bonus
+                politic_power_modifier += person.attrs.politic_power_bonus
 
             elif person_type.is_EMISSARY:
                 pass
@@ -829,7 +831,7 @@ class QuestPrototype(object):
             else:
                 raise NotImplementedError
 
-        return base_politic_power
+        return int(base_politic_power * politic_power_modifier)
 
     ################################
     # general callbacks

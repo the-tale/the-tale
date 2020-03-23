@@ -324,7 +324,7 @@ class PrototypeTests(PrototypeTestsBase,
         for person in persons_storage.persons.all():
             person.attrs.politic_power_bonus = 1.0
 
-        self.assertTrue(self.quest.get_politic_power_for_quest(self.quest.current_info.uid, self.hero) > 100)
+        self.assertTrue(self.quest.get_politic_power_for_quest(self.quest.current_info.uid, self.hero) >= 200)
 
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 0)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda *argv: False)
