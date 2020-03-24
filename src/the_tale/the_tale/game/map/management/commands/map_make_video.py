@@ -4,6 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
+# ffmpeg -i "./map_images/%10d.png" -qscale 0 ./map.mp4
 class Command(utilities_base.Command):
 
     help = 'make map changing video from region datas'
@@ -34,7 +35,3 @@ class Command(utilities_base.Command):
 
         if os.path.exists(output):
             os.remove(output)
-
-        # subprocess.call(['ffmpeg', '-i', os.path.join(images_dir, '%10d.png'), '-sameq', output])
-
-        # shutil.rmtree(images_dir.name)
