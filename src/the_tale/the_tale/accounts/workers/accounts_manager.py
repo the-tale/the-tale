@@ -25,25 +25,8 @@ class Worker(utils_workers.BaseWorker):
             self.run_send_premium_expired_notifications()
             return
 
-        self.run_random_premium_requests_processing()
-
     def run_send_premium_expired_notifications(self):
         prototypes.AccountPrototype.send_premium_expired_notifications()
-
-    def run_random_premium_requests_processing(self):
-        while True:
-            request = prototypes.RandomPremiumRequestPrototype.get_unprocessed()
-
-            if request is None:
-                return
-
-            self.logger.info('process random premium request %d' % request.id)
-
-            if not request.process():
-                self.logger.info('request %d not processed' % request.id)
-                return
-            else:
-                self.logger.info('request %d processed' % request.id)
 
     def cmd_task(self, task_id):
         return self.send_cmd('task', {'task_id': task_id})

@@ -7,7 +7,7 @@ smart_imports.all()
 class BaseForm(forms.BaseUserForm):
     place = utils_fields.ChoiceField(label='Город')
     tax_size_border = utils_fields.TypedChoiceField(label='поддерживаемый размер ',
-                                                    choices=[(size, size) for size in range(1, c.PLACE_MAX_SIZE)],
+                                                    choices=[(size, size) for size in range(1, c.PLACE_MAX_SIZE+1)],
                                                     coerce=int)
 
     def __init__(self, *args, **kwargs):

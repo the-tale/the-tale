@@ -47,19 +47,12 @@ class Premiums(ActiveBase):
                                                            sender_type=bank_relations.ENTITY_TYPE.GAME_LOGIC,
                                                            currency=bank_relations.CURRENCY_TYPE.PREMIUM).count()
 
-    def get_chest_intervals_count(self, date):
-        starts = accounts_prototypes.RandomPremiumRequestPrototype._db_all().values_list('created_at', flat=True)
-        return len([True
-                    for created_at in starts
-                    if created_at.date() <= date < (created_at + datetime.timedelta(days=shop_conf.settings.RANDOM_PREMIUM_DAYS)).date()])
-
     def get_restored_value(self, date):
         # TODO: now this method use euristic which give wrong results when user buy more then one subscription simultaneously
         if conf.settings.PAYMENTS_START_DATE.date() > date:
             return 0
 
         return (portal_conf.settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY +
-                self.get_chest_intervals_count(date) +
                 self.get_invoice_intervals_count(7, date) +
                 self.get_invoice_intervals_count(15, date) +
                 self.get_invoice_intervals_count(30, date) +

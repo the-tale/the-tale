@@ -51,11 +51,6 @@ class BAN_TIME(rels_django.DjangoEnum):
                ('TOTAL', 6, 'пожизненно', 365 * 666))
 
 
-class RANDOM_PREMIUM_REQUEST_STATE(rels_django.DjangoEnum):
-    records = (('WAITING', 0, 'ожидает обработки'),
-               ('PROCESSED', 1, 'обработана'))
-
-
 class MIGHT_AMOUNT(rels_django.DjangoEnum):
     amount = rels.Column(unique=False, single_type=False)
     award = rels.Column(unique=False, single_type=False, no_index=False)

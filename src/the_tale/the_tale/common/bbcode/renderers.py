@@ -18,7 +18,11 @@ default = renderer.Renderer(tags=[tags.TAG.b,
                                   tags.TAG.lsb,
                                   tags.TAG.rsb,
                                   tags.TAG.rl,
-                                  tags.TAG.youtube])
+                                  tags.TAG.youtube,
+                                  tags.TAG.center,
+                                  tags.TAG.size,
+                                  tags.TAG.color,
+                                  tags.TAG.pre])
 
 safe = renderer.Renderer(tags=[tags.TAG.b,
                                tags.TAG.i,

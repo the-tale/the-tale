@@ -1364,3 +1364,29 @@ class SendEventSuccessMessageTests(BaseEmissaryTests):
 
         self.assertTrue(all(emissaries[0].utg_name.forms[1] in messages[0].body for emissary in emissaries))
         self.assertTrue(all('xxx' in messages[0].body for emissary in emissaries))
+
+
+class ProcessEventsMonitoring(BaseEmissaryTests):
+
+    def test_save_event_on_change(self):
+        emissary = self.create_emissary(clan=self.clan,
+                                        initiator=self.account,
+                                        place_id=self.places[0].id)
+
+        emissary_events = [logic.create_event(initiator=self.account,
+                                              emissary=emissary,
+                                              concrete_event=events.Rest(raw_ability_power=666),
+                                              days=7),
+                           logic.create_event(initiator=self.account,
+                                              emissary=emissary,
+                                              concrete_event=events.Dismiss(raw_ability_power=666),
+                                              days=7)]
+
+        updated_at = [event.updated_at for event in emissary_events]
+
+        with mock.patch('the_tale.game.emissaries.events.Rest.on_monitoring', mock.Mock(return_value=True)):
+            with mock.patch('the_tale.game.emissaries.events.Dismiss.on_monitoring', mock.Mock(return_value=False)):
+                logic.process_events_monitoring()
+
+        self.assertLess(updated_at[0], storage.events[emissary_events[0].id].updated_at)
+        self.assertEqual(updated_at[1], storage.events[emissary_events[1].id].updated_at)

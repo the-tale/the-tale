@@ -11,8 +11,6 @@ settings = utils_app_settings.app_settings('PAYMENTS',
 
                                            ALWAYS_ALLOWED_ACCOUNTS=[],
 
-                                           RANDOM_PREMIUM_DAYS=30,
-
                                            MARKET_HISTORY_RECORDS_ON_PAGE=100,
 
                                            MARKET_COMISSION=0.1,

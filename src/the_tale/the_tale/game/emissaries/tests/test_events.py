@@ -54,6 +54,9 @@ class BaseEventsMixin(clans_helpers.ClansTestsMixin,
         return tt_services.events_currencies.cmd_balance(self.concrete_event.resource_id(self.emissary),
                                                          currency=self.EVENT_CURRENCY)
 
+    def test_on_monitoring(self):
+        self.assertFalse(self.concrete_event.on_monitoring(self.get_event()))
+
     def test_start_dialog(self):
         dialog_url = utils_urls.url('game:emissaries:start-event-dialog',
                                     self.emissary.id,
@@ -856,7 +859,7 @@ class CountedPlaceEventsMixin(CountedEventMixin, PlaceEffectEventMixin):
 
         with self.check_not_changed(self.get_event_points):
             with self.check_not_changed(lambda: len(places_storage.effects.all())):
-                self.concrete_event.on_monitoring(self.get_event())
+                self.assertFalse(self.concrete_event.on_monitoring(self.get_event()))
 
         self.give_currency_points(1)
 
@@ -864,7 +867,7 @@ class CountedPlaceEventsMixin(CountedEventMixin, PlaceEffectEventMixin):
 
         with self.check_not_changed(self.get_event_points):
             with self.check_delta(lambda: len(places_storage.effects.all()), 1):
-                self.concrete_event.on_monitoring(self.get_event())
+                self.assertTrue(self.concrete_event.on_monitoring(self.get_event()))
 
         self.give_currency_points(-1)
 
@@ -872,7 +875,7 @@ class CountedPlaceEventsMixin(CountedEventMixin, PlaceEffectEventMixin):
 
         with self.check_not_changed(self.get_event_points):
             with self.check_delta(lambda: len(places_storage.effects.all()), -1):
-                self.concrete_event.on_monitoring(self.get_event())
+                self.assertTrue(self.concrete_event.on_monitoring(self.get_event()))
 
     def test_is_effect_allowed(self):
 
@@ -906,6 +909,21 @@ class TaskBoardUpdatingTests(CountedPlaceEventsMixin, utils_testcase.TestCase):
     def test_points_per_step(self):
         self.assertEqual(self.concrete_event.points_per_step(bonus=0), 253)
         self.assertEqual(self.concrete_event.points_per_step(bonus=2), 759)
+
+    def test_effect_serialization(self):
+        self.concrete_event.after_create(self.get_event())
+        self.assertTrue(self.concrete_event.is_effect_allowed(self.emissary))
+
+        self.assertNotEqual(self.concrete_event.effect_id, None)
+
+        expected_data = {'data': {'effect_id': self.concrete_event.effect_id},
+                         'raw_ability_power': 666,
+                         'type': self.Event.TYPE.value}
+
+        self.assertEqual(self.concrete_event.serialize(), expected_data)
+
+        self.assertEqual(self.Event.deserialize(self.concrete_event.serialize()).serialize(),
+                         expected_data)
 
 
 class FastTransportationTests(CountedPlaceEventsMixin, utils_testcase.TestCase):

@@ -158,4 +158,4 @@ class QuestInfoTests(utils_testcase.TestCase, helpers.QuestTestsMixin):
         self.assertEqual(self.quest_info.ui_info(self.hero)['power'], power + 100)
 
         with mock.patch('the_tale.game.heroes.objects.Hero.politics_power_multiplier', lambda *argv, **kwargs: 2):
-            self.assertEqual(self.quest_info.ui_info(self.hero)['power'], power * 2 + 100)
+            self.assertEqual(self.quest_info.ui_info(self.hero)['power'], (power + 100) * 2)

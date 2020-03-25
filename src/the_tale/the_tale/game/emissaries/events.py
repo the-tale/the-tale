@@ -126,7 +126,7 @@ class EventBase:
         return True
 
     def on_monitoring(self, event):
-        pass
+        return False
 
     def serialize(self):
         return {'type': self.TYPE.value,
@@ -573,7 +573,7 @@ class PlaceEffectEvent(EventBase):
 
     def add_effect(self, event):
         if self.effect_id is not None:
-            return
+            return False
 
         self.effect_id = places_logic.register_effect(place_id=event.emissary.place_id,
                                                       attribute=self.attribute(event),
@@ -586,9 +586,11 @@ class PlaceEffectEvent(EventBase):
                                                             'emissary': event.emissary_id,
                                                             'event': event.id})
 
+        return True
+
     def remove_effect(self, emissary):
         if self.effect_id is None:
-            return
+            return False
 
         places_logic.remove_effect(self.effect_id,
                                    place_id=emissary.place_id,
@@ -596,6 +598,7 @@ class PlaceEffectEvent(EventBase):
                                    refresh_places=True)
 
         self.effect_id = None
+        return True
 
     def is_effect_allowed(self, emissary):
         raise NotImplementedError
@@ -606,9 +609,9 @@ class PlaceEffectEvent(EventBase):
 
     def sync_effect(self, event):
         if self.is_effect_allowed(event.emissary):
-            self.add_effect(event)
+            return self.add_effect(event)
         else:
-            self.remove_effect(event.emissary)
+            return self.remove_effect(event.emissary)
 
     def on_step(self, event):
         self.sync_effect(event)
@@ -709,7 +712,7 @@ class BaseCountedEvent(CountedMixin, PlaceEffectEvent):
         return super().on_step(event)
 
     def on_monitoring(self, event):
-        self.sync_effect(event)
+        return self.sync_effect(event)
 
 
 class TaskBoardUpdating(BaseCountedEvent):

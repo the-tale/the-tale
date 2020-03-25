@@ -159,16 +159,3 @@ class ChangeCredentialsTask(django_models.Model):
     new_nick = django_models.CharField(default=None, null=True, max_length=Account.MAX_NICK_LENGTH)
 
     uuid = django_models.CharField(max_length=32, db_index=True)
-
-
-class RandomPremiumRequest(django_models.Model):
-
-    created_at = django_models.DateTimeField(auto_now_add=True, db_index=True)
-    updated_at = django_models.DateTimeField(auto_now=True, db_index=True)
-
-    state = rels_django.RelationIntegerField(relation=relations.RANDOM_PREMIUM_REQUEST_STATE, db_index=True)
-
-    days = django_models.IntegerField(null=False)
-
-    initiator = django_models.ForeignKey(Account, related_name='+', on_delete=django_models.PROTECT)
-    receiver = django_models.ForeignKey(Account, default=None, null=True, related_name='+', on_delete=django_models.PROTECT)
