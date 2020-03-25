@@ -8,7 +8,7 @@ def save_emissary(emissary, new=False):
 
     data = {'name': emissary.utg_name.serialize(),
             'created_at_turn': emissary.created_at_turn,
-            'updated_at_turn': emissary.updated_at_turn,
+            'updated_at_turn': game_turn.number(),
             'moved_at_turn': emissary.moved_at_turn,
             'moved_at': time.mktime(emissary.moved_at.timetuple()),
             'remove_reason': emissary.remove_reason.value,
@@ -30,12 +30,18 @@ def save_emissary(emissary, new=False):
         emissary_model = models.Emissary.objects.create(**arguments)
 
         emissary.id = emissary_model.id
+
         emissary.created_at = emissary_model.created_at
         emissary.updated_at = emissary_model.updated_at
+        emissary.created_at_turn = data['created_at_turn']
+        emissary.updated_at_turn = data['updated_at_turn']
 
         storage.emissaries.add_item(emissary.id, emissary)
     else:
         models.Emissary.objects.filter(id=emissary.id).update(**arguments)
+
+        emissary.updated_at = arguments['updated_at']
+        emissary.updated_at_turn = data['updated_at_turn']
 
     storage.emissaries.update_version()
 
@@ -164,7 +170,6 @@ def _remove_emissary(emissary_id, reason):
 
         emissary.state = relations.STATE.OUT_GAME
         emissary.remove_reason = reason
-        emissary.updated_at_turn = game_turn.number()
 
         save_emissary(emissary)
 
@@ -209,7 +214,6 @@ def damage_emissary(emissary_id):
         emissary = storage.emissaries[emissary_id]
 
         emissary.health = max(0, emissary.health - emissary.attrs.damage_to_health)
-        emissary.updated_at_turn = game_turn.number()
 
         save_emissary(emissary)
 
@@ -269,7 +273,6 @@ def move_emissary(emissary_id, new_place_id):
         emissary.place_rating_position = None
         emissary.moved_at_turn = game_turn.number()
         emissary.moved_at = datetime.datetime.now()
-        emissary.updated_at_turn = game_turn.number()
 
         save_emissary(emissary)
 
@@ -428,7 +431,7 @@ def generate_traits():
 def save_event(event, new=False):
 
     data = {'created_at_turn': event.created_at_turn,
-            'updated_at_turn': event.updated_at_turn,
+            'updated_at_turn': game_turn.number(),
             'steps_processed': event.steps_processed,
             'stop_after_steps': event.stop_after_steps,
             'event': event.concrete_event.serialize()}
@@ -445,10 +448,15 @@ def save_event(event, new=False):
         event.id = event_model.id
         event.created_at = event_model.created_at
         event.updated_at = event_model.updated_at
+        event.created_at_turn = data['updated_at_turn']
+        event.updated_at_turn = data['updated_at_turn']
 
         storage.events.add_item(event.id, event)
     else:
         models.Event.objects.filter(id=event.id).update(**arguments)
+
+        event.updated_at = arguments['updated_at']
+        event.updated_at_turn = data['updated_at_turn']
 
     storage.events.update_version()
 
@@ -640,7 +648,8 @@ def process_events():
 
 def process_events_monitoring():
     for event in storage.events.all():
-        event.concrete_event.on_monitoring(event)
+        if event.concrete_event.on_monitoring(event):
+            save_event(event)
 
 
 def add_clan_experience():
