@@ -150,7 +150,7 @@ class TAG(rels.Relation):
 
     records = (tag('b', postmarkup.SimpleTag, '<strong>жирный</strong>', args=['strong']),
                tag('i', postmarkup.SimpleTag, '<i>курсив</i>', args=['em']),
-               tag('u', postmarkup.SimpleTag, '<u>подчёркнутый</u>', args=['s']),
+               tag('u', postmarkup.SimpleTag, '<u>подчёркнутый</u>', args=['u']),
                tag('s', postmarkup.SimpleTag, '<strike>зачёркнутый</strike>', args=['strike']),
                tag('quote', postmarkup.QuoteTag, '<blockquote>цитата</blockquote>'),
                tag('img', postmarkup.ImgTag, '[img]https://адрес картинки[/img]'),
@@ -163,4 +163,8 @@ class TAG(rels.Relation):
                tag('rsb', RightSquareBracketTag, '[rsb] — «]» правая квадратная скобка', single=True),
                tag('rl', RedLineTag, '[rl] — красная строка (отступ)', single=True),
                tag('youtube', YoutubeTag, '[youtube=code] — видео с Youtube', single=True),
-               tag('spoiler', SafeSpoilerTag, None, name='safe_spoiler'))
+               tag('spoiler', SafeSpoilerTag, None, name='safe_spoiler'),
+               tag('center', postmarkup.CenterTag, 'отобразить текст по центру'),
+               tag('size', postmarkup.SizeTag, '[size=10]размер текста[/size]'),
+               tag('color', postmarkup.ColorTag, '[color=#004455]цвет текста[/color]'),
+               tag('pre', postmarkup.SimpleTag, '<pre>без форматирования</pre>', args=['pre']))
