@@ -218,8 +218,12 @@ jQuery(document).ready(function() {
           <ul class="nav pull-right">
             {% set game_time = game_datetime() %}
             <li>
-              <p id="time-block" class="navbar-text" rel="tooltip" title="время в игре: {{game_time.date.verbose_full()}}">
-                <i class="icon-time icon-white" style="opacity: 0.5;"></i>
+              <p id="time-block" class="navbar-text">
+                <i class="icon-time icon-white"
+                   style="opacity: 0.5;"
+                   rel="tooltip"
+                   data-tooltip-placement="bottom"
+                   title="время в игре: {{game_time.date.verbose_full()}}"></i>
               </p>
             </li>
             <li class="divider-vertical"></li>
