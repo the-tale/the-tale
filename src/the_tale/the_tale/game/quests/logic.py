@@ -456,9 +456,11 @@ def place_quest_constructor_fabric(place, person_action):
                 f_person = setup_person(selector._kb, person)
 
                 if person_action.is_HELP:
+                    remove_help_restrictions(selector._kb, f_person.uid, f_place.uid)
                     selector._kb += questgen_facts.OnlyGoodBranches(object=f_person.uid)
 
                 elif person_action.is_HARM:
+                    remove_harm_restrictions(selector._kb, f_person.uid, f_place.uid)
                     selector._kb += questgen_facts.OnlyBadBranches(object=f_person.uid)
 
         selector.reserve(f_place)
@@ -485,8 +487,10 @@ def emissary_quest_constructor_fabric(emissary, person_action):
             selector._kb += f_emissary_place
 
         if person_action.is_HELP:
+            remove_help_restrictions(selector._kb, f_emissary.uid, f_emissary_place.uid)
             selector._kb += questgen_facts.OnlyGoodBranches(object=f_emissary.uid)
         elif person_action.is_HARM:
+            remove_harm_restrictions(selector._kb, f_emissary.uid, f_emissary_place.uid)
             selector._kb += questgen_facts.OnlyBadBranches(object=f_emissary.uid)
         else:
             raise NotImplementedError
@@ -503,20 +507,53 @@ def emissary_quest_constructor_fabric(emissary, person_action):
     return constructor
 
 
+def remove_restrictions(kb, Fact, object_uid):
+    to_remove = []
+
+    for fact in kb.filter(Fact):
+        if fact.object == object_uid:
+            to_remove.append(fact)
+
+    kb -= to_remove
+
+
+def remove_help_restrictions(kb, person_uid, place_uid):
+    remove_restrictions(kb, questgen_facts.OnlyBadBranches, place_uid)
+    remove_restrictions(kb, questgen_facts.ExceptGoodBranches, place_uid)
+
+    remove_restrictions(kb, questgen_facts.OnlyBadBranches, person_uid)
+    remove_restrictions(kb, questgen_facts.ExceptGoodBranches, person_uid)
+
+
+def remove_harm_restrictions(kb, person_uid, place_uid):
+    remove_restrictions(kb, questgen_facts.OnlyGoodBranches, place_uid)
+    remove_restrictions(kb, questgen_facts.ExceptBadBranches, place_uid)
+
+    remove_restrictions(kb, questgen_facts.OnlyGoodBranches, person_uid)
+    remove_restrictions(kb, questgen_facts.ExceptBadBranches, person_uid)
+
+
 def person_quest_constructor_fabric(person, person_action):
 
     def constructor(selector, start_quests):
+
+        place_uid = uids.place(person.place_id)
+
         f_person = setup_person(selector._kb, person)
 
         if person_action.is_HELP:
+            remove_help_restrictions(selector._kb, f_person.uid, place_uid)
             selector._kb += questgen_facts.OnlyGoodBranches(object=f_person.uid)
+
         elif person_action.is_HARM:
+            remove_harm_restrictions(selector._kb, f_person.uid, place_uid)
             selector._kb += questgen_facts.OnlyBadBranches(object=f_person.uid)
+
         else:
             raise NotImplementedError
 
         selector.reserve(f_person)
-        selector.reserve(selector._kb[uids.place(person.place_id)])
+        selector.reserve(selector._kb[place_uid])
 
         return selector.create_quest_from_person(nesting=0,
                                                  initiator=f_person,

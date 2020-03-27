@@ -68,7 +68,31 @@ class QuestsTests(utils_testcase.TestCase,
             self.complete_quest(self.hero)
 
     @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.check_is_alive', lambda *argv, **kwargs: True)
+    def test_complete__help__enemy(self):
+
+        actions_logic.force_new_hero_quest(hero=self.hero,
+                                           logger=mock.Mock(),
+                                           emissary_id=self.emissary.id,
+                                           person_action=relations.PERSON_ACTION.HELP)
+
+        with self.check_increased(lambda: politic_power_logic.get_emissaries_power([self.emissary.id])[self.emissary.id]):
+            self.complete_quest(self.hero)
+
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.check_is_alive', lambda *argv, **kwargs: True)
     def test_complete__harm(self):
+
+        actions_logic.force_new_hero_quest(hero=self.hero,
+                                           logger=mock.Mock(),
+                                           emissary_id=self.emissary.id,
+                                           person_action=relations.PERSON_ACTION.HARM)
+
+        with self.check_decreased(lambda: politic_power_logic.get_emissaries_power([self.emissary.id])[self.emissary.id]):
+            self.complete_quest(self.hero)
+
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.check_is_alive', lambda *argv, **kwargs: True)
+    def test_complete__harm__hometown(self):
+
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.PLACE, self.emissary.place)
 
         actions_logic.force_new_hero_quest(hero=self.hero,
                                            logger=mock.Mock(),

@@ -63,7 +63,55 @@ class QuestsTests(utils_testcase.TestCase,
             politic_power_storage.persons.sync(force=True)
 
     @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.check_is_alive', lambda *argv, **kwargs: True)
+    def test_complete__help__enemy(self):
+
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENEMY, self.random_person)
+
+        actions_logic.force_new_hero_quest(hero=self.hero,
+                                           logger=mock.Mock(),
+                                           person_id=self.random_person.id,
+                                           person_action=relations.PERSON_ACTION.HELP)
+
+        politic_power_storage.places.sync(force=True)
+
+        with self.check_increased(lambda: politic_power_storage.persons.outer_power(self.random_person.id)):
+            self.complete_quest(self.hero)
+            politic_power_storage.persons.sync(force=True)
+
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.check_is_alive', lambda *argv, **kwargs: True)
     def test_complete__harm(self):
+
+        actions_logic.force_new_hero_quest(hero=self.hero,
+                                           logger=mock.Mock(),
+                                           person_id=self.random_person.id,
+                                           person_action=relations.PERSON_ACTION.HARM)
+
+        politic_power_storage.places.sync(force=True)
+
+        with self.check_decreased(lambda: politic_power_storage.persons.outer_power(self.random_person.id)):
+            self.complete_quest(self.hero)
+            politic_power_storage.persons.sync(force=True)
+
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.check_is_alive', lambda *argv, **kwargs: True)
+    def test_complete__harm__friend(self):
+
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.FRIEND, self.random_person)
+
+        actions_logic.force_new_hero_quest(hero=self.hero,
+                                           logger=mock.Mock(),
+                                           person_id=self.random_person.id,
+                                           person_action=relations.PERSON_ACTION.HARM)
+
+        politic_power_storage.places.sync(force=True)
+
+        with self.check_decreased(lambda: politic_power_storage.persons.outer_power(self.random_person.id)):
+            self.complete_quest(self.hero)
+            politic_power_storage.persons.sync(force=True)
+
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.check_is_alive', lambda *argv, **kwargs: True)
+    def test_complete__harm__hometown(self):
+
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.PLACE, self.random_person.place)
 
         actions_logic.force_new_hero_quest(hero=self.hero,
                                            logger=mock.Mock(),
