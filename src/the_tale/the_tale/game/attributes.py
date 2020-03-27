@@ -92,3 +92,14 @@ def percents_formatter(value):
 
 def float_formatter(value):
     return '%.2f' % round(value, 2)
+
+
+def clan_formatter(value):
+    from the_tale.clans import storage as clans_storage
+
+    if value is None:
+        return '—'
+
+    clan = clans_storage.infos[value]
+
+    return f'[{clan.abbr}] {clan.name}'
