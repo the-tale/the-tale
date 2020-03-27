@@ -145,6 +145,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
 
                attributes.attr('CLAN_PROTECTOR', 45, 'гильдия-протектор', default=lambda: None,
                                apply=game_attributes.replace_applier, type=game_attributes.ATTRIBUTE_TYPE.REWRITABLE,
+                               formatter=game_attributes.clan_formatter,
                                description='Гильдия, протекторатом которого является город. Мероприятяи эмиссаров гильдии-протектора, проводимые в городе, получают дополнительные и/или усиленные эффекты.'))
 
 

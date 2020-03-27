@@ -193,16 +193,31 @@ def setup_places(kb, hero_info):
     kb += questgen_facts.LocatedIn(object=uids.hero(hero_info.id), place=hero_position_uid)
 
 
+def setup_person(kb, person):
+
+    if uids.place(person.place.id) not in kb:
+        kb += fact_place(person.place)
+
+    person_uid = uids.person(person.id)
+
+    if person_uid in kb:
+        return kb[person_uid]
+
+    f_person = fact_person(person)
+
+    kb += f_person
+    kb += fact_located_in(person)
+
+    return f_person
+
+
 def setup_persons(kb, hero_info):
     for person in persons_storage.persons.all():
-        place_uid = uids.place(person.place.id)
 
-        if place_uid not in kb:
+        if uids.place(person.place.id) not in kb:
             continue
 
-        f_person = fact_person(person)
-        kb += f_person
-        kb += questgen_facts.LocatedIn(object=f_person.uid, place=place_uid)
+        setup_person(kb, person)
 
 
 def setup_social_connections(kb):
@@ -235,14 +250,7 @@ def setup_preferences(kb, hero_info):
     if hero_info.preferences_friend_id is not None:
         friend = persons_storage.persons[hero_info.preferences_friend_id]
 
-        f_place = fact_place(friend.place)
-        f_person = fact_person(friend)
-
-        if f_place.uid not in kb:
-            kb += f_place
-
-        if f_person.uid not in kb:
-            kb += f_person
+        f_person = setup_person(kb, friend)
 
         kb += questgen_facts.PreferenceFriend(object=hero_uid, person=f_person.uid)
         kb += questgen_facts.ExceptBadBranches(object=f_person.uid)
@@ -250,14 +258,7 @@ def setup_preferences(kb, hero_info):
     if hero_info.preferences_enemy_id:
         enemy = persons_storage.persons[hero_info.preferences_enemy_id]
 
-        f_place = fact_place(enemy.place)
-        f_person = fact_person(enemy)
-
-        if f_place.uid not in kb:
-            kb += f_place
-
-        if f_person.uid not in kb:
-            kb += f_person
+        f_person = setup_person(kb, enemy)
 
         kb += questgen_facts.PreferenceEnemy(object=hero_uid, person=f_person.uid)
         kb += questgen_facts.ExceptGoodBranches(object=f_person.uid)
@@ -452,16 +453,14 @@ def place_quest_constructor_fabric(place, person_action):
                 selector._kb += questgen_facts.OnlyBadBranches(object=f_place.uid)
 
             for person in place.persons:
-                f_person = fact_person(person)
-
-                if f_person.uid not in selector._kb:
-                    selector._kb += f_person
-                    selector._kb += questgen_facts.LocatedIn(object=f_person.uid, place=f_place.uid)
+                f_person = setup_person(selector._kb, person)
 
                 if person_action.is_HELP:
+                    remove_help_restrictions(selector._kb, f_person.uid, f_place.uid)
                     selector._kb += questgen_facts.OnlyGoodBranches(object=f_person.uid)
 
                 elif person_action.is_HARM:
+                    remove_harm_restrictions(selector._kb, f_person.uid, f_place.uid)
                     selector._kb += questgen_facts.OnlyBadBranches(object=f_person.uid)
 
         selector.reserve(f_place)
@@ -488,8 +487,10 @@ def emissary_quest_constructor_fabric(emissary, person_action):
             selector._kb += f_emissary_place
 
         if person_action.is_HELP:
+            remove_help_restrictions(selector._kb, f_emissary.uid, f_emissary_place.uid)
             selector._kb += questgen_facts.OnlyGoodBranches(object=f_emissary.uid)
         elif person_action.is_HARM:
+            remove_harm_restrictions(selector._kb, f_emissary.uid, f_emissary_place.uid)
             selector._kb += questgen_facts.OnlyBadBranches(object=f_emissary.uid)
         else:
             raise NotImplementedError
@@ -506,28 +507,53 @@ def emissary_quest_constructor_fabric(emissary, person_action):
     return constructor
 
 
+def remove_restrictions(kb, Fact, object_uid):
+    to_remove = []
+
+    for fact in kb.filter(Fact):
+        if fact.object == object_uid:
+            to_remove.append(fact)
+
+    kb -= to_remove
+
+
+def remove_help_restrictions(kb, person_uid, place_uid):
+    remove_restrictions(kb, questgen_facts.OnlyBadBranches, place_uid)
+    remove_restrictions(kb, questgen_facts.ExceptGoodBranches, place_uid)
+
+    remove_restrictions(kb, questgen_facts.OnlyBadBranches, person_uid)
+    remove_restrictions(kb, questgen_facts.ExceptGoodBranches, person_uid)
+
+
+def remove_harm_restrictions(kb, person_uid, place_uid):
+    remove_restrictions(kb, questgen_facts.OnlyGoodBranches, place_uid)
+    remove_restrictions(kb, questgen_facts.ExceptBadBranches, place_uid)
+
+    remove_restrictions(kb, questgen_facts.OnlyGoodBranches, person_uid)
+    remove_restrictions(kb, questgen_facts.ExceptBadBranches, person_uid)
+
+
 def person_quest_constructor_fabric(person, person_action):
 
     def constructor(selector, start_quests):
-        f_person = fact_person(person)
-        f_person_place = fact_place(person.place)
 
-        if f_person_place.uid not in selector._kb:
-            selector._kb += f_person_place
+        place_uid = uids.place(person.place_id)
 
-        if f_person.uid not in selector._kb:
-            selector._kb += f_person
-            selector._kb += questgen_facts.LocatedIn(object=f_person.uid, place=f_person_place.uid)
+        f_person = setup_person(selector._kb, person)
 
         if person_action.is_HELP:
+            remove_help_restrictions(selector._kb, f_person.uid, place_uid)
             selector._kb += questgen_facts.OnlyGoodBranches(object=f_person.uid)
+
         elif person_action.is_HARM:
+            remove_harm_restrictions(selector._kb, f_person.uid, place_uid)
             selector._kb += questgen_facts.OnlyBadBranches(object=f_person.uid)
+
         else:
             raise NotImplementedError
 
         selector.reserve(f_person)
-        selector.reserve(f_person_place)
+        selector.reserve(selector._kb[place_uid])
 
         return selector.create_quest_from_person(nesting=0,
                                                  initiator=f_person,

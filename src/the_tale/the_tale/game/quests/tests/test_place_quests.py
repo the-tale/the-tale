@@ -70,6 +70,22 @@ class QuestsTests(utils_testcase.TestCase,
             politic_power_storage.places.sync(force=True)
 
     @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.check_is_alive', lambda *argv, **kwargs: True)
+    def test_complete__harm__hometown(self):
+
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.PLACE, self.random_place)
+
+        actions_logic.force_new_hero_quest(hero=self.hero,
+                                           logger=mock.Mock(),
+                                           place_id=self.random_place.id,
+                                           person_action=relations.PERSON_ACTION.HARM)
+
+        politic_power_storage.places.sync(force=True)
+
+        with self.check_decreased(lambda: politic_power_storage.places.outer_power(self.random_place.id)):
+            self.complete_quest(self.hero)
+            politic_power_storage.places.sync(force=True)
+
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.check_is_alive', lambda *argv, **kwargs: True)
     def test_hero_in_same_place(self):
 
         self.hero.position.set_place(self.random_place)
