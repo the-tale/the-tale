@@ -292,6 +292,7 @@ class SetupPreferencesTest(LogicTestsBase):
 
         self.check_facts(places=[f_place],
                          persons=[f_person],
+                         locations=[logic.fact_located_in(person)],
                          friends=[questgen_facts.PreferenceFriend(object=self.hero_uid, person=f_person.uid)],
                          bad_branches=[questgen_facts.ExceptBadBranches(object=f_person.uid)])
 
@@ -304,13 +305,13 @@ class SetupPreferencesTest(LogicTestsBase):
         f_place = logic.fact_place(place)
         f_person = logic.fact_person(person)
 
-        self.knowledge_base += f_place
-        self.knowledge_base += f_person
+        logic.setup_person(self.knowledge_base, person)
 
         logic.setup_preferences(self.knowledge_base, self.get_hero_info())
 
         self.check_facts(places=[f_place],
                          persons=[f_person],
+                         locations=[logic.fact_located_in(person)],
                          friends=[questgen_facts.PreferenceFriend(object=self.hero_uid, person=f_person.uid)],
                          bad_branches=[questgen_facts.ExceptBadBranches(object=f_person.uid)])
 
@@ -327,6 +328,7 @@ class SetupPreferencesTest(LogicTestsBase):
 
         self.check_facts(places=[f_place],
                          persons=[f_person],
+                         locations=[logic.fact_located_in(person)],
                          enemies=[questgen_facts.PreferenceEnemy(object=self.hero_uid, person=f_person.uid)],
                          good_branches=[questgen_facts.ExceptGoodBranches(object=f_person.uid)])
 
@@ -339,13 +341,13 @@ class SetupPreferencesTest(LogicTestsBase):
         f_place = logic.fact_place(place)
         f_person = logic.fact_person(person)
 
-        self.knowledge_base += f_place
-        self.knowledge_base += f_person
+        logic.setup_person(self.knowledge_base, person)
 
         logic.setup_preferences(self.knowledge_base, self.get_hero_info())
 
         self.check_facts(places=[f_place],
                          persons=[f_person],
+                         locations=[logic.fact_located_in(person)],
                          enemies=[questgen_facts.PreferenceEnemy(object=self.hero_uid, person=f_person.uid)],
                          good_branches=[questgen_facts.ExceptGoodBranches(object=f_person.uid)])
 
