@@ -238,7 +238,9 @@ class Event:
 
     @property
     def stop_after(self):
-        return self.created_at + datetime.timedelta(hours=self.stop_after_steps)
+        expected_steps = int(math.floor((datetime.datetime.now() - self.created_at).total_seconds() / (60 * 60)))
+
+        return self.created_at + datetime.timedelta(hours=self.stop_after_steps + expected_steps - self.steps_processed)
 
     @property
     def emissary(self):
