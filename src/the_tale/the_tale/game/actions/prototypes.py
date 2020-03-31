@@ -459,9 +459,12 @@ class ActionIdlenessPrototype(ActionBase):
         if self.hero.clan_id is None:
             return None
 
-        for place in places_logic.task_board_places(self.hero.position.place):
+        for place in places_storage.places.all():
 
-            if self.hero.clan_id in place.attrs.task_board:
+            if self.hero.clan_id not in place.attrs.task_board:
+                continue
+
+            if self.hero.position.place_id in {p.id for p in places_logic.task_board_places(place)}:
                 return place
 
         return None
