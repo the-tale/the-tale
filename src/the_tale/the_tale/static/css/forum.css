@@ -34,9 +34,9 @@
   padding-top: 0.5em;
   padding-bottom: 0.5em;
   margin-bottom: 0.5em;
-  border-top: 1px solid #dddddd;
-  border-bottom: 1px solid #dddddd;
-  background-color: #ebf0f0;
+  border-top: 1px solid #0000ff;
+  border-bottom: 1px solid #0000ff;
+  background-color: #b1ffff;
 }
 .post .head div {
   display: inline-block;
@@ -47,46 +47,46 @@
   padding-top: 0.5em;
   padding-bottom: 0.5em;
   margin-bottom: 0.5em;
-  border-right: 1px solid #dddddd;
-  border-bottom: 1px solid #dddddd;
-  background-color: #ebf0f0;
+  border-right: 1px solid #0000ff;
+  border-bottom: 1px solid #0000ff;
+  background-color: #b1ffff;
   height: 100px;
   vertical-align: top;
   text-align: center;
   color: gray;
 }
 .post .info-head {
-  border-top: 1px solid #dddddd;
-  background-color: #ebf0f0;
+  border-top: 1px solid #0000ff;
+  background-color: #b1ffff;
   text-align: center;
   font-size: 12pt;
 }
 .post.developer .head {
-  background-color: #e9f9e9;
+  background-color: #b1ffff;
 }
 .post.developer .info {
-  background-color: #e9f9e9;
+  background-color: #b1ffff;
 }
 .post.developer .info-head {
-  background-color: #e9f9e9;
+  background-color: #b1ffff;
 }
 .post.moderator .head {
-  background-color: #e9e9f9;
+  background-color: #b1ffff;
 }
 .post.moderator .info {
-  background-color: #e9e9f9;
+  background-color: #b1ffff;
 }
 .post.moderator .info-head {
-  background-color: #e9e9f9;
+  background-color: #b1ffff;
 }
 .post.banned .head {
-  background-color: #f9e9e9;
+  background-color: #b1ffff;
 }
 .post.banned .info {
-  background-color: #f9e9e9;
+  background-color: #b1ffff;
 }
 .post.banned .info-head {
-  background-color: #f9e9e9;
+  background-color: #b1ffff;
 }
 .post .message {
   padding: 0.5em;

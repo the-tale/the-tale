@@ -17,9 +17,54 @@ body {
   padding-top: 44px;
   height: 100%;
   word-wrap: break-word;
-  background-color: #ebf0f0 !important;
   /* old style blocks */
   /* new style blocks */
+}
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6 {
+  color: blue;
+}
+body .pagination .active a {
+  background-color: #b1ffff;
+}
+body .btn {
+  border: solid !important;
+  border-radius: 0 !important;
+  border-color: blue !important;
+}
+body input {
+  border: solid !important;
+  border-radius: 0 !important;
+  border-color: blue !important;
+}
+body .accordion-group,
+body .accordion-heading {
+  border: solid !important;
+  border-radius: 0 !important;
+  border-color: blue !important;
+}
+body .nav-tabs {
+  border-color: blue !important;
+  border-radius: 0 !important;
+}
+body .nav-tabs .active > a,
+body .nav-tabs > .active > a:hover {
+  border-radius: 0 !important;
+  border-color: blue !important;
+  border-bottom-color: transparent !important;
+}
+body .alert-info,
+body .alert-warning,
+body .alert-danger,
+body .alert-success {
+  background-color: #fffa3a;
+  border-color: blue;
+  border-style: double;
+  border-width: 4px;
 }
 body #main-container {
   height: 100%;
@@ -31,7 +76,7 @@ body #main-container #content {
 }
 body div.block,
 body li.block {
-  background-color: #f5f5f5;
+  background-color: #26dadb;
   border: 1px solid #cccccc;
   border-radius: 8px;
   padding: 0.75em;
@@ -42,13 +87,18 @@ body div.block.white,
 body li.block.white {
   background-color: white;
 }
+body .pagination a {
+  border-color: #350af3;
+}
 body div.easy-block,
 body li.easy-block {
   padding: 0.75em;
   margin-top: 0;
   margin-bottom: 10px;
-  background-color: #f5fafa;
-  border-radius: 8px;
+  background-color: #26dadb;
+  border-style: double;
+  border-color: #350af3;
+  border-width: 10px;
 }
 body hr {
   border-top-color: #cccccc;
@@ -65,7 +115,7 @@ body .nav-pills > li > a {
 }
 body .nav-tabs > li > a:hover,
 body .nav-pills > li > a:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
 }
 body .nav-tabs > li > a.transparent,
 body .nav-pills > li > a.transparent {
@@ -73,13 +123,13 @@ body .nav-pills > li > a.transparent {
 }
 body .nav-tabs > li > a.transparent:hover,
 body .nav-pills > li > a.transparent:hover {
-  background-color: #f5fafa !important;
+  background-color: #26dadb !important;
 }
 body .nav-tabs > .active > a {
-  background-color: #f5fafa;
+  background-color: #26dadb;
 }
 body .nav-tabs > .active > a:hover {
-  background-color: #f5fafa;
+  background-color: #26dadb;
 }
 body .navbar .navbar-inner {
   min-height: 34px !important;
@@ -99,7 +149,7 @@ body .navbar .nav > li > a {
 body .navbar .brand {
   padding: 3px 8px 0px 0px;
   margin-left: 0px;
-  margin-bottom: -12px;
+  margin-bottom: -28px;
 }
 body footer {
   clear: both;
@@ -119,39 +169,39 @@ body .dl-record small {
 body .game-navigation-caption {
   cursor: default;
   padding-left: 0.8em;
-  color: #999999;
+  color: #0000ff;
 }
 body .game-navigation .nav-element {
   padding-left: 1em;
 }
 body .game-navigation .nav-element.disabled {
-  color: #999999;
+  color: #0000ff;
 }
 body .game-navigation .nav-element.disabled a {
-  color: #999999;
+  color: #0000ff;
 }
 body .game-navigation .nav-element.disabled a:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
 }
 body .game-navigation .nav-element:not(.active) a:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
 }
 body .game-navigation .nav-header {
   cursor: default;
 }
 a.info-link {
   text-decoration: none;
-  border-bottom: 1px dashed;
+  border-bottom: 1px double;
 }
 a.info-link:hover {
   text-decoration: none;
-  border-bottom: 1px dashed;
+  border-bottom: 1px double;
 }
 #time-block {
   cursor: default;
 }
 small {
-  color: #999999 !important;
+  color: #0000ff !important;
 }
 .anchor {
   display: block !important;
@@ -171,7 +221,7 @@ small {
   z-index: 10000;
 }
 .dropdown-menu {
-  background-color: #f5fafa !important;
+  background-color: #26dadb !important;
 }
 .dropdown-menu .normal-link {
   padding-left: 0;
@@ -188,7 +238,7 @@ small {
   text-decoration: underline;
 }
 .modal {
-  background-color: #f5fafa !important;
+  background-color: #26dadb !important;
   top: 40% !important;
 }
 .modal-body {
@@ -234,61 +284,61 @@ small {
   top: 5px !important;
 }
 table.table tbody tr:nth-child(odd):hover td {
-  background-color: #ebf0f0 !important;
+  background-color: #b1ffff !important;
 }
 table.table tbody tr:nth-child(odd):hover th {
-  background-color: #ebf0f0 !important;
+  background-color: #b1ffff !important;
 }
 table.table tbody tr:nth-child(odd) th {
-  background-color: #ebf0f0 !important;
+  background-color: #b1ffff !important;
 }
 table.table tbody tr:nth-child(odd) td {
-  background-color: #ebf0f0 !important;
+  background-color: #b1ffff !important;
 }
 table.table tbody tr:nth-child(even):hover td {
-  background-color: #f5fafa !important;
+  background-color: #26dadb !important;
 }
 table.table tbody tr:nth-child(even):hover th {
-  background-color: #f5fafa !important;
+  background-color: #26dadb !important;
 }
 table.table tbody tr:nth-child(even) td {
-  background-color: #f5fafa !important;
+  background-color: #26dadb !important;
 }
 table.table tbody tr:nth-child(even) th {
-  background-color: #f5fafa !important;
+  background-color: #26dadb !important;
 }
 table.table.table-highlighting tbody tr:nth-child(odd):hover td {
-  background-color: #e1e6e6 !important;
+  background-color: #54ff53 !important;
 }
 table.table.table-highlighting tbody tr:nth-child(odd) td {
-  background-color: #ebf0f0 !important;
+  background-color: #b1ffff !important;
 }
 table.table.table-highlighting tbody tr:nth-child(odd):hover th {
-  background-color: #e1e6e6 !important;
+  background-color: #54ff53 !important;
 }
 table.table.table-highlighting tbody tr:nth-child(odd) th {
-  background-color: #ebf0f0 !important;
+  background-color: #b1ffff !important;
 }
 table.table.table-highlighting tbody tr:nth-child(even):hover td {
-  background-color: #e1e6e6 !important;
+  background-color: #54ff53 !important;
 }
 table.table.table-highlighting tbody tr:nth-child(even) td {
-  background-color: #f5fafa !important;
+  background-color: #26dadb !important;
 }
 table.table.table-highlighting tbody tr:nth-child(even):hover th {
-  background-color: #e1e6e6 !important;
+  background-color: #54ff53 !important;
 }
 table.table.table-highlighting tbody tr:nth-child(even) th {
-  background-color: #f5fafa !important;
+  background-color: #26dadb !important;
 }
 ul.breadcrumb {
-  background: #ebf0f0 !important;
+  background: #b1ffff !important;
   border: none;
   box-shadow: none;
 }
 blockquote {
   font-style: italic;
-  border-left-color: #e1e6e6 !important;
+  border-left-color: #54ff53 !important;
 }
 .tooltip {
   z-index: 2000 !important;
@@ -317,11 +367,11 @@ li.active .game-link {
   top: 0 !important;
 }
 a.disabled {
-  color: #999999 !important;
+  color: #0000ff !important;
   text-decoration: none !important;
 }
 a.disabled:hover {
-  color: #999999 !important;
+  color: #0000ff !important;
   text-decoration: none !important;
 }
 a.btn.disabled {

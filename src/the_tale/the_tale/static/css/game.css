@@ -11,7 +11,7 @@
   padding-right: 5.3em;
 }
 .hero-base-block .record-with-progress:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
 }
 .hero-base-block .record-with-progress .game-ui-icon {
   position: absolute;
@@ -35,7 +35,7 @@
   width: 49%;
 }
 .hero-base-block .attribute-record:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
 }
 .hero-base-block .attribute-record .game-ui-icon {
   vertical-align: middle;
@@ -44,7 +44,7 @@
   vertical-align: middle;
 }
 .shortests-hero-record:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
   border-radius: 8px;
   cursor: pointer;
 }
@@ -132,7 +132,7 @@
   cursor: pointer;
 }
 .hero-equipment-block .equip-record:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
 }
 .hero-equipment-block .equip-record .game-ui-icon {
   vertical-align: middle;
@@ -156,7 +156,7 @@
   cursor: pointer;
 }
 #hero-bag-block .bag-record:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
 }
 #hero-bag-block .bag-record i {
   vertical-align: middle;
@@ -180,7 +180,7 @@
   border-bottom: none;
 }
 .quests-line .quest-record:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
 }
 .quest-icon {
   width: 64px;
@@ -246,7 +246,7 @@
   margin: 0;
 }
 .choice-record.disabled .choice-link {
-  color: #999999;
+  color: #0000ff;
   margin-left: 1em;
 }
 .choice-record.disabled .character-warning {
@@ -270,7 +270,7 @@
   cursor: default;
 }
 .log-record:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
 }
 .log-record .time {
   display: inline;
@@ -289,7 +289,7 @@
   cursor: default;
 }
 .diary-record:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
 }
 .diary-record .datetime {
   font-style: italic;
@@ -310,7 +310,7 @@
   right: -1px;
   top: 0;
   z-index: 503;
-  background-color: #f5fafa;
+  background-color: #26dadb;
   /* border: 1px solid @border-color; */
   border-bottom-left-radius: 8px;
   padding: 0.25em;
@@ -332,7 +332,7 @@
   float: left;
 }
 .place-description-dialog .data-updated-time {
-  color: #999999;
+  color: #0000ff;
 }
 .place-description-dialog .person-table {
   margin-bottom: 0;
@@ -362,7 +362,7 @@
 .angel-ability.no-charges,
 .angel-ability.energy-exists,
 .angel-ability.no-items {
-  color: #999999;
+  color: #0000ff;
   text-decoration: none;
 }
 .angel-ability .icon-tint {
@@ -456,7 +456,7 @@
   width: 32px;
 }
 .profession-icon-container:hover {
-  background-color: #e1e6e6 !important;
+  background-color: #54ff53 !important;
 }
 .profession-icon {
   width: 32px;

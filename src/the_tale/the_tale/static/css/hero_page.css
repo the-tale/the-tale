@@ -2,7 +2,7 @@
   cursor: default;
 }
 .hero-statistics .stat-record:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
 }
 .hero-statistics .stat-record .value {
   float: right;
@@ -14,17 +14,17 @@
   padding: 0.5em;
 }
 .hero-ability-record:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
 }
 .hero-ability-record .ability-name .ability-type {
   font-weight: normal;
-  color: #999999;
+  color: #0000ff;
 }
 .hero-ability-empty-record {
-  color: #999999;
+  color: #0000ff;
 }
 .hero-ability-empty-record:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
 }
 .hero-preferences-record {
   cursor: default;
@@ -32,7 +32,7 @@
   padding-right: 0.5em;
 }
 .hero-preferences-record:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
 }
 .hero-habit-record {
   cursor: default;
@@ -40,7 +40,7 @@
   padding-right: 0.5em;
 }
 .hero-habit-record:hover {
-  background-color: #e1e6e6;
+  background-color: #54ff53;
 }
 .hero-preference-choise {
   cursor: default;
