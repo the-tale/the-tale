@@ -27,7 +27,51 @@ body {
 
    word-wrap: break-word;
 
-   background-color: @background-color !important;
+   h1, h2, h3, h4, h5, h6 {
+       color: blue;
+   }
+
+   .pagination .active a {
+       background-color: @background-color;
+   }
+
+   .btn {
+       border: solid !important;
+       border-radius: 0 !important;
+       border-color: blue !important;
+   }
+
+   input {
+       border: solid !important;
+       border-radius: 0 !important;
+       border-color: blue !important;
+   }
+
+   .accordion-group, .accordion-heading {
+       border: solid !important;
+       border-radius: 0 !important;
+       border-color: blue !important;
+   }
+
+   .nav-tabs {
+       border-color: blue !important;
+       // border-bottom: 4px solid !important;
+       border-radius: 0 !important;
+
+       .active>a, >.active>a:hover {
+           border-radius: 0 !important;
+           // border-bottom: 4px solid !important;
+           border-color: blue !important;
+           border-bottom-color: transparent !important;
+       }
+   }
+
+   .alert-info, .alert-warning, .alert-danger, .alert-success {
+       background-color: #fffa3a;
+       border-color: blue;
+       border-style: double;
+       border-width: 4px;
+   }
 
    #main-container {
       height: 100%;
@@ -59,7 +103,12 @@ body {
       margin-top: 0;
       margin-bottom: 10px;
       background-color: @easy-block-background-color;
-      border-radius: 8px;
+      // border-radius: 8px;
+
+      border-style: double;
+      // border-width: thick;
+      border-color: #350af3;
+      border-width: 10px;
    }
 
    hr {
@@ -179,11 +228,11 @@ body {
 
 a.info-link {
    text-decoration: none;
-   border-bottom: 1px dashed;
+   border-bottom: 1px double;
 
    &:hover {
       text-decoration: none;
-      border-bottom: 1px dashed;
+      border-bottom: 1px double;
    }
 }
 
