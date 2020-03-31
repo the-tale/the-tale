@@ -215,7 +215,7 @@ pgf.game.map.Map = function(selector, params) {
     var canvasHeight = undefined;
 
     function SyncCanvasSize() {
-        canvasWidth = Math.max(jQuery('#pgf-map-container').width()-20, 1);
+        canvasWidth = Math.max(jQuery('#pgf-map-container').width()-40, 1);
         canvasHeight = params.canvasHeight;
 
         canvas.get(0).width = canvasWidth;
