@@ -3,6 +3,58 @@ import smart_imports
 
 smart_imports.all()
 
+PREFIXES = [['космические', 'космический', 'космическая', 'космическое'],
+            ['звёздные', 'звёздный', 'звёздная', 'звёздное'],
+            ['вселенские', 'вселенский', 'вселенская', 'вселенскоое'],
+            ['лунные', 'лунный', 'лунная', 'лунное'],
+            ['марсианские', 'марсианский', 'марсианская', 'марсианское'],
+            ['гиперпространственные', 'гиперпространственный', 'гиперпространственная', 'гиперпространственное'],
+            ['сверхсветовые', 'сверхсветовой', 'сверхсветовая', 'сверхстветовое'],
+            ['неземные', 'неземной', 'неземная', 'неземное'],
+            ['инопланетные', 'инопланетный', 'инопланетная', 'инопланетное'],
+            ['лазерные', 'лазерный', 'лазерная', 'лазерное'],
+            ['бластерные', 'бластерный', 'бластерная', 'бластерное'],
+            ['лучевые', 'лучевой', 'лучевая', 'лучевое'],
+            ['орбитальные', 'орбитальный', 'орбитальная', 'орбитальное'],
+            ['планетарные', 'планетарный', 'планетарная', 'планетарное'],
+            ['гравитационные', 'гравитационный', 'гравитационная', 'гравитационное'],
+            ['ядерные', 'ядерный', 'ядерная', 'ядерное'],
+            ['термоядерные', 'термоядерный', 'термоядерная', 'термоядерное'],
+            ['метеоритные', 'метеоритный', 'метеоритная', 'метеоритное']]
+
+
+def scify_name(utg_word, cache={}):
+
+    key = utg_word.forms[0]
+
+    if key in cache:
+        utg_word = cache[key]
+
+    else:
+        utg_word = copy.deepcopy(utg_word)
+
+        prefix = ''
+        gender = utg_word.properties.get(utg_relations.GENDER)
+        number = utg_word.properties.get(utg_relations.NUMBER)
+
+        if number.is_PLURAL:
+            prefix = random.choice(PREFIXES)[0]
+
+        elif gender.is_MASCULINE:
+            prefix = random.choice(PREFIXES)[1]
+
+        elif gender.is_FEMININE:
+            prefix = random.choice(PREFIXES)[2]
+
+        else:
+            prefix = random.choice(PREFIXES)[3]
+
+        utg_word.forms[0] = f'{prefix} {utg_word.forms[0]}'
+
+        cache[key] = utg_word
+
+    return utg_word
+
 
 class Mob(object):
     __slots__ = ('record_id',
@@ -65,13 +117,14 @@ class Mob(object):
     def id(self): return self.record.uuid
 
     @property
-    def name(self): return self.record.name
+    def name(self): return scify_name(self.record.utg_name).forms[0]
 
     @property
-    def utg_name(self): return self.record.utg_name
+    def utg_name(self): return scify_name(self.record.utg_name)
 
     @property
-    def utg_name_form(self): return self.record.utg_name_form
+    def utg_name_form(self):
+        return utg_words.WordForm(scify_name(self.record.utg_name))
 
     def linguistics_variables(self):
         return [('weapon', random.choice(self.record.weapons))]
