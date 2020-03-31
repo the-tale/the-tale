@@ -10,6 +10,10 @@ class Race:
         self.name = name
         self.wiki = wiki
 
+    def ui_info(self):
+        return {'name': self.name,
+                'wiki': self.wiki}
+
 
 races = [Race('Андорианцы', 'https://ru.wikipedia.org/wiki/Андорианцы'),
          Race('Ардриты', 'https://ru.wikipedia.org/wiki/Сепульки'),

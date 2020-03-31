@@ -502,6 +502,8 @@ class Hero(logic_accessors.LogicAccessorsMixin,
     ##########################
 
     def ui_info(self, actual_guaranteed, old_info=None):
+        from the_tale.forum.jinjaglobals import scify_race
+
         path = self.actions.find_path()
 
         new_info = {'id': self.id,
@@ -531,6 +533,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                              'experience_to_level': int(self.experience_to_next_level),
                              'gender': self.gender.value,
                              'race': self.race.value,
+                             'scify_race': scify_race(self.id).ui_info(),
                              'money': self.money,
                              'alive': self.is_alive},
                     'secondary': {'power': self.power.ui_info(),
