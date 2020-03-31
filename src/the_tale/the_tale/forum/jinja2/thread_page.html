@@ -296,8 +296,9 @@ jQuery(document).ready( function(e) {
             {% elif author.can_affect_game%}<strong title="Герой игрока оказывает влияние на мир игры без ограничений" rel="tooltip" style="cursor: pointer;">длань судьбы</strong>
             {% elif author.is_ban_forum %}<strong title="Игрок нарушил правила игры и был забанен" rel="tooltip" style="cursor: pointer;">игрок забанен</strong>{% endif %}
 
-            <br/>
-            {{game_object.race_verbose}}
+              <br/>
+             {% set r = scify_race(game_object.id) %}
+             [<a href="{{r.wiki}}">{{r.name}}</a>]
             <a href="{{url('game:heroes:show', game_object.id)}}" style="white-space: nowrap;">
               {{game_object.name}}
             </a>
