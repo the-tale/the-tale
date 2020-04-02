@@ -233,8 +233,11 @@ class ClansRegionsStorage(utils_storage.DependentStorage):
 
         for road in roads_storage.roads.all():
             if road.place_1.attrs.clan_protector == road.place_2.attrs.clan_protector:
-                self._regions[road.place_1_id].merge(self._regions[road.place_2_id])
-                self._regions[road.place_2_id] = self._regions[road.place_1_id]
+                base_region = self._regions[road.place_1_id]
+                base_region.merge(self._regions[road.place_2_id])
+
+                for place_id in base_region.places_ids:
+                    self._regions[place_id] = base_region
 
     def region_for_place(self, place_id):
         self.sync()

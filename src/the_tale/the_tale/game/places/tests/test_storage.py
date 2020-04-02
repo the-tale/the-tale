@@ -277,6 +277,20 @@ class ClansRegionsStorageTests(helpers.PlacesTestsMixin,
         self.assertEqual(self.storage.region_for_place(self.places[1].id).places_ids,
                          {self.places[1].id, self.places[2].id})
 
+    def test_large_region(self):
+        self.set_protector(self.places[0].id, 2)
+        self.set_protector(self.places[1].id, 2)
+        self.set_protector(self.places[2].id, 2)
+
+        self.assertEqual(self.storage.region_for_place(self.places[0].id),
+                         self.storage.region_for_place(self.places[1].id))
+
+        self.assertEqual(self.storage.region_for_place(self.places[1].id),
+                         self.storage.region_for_place(self.places[2].id))
+
+        self.assertEqual(self.storage.region_for_place(self.places[1].id).places_ids,
+                         {self.places[0].id, self.places[1].id, self.places[2].id})
+
     def test_broken_regions(self):
         self.set_protector(self.places[0].id, 1)
         self.set_protector(self.places[1].id, 2)
