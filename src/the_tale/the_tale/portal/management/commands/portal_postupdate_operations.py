@@ -18,6 +18,12 @@ class Command(utilities_base.Command):
     def _handle(self, *args, **options):
 
         self.logger.info('')
+        self.logger.info('RESET CDN INFO')
+        self.logger.info('')
+
+        del global_settings[conf.settings.SETTINGS_CDN_INFO_KEY]
+
+        self.logger.info('')
         self.logger.info('UPDATE MAP')
         self.logger.info('')
 
