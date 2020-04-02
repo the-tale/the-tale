@@ -16,6 +16,8 @@
 
       postgresql_shared_buffers: "{{(tt_RAM*0.1)|int}}MB"  # 10% of RAM
 
+      postgresql_max_wal_size: 4GB
+
       postgresql_work_mem:             32MB
       postgresql_maintenance_work_mem: "{{tt_postgresql_maintenance_work_mem}}"
 
