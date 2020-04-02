@@ -1637,7 +1637,15 @@ pgf.game.constants.tilesets = {
         H: 32,
         SRC: "/game/images/map_large_pixel.png",
         sprites: jQuery.extend(true, {}, pgf.game.constants.sprites)
-    }
+    },
+
+    cosmos: {
+        TILE_SIZE: 32,
+        W: 32,
+        H: 32,
+        SRC: "/game/images/map_cosmos.png",
+        sprites: jQuery.extend(true, {}, pgf.game.constants.sprites)
+    },
 };
 
 
