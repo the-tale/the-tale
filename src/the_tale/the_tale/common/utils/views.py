@@ -620,7 +620,10 @@ class PageNumberProcessor(ArgumentProcessor):
     DEFAULT_VALUE = 0
 
     def parse(self, context, raw_value):
-        return max(0, int(raw_value) - 1)
+        try:
+            return max(0, int(raw_value) - 1)
+        except ValueError:
+            self.raise_wrong_format()
 
 
 class TextFilterProcessor(ArgumentProcessor):
