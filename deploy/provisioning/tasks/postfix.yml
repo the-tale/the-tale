@@ -6,7 +6,7 @@
   tasks:
 
     - name: Ensure postfix is installed
-      apt: name=postfix state=installed
+      apt: name=postfix state=present
 
     - name: install configs
       template:
