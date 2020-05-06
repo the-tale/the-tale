@@ -336,10 +336,13 @@ def initiate_transfer_money(sender_id, recipient_id, amount, comment):
 
 
 def change_credentials(account, new_email=None, new_password=None, new_nick=None):
+
     if new_password:
         account._model.password = new_password
+
     if new_email:
         account._model.email = new_email
+
     if new_nick:
         account.nick = new_nick
 
@@ -365,6 +368,9 @@ def change_credentials(account, new_email=None, new_password=None, new_nick=None
                 account_id=account.referral_of_id,
                 method_name=account.update_referrals_number.__name__,
                 data={})
+
+    if new_nick:
+        portal_logic.sync_with_discord(account)
 
 
 def max_money_to_transfer(account):

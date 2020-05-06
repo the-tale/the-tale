@@ -3,9 +3,10 @@ import smart_imports
 
 smart_imports.all()
 
-               # wrong names url, leaved to allow old links worked correctly
+               # wrong or obsolete urls, leaved to allow old links worked correctly
 urlpatterns = [django_urls.url('^folclor/(?P<path>.*)$', RedirectView.as_view(url='/folklore/%(path)s')),
                django_urls.url('^accounts/clans/(?P<path>.*)$', RedirectView.as_view(url='/clans/%(path)s')),
+               django_urls.url('^landing$', RedirectView.as_view(url='/')),
 
                django_urls.url(r'^admin/', django_admin.site.urls),
                django_urls.url(r'^accounts/', django_urls.include(('the_tale.accounts.urls', 'accounts'))),
@@ -32,7 +33,7 @@ if django_settings.DEBUG:
     urlpatterns += django_static.static(django_settings.STATIC_URL, document_root=os.path.join(django_settings.PROJECT_DIR, 'static'))
 
 
-handlerCSRF = old_views.create_handler_view(portal_views.PortalResource, 'handlerCSRF')
-handler403 = old_views.create_handler_view(portal_views.PortalResource, 'handler403')
-handler404 = old_views.create_handler_view(portal_views.PortalResource, 'handler404')
-handler500 = old_views.create_handler_view(portal_views.PortalResource, 'handler500')
+handlerCSRF = portal_views.handlerCSRF
+handler403 = portal_views.handler403
+handler404 = portal_views.handler404
+handler500 = portal_views.handler500

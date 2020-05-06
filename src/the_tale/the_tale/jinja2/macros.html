@@ -25,6 +25,35 @@
     {% endif %}
   </li>
 
+  {%- endmacro %}
+
+
+{% macro main_menu_search() -%}
+
+<li class="{% if 'search' == SECTION %}active{% endif %}">
+  <a href="{{url('portal:search')}}"
+     rel="tooltip"
+     title="Поиск">
+    <i class="navbar-element icon-search icon-white" style="vertical-align: middle;"></i>
+  </a>
+</li>
+
+{%- endmacro %}
+
+
+{% macro main_menu_chat() -%}
+
+<li class="{% if 'chat' == SECTION %}active{% endif %}">
+  <a href="{{url('portal:chat')}}"
+     rel="tooltip"
+     title="Чат / Discord">
+    <img src="{{STATIC_CONTENT}}images/discord.svg"
+         class="navbar-element"
+         style="width: 24px; margin-top: -2px; vertical-align: top;"/>
+    Чат
+  </a>
+</li>
+
 {%- endmacro %}
 
 

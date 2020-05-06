@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class Mixin(object):
+class Mixin:
 
     @contextlib.contextmanager
     def check_new_message(self, recipient_id, senders_ids=(), number=1):

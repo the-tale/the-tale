@@ -177,10 +177,10 @@ resource.add_processor(accounts_views.AccountProcessor(get_name='account', conte
 resource.add_processor(ClanProcessor())
 resource.add_processor(ClanRightsProcessor(clan_attribute='current_clan'))
 
+
 ########################################
 # filters
 ########################################
-
 
 class IndexFilter(utils_list_filter.ListFilter):
     ELEMENTS = [utils_list_filter.reset_element(),

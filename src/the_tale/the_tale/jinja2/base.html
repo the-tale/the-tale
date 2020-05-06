@@ -140,6 +140,9 @@ jQuery(document).ready(function() {
           <a class="brand" href="{{ url('portal:') }}"><img src="{{STATIC_CONTENT}}images/logo.png"></img></a>
 
           <ul class="nav">
+            {{ base_macros.main_menu_search() }}
+            {{ base_macros.main_menu_chat() }}
+
             {{ base_macros.main_menu_item("forum", url("forum:"), "Форум") }}
             {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [
 

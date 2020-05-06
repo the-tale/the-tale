@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Чат | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Общий чат игроков Сказки в Discord.{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="span12">
+    <div class="easy-block" style="overflow: auto;">
+      <h2 style="margin-left: 13px;">Чат в Discord</h2>
+
+      <div style="width: 300px; display: inline-block;" class="pull-right">
+        <iframe src="{{settings.DISCORD_WIDGET_URL}}&theme=light"
+                height="500"
+                allowtransparency="true"
+                frameborder="0"></iframe>
+      </div>
+
+      <div>
+        <p>
+          Чат нашей игры находится на сервере <a href="https://discordapp.com/" target="_blank">Discord</a> — самого известного (и удобного) сервиса для организации общения в играх.
+        </p>
+
+        <p>
+          Вы можете <strong><a href="{{settings.DISCORD_INVITE_LINK}}" target="_blank">зайти на сервер</a>, даже если не зарегистрированы в игре</strong>. При этом вы сможете полноценно общаться, но вам не будут доступны дополнительные функции.
+        </p>
+
+        <p>
+          Если вы зарегистрированы в игре, вы можете <strong><a class="pgf-dialog-simple" href="{{url('portal:chat-bind-discord')}}">связать игровой аккаунт с аккаунтом в Discord</a></strong>. После этого вам станут доступны дополнительные функции:
+        </p>
+
+        <ol>
+          <li>Ваш ник всегда будет соответствовать нику из игры (только на нашем сервере).</li>
+          <li>Ваш ник будет выделен цветом, чтобы другие игроки знали, что вы — это вы.</li>
+          <li>В вашем нике будет отображаться аббревиатура гильдии и ваше звание в ней.</li>
+          <li>Вы получите дополнительные права на сервере Discord, в зависимости от вашего <a href="{{url('guide:keepers')}}">могущества</a>.</li>
+        </ol>
+
+        <p>
+          На нашем сервера работает бот под ником «{{settings.DISCORD_BOT_NAME}}». Чтобы посмотреть его команды, отправте ему в личном сообщении команду <code style="white-space: nowrap;">{{settings.DISCORD_HELP_COMMAND}}</code>.
+        </p>
+
+        <h3>Ники</h3>
+
+        <p>
+          Ники игроков на сервере подчиняются следующим правилам:
+        </p>
+
+        <ol>
+          <li>Все правила применяются только к нашему серверу и не затрагивают другие сервера Discord.</li>
+          <li>Смена ника средствами Discord запрещена.</li>
+          <li>Ник игрока, не связавшего аккаунты, устанавливается в базове имя игрока в Discord.</li>
+          <li>Ник игрока, связавшего аккаунты, устанавливается равным нику в игре.</li>
+        </ol>
+
+        <p>
+          К нику Хранителя приписывается дополнительная информация:
+        </p>
+
+        <ol>
+          <li>Аббревиатура гильдии (если состоит в гильдии).</li>
+          <li>Символ звания в гильдии (если состоит в гильдии)). Список символов можно найти в <a href="{{url('guide:clans')}}">путеводителе</a>.</li>
+        </ol>
+
+        <h3>Роли</h3>
+
+        <p>
+          Роли на сервере назначаются автоматически и зависят от свойств аккаунта игрока.
+        </p>
+
+        {% set ROLE = value('the_tale.portal.discord').DISCORD_ROLE %}
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th width="150px">роль</th>
+              <th>описание</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for role in ROLE.records %}
+            <tr>
+              <td>{{role.text}}</td>
+              <td>{{role.description}}<br/>{{role.rights_description}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <h3>Группы каналов и особые права</h3>
+
+        <p>
+          На сервере предусмотрено несколько груп каналов. Некоторые из них дают дополнительные возможности Хранителям с особыми ролями.
+        </p>
+
+        <p class="alert alert-info">
+          <strong>ВНИМАНИЕ!</strong> Если у вас есть права на управление каналами в одной из груп, это значит, что вы можете и удалять чужие каналы. Таковы сейчас правила работы Discord. Будьте вежливы по отношению друг к другу!
+        </p>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th width="150px">група</th>
+              <th>описание</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Игра</td>
+              <td>Каналы, посвящённые различным аспектам игры</td>
+            </tr>
+
+            <tr>
+              <td>Дискуссии</td>
+              <td>Обсуждения, которые из-за объёма и / или длительности неудобно вести в групе «игра». В групе могут создавать каналы игроки с ролями «{{ROLE.DEVELOPER.text}}», «{{ROLE.MODERATOR.text}}», «{{ROLE.PILLAR_OF_WORLD.text}}». Остальные игроки могут попросить создать канал в канале «заявки-на-каналы».</td>
+            </tr>
+
+            <tr>
+              <td>Политика открытая</td>
+              <td>Открытые обсуждения политической ситуации в Пандоре. В групе могут создавать каналы игроки с ролями «{{ROLE.DEVELOPER.text}}», «{{ROLE.MODERATOR.text}}», «{{ROLE.PILLAR_OF_WORLD.text}}», «{{ROLE.CLAN_COMMAND.text}}». Для общих обсуждений созданы каналы: «дебаты», «города», «расы».</td>
+            </tr>
+
+            <tr>
+              <td>Политика закрытая</td>
+              <td>Група доступная только для Хранителей с ролью «{{ROLE.CLAN_COMMAND.text}}». В групе можно создавать каналы.</td>
+            </tr>
+
+            <tr>
+              <td>Прочее</td>
+              <td>Непрофильные обсуждения.</td>
+            </tr>
+
+            <tr>
+              <td>Песочница</td>
+              <td>Група с расширеными правами на создание каналов. В групе могут создавать каналы игроки с ролями «{{ROLE.DEVELOPER.text}}», «{{ROLE.MODERATOR.text}}», «{{ROLE.PILLAR_OF_WORLD.text}}», «{{ROLE.MIGHTY_KEEPER.text}}»</td>
+            </tr>
+
+            <tr>
+              <td>Голосовые каналы</td>
+              <td>Каналы для общения голосом. В групе могут создавать каналы игроки с ролями «{{ROLE.DEVELOPER.text}}», «{{ROLE.MODERATOR.text}}», «{{ROLE.PILLAR_OF_WORLD.text}}».</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <hr/>
+        <br/>
+
+        <a class="btn btn-success btn-large"
+           href="{{settings.DISCORD_INVITE_LINK}}"
+           target="_blank"><strong>В чат</strong></a>
+
+      </div>
+
+
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

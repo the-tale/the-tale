@@ -6,6 +6,7 @@ smart_imports.all()
 
 class BaseClanTests(utils_testcase.TestCase,
                     helpers.ClansTestsMixin,
+                    portal_helpers.Mixin,
                     personal_messages_helpers.Mixin):
 
     def setUp(self):
@@ -162,9 +163,10 @@ class AddMemberTests(BaseClanTests):
 
         expected_role = relations.MEMBER_ROLE.random()
 
-        logic._add_member(clan=self.clan,
-                          account=account_2,
-                          role=expected_role)
+        with self.check_discord_synced(account_2.id):
+            logic._add_member(clan=self.clan,
+                              account=account_2,
+                              role=expected_role)
 
         # members number changed
         self.assertEqual(self.clan.members_number, 2)
@@ -252,7 +254,9 @@ class TechnicalRemoveMemberTests(BaseClanTests):
         self.check_not_changed()
 
     def test_success(self):
-        logic._remove_member(clan=self.clan, account=self.account_2)
+
+        with self.check_discord_synced(self.account_2.id):
+            logic._remove_member(clan=self.clan, account=self.account_2)
 
         self.assertEqual(set(models.Membership.objects.filter(clan_id=self.clan.id).values_list('clan_id', 'account_id', 'role')),
                          {(self.clan.id, self.account.id, relations.MEMBER_ROLE.MASTER)})
@@ -392,7 +396,8 @@ class RemoveClanTests(BaseClanTests):
 
         logic._add_member(clan=self.clan, account=account_3, role=relations.MEMBER_ROLE.RECRUIT)
 
-        logic.remove_clan(self.clan)
+        with self.check_discord_synced({self.account.id, account_3.id}):
+            logic.remove_clan(self.clan)
 
         self.assertEqual(list(models.Clan.objects.filter(state=relations.STATE.ACTIVE).values_list('id', flat=True)), [clan_2.id])
         self.assertEqual(list(models.Clan.objects.filter(state=relations.STATE.REMOVED).values_list('id', flat=True)), [self.clan.id])
@@ -719,10 +724,11 @@ class ChangeRoleTests(BaseClanTests):
 
         with self.check_new_message(member.id, [self.account.id]):
             with self.check_increased(lambda: logic.get_membership(member.id).updated_at):
-                logic.change_role(clan=self.clan,
-                                  initiator=self.account,
-                                  member=member,
-                                  new_role=relations.MEMBER_ROLE.COMANDOR)
+                with self.check_discord_synced(member.id):
+                    logic.change_role(clan=self.clan,
+                                      initiator=self.account,
+                                      member=member,
+                                      new_role=relations.MEMBER_ROLE.COMANDOR)
 
         self.assertTrue(logic.get_member_role(clan=self.clan, member=member).is_COMANDOR)
 
@@ -743,9 +749,10 @@ class ChangeOwnershipTests(BaseClanTests):
         logic._add_member(clan=self.clan, account=member, role=relations.MEMBER_ROLE.RECRUIT)
 
         with self.check_new_message(member.id, [self.account.id]):
-            logic.change_ownership(clan=self.clan,
-                                   initiator=self.account,
-                                   member=member)
+            with self.check_discord_synced({self.account.id, member.id}):
+                logic.change_ownership(clan=self.clan,
+                                       initiator=self.account,
+                                       member=member)
 
         self.assertTrue(logic.get_member_role(clan=self.clan, member=member).is_MASTER)
         self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account).is_COMANDOR)

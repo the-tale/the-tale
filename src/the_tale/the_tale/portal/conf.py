@@ -5,6 +5,8 @@ smart_imports.all()
 
 
 SITE_SECTIONS = ((re.compile(r'^/$'), 'index'),
+                 (re.compile(r'^/search.*$'), 'search'),
+                 (re.compile(r'^/chat.*$'), 'chat'),
                  (re.compile(r'^/news.*$'), 'news'),
                  (re.compile(r'^/forum.*$'), 'forum'),
                  (re.compile(r'^/chat.*$'), 'chat'),
@@ -49,5 +51,9 @@ settings = utils_app_settings.app_settings('PORTAL',
                                            ENABLE_WORKER_LONG_COMMANDS=True,
 
                                            SETTINGS_CDN_INFO_KEY='cdn info',
+
+                                           TT_DISCORD_ENTRY_POINT='http://localhost:10022/',
+
+                                           DISCORD_BIND_CODE_EXPIRE_TIMEOUT=10*60,
 
                                            LANDING_MOB_DESCRIPTION_MAX_LENGTH=1000)

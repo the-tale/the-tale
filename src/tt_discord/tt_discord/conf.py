@@ -1,0 +1,4 @@
+
+DISCORD_NICKNAME_MAX_LENGTH = 32
+
+SYNC_EVENT_NAME = 'sync_event'

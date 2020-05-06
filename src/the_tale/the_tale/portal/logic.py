@@ -50,3 +50,7 @@ def new_day_actions():
                                          recipients_ids=[account.id],
                                          body=message,
                                          asynchronous=True)
+
+
+def sync_with_discord(account):
+    tt_services.discord.cmd_update_user(discord.construct_user_info(account))

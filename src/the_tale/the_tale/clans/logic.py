@@ -55,6 +55,8 @@ def _add_member(clan, account, role):
 
     account.set_clan_id(clan.id)
 
+    portal_logic.sync_with_discord(account)
+
     sync_clan_statistics(clan)
 
     for membership_request in requests_for_account(account.id):
@@ -85,6 +87,8 @@ def _remove_member(clan, account):
     models.MembershipRequest.objects.filter(initiator_id=account.id).delete()
 
     account.set_clan_id(None)
+
+    portal_logic.sync_with_discord(account)
 
     forum_prototypes.PermissionPrototype.get_for(account_id=account.id, subcategory_id=clan.forum_subcategory_id).remove()
 
@@ -120,10 +124,11 @@ def create_clan(owner, abbr, name, motto, description):
 
     clan = load_clan(clan_model=clan_model)
 
-    _add_member(clan=clan, account=owner, role=relations.MEMBER_ROLE.MASTER)
-
+    # add info to infos storage before add member, to correctly sync discord data of clan owner
     storage.infos.update_version()
     storage.infos.refresh()
+
+    _add_member(clan=clan, account=owner, role=relations.MEMBER_ROLE.MASTER)
 
     tt_services.chronicle.cmd_add_event(clan=clan,
                                         event=relations.EVENT.CREATED,
@@ -153,6 +158,8 @@ def remove_clan(clan):
 
     models.Membership.objects.filter(clan_id=clan.id).delete()
 
+    accounts_ids = list(accounts_prototypes.AccountPrototype._db_filter(clan_id=clan.id).values_list('id', flat=True))
+
     accounts_prototypes.AccountPrototype._db_filter(clan_id=clan.id).update(clan_id=None)
 
     forum_prototypes.SubCategoryPrototype.get_by_id(clan.forum_subcategory_id).delete()
@@ -165,6 +172,9 @@ def remove_clan(clan):
                                                   updated_at=datetime.datetime.now())
 
     models.MembershipRequest.objects.filter(clan_id=clan.id).delete()
+
+    for account_id in accounts_ids:
+        portal_logic.sync_with_discord(accounts_prototypes.AccountPrototype.get_by_id(account_id))
 
 
 def load_clan(clan_id=None, clan_model=None):
@@ -330,7 +340,8 @@ def change_role(clan, initiator, member, new_role):
                                         tags=[initiator.meta_object().tag,
                                               member.meta_object().tag],
                                         message=message)
-    return utils_views.AjaxOk()
+
+    portal_logic.sync_with_discord(member)
 
 
 @django_transaction.atomic
@@ -357,8 +368,11 @@ def change_ownership(clan, initiator, member):
                                         tags=[initiator.meta_object().tag,
                                               member.meta_object().tag],
                                         message=message)
-    return utils_views.AjaxOk()
 
+    portal_logic.sync_with_discord(initiator)
+    portal_logic.sync_with_discord(member)
+
+    return utils_views.AjaxOk()
 
 
 def _message_about_new_request(initiator, clan, recipient_id, text):

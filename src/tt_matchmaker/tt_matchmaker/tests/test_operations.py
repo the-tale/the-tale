@@ -5,7 +5,6 @@ from aiohttp import test_utils
 
 from tt_web import postgresql as db
 
-from .. import objects
 from .. import operations
 from .. import exceptions
 

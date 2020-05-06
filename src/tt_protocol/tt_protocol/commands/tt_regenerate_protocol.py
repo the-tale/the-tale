@@ -28,7 +28,8 @@ def main():
              'properties.proto',
              'matchmaker.proto',
              'effects.proto',
-             'uniquer.proto')
+             'uniquer.proto',
+             'discord.proto')
 
     files = [os.path.join(SOURCE_DIR, filename) for filename in files]
 

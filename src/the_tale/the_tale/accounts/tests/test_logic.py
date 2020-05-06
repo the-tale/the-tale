@@ -134,7 +134,9 @@ class CardsForNewAccountTests(utils_testcase.TestCase):
                          {card.item_full_type for card in self.expected_cards})
 
 
-class ChangeCredentialsTests(utils_testcase.TestCase, personal_messages_helpers.Mixin):
+class ChangeCredentialsTests(personal_messages_helpers.Mixin,
+                             portal_helpers.Mixin,
+                             utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
@@ -246,6 +248,12 @@ class ChangeCredentialsTests(utils_testcase.TestCase, personal_messages_helpers.
         self.assertEqual(self.account.email, 'test_user@test.ru')
         self.assertEqual(django_auth.authenticate(nick=nick, password='111111').id, self.account.id)
         self.assertEqual(django_auth.authenticate(nick=nick, password='111111').nick, nick)
+
+    def test_sync_with_discord_when_nick_changed(self):
+
+        with self.check_discord_synced(self.account.id):
+            logic.change_credentials(account=self.account,
+                                     new_nick='test_nick')
 
 
 class MaxMoneyToTransferTests(bank_helpers.BankTestsMixin, utils_testcase.TestCase):

@@ -18,12 +18,11 @@
           <tr>
             <th>право</th>
             {% for role in roles %}
-              <th>{{role.text}}</th>
+              <th>{{role.symbol}} {{role.text}}</th>
             {% endfor %}
           </tr>
         </thead>
         <tbody>
-          <tr>
             {% for permission in permissions %}
               <tr>
                 <td>
@@ -42,7 +41,6 @@
                 {% endfor %}
               </tr>
             {% endfor %}
-          </tr>
         </tbody>
       </table>
 

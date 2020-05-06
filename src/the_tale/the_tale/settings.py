@@ -110,6 +110,16 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = '/tmp/emails'
 
 ################################
+# Discord settings
+################################
+
+DISCORD_WIDGET_URL = None
+DISCORD_INVITE_LINK = None
+DISCORD_BIND_COMMAND = 'tt bind'
+DISCORD_HELP_COMMAND = 'tt help'
+DISCORD_BOT_NAME = 'Смотритель'
+
+################################
 # Other settings
 ################################
 
@@ -201,7 +211,6 @@ INSTALLED_APPS = [
     'the_tale.guide',
 
     'the_tale.portal',
-    'the_tale.portal.developers_info',
 
     'the_tale.game.chronicle',  # MUST be before game, since the same bug like with the_tale.accounts.third_party
     'the_tale.game',
