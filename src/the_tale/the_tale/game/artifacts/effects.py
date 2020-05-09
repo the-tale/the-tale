@@ -5,8 +5,8 @@ smart_imports.all()
 
 
 class BaseEffect(object):
-    TYPE = None
-    DESCRIPTION = None
+    TYPE = NotImplemented
+    DESCRIPTION = NotImplemented
     REMOVE_ON_HELP = False
 
     @classmethod
@@ -225,8 +225,6 @@ class Charm(BaseEffect):
 
 
 class DoubleEnergy(BaseEffect):
-    TYPE = None
-    DESCRIPTION = NotImplemented
     MULTIPLIER = NotImplemented
 
     @classmethod
@@ -257,9 +255,6 @@ class SpecialAura(BaseEffect):
 
 
 class AdditionalAbilitiesBase(BaseEffect):
-    TYPE = None
-    DESCRIPTION = None
-    ABILITY = None
 
     @classmethod
     def modify_attribute(cls, type_, value):
@@ -421,4 +416,4 @@ class ChildGift(BaseEffect):
 
 EFFECTS = {effect.TYPE: effect
            for effect in utils_discovering.discover_classes(globals().values(), BaseEffect)
-           if effect.TYPE is not None}
+           if effect.TYPE is not NotImplemented}

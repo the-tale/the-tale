@@ -133,10 +133,11 @@ class HandlerInfo(object):
 
         return len(self.path) < len(other.path)
 
+
 class BaseResource(object):
 
-    ERROR_TEMPLATE = None
-    DIALOG_ERROR_TEMPLATE = None
+    ERROR_TEMPLATE = NotImplemented
+    DIALOG_ERROR_TEMPLATE = NotImplemented
 
     def __init__(self, request):
         self.request = request

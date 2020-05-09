@@ -5,7 +5,18 @@ smart_imports.all()
 
 
 THREAD = None
+
 QUEUE = queue.Queue()
+
+
+@dataclasses.dataclass
+class PendingReuqest:
+    __slots__ = ('url', 'data', 'answer_type', 'callback')
+
+    url: str
+    data: Dict[str, Any]
+    answer_type: Any
+    callback: Callable
 
 
 def sync_request(url, data, AnswerType=None):
@@ -44,7 +55,7 @@ def async_request(url, data, AnswerType=None, callback=lambda answer: None):
         THREAD = SenderThread()
         THREAD.start()
 
-    QUEUE.put((url, data, AnswerType, callback))
+    QUEUE.put(PendingReuqest(url, data, AnswerType, callback))
 
 
 class SenderThread(threading.Thread):
@@ -56,10 +67,14 @@ class SenderThread(threading.Thread):
     def run(self):
         while True:
             try:
-                url, data, AnswerType, callback = QUEUE.get()
-                self.logger.info('send to url {url}'.format(url=url))
-                answer = sync_request(url, data, AnswerType)
-                callback(answer)
+                request = QUEUE.get()
+
+                self.logger.info('send to url %(url)s', {'url': request.url})
+
+                answer = sync_request(request.url,
+                                      request.data,
+                                      request.answer_type)
+                request.callback(answer)
             except Exception:
                 self.logger.error('Exception tt_api_sender',
                                   exc_info=sys.exc_info(),

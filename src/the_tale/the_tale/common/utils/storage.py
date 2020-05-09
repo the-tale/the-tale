@@ -7,8 +7,8 @@ smart_imports.all()
 class BaseStorage(object):
     __slots__ = ('_postpone_version_update_nesting', '_update_version_requested', '_version')
 
-    SETTINGS_KEY = None
-    EXCEPTION = None
+    SETTINGS_KEY = NotImplemented
+    EXCEPTION = NotImplemented
 
     def _construct_object(self, model):
         raise NotImplementedError()
@@ -237,9 +237,7 @@ class DependentStorage:
 
 
 class PrototypeStorage(Storage):
-    SETTINGS_KEY = None
-    EXCEPTION = None
-    PROTOTYPE = None
+    PROTOTYPE = NotImplemented
 
     def _construct_object(self, model):
         return self.PROTOTYPE(model=model)
@@ -252,9 +250,7 @@ class PrototypeStorage(Storage):
 
 
 class CachedPrototypeStorage(CachedStorage):
-    SETTINGS_KEY = None
-    EXCEPTION = None
-    PROTOTYPE = None
+    PROTOTYPE = NotImplemented
 
     def _construct_object(self, model):
         return self.PROTOTYPE(model=model)

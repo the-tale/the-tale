@@ -9,9 +9,6 @@ class _CompanionAbilityModifier(prototypes.AbilityPrototype):
     ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = relations.ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    NAME = None
-    normalized_name = None
-    DESCRIPTION = None
     EFFECT_TYPE = None
 
     def modify_attribute(self, type_, value):
@@ -89,10 +86,6 @@ class _CompanionHealBase(prototypes.AbilityPrototype):
     ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = relations.ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    NAME = None
-    normalized_name = None
-    DESCRIPTION = None
-
     PROBABILITY = [c.COMPANIONS_HERO_REGEN_ON_HEAL_PER_HEAL * 0.2,
                    c.COMPANIONS_HERO_REGEN_ON_HEAL_PER_HEAL * 0.4,
                    c.COMPANIONS_HERO_REGEN_ON_HEAL_PER_HEAL * 0.6,
@@ -141,10 +134,6 @@ class _CompanionCoherenceSpeedBase(prototypes.AbilityPrototype):
     TYPE = relations.ABILITY_TYPE.COMPANION
     ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = relations.ABILITY_AVAILABILITY.FOR_PLAYERS
-
-    NAME = None
-    normalized_name = None
-    DESCRIPTION = None
 
     SPEED = [1.2, 1.4, 1.6, 1.8, 2.0]
     MODIFIER = None

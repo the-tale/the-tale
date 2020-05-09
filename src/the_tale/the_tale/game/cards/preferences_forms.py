@@ -4,51 +4,58 @@ import smart_imports
 smart_imports.all()
 
 
-def form(preference):
+class Preference(utils_forms.Form):
 
-    name = preference.text
-    name = name[0].upper() + name[1:]
+    PREFERENCE = None
+    value = None
 
-    class Preference(utils_forms.Form):
-        PREFERENCE = preference
-        value = utils_fields.ChoiceField(required=False)
+    def __init__(self, *args, **kwargs):
+        self.hero = kwargs.pop('hero')
+        super().__init__(*args, **kwargs)
 
-        def __init__(self, *args, **kwargs):
-            self.hero = kwargs.pop('hero')
-            super().__init__(*args, **kwargs)
-            self.fields['value'].label = name
+        name = self.PREFERENCE.text
+        name = name[0].upper() + name[1:]
 
-        def get_card_data(self):
-            return {'value': int(self.c.value) if self.c.value else None}
+        self.fields['value'].label = name
 
-        def clean_value(self):
-            value = self.cleaned_data['value']
+    def get_card_data(self):
+        return {'value': int(self.c.value) if self.c.value else None}
 
-            if not value and self.hero.preferences._get(preference) is None:
-                raise django_forms.ValidationError('Предпочтение уже сброшено.')
+    def clean_value(self):
+        value = self.cleaned_data['value']
 
-            if value and value == self.hero.preferences._get(preference):
-                raise django_forms.ValidationError('Нельзя заменить предпочтение на то же самое.')
+        if not value and self.hero.preferences._get(self.PREFERENCE) is None:
+            raise django_forms.ValidationError('Предпочтение уже сброшено.')
 
-            return value
+        if value and value == self.hero.preferences._get(self.PREFERENCE):
+            raise django_forms.ValidationError('Нельзя заменить предпочтение на то же самое.')
 
-    return Preference
+        return value
 
 
-class Mob(form(heroes_relations.PREFERENCE_TYPE.MOB)):
+class Mob(Preference):
+    PREFERENCE = heroes_relations.PREFERENCE_TYPE.MOB
+    value = utils_fields.ChoiceField(required=False)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         mobs = mobs_storage.mobs.get_all_mobs_for_level(level=self.hero.level)
         self.fields['value'].choices = [(None, 'забыть предпочтение')] + [(mob.id, mob.name) for mob in mobs]
 
 
-class Hometown(form(heroes_relations.PREFERENCE_TYPE.PLACE)):
+class Hometown(Preference):
+    PREFERENCE = heroes_relations.PREFERENCE_TYPE.PLACE
+    value = utils_fields.ChoiceField(required=False)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['value'].choices = [(None, 'забыть предпочтение')] + places_storage.places.get_choices()
 
 
-class Friend(form(heroes_relations.PREFERENCE_TYPE.FRIEND)):
+class Friend(Preference):
+    PREFERENCE = heroes_relations.PREFERENCE_TYPE.FRIEND
+    value = utils_fields.ChoiceField(required=False)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['value'].choices = [(None, 'забыть предпочтение')] + persons_objects.Person.form_choices()
@@ -62,7 +69,10 @@ class Friend(form(heroes_relations.PREFERENCE_TYPE.FRIEND)):
         return value
 
 
-class Enemy(form(heroes_relations.PREFERENCE_TYPE.ENEMY)):
+class Enemy(Preference):
+    PREFERENCE = heroes_relations.PREFERENCE_TYPE.ENEMY
+    value = utils_fields.ChoiceField(required=False)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['value'].choices = [(None, 'забыть предпочтение')] + persons_objects.Person.form_choices()
@@ -81,11 +91,15 @@ class RelationMixin:
         return {'value': self.c.value.value if self.c.value else None}
 
 
-class EnergyRegenerationType(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE)):
+class EnergyRegenerationType(RelationMixin, Preference):
+    PREFERENCE = heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE
+
     value = utils_fields.RelationField(relation=heroes_relations.ENERGY_REGENERATION)
 
 
-class EquipmentSlot(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT)):
+class EquipmentSlot(RelationMixin, Preference):
+    PREFERENCE = heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT
+
     value = utils_fields.RelationField(relation=heroes_relations.EQUIPMENT_SLOT, required=False)
 
     def __init__(self, *args, **kwargs):
@@ -93,11 +107,15 @@ class EquipmentSlot(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.EQUIPME
         self.fields['value'].choices = [(None, 'забыть предпочтение')] + self.fields['value'].choices[1:]
 
 
-class RiskLevel(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.RISK_LEVEL)):
+class RiskLevel(RelationMixin, Preference):
+    PREFERENCE = heroes_relations.PREFERENCE_TYPE.RISK_LEVEL
+
     value = utils_fields.RelationField(relation=heroes_relations.RISK_LEVEL)
 
 
-class FavoriteItem(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.FAVORITE_ITEM)):
+class FavoriteItem(RelationMixin, Preference):
+    PREFERENCE = heroes_relations.PREFERENCE_TYPE.FAVORITE_ITEM
+
     value = utils_fields.RelationField(relation=heroes_relations.EQUIPMENT_SLOT, required=False)
 
     def __init__(self, *args, **kwargs):
@@ -114,25 +132,37 @@ class FavoriteItem(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.FAVORITE
             self.fields['value'].choices.append((slot, artifact.name))
 
 
-class Archetype(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.ARCHETYPE)):
+class Archetype(RelationMixin, Preference):
+    PREFERENCE = heroes_relations.PREFERENCE_TYPE.ARCHETYPE
+
     value = utils_fields.RelationField(relation=game_relations.ARCHETYPE)
 
 
-class CompanionDedication(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.COMPANION_DEDICATION)):
+class CompanionDedication(RelationMixin, Preference):
+    PREFERENCE = heroes_relations.PREFERENCE_TYPE.COMPANION_DEDICATION
+
     value = utils_fields.RelationField(relation=heroes_relations.COMPANION_DEDICATION)
 
 
-class CompanionEmpathy(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.COMPANION_EMPATHY)):
+class CompanionEmpathy(RelationMixin, Preference):
+    PREFERENCE = heroes_relations.PREFERENCE_TYPE.COMPANION_EMPATHY
+
     value = utils_fields.RelationField(relation=heroes_relations.COMPANION_EMPATHY)
 
 
-class QuestsRegiion(form(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION)):
+class QuestsRegiion(Preference):
+    PREFERENCE = heroes_relations.PREFERENCE_TYPE.QUESTS_REGION
+    value = utils_fields.ChoiceField(required=False)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['value'].choices = [(None, 'забыть предпочтение')] + places_storage.places.get_choices()
 
 
-class QuestsRegiionSize(form(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE)):
+class QuestsRegiionSize(Preference):
+    PREFERENCE = heroes_relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE
+    value = utils_fields.ChoiceField(required=False)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['value'].choices = [(str(i), str(i)) for i in range(c.MINIMUM_QUESTS_REGION_SIZE, len(places_storage.places.all())+1)]

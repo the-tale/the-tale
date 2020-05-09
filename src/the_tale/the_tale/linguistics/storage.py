@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class BaseGameDictionaryStorage(utils_storage.SingleStorage):
-    SETTINGS_KEY = None
+    SETTINGS_KEY = NotImplemented
     EXCEPTION = exceptions.DictionaryStorageError
 
     def _words_query(self):

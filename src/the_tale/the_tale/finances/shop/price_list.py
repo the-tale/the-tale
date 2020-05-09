@@ -71,5 +71,5 @@ PURCHASES_BY_UID = {}
 
 for purchase in SUBSCRIPTIONS:
     if purchase.uid in PURCHASES_BY_UID:
-        raise exceptions.DuplicateUIDsInPriceListError('duplicate uids in price list')
+        raise exceptions.DuplicateUIDsInPriceListError()
     PURCHASES_BY_UID[purchase.uid] = purchase

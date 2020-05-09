@@ -13,8 +13,8 @@ class BaseWorker(object):
     LOGGER_PREFIX = None
     REFRESH_SETTINGS = True
     FULL_CMD_LOG = False
-    GET_CMD_TIMEOUT = 1
-    NO_CMD_TIMEOUT = 0
+    GET_CMD_TIMEOUT = 1.0
+    NO_CMD_TIMEOUT = 0.0
 
     @classmethod
     def get_next_number(cls):

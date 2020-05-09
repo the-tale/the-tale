@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class Base(object):
-    TYPE = None
+    TYPE = NotImplemented
 
     def __init__(self):
         pass
@@ -148,8 +148,7 @@ class Speed(Multiplier):
 
 
 class BaseBattleAbility(Base):
-    TYPE = None
-    ABILITY = None
+    ABILITY = NotImplemented
 
     def _modify_attribute(self, abilities_levels, modifier, value):
         if modifier.is_INITIATIVE:

@@ -114,5 +114,5 @@ class TestRequests(utils_testcase.TestCase):
     def test_emissaries(self):
         self.check_html_ok(self.request_html(utils_urls.url('guide:emissaries')))
 
-    def test_emissaries(self):
+    def test_creativity_recomendations(self):
         self.check_html_ok(self.request_html(utils_urls.url('guide:creativity-recommendations')))

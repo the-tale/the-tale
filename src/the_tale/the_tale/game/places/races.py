@@ -7,8 +7,12 @@ smart_imports.all()
 E = 0.001
 
 
-class RaceInfo(collections.namedtuple('RaceInfo', ['race', 'percents', 'optimal_percents', 'persons_percents', 'delta'])):
-    pass
+class RaceInfo(typing.NamedTuple):
+    race: rels.relations.Record
+    percents: float
+    optimal_percents: float
+    persons_percents: float
+    delta: float
 
 
 class Races(object):

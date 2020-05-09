@@ -1,6 +1,12 @@
 
+import smart_imports
+
+smart_imports.all()
+
 
 class BaseBill(object):
+
+    type = NotImplemented
 
     UserForm = NotImplemented
     ModeratorForm = NotImplemented

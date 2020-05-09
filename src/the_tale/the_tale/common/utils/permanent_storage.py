@@ -46,8 +46,8 @@ class PermanentStorage(object):
 
 
 class PermanentRelationsStorage(PermanentStorage):
-    RELATION = None
-    VALUE_COLUMN = None
+    RELATION = NotImplemented
+    VALUE_COLUMN = NotImplemented
 
     def serialize(self):
         return tuple(getattr(record, self.VALUE_COLUMN) for record in self._data)

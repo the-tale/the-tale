@@ -23,7 +23,7 @@ class BASE_BUY_TASK_STATE(rels_django.DjangoEnum):
 
 
 class BaseBuyTask(PostponedLogic):
-    TYPE = None
+    TYPE = NotImplemented
     RELATION = BASE_BUY_TASK_STATE
 
     def __init__(self, account_id, transaction, state=None, custom_error=None):
@@ -50,7 +50,8 @@ class BaseBuyTask(PostponedLogic):
                 'custom_error': self.custom_error}
 
     @property
-    def uuid(self): return self.account_id
+    def uuid(self):
+        return self.account_id
 
     @property
     def error_message(self):
@@ -257,7 +258,7 @@ class BuyMarketLot(BaseBuyTask):
                                                 amount=-logic.get_commission(self.price),
                                                 description_for_sender='Комиссия с продажи «{}»'.format(lot_name),
                                                 description_for_recipient='Комиссия с продажи «{}»'.format(lot_name),
-                                                operation_uid='{}-cards-hero-good'.format(conf.settings.MARKET_COMMISSION_OPERATION_UID, lot.full_type),
+                                                operation_uid='{}-cards-hero-good'.format(conf.settings.MARKET_COMMISSION_OPERATION_UID),
                                                 force=True)
 
         personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),

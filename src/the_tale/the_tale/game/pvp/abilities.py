@@ -7,9 +7,9 @@ smart_imports.all()
 class BasePvPAbility(object):
     __slots__ = ('hero', 'enemy', 'hero_pvp', 'enemy_pvp')
 
-    TYPE = None
-    NAME = None
-    DESCRIPTION = None
+    TYPE = NotImplemented
+    NAME = NotImplemented
+    DESCRIPTION = NotImplemented
 
     def __init__(self, hero, enemy):
         self.hero = hero

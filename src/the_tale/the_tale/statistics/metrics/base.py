@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class BaseMetric(object):
-    TYPE = None
+    TYPE = NotImplemented
     FULL_CLEAR_RECUIRED = False
 
     def __init__(self):
@@ -101,7 +101,7 @@ class BaseMetric(object):
 
 class BaseCombination(BaseMetric):
     TYPE = None
-    SOURCES = []
+    SOURCES = NotImplemented
 
     @classmethod
     def get_combined_value(cls, *args):

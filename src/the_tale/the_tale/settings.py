@@ -1,12 +1,22 @@
 
+import sys
+
+TESTS_RUNNING = 'test' in sys.argv or 'testserver' in sys.argv
+
+################################################################
+# typeguard MUST be initialized before any poject related imports
+# and only for tests
+################################################################
+if TESTS_RUNNING:
+    from typeguard.importhook import install_import_hook
+    install_import_hook('the_tale')
+################################################################
+
+
 import smart_imports
 
 smart_imports.all()
 
-
-# NotImplemented settings MUST be defined in settings_local
-
-TESTS_RUNNING = 'test' in sys.argv or 'testserver' in sys.argv
 
 RUNSERVER_RUNNING = 'runserver' in sys.argv
 

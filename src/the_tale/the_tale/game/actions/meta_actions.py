@@ -8,7 +8,7 @@ class MetaAction(object):
     __slots__ = ('percents', 'state', 'last_processed_turn', 'storage')
 
     TYPE = None
-    TEXTGEN_TYPE = None
+    TEXTGEN_TYPE = NotImplemented
 
     class STATE:
         UNINITIALIZED = relations.UNINITIALIZED_STATE

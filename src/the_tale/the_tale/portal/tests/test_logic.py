@@ -43,3 +43,15 @@ class NewDayActionsTests(utils_testcase.TestCase,
 
         self.account.reload()
         self.assertEqual(old_premium_end_at, self.account.premium_end_at)
+
+
+class TypeGuardConstants(utils_testcase.TestCase):
+
+    def test_module_constants(self):
+        for module_name, module in sys.modules.items():
+            if any(module_name.startswith(prefix) for prefix in ('tt_', 'the_tale')):
+                if not hasattr(module, '__annotations__'):
+                    continue
+
+                for name, type_info in module.__annotations__.items():
+                    typeguard.check_type(name, getattr(module, name), type_info)
