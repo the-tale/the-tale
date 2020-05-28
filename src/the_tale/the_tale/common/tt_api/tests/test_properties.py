@@ -9,8 +9,8 @@ class TestClient(properties.Client):
 
 
 class TEST_PROPERTIES(properties.PROPERTIES):
-    records = (('test_1', 0, 'тест 1', lambda x: x, lambda x: x, None),
-               ('test_2', 1, 'тест 2', str, int, 100500))
+    records = (('test_1', 0, 'тест 1', lambda x: x, lambda x: x, None, tt_api_properties.TYPE.REPLACE),
+               ('test_2', 1, 'тест 2', str, int, list, tt_api_properties.TYPE.APPEND))
 
 
 properties_client = TestClient(entry_point=accounts_conf.settings.TT_PLAYERS_PROPERTIES_ENTRY_POINT,
@@ -45,6 +45,20 @@ class SetGetTests(utils_testcase.TestCase):
         self.assertEqual(properties[777].test_2, 13)
         self.assertEqual(properties[888].test_1, 'x.2')
         self.assertEqual(properties[888].test_2, 14)
+
+    def test_types(self):
+        properties_client.cmd_set_properties([(666, 'test_1', 'x.1'),
+                                              (777, 'test_2', 13),
+                                              (666, 'test_1', 'x.2'),
+                                              (777, 'test_2', 14)])
+
+        properties = properties_client.cmd_get_properties({666: ['test_1', 'test_2'],
+                                                           777: ['test_1', 'test_2']})
+
+        self.assertEqual(properties[666].test_1, 'x.2')
+        self.assertEqual(properties[666].test_2, [])
+        self.assertEqual(properties[777].test_1, None)
+        self.assertEqual(properties[777].test_2, [13, 14])
 
     def test_unknown_property(self):
         with self.assertRaises(exceptions.TTPropertiesError):

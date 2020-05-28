@@ -1,8 +1,11 @@
+
 import asyncio
+import itertools
 
 from tt_web import postgresql as db
 
 from . import objects
+from . import relations
 
 
 def message_from_row(row):
@@ -10,7 +13,8 @@ def message_from_row(row):
                            sender=row['sender'],
                            recipients=row['recipients'],
                            body=row['body'],
-                           created_at=row['created_at'])
+                           created_at=row['created_at'],
+                           visible=row['visible'])
 
 
 async def new_messages_number(account_id):
@@ -31,7 +35,6 @@ async def create_message(sender_id, recipients_ids, body):
                            'body': body})
 
     return result[0]['id']
-
 
 
 async def create_visibility(account_id, message_id):
@@ -118,26 +121,35 @@ async def hide_conversation(account_id, partner_id):
                   'account_2_id': account_2_id})
 
 
-async def remove_old_messages(accounts_ids, barrier):
-    await db.transaction(_remove_old_messages, {'accounts_ids': accounts_ids, 'barrier': barrier})
+async def old_messages_ids(accounts_ids, barrier):
+    result = await db.sql('SELECT id FROM messages WHERE sender = ANY (%(accounts_ids)s) AND created_at<%(barrier)s',
+                          {'accounts_ids': accounts_ids, 'barrier': barrier})
+
+    return [row['id'] for row in result]
 
 
-async def _remove_old_messages(execute, arguments):
-    accounts_ids = arguments['accounts_ids']
-    barrier = arguments['barrier']
+async def candidates_to_remove_ids():
+    result = await db.sql('''SELECT message FROM visibilities
+                             GROUP BY message
+                             HAVING every(NOT visible)''')
 
-    result = await execute('SELECT id FROM messages WHERE sender = ANY (%(accounts_ids)s) AND created_at<%(barrier)s',
-                           {'accounts_ids': accounts_ids, 'barrier': barrier})
+    return [row['message'] for row in result]
 
-    messages_ids = [row['id'] for row in result]
+
+async def remove_messages(messages_ids):
+    await db.transaction(_remove_messages, {'messages_ids': messages_ids})
+
+
+async def _remove_messages(execute, arguments):
+
+    messages_ids = arguments['messages_ids']
 
     await execute('DELETE FROM visibilities WHERE message = ANY (%(messages_ids)s)', {'messages_ids': messages_ids})
     await execute('DELETE FROM conversations WHERE message = ANY (%(messages_ids)s)', {'messages_ids': messages_ids})
-
     await execute('DELETE FROM messages WHERE id = ANY (%(messages_ids)s)', {'messages_ids': messages_ids})
 
 
-async def load_messages(account_id, type, text=None, offset=0, limit=None):
+async def load_messages(account_id, type, text=None, offset=0, limit=None, visibility=True):
     if text is None:
         text_filter = ''
     else:
@@ -151,31 +163,36 @@ async def load_messages(account_id, type, text=None, offset=0, limit=None):
     else:
         type_filter = 'AND m.sender<>%(account_id)s'
 
-    sql_count = '''SELECT count(*) as total
-                   FROM visibilities AS v
-                   JOIN messages AS m ON m.id = v.message
-                   WHERE v.account=%(account_id)s AND
-                         v.visible
-                         {type_filter}
-                         {text_filter}'''.format(type_filter=type_filter,
-                                                 text_filter=text_filter)
+    if visibility is None:
+        visibility_filter = 'TRUE'
+    elif visibility:
+        visibility_filter = 'v.visible'
+    else:
+        visibility_filter = '(NOT v.visible)'
 
-    sql = '''SELECT m.id AS id,
-                    m.sender AS sender,
-                    m.recipients AS recipients,
-                    m.body AS body,
-                    m.created_at AS created_at
+    sql_count = f'''SELECT count(*) as total
+                    FROM visibilities AS v
+                    JOIN messages AS m ON m.id = v.message
+                    WHERE v.account=%(account_id)s AND
+                          {visibility_filter}
+                          {type_filter}
+                          {text_filter}'''
+
+    sql = f'''SELECT m.id AS id,
+                     m.sender AS sender,
+                     m.recipients AS recipients,
+                     m.body AS body,
+                     m.created_at AS created_at,
+                     v.visible as visible
              FROM visibilities AS v
              JOIN messages AS m ON m.id = v.message
              WHERE v.account=%(account_id)s AND
-                   v.visible
+                   {visibility_filter}
                    {type_filter}
                    {text_filter}
              ORDER BY m.created_at DESC
              {limit_filter}
-             OFFSET %(offset)s'''.format(type_filter=type_filter,
-                                         text_filter=text_filter,
-                                         limit_filter=limit_filter)
+             OFFSET %(offset)s'''
 
     arguments = {'account_id': account_id,
                  'type': type.value,
@@ -191,17 +208,25 @@ async def load_messages(account_id, type, text=None, offset=0, limit=None):
     return count_results[0]['total'], [message_from_row(row) for row in messages_result]
 
 
-async def load_message(account_id, message_id):
-    sql = '''SELECT m.id AS id,
-                    m.sender AS sender,
-                    m.recipients AS recipients,
-                    m.body AS body,
-                    m.created_at AS created_at
-             FROM visibilities AS v
-             JOIN messages AS m ON m.id = v.message
-             WHERE v.account=%(account_id)s AND
-                   v.visible AND
-                   m.id=%(message_id)s'''
+async def load_message(account_id, message_id, visibility=True):
+    if visibility is None:
+        visibility_filter = 'TRUE'
+    elif visibility:
+        visibility_filter = 'v.visible'
+    else:
+        visibility_filter = '(NOT v.visible)'
+
+    sql = f'''SELECT m.id AS id,
+                     m.sender AS sender,
+                     m.recipients AS recipients,
+                     m.body AS body,
+                     m.created_at AS created_at,
+                     v.visible as visible
+              FROM visibilities AS v
+              JOIN messages AS m ON m.id = v.message
+              WHERE v.account=%(account_id)s AND
+                    {visibility_filter} AND
+                    m.id=%(message_id)s'''
 
     result = await db.sql(sql, {'account_id': account_id, 'message_id': message_id})
 
@@ -237,7 +262,8 @@ async def load_conversation(account_id, partner_id, text=None, offset=0, limit=N
                     m.sender AS sender,
                     m.recipients AS recipients,
                     m.body AS body,
-                    m.created_at AS created_at
+                    m.created_at AS created_at,
+                    v.visible as visible
              FROM messages AS m
              JOIN visibilities AS v ON m.id = v.message
              JOIN conversations AS c ON m.id = c.message
@@ -264,6 +290,23 @@ async def load_conversation(account_id, partner_id, text=None, offset=0, limit=N
     count_results, messages_result = await asyncio.gather(*tasks)
 
     return count_results[0]['total'], [message_from_row(row) for row in messages_result]
+
+
+async def get_data_report(account_id):
+    data = []
+
+    number, sent_messages = await load_messages(account_id,
+                                                type=relations.OWNER_TYPE.SENDER,
+                                                visibility=None)
+
+    number, received_messages = await load_messages(account_id,
+                                                    type=relations.OWNER_TYPE.RECIPIENT,
+                                                    visibility=None)
+
+    for message in itertools.chain(sent_messages, received_messages):
+        data.append(('message', message.data_of(account_id)))
+
+    return data
 
 
 async def clean_messages():

@@ -11,6 +11,9 @@
     "log": {"level": "critical"},
 
     "custom": {
+        "data_protector": {
+            "secret": "test.secret"
+        },
         "discord": {
             "connect_to_server": true,
             "command_prefix": "tt_",

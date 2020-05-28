@@ -174,16 +174,6 @@ class AccountPrototypeTests(utils_testcase.TestCase, personal_messages_helpers.M
         self.assertTrue(bank_account.is_fake)
         self.assertEqual(bank_account.amount, 0)
 
-    def test_update_referrals(self):
-        account_2 = self.accounts_factory.create_account(referral_of_id=self.account.id)
-        account_3 = self.accounts_factory.create_account(referral_of_id=self.account.id, is_fast=True)
-
-        self.account.update_referrals_number()
-        self.fast_account.update_referrals_number()
-
-        self.assertEqual(self.account.referrals_number, 1)
-        self.assertEqual(self.fast_account.referrals_number, 0)
-
     def test_referral_removing(self):
         account_2 = self.accounts_factory.create_account(referral_of_id=self.account.id, is_fast=True)
 
@@ -231,7 +221,7 @@ class AccountPrototypeTests(utils_testcase.TestCase, personal_messages_helpers.M
         bill.apply()
 
         self.account.update_actual_bills()
-        self.assertEqual(self.account.actual_bills, [time.mktime(bill.voting_end_at.timetuple())])
+        self.assertEqual(self.account.actual_bills, [utils_logic.to_timestamp(bill.voting_end_at)])
 
 
 class AccountPrototypeBanTests(utils_testcase.TestCase):

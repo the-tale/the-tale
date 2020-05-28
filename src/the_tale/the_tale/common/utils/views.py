@@ -401,6 +401,15 @@ class MapArgumentProcessor(ArgumentProcessor):
         return mapping.get(raw_value)
 
 
+class UUIDArgumentProcessor(ArgumentProcessor):
+
+    def parse(self, context, raw_value):
+        try:
+            return uuid.UUID(raw_value)
+        except ValueError:
+            self.raise_wrong_format()
+
+
 class IntArgumentProcessor(ArgumentProcessor):
 
     def parse(self, context, raw_value):

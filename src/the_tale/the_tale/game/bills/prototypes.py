@@ -220,7 +220,7 @@ class BillPrototype(utils_prototypes.BasePrototype):
                                                  info={'source': 'bills',
                                                        'bills_id': self.id})
 
-        logic.initiate_actual_bills_update(self._model.owner_id)
+        self.owner.update_actual_bills()
 
         chronicle_tt_services.chronicle.cmd_add_event(tags=[actor.meta_object().tag for actor in self.actors] + [self.meta_object().tag],
                                                       message=self.chronicle_on_accepted,

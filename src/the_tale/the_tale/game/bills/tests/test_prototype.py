@@ -177,10 +177,10 @@ class TestPrototypeApply(helpers.BaseTestPrototypes):
         self.assertEqual(forum_models.Post.objects.all().count(), 1)
 
         with self.check_not_changed(lambda: self.place1.attrs.stability):
-            with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
-                self.assertFalse(self.bill.apply())
+            with self.check_not_changed(lambda: accounts_prototypes.AccountPrototype.get_by_id(self.bill.owner.id).actual_bills):
+                with self.check_not_changed(lambda: self.bill.owner.actual_bills):
+                    self.assertFalse(self.bill.apply())
 
-            self.assertEqual(cmd_run_account_method.call_count, 0)
             self.assertTrue(self.bill.state.is_REJECTED)
 
             self.assertEqual(forum_models.Post.objects.all().count(), 2)
@@ -228,13 +228,13 @@ class TestPrototypeApply(helpers.BaseTestPrototypes):
 
         self.assertEqual(forum_models.Post.objects.all().count(), 1)
 
-        with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
-            self.assertTrue(self.bill.apply())
+        self.assertTrue(self.bill.apply())
 
-        self.assertEqual(cmd_run_account_method.call_args_list,
-                         [mock.call(account_id=self.bill.owner.id,
-                                    method_name=accounts_prototypes.AccountPrototype.update_actual_bills.__name__,
-                                    data={})])
+        self.assertEqual(accounts_prototypes.AccountPrototype.get_by_id(self.bill.owner.id).actual_bills,
+                         [utils_logic.to_timestamp(self.bill.voting_end_at)])
+
+        self.assertEqual(self.bill.owner.actual_bills,
+                         [utils_logic.to_timestamp(self.bill.voting_end_at)])
 
         self.assertTrue(self.bill.state.is_ACCEPTED)
 

@@ -1,24 +1,24 @@
 
-
-class Message(object):
-    __slots__ = ('id', 'sender', 'recipients', 'created_at', 'body')
-
-    def __init__(self, id, sender, recipients, created_at, body):
-        self.id = id
-        self.sender = sender
-        self.recipients = recipients
-        self.created_at = created_at
-        self.body = body
+import typing
+import datetime
+import dataclasses
 
 
-    def __eq__(self, other):
-        return (self.__class__ == other.__class__ and
-                self.id == other.id and
-                self.sender == other.sender and
-                self.recipients == other.recipients and
-                self.created_at == other.created_at and
-                self.body == other.body)
+@dataclasses.dataclass
+class Message:
+    __slots__ = ('id', 'sender', 'recipients', 'created_at', 'body', 'visible')
 
+    id: int
+    sender: int
+    recipients: typing.List[int]
+    created_at: datetime.datetime
+    body: str
+    visible: bool
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
+    def data_of(self, account_id):
+        return {'id': self.id,
+                'sender': self.sender,
+                'recipients': self.recipients if account_id == self.sender else [account_id],
+                'created_at': self.created_at.isoformat(),
+                'text': self.body,
+                'removed': not self.visible}

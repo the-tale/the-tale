@@ -20,13 +20,11 @@ class NewDayActionsTests(utils_testcase.TestCase,
         self.assertFalse(conf.settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY in global_settings)
 
         with self.check_new_message(self.account.id, [accounts_logic.get_system_user().id]):
-            with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
-                logic.new_day_actions()
+            logic.new_day_actions()
 
-            self.assertEqual(cmd_run_account_method.call_count, 1)
-            self.assertEqual(cmd_run_account_method.call_args, mock.call(account_id=self.account.id,
-                                                                         method_name='prolong_premium',
-                                                                         data={'days': conf.settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY}))
+            border = datetime.datetime.now() + datetime.timedelta(days=conf.settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY - 1)
+
+            self.assertTrue(border < accounts_prototypes.AccountPrototype.get_by_id(self.account.id).premium_end_at)
 
             self.assertEqual(int(global_settings[conf.settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY]), self.account.id)
 

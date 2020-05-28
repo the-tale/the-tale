@@ -72,14 +72,14 @@ def _add_member(clan, account, role):
 
 
 @django_transaction.atomic
-def _remove_member(clan, account):
+def _remove_member(clan, account, force=False):
 
     member_role = get_member_role(member=account, clan=clan)
 
     if member_role is None:
         raise exceptions.RemoveMemberFromWrongClanError(member_id=account.id, clan_id=clan.id)
 
-    if member_role.is_MASTER:
+    if not force and member_role.is_MASTER:
         raise exceptions.RemoveLeaderFromClanError(member_id=account.id, clan_id=clan.id)
 
     models.Membership.objects.filter(clan_id=clan.id, account_id=account.id).delete()
@@ -276,8 +276,8 @@ def operations_rights(initiator, clan, is_moderator):
 
 
 @django_transaction.atomic
-def remove_member(initiator, clan, member):
-    _remove_member(clan, member)
+def remove_member(initiator, clan, member, force=False):
+    _remove_member(clan, member, force=force)
 
     message = 'Хранитель {initiator}s исключил(а) вас из гильдии {clan_link}.'
     message = message.format(initiator='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', initiator.id),

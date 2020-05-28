@@ -11,7 +11,7 @@ from tt_protocol.protocol import base_pb2
 from . import exceptions
 
 
-def api(ExpectedMessage):
+def api(ExpectedMessage, raw=False):
 
     def decorator(handler):
 
@@ -27,12 +27,15 @@ def api(ExpectedMessage):
 
                 response_message = await handler(request_message, config=request.app['config'])
 
-                data = any_pb2.Any()
-                data.Pack(response_message)
+                if not raw:
+                    data = any_pb2.Any()
+                    data.Pack(response_message)
 
-                body = base_pb2.ApiResponse(server_time=datetime.datetime.now().timestamp(),
-                                            status=base_pb2.ApiResponse.SUCCESS,
-                                            data=data)
+                    body = base_pb2.ApiResponse(server_time=datetime.datetime.now().timestamp(),
+                                                status=base_pb2.ApiResponse.SUCCESS,
+                                                data=data)
+                else:
+                    body = response_message
 
             except exceptions.ApiError as e:
                 error = base_pb2.ApiError(code=e.code, message=e.message, details=e.details)

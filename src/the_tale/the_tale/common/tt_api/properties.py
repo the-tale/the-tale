@@ -3,10 +3,18 @@ import smart_imports
 smart_imports.all()
 
 
+class TYPE(rels_django.DjangoEnum):
+    protobuf = rels.Column()
+
+    records = (('REPLACE', 0, 'заменить', tt_protocol_properties_pb2.Property.Mode.REPLACE),
+               ('APPEND', 1, 'добавить', tt_protocol_properties_pb2.Property.Mode.APPEND))
+
+
 class PROPERTIES(rels_django.DjangoEnum):
     to_string = rels.Column(unique=False, single_type=False)
     from_string = rels.Column(unique=False, single_type=False)
     default = rels.Column(unique=False, single_type=False)
+    type = rels.Column(unique=False, single_type=True)
 
 
 def properties_class(properties):
@@ -14,10 +22,17 @@ def properties_class(properties):
         __slots__ = tuple(record.name for record in properties.records)
 
         def __getattr__(self, name):
-            if name in self.__slots__:
-                return getattr(properties, name).default
+            if name not in self.__slots__:
+                raise AttributeError('unkown property {}'.format(name))
 
-            raise AttributeError('unkown property {}'.format(name))
+            default = getattr(properties, name).default
+
+            if callable(default):
+                default = default()
+
+            setattr(self, name, default)
+
+            return default
 
     return PropertiesClass
 
@@ -51,7 +66,8 @@ class Client(client.Client):
 
             pb_properties.append(tt_protocol_properties_pb2.Property(object_id=object_id,
                                                                      type=property_type.value,
-                                                                     value=property_type.to_string(value)))
+                                                                     value=property_type.to_string(value),
+                                                                     mode=property_type.type.protobuf))
 
         operations.sync_request(url=self.url('set-properties'),
                                 data=tt_protocol_properties_pb2.SetPropertiesRequest(properties=pb_properties),
@@ -84,9 +100,15 @@ class Client(client.Client):
         for property in answer.properties:
             property_type = self._properties(property.type)
 
-            setattr(properties[property.object_id],
-                    property_type.name,
-                    property_type.from_string(property.value))
+            if property_type.type.is_REPLACE:
+                setattr(properties[property.object_id],
+                        property_type.name,
+                        property_type.from_string(property.value))
+            elif property_type.type.is_APPEND:
+                getattr(properties[property.object_id],
+                        property_type.name).append(property_type.from_string(property.value))
+            else:
+                raise NotImplementedError
 
         return properties
 

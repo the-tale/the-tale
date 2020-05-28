@@ -19,6 +19,9 @@ def register_routers(app):
     app.router.add_post('/set-properties', handlers.set_properties)
     app.router.add_post('/get-properties', handlers.get_properties)
 
+    app.router.add_post('/data-protection-collect-data', handlers.data_protection_collect_data)
+    app.router.add_post('/data-protection-delete-data', handlers.data_protection_delete_data)
+
     app.router.add_post('/debug-clear-service', handlers.debug_clear_service)
 
 

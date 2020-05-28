@@ -184,3 +184,7 @@ def normalize_dict(values):
     total = sum(values.values())
     return {key: float(value) / total
             for key, value in values.items()}
+
+
+def to_timestamp(time_):
+    return time.mktime(time_.timetuple()) + time_.microsecond / 1000000

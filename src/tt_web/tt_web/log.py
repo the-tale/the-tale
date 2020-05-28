@@ -16,7 +16,7 @@ def initilize(config):
     logging.info('logging initialize with log level: %s', config['level'])
 
 
-class ContextLogger(object):
+class ContextLogger:
     __slots__ = ('context_uid',)
 
     def __init__(self):
@@ -36,6 +36,9 @@ class ContextLogger(object):
 
     def critical(self, *args, **kwargs):
         self._log(logging.critical, *args, **kwargs)
+
+    def exception(self, *args, **kwargs):
+        self._log(logging.exception, *args, **kwargs)
 
     def _log(self, callback, message, *args, **kwargs):
         callback('<{}> {}'.format(self.context_uid, message), *args, **kwargs)

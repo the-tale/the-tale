@@ -27,11 +27,16 @@ chronicle = ClansChronicleClient(entry_point=conf.settings.TT_CHRONICLE_ENTRY_PO
 
 
 class CLAN_PROPERTIES(tt_api_properties.PROPERTIES):
-    records = (('accept_requests_from_players', 0, 'принимать запросы на вступление в гильдию', str, lambda value: value == 'True', True),
-               ('fighters_maximum_level', 1, 'уровень прокачки размера боевого состава', str, lambda value: int(value), 0),
-               ('emissary_maximum_level', 2, 'уровень прокачки количества эмиссаров', str, lambda value: int(value), 0),
-               ('points_gain_level', 3, 'уровень прокачки прироста очков', str, lambda value: int(value), 0),
-               ('free_quests_maximum_level', 4, 'уровень прокачки максимума заданйи для неподписчиков', str, lambda value: int(value), 0),)
+    records = (('accept_requests_from_players', 0, 'принимать запросы на вступление в гильдию',
+                str, lambda value: value == 'True', True, tt_api_properties.TYPE.REPLACE),
+               ('fighters_maximum_level', 1, 'уровень прокачки размера боевого состава',
+                str, lambda value: int(value), 0, tt_api_properties.TYPE.REPLACE),
+               ('emissary_maximum_level', 2, 'уровень прокачки количества эмиссаров',
+                str, lambda value: int(value), 0, tt_api_properties.TYPE.REPLACE),
+               ('points_gain_level', 3, 'уровень прокачки прироста очков',
+                str, lambda value: int(value), 0, tt_api_properties.TYPE.REPLACE),
+               ('free_quests_maximum_level', 4, 'уровень прокачки максимума заданйи для неподписчиков',
+                str, lambda value: int(value), 0, tt_api_properties.TYPE.REPLACE),)
 
 
 class ClansPropertiesClient(tt_api_properties.Client):

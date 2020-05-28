@@ -61,6 +61,14 @@ class ArenaPvP1x1Test(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
         self.assertEqual(self.battle_info.meta_action.hero_2_pvp.turn_energy_speed, 1)
         self.assertTrue(self.battle_info.meta_action.hero_2_context.pvp_advantage_strike_damage.total > 0)
 
+    def test_is_valid(self):
+        self.assertTrue(self.battle_info.meta_action.is_valid())
+
+        heroes_ids = (self.battle_info.hero_1.id, self.battle_info.hero_2.id)
+        self.battle_info.meta_action.storage.release_account_data(random.choice(heroes_ids))
+
+        self.assertFalse(self.battle_info.meta_action.is_valid())
+
     def test_no_help_choices(self):
         self.assertEqual(self.battle_info.hero_1.actions.current_action.HELP_CHOICES, ())
         self.assertEqual(self.battle_info.hero_2.actions.current_action.HELP_CHOICES, ())

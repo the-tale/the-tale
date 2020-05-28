@@ -15,6 +15,11 @@ class BindCode:
     def is_expired(self):
         return self.expire_at < datetime.datetime.now(datetime.timezone.utc)
 
+    def data(self):
+        return {'code': self.code.hex,
+                'created_at': self.created_at.isoformat(),
+                'expire_at': self.expire_at.isoformat()}
+
 
 @dataclasses.dataclass(frozen=True)
 class AccountInfo:

@@ -63,6 +63,40 @@ class MetaProxyActionForArenaPvP1x1Tests(pvp_helpers.PvPTestsMixin, utils_testca
         self.assertEqual(self.battle_info.hero_1.actions.current_action.percents, self.battle_info.meta_action.percents)
         self.assertNotEqual(self.battle_info.hero_2.actions.current_action.percents, self.battle_info.meta_action.percents)
 
+        self.assertEqual(self.battle_info.hero_1.actions.current_action.state,
+                         meta_actions.ArenaPvP1x1.STATE.BATTLE_RUNNING)
+        self.assertLess(self.battle_info.hero_1.actions.current_action.percents, 1)
+
+    def test_invalid_meta_action(self):
+        heroes_ids = (self.battle_info.hero_1.id, self.battle_info.hero_2.id)
+
+        battles = pvp_tt_services.matchmaker.cmd_get_battles_by_participants(heroes_ids)
+        self.assertEqual(len(battles), 1)
+
+        storage = self.battle_info.meta_action.storage
+
+        released_account_id = random.choice(heroes_ids)
+
+        storage.release_account_data(released_account_id)
+
+        if released_account_id == self.battle_info.hero_1.id:
+            proxy_action = self.battle_info.hero_2.actions.current_action
+        else:
+            proxy_action = self.battle_info.hero_1.actions.current_action
+
+        storage.process_turn(continue_steps_if_needed=True)
+
+        self.assertEqual(proxy_action.state,
+                         meta_actions.ArenaPvP1x1.STATE.PROCESSED)
+        self.assertEqual(proxy_action.percents, 1)
+        self.assertFalse(proxy_action.leader)
+
+        self.assertNotEqual(self.battle_info.hero_1.actions.current_action, proxy_action)
+        self.assertNotEqual(self.battle_info.hero_2.actions.current_action, proxy_action)
+
+        battles = pvp_tt_services.matchmaker.cmd_get_battles_by_participants(heroes_ids)
+        self.assertEqual(len(battles), 0)
+
     def test_full_battle(self):
         meta_action = self.battle_info.meta_action
 

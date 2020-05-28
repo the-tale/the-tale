@@ -24,6 +24,13 @@ class RatingPrototypeTests(PrototypeTestsBase):
         self.assertEqual([rv.account_id for rv in models.RatingValues.objects.all().order_by('account__id')],
                          [self.account_1.id, self.account_2.id, self.account_3.id, self.account_4.id, ])
 
+    def test_removed_accounts_filtration(self):
+        accounts_data_protection.first_step_removing(self.account_2)
+
+        prototypes.RatingValuesPrototype.recalculate()
+        self.assertEqual([rv.account_id for rv in models.RatingValues.objects.all().order_by('account__id')],
+                         [self.account_1.id, self.account_3.id, self.account_4.id, ])
+
     def test_fast_accounts_filtration(self):
         self.accounts_factory.create_account(is_fast=True)
         prototypes.RatingValuesPrototype.recalculate()

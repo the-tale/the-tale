@@ -26,7 +26,6 @@ class BaseTests(web_helpers.BaseTests):
         self.assertEqual(event.get(conf.SYNC_EVENT_NAME).is_set(), setupped)
 
 
-
 def get_config():
     config_path = os.path.join(os.path.dirname(__file__), 'fixtures', 'config.json')
     return utils.load_config(config_path)

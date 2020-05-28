@@ -163,6 +163,34 @@ class SupervisorWorkerTests(utils_testcase.TestCase):
 
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic_1', self.account_2.id: 'logic_1'})
 
+    def mark_removed(self, account):
+        accounts_models.Account.objects.filter(id=account.id).update(removed_at=datetime.datetime.now())
+
+    def test_register_account__check_removed_state(self):
+        self.worker.initialize()
+
+        account_3 = self.accounts_factory.create_account()
+        self.mark_removed(account_3)
+
+        task = prototypes.SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
+        self.worker.register_task(task)
+
+        # for test pending account cmd queue
+        self.worker.accounts_queues[account_3.id] = [('logic_task', {'account_id': self.account_1.id, 'task_id': 1}),
+                                                     ('logic_task', {'account_id': self.account_1.id, 'task_id': 2}),
+                                                     ('logic_task', {'account_id': self.account_1.id, 'task_id': 4})]
+
+        with mock.patch('the_tale.game.workers.logic.Worker.cmd_register_account') as register_account_counter:
+            with mock.patch('the_tale.game.workers.logic.Worker.cmd_logic_task') as cmd_logic_task:
+                self.worker.register_account(account_3.id)
+
+        self.assertEqual(cmd_logic_task.call_count, 0)
+        self.assertEqual(register_account_counter.call_count, 0)
+        self.assertEqual(set(self.worker.accounts_for_tasks.keys()), set([self.account_1.id, self.account_2.id]))
+        self.assertEqual(list(self.worker.tasks.values())[0].captured_members, set())
+
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: None, self.account_2.id: None})
+
     def test_register_accounts_chain(self):
         self.worker.initialize()
 
@@ -198,6 +226,21 @@ class SupervisorWorkerTests(utils_testcase.TestCase):
                                                        account_5.id: 'logic_1'})
         self.assertEqual(self.worker.logic_accounts_number, {'logic_1': 3, 'logic_2': 2})
 
+    def test_register_accounts_on_initialization__removed_account(self):
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
+        account_5 = self.accounts_factory.create_account()
+
+        self.mark_removed(account_4)
+
+        self.worker.initialize()
+
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic_1',
+                                                       self.account_2.id: 'logic_2',
+                                                       account_3.id: 'logic_1',
+                                                       account_5.id: 'logic_2'})
+        self.assertEqual(self.worker.logic_accounts_number, {'logic_1': 2, 'logic_2': 2})
+
     def test_register_accounts_on_initialization__multiple_accounts_bandles(self):
         account_3 = self.accounts_factory.create_account()
         account_4 = self.accounts_factory.create_account()
@@ -227,6 +270,37 @@ class SupervisorWorkerTests(utils_testcase.TestCase):
                                                        account_5.id: 'logic_1',
                                                        account_6.id: 'logic_2'})
         self.assertEqual(self.worker.logic_accounts_number, {'logic_1': 2, 'logic_2': 4})
+
+    def test_register_accounts_on_initialization__multiple_accounts_bandles__removed_accounts(self):
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
+        account_5 = self.accounts_factory.create_account()
+        account_6 = self.accounts_factory.create_account()
+
+        hero_2 = heroes_logic.load_hero(account_id=self.account_2.id)
+        hero_3 = heroes_logic.load_hero(account_id=account_3.id)
+        hero_4 = heroes_logic.load_hero(account_id=account_4.id)
+        hero_6 = heroes_logic.load_hero(account_id=account_6.id)
+
+        hero_3.actions.current_action.bundle_id = hero_2.actions.current_action.bundle_id
+        heroes_logic.save_hero(hero_3)
+
+        hero_4.actions.current_action.bundle_id = hero_2.actions.current_action.bundle_id
+        heroes_logic.save_hero(hero_4)
+
+        hero_6.actions.current_action.bundle_id = hero_2.actions.current_action.bundle_id
+        heroes_logic.save_hero(hero_6)
+
+        self.mark_removed(account_4)
+
+        self.worker.initialize()
+
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic_1',
+                                                       self.account_2.id: 'logic_2',
+                                                       account_3.id: 'logic_2',
+                                                       account_5.id: 'logic_1',
+                                                       account_6.id: 'logic_2'})
+        self.assertEqual(self.worker.logic_accounts_number, {'logic_1': 2, 'logic_2': 3})
 
     def test_register_accounts__double_register(self):
         self.worker.initialize()

@@ -57,7 +57,8 @@ class AccountAdmin(django_auth_admin.UserAdmin):
                  ('Data', {'fields': ('permanent_purchases',)}),
                  ('Important dates', {'fields': ('last_login',
                                                  'active_end_at', 'premium_end_at',
-                                                 'ban_game_end_at', 'ban_forum_end_at')}),
+                                                 'ban_game_end_at', 'ban_forum_end_at',
+                                                 'removed_at')}),
                  ('Additional info', {'fields': ('might',
                                                  'actual_bills')}),)
 

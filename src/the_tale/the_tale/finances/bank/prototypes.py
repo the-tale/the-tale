@@ -89,7 +89,10 @@ class AccountPrototype(utils_prototypes.BasePrototype):
         return self.amount + (frozen_incoming if frozen_incoming else 0) - (frozen_outcoming if frozen_outcoming else 0) >= test_amount
 
     def get_history_list(self):
-        condition = django_models.Q(recipient_type=self.entity_type, recipient_id=self.entity_id) | django_models.Q(sender_type=self.entity_type, sender_id=self.entity_id)
+        condition = django_models.Q(recipient_type=self.entity_type,
+                                    recipient_id=self.entity_id) | django_models.Q(sender_type=self.entity_type,
+                                                                                   sender_id=self.entity_id)
+
         invoice_models = list(InvoicePrototype._model_class.objects.filter(state=relations.INVOICE_STATE.CONFIRMED).filter(condition).order_by('-updated_at'))
         return [InvoicePrototype(model=model) for model in invoice_models]
 
@@ -143,7 +146,7 @@ class AccountPrototype(utils_prototypes.BasePrototype):
 class InvoicePrototype(utils_prototypes.BasePrototype):
     _model_class = models.Invoice
     _readonly = ('id', 'updated_at', 'recipient_id', 'recipient_type', 'sender_id', 'sender_type', 'amount', 'currency',
-                 'description_for_recipient', 'description_for_sender', 'operation_uid')
+                 'description_for_recipient', 'description_for_sender', 'operation_uid', 'created_at')
     _bidirectional = ('state',)
     _get_by = ('id', )
 

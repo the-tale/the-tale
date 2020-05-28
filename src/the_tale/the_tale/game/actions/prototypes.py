@@ -1587,7 +1587,12 @@ class ActionMetaProxyPrototype(ActionBase):
 
     def process(self):
 
-        self.meta_action.process()
+        if not self.meta_action.is_valid():
+            # rollback action if we something go wrong
+            # for example, we lost one of heroes (due user removed its account)
+            self.meta_action.cancel()
+        else:
+            self.meta_action.process()
 
         self.state = self.meta_action.state
         self.percents = self.meta_action.percents

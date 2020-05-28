@@ -881,3 +881,69 @@ class UnbindDiscordUserTests(helpers.BaseTests):
 
         await self.check_no_bind_game(accounts_infos[1].id)
         await self.check_has_bind_game(accounts_infos[2].id, 888)
+
+
+class GetDataReportTests(helpers.BaseTests):
+
+    @test_utils.unittest_run_loop
+    async def test_no_account(self):
+        await helpers.create_accounts(game_ids=(666, 777, 888))
+
+        unexisted_info = objects.AccountInfo(id=None,
+                                             game_id=999,
+                                             discord_id=None)
+
+        report = await operations.get_data_report(unexisted_info)
+
+        self.assertEqual(report, [])
+
+    @test_utils.unittest_run_loop
+    async def test_no_data(self):
+        accounts_infos = await helpers.create_accounts(game_ids=(666, 777, 888))
+
+        report = await operations.get_data_report(accounts_infos[0])
+
+        self.assertEqual(report, [])
+
+    @test_utils.unittest_run_loop
+    async def test_has_discord_binding(self):
+        accounts_infos = await helpers.create_accounts(game_ids=(666, 777, 888))
+
+        await helpers.force_bind(accounts_infos[1].id, discord_id=100500)
+        await helpers.force_bind(accounts_infos[2].id, discord_id=100501)
+
+        new_info = await operations.get_account_info_by_id(accounts_infos[1].id)
+
+        report = await operations.get_data_report(new_info)
+
+        self.assertEqual(report, [('discord_id', 100500)])
+
+    @test_utils.unittest_run_loop
+    async def test_has_binding_codes(self):
+        accounts_infos = await helpers.create_accounts(game_ids=(666, 777, 888))
+
+        code_1_1 = await operations.get_bind_code(accounts_infos[0].id, expire_timeout=60)
+        code_2 = await operations.get_bind_code(accounts_infos[2].id, expire_timeout=60)
+        code_1_2 = await operations.get_bind_code(accounts_infos[0].id, expire_timeout=60)
+
+        report = await operations.get_data_report(accounts_infos[0])
+
+        self.assertEqual(report, [('bind_code', code_1_2.data())])
+
+    @test_utils.unittest_run_loop
+    async def test_complex(self):
+        accounts_infos = await helpers.create_accounts(game_ids=(666, 777, 888))
+
+        await helpers.force_bind(accounts_infos[1].id, discord_id=100500)
+        await helpers.force_bind(accounts_infos[2].id, discord_id=100501)
+
+        code_1_1 = await operations.get_bind_code(accounts_infos[0].id, expire_timeout=60)
+        code_2 = await operations.get_bind_code(accounts_infos[2].id, expire_timeout=60)
+        code_1_2 = await operations.get_bind_code(accounts_infos[0].id, expire_timeout=60)
+
+        new_info = await operations.get_account_info_by_id(accounts_infos[2].id)
+
+        report = await operations.get_data_report(new_info)
+
+        self.assertEqual(report, [('discord_id', 100501),
+                                  ('bind_code', code_2.data())])

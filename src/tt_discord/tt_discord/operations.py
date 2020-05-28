@@ -257,7 +257,7 @@ async def unbind_discord_user(discord_id):
 async def _unbind_discord_user(execute, arguments):
     discord_id = arguments['discord_id']
 
-    result = await execute('UPDATE accounts SET game_id=NULL WHERE discord_id=%(discord_id)s RETURNING id',
+    result = await execute('UPDATE accounts SET game_id=NULL, updated_at=NOW() WHERE discord_id=%(discord_id)s RETURNING id',
                            {'discord_id': discord_id})
 
     if not result:
@@ -293,6 +293,22 @@ async def _delete_account(execute, arguments):
 
     await execute('DELETE FROM accounts WHERE id=%(account_id)s',
                   {'account_id': account_id})
+
+
+async def get_data_report(account_info):
+    data = []
+
+    if account_info.discord_id is not None:
+        data.append(('discord_id', account_info.discord_id))
+
+    if account_info.id:
+        result = await db.sql('SELECT * FROM bind_codes WHERE account=%(account_id)s', {'account_id': account_info.id})
+
+        for row in result:
+            code = row_to_bind_code(row)
+            data.append(('bind_code', code.data()))
+
+    return data
 
 
 async def clean_database():

@@ -60,7 +60,8 @@ class BaseBuyTask(PostponedLogic):
         return self.state.text
 
     @utils_decorators.lazy_property
-    def account(self): return accounts_prototypes.AccountPrototype.get_by_id(self.account_id) if self.account_id is not None else None
+    def account(self):
+        return accounts_prototypes.AccountPrototype.get_by_id(self.account_id) if self.account_id is not None else None
 
     def process_transaction_requested(self, main_task):
         transaction_state = self.transaction.get_invoice_state()
@@ -81,7 +82,7 @@ class BaseBuyTask(PostponedLogic):
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
     def on_process_transaction_requested__transaction_frozen(self, main_task):
-        main_task.extend_postsave_actions((lambda: amqp_environment.environment.workers.accounts_manager.cmd_task(main_task.id),))
+        main_task.extend_postsave_actions((main_task.cmd_wait,))
 
     def on_process_transaction_frozen(self, storage):
         raise NotImplementedError
@@ -145,12 +146,6 @@ class BaseBuyTask(PostponedLogic):
                                 description='Часть от потраченного вашим рефералом',
                                 uid='referral-bonus',
                                 force=True)
-
-
-class BaseLogicBuyTask(BaseBuyTask):
-
-    def on_process_transaction_requested__transaction_frozen(self, main_task):
-        main_task.extend_postsave_actions((lambda: amqp_environment.environment.workers.supervisor.cmd_logic_task(self.account_id, main_task.id),))
 
 
 class BuyPremium(BaseBuyTask):

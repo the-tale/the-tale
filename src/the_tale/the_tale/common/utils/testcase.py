@@ -103,14 +103,17 @@ class TestCaseMixin(object):
         request.user = django_auth_models.AnonymousUser() if user is None else user
         return request
 
-    def check_logged_in(self, account=None):
-        self.assertIn('_auth_user_id', self.client.session)
+    def check_logged_in(self, account=None, client=None):
+        client = client or self.client
+
+        self.assertIn('_auth_user_id', client.session)
 
         if account:
-            self.assertEqual(account.id, int(self.client.session['_auth_user_id']))
+            self.assertEqual(account.id, int(client.session['_auth_user_id']))
 
-    def check_logged_out(self):
-        self.assertNotIn('_auth_user_id', self.client.session)
+    def check_logged_out(self, client=None):
+        client = client or self.client
+        self.assertNotIn('_auth_user_id', client.session)
 
     def check_html_ok(self, response, status_code=200, texts=[], content_type='text/html', encoding='utf-8', body=None):
         self.assertEqual(response.status_code, status_code)
@@ -231,8 +234,9 @@ class TestCaseMixin(object):
         obj_data = obj.serialize()
         self.assertEqual(obj_data, obj.deserialize(s11n.from_json(s11n.to_json(obj_data))).serialize())
 
-    def request_html(self, url):
-        return self.client.get(url, HTTP_ACCEPT='text/html')
+    def request_html(self, url, client=None):
+        client = client or self.client
+        return client.get(url, HTTP_ACCEPT='text/html')
 
     def request_js(self, url):
         return self.client.get(url, HTTP_ACCEPT='application/x-javascript')
@@ -258,8 +262,9 @@ class TestCaseMixin(object):
     def post_ajax_html(self, url, data=None):
         return self.client.post(url, data if data else {}, HTTP_ACCEPT='text/html', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
-    def post_ajax_json(self, url, data=None):
-        return self.client.post(url, data if data else {}, HTTP_ACCEPT='text/json', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+    def post_ajax_json(self, url, data=None, client=None):
+        client = client or self.client
+        return client.post(url, data if data else {}, HTTP_ACCEPT='text/json', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
     def post_ajax_binary(self, url, data=None):
         return self.client.post(url, data if data else '', HTTP_ACCEPT='text/json', HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/octet-stream')
@@ -297,17 +302,22 @@ class TestCaseMixin(object):
         return self.request_factory.post(url, **_meta)
 
     @make_request_decorator
-    def make_post_ajax_json(self, url, data=None, meta={}):
+    def make_post_ajax_json(self, url, data=None, meta={}, client=None):
         _meta = {'HTTP_ACCEPT': 'text/json',
                  'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
         _meta.update(meta)
-        return self.request_factory.post(url, data if data else {}, **_meta)
 
-    def request_login(self, email, password='111111', remember=False):
+        client = client or self.client
+
+        return client.post(url, data if data else {}, **_meta)
+
+    def request_login(self, email, password='111111', remember=False, client=None):
         data = {'email': email, 'password': password}
         if remember:
             data['remember'] = 'remember'
-        response = self.post_ajax_json(utils_urls.url('accounts:auth:api-login', api_version='1.0', api_client='test-1.0'), data)
+        response = self.post_ajax_json(utils_urls.url('accounts:auth:api-login', api_version='1.0', api_client='test-1.0'),
+                                       data,
+                                       client=client)
         self.check_ajax_ok(response)
 
     def request_logout(self):

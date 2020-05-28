@@ -124,3 +124,19 @@ def get_commission(price):
         commission = 1
 
     return commission
+
+
+def cancel_sell_lot(item_type, price, account_id, operation_type):
+
+    lots = tt_services.market.cmd_cancel_lot(item_type=item_type,
+                                             price=price,
+                                             owner_id=account_id)
+
+    if not lots:
+        return
+
+    cards_logic.change_owner(old_owner_id=accounts_logic.get_system_user_id(),
+                             new_owner_id=account_id,
+                             operation_type=operation_type,
+                             new_storage=cards_relations.STORAGE.FAST,
+                             cards_ids=[lot.item_id for lot in lots])

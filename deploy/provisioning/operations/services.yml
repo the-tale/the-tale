@@ -250,6 +250,15 @@
     port: 10022
     collect_static: false
 
+- name: install TT data protector
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT data protector
+    user: tt_data_protector
+    packages: "{{tt_services['tt_data_protector']['packages']}}"
+    django_settings: tt_data_protector.settings
+    port: 10023
+    collect_static: false
 
 
 - name: install services cron files

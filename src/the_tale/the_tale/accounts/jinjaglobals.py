@@ -27,3 +27,8 @@ def register_url():
 @utils_jinja2.jinjaglobal
 def forum_complaint_theme():
     return conf.settings.FORUM_COMPLAINT_THEME
+
+
+@utils_jinja2.jinjafilter
+def data_protection_verbose(value):
+    return data_protection.verbose(value)
