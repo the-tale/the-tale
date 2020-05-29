@@ -53,8 +53,7 @@
     - cron:
         name: process data protection tasks
         cron_file: tt_data_protector
-        minute: 15
-        hour: 0
+        minute: "*/5"
         user: tt_data_protector
         job: /home/tt_data_protector/current/venv/bin/tt_data_protector_process_tasks -c /etc/tt_data_protector/config.json
 
