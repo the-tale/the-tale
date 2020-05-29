@@ -125,7 +125,7 @@ class AccountAchievementsPrototype(utils_prototypes.BasePrototype):
                                                               item.caption))
             rewards_message = 'Награды: %s' % ', '.join(reward_texts)
 
-        message = ('Вы заработали достижение «%(achievement)s» — %(description)s. %(rewards_message)s' %
+        message = ('Вы заработали достижение «%(achievement)s» — %(description)s %(rewards_message)s' %
                    {'achievement': '[url=%s#a%d]%s[/url]' % (utils_urls.full_url('https', 'accounts:achievements:group', achievement.group.slug),
                                                              achievement.id,
                                                              achievement.caption),

@@ -34,9 +34,9 @@ class GROUP(rels_django.DjangoEnum):
 
                ('ACTION_TYPE', 20, 'тип действия героя', actions_relations.ACTION_TYPE, True),
 
-               ('META_TERRAIN', 21, 'мета тип местности', map_relations.META_TERRAIN, True),
-               ('META_HEIGHT', 22, 'мета тип высоты', map_relations.META_HEIGHT, True),
-               ('META_VEGETATION', 23, 'мета тип растительности', map_relations.META_VEGETATION, True),
+               ('META_TERRAIN', 21, 'мета-тип местности', map_relations.META_TERRAIN, True),
+               ('META_HEIGHT', 22, 'мета-тип высоты', map_relations.META_HEIGHT, True),
+               ('META_VEGETATION', 23, 'мета-тип растительности', map_relations.META_VEGETATION, True),
 
                ('COMMUNICATION_VERBAL', 24, 'вербальная коммуникация', tt_beings_relations.COMMUNICATION_VERBAL, True),
                ('COMMUNICATION_GESTURES', 25, 'невербальная коммуникация', tt_beings_relations.COMMUNICATION_GESTURES, True),
