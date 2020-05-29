@@ -101,6 +101,15 @@ body .navbar .brand {
   margin-left: 0px;
   margin-bottom: -12px;
 }
+body .navbar .nav li .navbar-element {
+  opacity: 0.5;
+}
+body .navbar .nav li:hover .navbar-element {
+  opacity: 1.0;
+}
+body .navbar .nav li.active .navbar-element {
+  opacity: 1.0;
+}
 body footer {
   clear: both;
   position: relative;
