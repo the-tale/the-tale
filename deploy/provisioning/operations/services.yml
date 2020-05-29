@@ -240,9 +240,30 @@
     collect_static: false
 
 
+- name: install TT discord bot
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT discord bot
+    user: tt_discord
+    packages: "{{tt_services['tt_discord']['packages']}}"
+    django_settings: tt_discord.settings
+    port: 10022
+    collect_static: false
+
+- name: install TT data protector
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT data protector
+    user: tt_data_protector
+    packages: "{{tt_services['tt_data_protector']['packages']}}"
+    django_settings: tt_data_protector.settings
+    port: 10023
+    collect_static: false
+
 
 - name: install services cron files
   import_playbook: ../tasks/tt_cron.yml
+  when: not tt_test_enviroment
 
 
 - name: host postupdate operations

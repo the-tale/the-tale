@@ -161,7 +161,7 @@ class DaysBeforePayment(base.BaseMetric):
 class ARPNU(base.BaseMetric):
     TYPE = None
     FULL_CLEAR_RECUIRED = True
-    DAYS = None
+    DAYS = NotImplemented
     PERIOD = 30
 
     def get_value(self, date):
@@ -285,7 +285,7 @@ class IncomeFromSingles(IncomeFromGroupsBase):
 
 class IncomeFromGoodsBase(base.BaseMetric):
     TYPE = None
-    GROUP_PREFIX = None
+    GROUP_PREFIX = NotImplemented
     PERIOD = 30
 
     def selector(self):
@@ -389,7 +389,7 @@ class PUPercents(base.BasePercentsCombination):
 
 class IncomeGroupBase(base.BaseMetric):
     TYPE = None
-    BORDERS = (None, None)
+    BORDERS = NotImplemented
 
     def get_value(self, date):
         incomes = bank_prototypes.InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
@@ -463,7 +463,7 @@ class IncomeGroup10000Percents(base.BasePercentsCombination):
 
 class IncomeGroupIncomeBase(base.BaseMetric):
     TYPE = None
-    BORDERS = (None, None)
+    BORDERS = NotImplemented
 
     def get_value(self, date):
         incomes = bank_prototypes.InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,

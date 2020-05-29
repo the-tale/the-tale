@@ -184,18 +184,10 @@ def close_sell_lot(context):
 @resource('cancel-sell-lot', method='post')
 def cancel_sell_lot(context):
 
-    lots = tt_services.market.cmd_cancel_lot(item_type=context.item_type,
-                                             price=context.price,
-                                             owner_id=context.account.id)
-
-    if not lots:
-        return utils_views.AjaxOk()
-
-    cards_logic.change_owner(old_owner_id=accounts_logic.get_system_user_id(),
-                             new_owner_id=context.account.id,
-                             operation_type='#cancel_sell_lots',
-                             new_storage=cards_relations.STORAGE.FAST,
-                             cards_ids=[lot.item_id for lot in lots])
+    logic.cancel_sell_lot(item_type=context.item_type,
+                          price=context.price,
+                          account_id=context.account.id,
+                          operation_type='#cancel_sell_lots')
 
     return utils_views.AjaxOk()
 

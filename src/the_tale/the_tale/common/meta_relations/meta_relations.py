@@ -6,6 +6,7 @@ smart_imports.all()
 
 class TestType_1(objects.MetaType):
     TYPE = -1
+    TYPE_CAPTION = 'test type 1'
 
     @classmethod
     def create_from_id(cls, id):
@@ -14,6 +15,7 @@ class TestType_1(objects.MetaType):
 
 class TestType_2(objects.MetaType):
     TYPE = -2
+    TYPE_CAPTION = 'test type 2'
 
     @classmethod
     def create_from_id(cls, id):

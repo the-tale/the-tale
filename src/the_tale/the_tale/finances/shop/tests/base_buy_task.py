@@ -41,7 +41,6 @@ class _BaseBuyPosponedTaskTests(utils_testcase.TestCase):
         self.storage = None
         self.cmd_update_with_account_data__call_count = 1
         self.with_referrals = True
-        self.accounts_manages_worker = True
         self.supervisor_worker = False
 
     def test_create(self):
@@ -96,14 +95,10 @@ class _BaseBuyPosponedTaskTests(utils_testcase.TestCase):
         self.assertEqual(self.task.process(main_task=main_task), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
         self.assertTrue(self.task.state.is_TRANSACTION_FROZEN)
 
-        with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_task') as cmd_task:
-            with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_logic_task') as cmd_logic_task:
-                postsave_actions = main_task.extend_postsave_actions.call_args[0][0]
-                for action in postsave_actions:
-                    action()
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_logic_task') as cmd_logic_task:
+            postsave_actions = main_task.extend_postsave_actions.call_args[0][0]
 
-        if self.accounts_manages_worker:
-            self.assertEqual(cmd_task.call_count, 1)
+        self.assertEqual(postsave_actions, (main_task.cmd_wait, ))
 
         if self.supervisor_worker:
             self.assertEqual(cmd_logic_task.call_count, 1)

@@ -38,10 +38,6 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
     def deserialize(cls, data):
         obj = cls()
 
-        # можно удалить после 0.4.0
-        if 'quests_region_size' not in data:
-            data['quests_region_size'] = {'value': c.DEFAULT_QUESTS_REGION_SIZE}
-
         obj.data = data
 
         return obj

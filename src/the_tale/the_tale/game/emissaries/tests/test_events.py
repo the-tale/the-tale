@@ -6,7 +6,7 @@ smart_imports.all()
 class BaseEventsMixin(clans_helpers.ClansTestsMixin,
                       helpers.EmissariesTestsMixin):
 
-    Event = None
+    Event = NotImplemented
     EXPECTED_CYCLE_TIME = 1
     EXPECTED_PERIOD_CHOICES_NUMBER = tt_clans_constants.MAX_EVENT_LENGTH
 
@@ -395,8 +395,6 @@ class RenameTests(BaseEventsMixin, utils_testcase.TestCase):
 
 
 class ClanLevelUpMixin(BaseEventsMixin):
-
-    Event = events.PointsGainLevelUp
 
     def setUp(self):
         super().setUp()
@@ -808,8 +806,6 @@ class CountedEventMixin(places_helpers.PlacesTestsMixin):
 
 
 class CountedPlaceEventsMixin(CountedEventMixin, PlaceEffectEventMixin):
-
-    Event = NotImplemented
 
     def setUp(self):
         places_tt_services.effects.cmd_debug_clear_service()

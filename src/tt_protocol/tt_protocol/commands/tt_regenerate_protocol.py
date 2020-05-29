@@ -16,21 +16,9 @@ parser = argparse.ArgumentParser(description=u'Regenerate protocol buffers pytho
 def main():
     parser.parse_args()
 
-    files = ('base.proto',
-             'diary.proto',
-             'personal_messages.proto',
-             'storage.proto',
-             'market.proto',
-             'bank.proto',
-             'timers.proto',
-             'impacts.proto',
-             'events_log.proto',
-             'properties.proto',
-             'matchmaker.proto',
-             'effects.proto',
-             'uniquer.proto')
-
-    files = [os.path.join(SOURCE_DIR, filename) for filename in files]
+    files = [os.path.join(SOURCE_DIR, filename)
+             for filename in os.listdir(SOURCE_DIR)
+             if filename.endswith('.proto')]
 
     subprocess.run('protoc  --proto_path="{source_dir}" --python_out="{output_dir}" {files}'.format(source_dir=SOURCE_DIR,
                                                                                                     output_dir=OUTPUT_DIR,

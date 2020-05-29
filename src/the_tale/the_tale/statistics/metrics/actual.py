@@ -5,7 +5,6 @@ smart_imports.all()
 
 
 class ActiveBase(base.BaseMetric):
-    TYPE = None
 
     def get_value(self, date):
         if date == self.now_date:
@@ -87,8 +86,7 @@ class InfinitPremiums(ActiveBase):
 
 
 class ActiveAccountsBase(ActiveBase):
-    TYPE = None
-    DAYS = None
+    DAYS = NotImplemented
 
     def get_actual_value(self, date):
         barrier = (date +
@@ -119,8 +117,7 @@ class MAU(ActiveAccountsBase):
 
 
 class ActiveOlderBase(ActiveBase):
-    TYPE = None
-    DAYS = None
+    DAYS = NotImplemented
 
     def get_actual_value(self, date):
         barrier = (date +

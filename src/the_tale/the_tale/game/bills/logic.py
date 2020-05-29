@@ -9,13 +9,7 @@ def actual_bills_accepted_timestamps(account_id):
     bills_ends = models.Bill.objects.filter(state=relations.BILL_STATE.ACCEPTED,
                                             owner=account_id,
                                             voting_end_at__gt=time_border).values_list('voting_end_at', flat=True)
-    return [time.mktime(accepted_time.timetuple()) for accepted_time in bills_ends]
-
-
-def initiate_actual_bills_update(account_id):
-    amqp_environment.environment.workers.accounts_manager.cmd_run_account_method(account_id=account_id,
-                                                                                 method_name=accounts_prototypes.AccountPrototype.update_actual_bills.__name__,
-                                                                                 data={})
+    return [utils_logic.to_timestamp(accepted_time) for accepted_time in bills_ends]
 
 
 def update_actual_bills_for_all_accounts():

@@ -140,6 +140,9 @@ jQuery(document).ready(function() {
           <a class="brand" href="{{ url('portal:') }}"><img src="{{STATIC_CONTENT}}images/logo.png"></img></a>
 
           <ul class="nav">
+            {{ base_macros.main_menu_search() }}
+            {{ base_macros.main_menu_chat() }}
+
             {{ base_macros.main_menu_item("forum", url("forum:"), "Форум") }}
             {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [
 
@@ -305,6 +308,7 @@ jQuery(document).ready(function() {
           <ul class="unstyled">
             <li><a href="{{url('portal:search')}}">поиск по сайту</a></li>
             <li><a href="{{url('guide:user-agreement')}}">пользовательское соглашение</a></li>
+            <li><a href="{{url('guide:privacy-policy')}}">политика конфиденциальности</a></li>
             <li><a href="{{url('guide:press-kit')}}">для прессы</a></li>
             <li>поддержка: <a href="mailto:{{ settings.EMAIL_SUPPORT }}">{{ settings.EMAIL_SUPPORT_SHORT }}</a></li>
             <li>использована часть иконок из набора <a href="https://glyphicons.com" target="_blank">Glyphicons</a></li>

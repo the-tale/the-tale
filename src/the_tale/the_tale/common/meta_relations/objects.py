@@ -38,7 +38,7 @@ class MetaType(object):
 
 class MetaRelation(object):
     __slots__ = ('id', 'object_1', 'object_2')
-    TYPE = None
+    TYPE = NotImplemented
 
     def __init__(self, id, object_1, object_2):
         self.id = id

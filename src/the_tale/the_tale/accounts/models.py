@@ -11,7 +11,7 @@ class AccountManager(django_auth_models.BaseUserManager):
         email = super(AccountManager, cls).normalize_email(email)
         return email if email else None
 
-    def create_user(self, nick, email, is_fast=None, password=None, active_end_at=None, referer=None, referer_domain=None, referral_of=None, action_id=None, is_bot=False, gender=game_relations.GENDER):
+    def create_user(self, nick, email, is_fast=None, password=None, active_end_at=None, referer=None, referer_domain=None, referral_of=None, action_id=None, is_bot=False, gender=game_relations.GENDER.MALE):
 
         if not nick:
             raise ValueError('Users must have nick')
@@ -58,6 +58,8 @@ class Account(django_auth_models.AbstractBaseUser, django_auth_models.Permission
     created_at = django_models.DateTimeField(auto_now_add=True, db_index=True)
 
     updated_at = django_models.DateTimeField(auto_now=True, db_index=True)
+
+    removed_at = django_models.DateTimeField(null=True, default=None, blank=True)
 
     premium_end_at = django_models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
     active_end_at = django_models.DateTimeField(db_index=True)

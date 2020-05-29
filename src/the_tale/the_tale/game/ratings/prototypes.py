@@ -50,7 +50,7 @@ LEFT OUTER JOIN ( SELECT %(phrase_candidates)s.account_id AS phrase_author_id, C
                   FROM %(phrase_candidates)s
                   WHERE %(phrase_candidates)s.type=%(phrase_candidate_type)s GROUP BY %(phrase_candidates)s.account_id ) AS phrases_subquery
            ON %(accounts)s.id=phrase_author_id
-WHERE NOT %(accounts)s.is_fast AND NOT %(accounts)s.is_bot AND %(accounts)s.id <> %(system_user_id)s AND %(accounts)s.ban_game_end_at < current_timestamp
+WHERE %(accounts)s.removed_at IS NULL AND NOT %(accounts)s.is_fast AND NOT %(accounts)s.is_bot AND %(accounts)s.id <> %(system_user_id)s AND %(accounts)s.ban_game_end_at < current_timestamp
 '''
 
         sql_request = sql_request % {'ratings': models.RatingValues._meta.db_table,

@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class TheTaleError(Exception):
-    MSG = None
+    MSG = NotImplemented
 
     def __init__(self, **kwargs):
         super().__init__(self.MSG % kwargs)

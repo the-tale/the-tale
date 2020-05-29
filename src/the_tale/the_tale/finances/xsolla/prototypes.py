@@ -21,7 +21,8 @@ class InvoicePrototype(utils_prototypes.BasePrototype):
                  'date',
                  'comment',
                  'pay_result',
-                 'request_url')
+                 'request_url',
+                 'created_at')
     _bidirectional = ('state',)
     _get_by = ('id',)
 

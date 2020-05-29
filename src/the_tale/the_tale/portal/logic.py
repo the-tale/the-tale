@@ -36,9 +36,7 @@ def new_day_actions():
 
     global_settings[conf.settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY] = str(account.id)
 
-    amqp_environment.environment.workers.accounts_manager.cmd_run_account_method(account_id=account.id,
-                                                                                 method_name=accounts_prototypes.AccountPrototype.prolong_premium.__name__,
-                                                                                 data={'days': conf.settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY})
+    account.prolong_premium(days=conf.settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY)
 
     message = '''
 Поздравляем!
@@ -50,3 +48,7 @@ def new_day_actions():
                                          recipients_ids=[account.id],
                                          body=message,
                                          asynchronous=True)
+
+
+def sync_with_discord(account):
+    tt_services.discord.cmd_update_user(discord.construct_user_info(account))

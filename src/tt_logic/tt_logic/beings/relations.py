@@ -1,5 +1,7 @@
 
-from rels import Column
+from typing import ClassVar, Tuple
+
+from rels import Column, Record
 from rels.django import DjangoEnum
 
 # TODO: remove

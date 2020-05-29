@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class BaseMessageHandler(object):
-    TYPE = None
+    TYPE = NotImplemented
 
     @property
     def settings_type_uid(self): return '<%s>' % self.TYPE

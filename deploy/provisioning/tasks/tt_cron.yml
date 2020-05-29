@@ -44,6 +44,21 @@
         job: /home/tt_soft_currency/current/venv/bin/tt_bank_remove_old_transactions -c /etc/tt_soft_currency/config.json -t 86400
 
     - cron:
+        name: clean personal messages
+        cron_file: tt_personal_messages
+        minute: 0
+        user: tt_personal_messages
+        job: /home/tt_personal_messages/current/venv/bin/tt_personal_messages_clean -c /etc/tt_personal_messages/config.json
+
+    - cron:
+        name: process data protection tasks
+        cron_file: tt_data_protector
+        minute: 15
+        hour: 0
+        user: tt_data_protector
+        job: /home/tt_data_protector/current/venv/bin/tt_data_protector_process_tasks -c /etc/tt_data_protector/config.json
+
+    - cron:
         name: clans statistics sync
         cron_file: the_tale
         minute: 0
@@ -187,6 +202,13 @@
         hour: 8
         user: the_tale
         job: /home/the_tale/current/venv/bin/django-admin portal_new_day_actions --settings the_tale.settings
+
+    - cron:
+        name: send notifications about expired premiums
+        cron_file: the_tale
+        minute: 30
+        user: the_tale
+        job: /home/the_tale/current/venv/bin/django-admin accounts_send_premium_expired_notifications --settings the_tale.settings
 
     - cron:
         name: monitor protectorates

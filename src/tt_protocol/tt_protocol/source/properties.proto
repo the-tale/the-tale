@@ -3,9 +3,16 @@ package properties;
 
 
 message Property {
+  enum Mode {
+    UNKNOWN = 0;
+    REPLACE = 1;
+    APPEND = 2;
+  }
+
   uint64 object_id = 1;
   uint64 type = 2;
   string value = 3;
+  Mode mode = 4;
 }
 
 message PropertiesList {

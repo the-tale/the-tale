@@ -111,9 +111,10 @@ class PERMISSION(rels_django.DjangoEnum):
 
 class MEMBER_ROLE(rels_django.DjangoEnum):
     priority = rels.Column()
+    symbol = rels.Column()
     permissions = rels.Column(unique=True, no_index=True)
 
-    records = (('MASTER', 0, 'Магистр', 0,
+    records = (('MASTER', 0, 'Магистр', 0, '♔',
                 (PERMISSION.DESTROY,
                  PERMISSION.CHANGE_OWNER,
                  PERMISSION.EDIT,
@@ -129,7 +130,7 @@ class MEMBER_ROLE(rels_django.DjangoEnum):
                  PERMISSION.BULK_MAILING,
                  PERMISSION.RECEIVE_MESSAGES)),
 
-               ('COMANDOR', 2, 'Командор', 1,
+               ('COMANDOR', 2, 'Командор', 1, '♕',
                 (PERMISSION.EDIT,
                  PERMISSION.CHANGE_ROLE,
                  PERMISSION.POLITICS,
@@ -143,7 +144,7 @@ class MEMBER_ROLE(rels_django.DjangoEnum):
                  PERMISSION.BULK_MAILING,
                  PERMISSION.RECEIVE_MESSAGES)),
 
-               ('OFFICER', 3, 'Офицер', 2,
+               ('OFFICER', 3, 'Офицер', 2, '♖',
                 (PERMISSION.EMISSARIES_PLANING,
                  PERMISSION.EMISSARIES_QUESTS,
                  PERMISSION.TAKE_MEMBER,
@@ -153,12 +154,12 @@ class MEMBER_ROLE(rels_django.DjangoEnum):
                  PERMISSION.BULK_MAILING,
                  PERMISSION.RECEIVE_MESSAGES)),
 
-               ('FIGHTER', 4, 'Боец', 3,
+               ('FIGHTER', 4, 'Боец', 3, '♘',
                 (PERMISSION.EMISSARIES_QUESTS,
                  PERMISSION.ACCESS_CHRONICLE,
                  PERMISSION.BULK_MAILING)),
 
-               ('RECRUIT', 1, 'Рекрут', 4,
+               ('RECRUIT', 1, 'Рекрут', 4, '♙',
                 ()))
 
 

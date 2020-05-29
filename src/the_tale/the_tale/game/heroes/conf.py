@@ -47,4 +47,6 @@ settings = utils_app_settings.app_settings('HEROES',
 
                                            TT_DIARY_ENTRY_POINT='http://localhost:10001/',
 
-                                           MAX_HERO_DESCRIPTION_LENGTH=10000)
+                                           MAX_HERO_DESCRIPTION_LENGTH=10000,
+
+                                           REMOVE_HERO_DELAY=10*60)

@@ -254,7 +254,7 @@ class HeroArtifact(HeroMethod):
         percents = utils_logic.normalize_dict(dict(value))
         rare_percents = round(percents[artifacts_relations.RARITY.RARE.value] * 100)
         epic_percents = round(percents[artifacts_relations.RARITY.EPIC.value] * 100)
-        return f'герой получает редкий ({rare_percents}%) или эпичный ({epic_percents}%) артефакт'
+        return f'герой получает редкий ({rare_percents}%) или эпический ({epic_percents}%) артефакт'
 
 
 class HeroCards(HeroMethod):

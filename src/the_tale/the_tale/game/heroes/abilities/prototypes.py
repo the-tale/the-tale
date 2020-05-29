@@ -9,7 +9,7 @@ class AbilityPrototype(object):
     TYPE = None
     ACTIVATION_TYPE = None
     LOGIC_TYPE = None
-    PRIORITY = None
+    PRIORITY = []
     AVAILABILITY = relations.ABILITY_AVAILABILITY.FOR_ALL
     HAS_DAMAGE = False
 

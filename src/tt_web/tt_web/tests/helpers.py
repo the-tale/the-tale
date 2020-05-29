@@ -1,8 +1,11 @@
 
 import asyncio
+import contextlib
 
 from aiohttp import web
 from aiohttp import test_utils
+
+from tt_web import postgresql as db
 
 from tt_protocol.protocol import base_pb2
 
@@ -23,9 +26,15 @@ class BaseTests(test_utils.AioHTTPTestCase):
 
         return application
 
-    async def check_answer(self, request, Data=None, api_status=base_pb2.ApiResponse.SUCCESS, error=None):
+    async def check_answer(self, request, Data=None, api_status=base_pb2.ApiResponse.SUCCESS, error=None, raw=False):
         self.assertEqual(request.status, 200)
         content = await request.content.read()
+
+        if raw:
+            response = Data.FromString(content)
+            await request.release()
+            return response
+
         response = base_pb2.ApiResponse.FromString(content)
         self.assertEqual(response.status, api_status)
 
@@ -42,12 +51,25 @@ class BaseTests(test_utils.AioHTTPTestCase):
 
         return response_data
 
-    async def check_success(self, request, Data=None):
-        result = await self.check_answer(request, Data=Data, api_status=base_pb2.ApiResponse.SUCCESS)
+    async def check_success(self, request, Data=None, raw=False):
+        result = await self.check_answer(request, Data=Data, api_status=base_pb2.ApiResponse.SUCCESS, raw=raw)
         return result
 
     async def check_error(self, request, error):
         await self.check_answer(request, api_status=base_pb2.ApiResponse.ERROR, error=error)
+
+    @contextlib.asynccontextmanager
+    async def check_db_record_not_changed(self, table, id):
+        old_result = await db.sql(f'SELECT * FROM {table} WHERE id=%(id)s',
+                                  {'id': id})
+
+        try:
+            yield
+        finally:
+            new_result = await db.sql(f'SELECT * FROM {table} WHERE id=%(id)s',
+                                      {'id': id})
+
+            self.assertEqual(old_result, new_result)
 
     async def clean_environment(self, app=None):
         pass

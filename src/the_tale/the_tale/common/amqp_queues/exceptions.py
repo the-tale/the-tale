@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class AmqpQueuesError(utils_exceptions.TheTaleError):
-    MSG = None
+    pass
 
 
 class UnexpectedAnswerError(AmqpQueuesError):

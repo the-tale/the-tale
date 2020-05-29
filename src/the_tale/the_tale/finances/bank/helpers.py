@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class BankTestsMixin(object):
+class BankTestsMixin:
 
     def create_bank_account(self, entity_id, amount=0):
         account = prototypes.AccountPrototype.create(entity_type=relations.ENTITY_TYPE.GAME_ACCOUNT, entity_id=entity_id, currency=relations.CURRENCY_TYPE.PREMIUM)

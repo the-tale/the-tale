@@ -10,8 +10,6 @@ class Environment(BaseEnvironment):
         from the_tale.collections.workers import items_manager
         from the_tale.finances.bank.workers import bank_processor
         from the_tale.finances.xsolla.workers import banker as xsolla_banker
-        from the_tale.accounts.workers import registration
-        from the_tale.accounts.workers import accounts_manager
         from the_tale.accounts.achievements.workers import achievements_manager
         from the_tale.post_service.workers import message_sender
         from the_tale.linguistics.workers import linguistics_manager
@@ -25,8 +23,6 @@ class Environment(BaseEnvironment):
         self.workers.xsolla_banker = xsolla_banker.Worker(name='xsolla_banker')
         self.workers.refrigerator = refrigerator.Worker(name='refrigerator')
         self.workers.message_sender = message_sender.Worker(name='message_sender')
-        self.workers.registration = registration.Worker(name='registration')
-        self.workers.accounts_manager = accounts_manager.Worker(name='accounts_manager')
         self.workers.achievements_manager = achievements_manager.Worker(name='achievements_manager')
         self.workers.items_manager = items_manager.Worker(name='items_manager')
         self.workers.linguistics_manager = linguistics_manager.Worker(name='linguistics_manager')

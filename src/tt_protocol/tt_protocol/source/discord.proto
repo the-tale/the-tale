@@ -1,0 +1,42 @@
+syntax = "proto3";
+package discord;
+
+
+message User {
+  uint64 id = 1;
+  string nickname = 2;
+  repeated string roles = 3;
+  bool banned = 4;
+}
+
+
+message BindCode {
+  string code = 1;
+  double created_at = 2;
+  double expire_at = 3;
+}
+
+
+message GetBindCodeRequest {
+  User user = 1;
+  double expire_timeout = 2;
+}
+
+
+message GetBindCodeResponse {
+  BindCode code = 1;
+}
+
+
+message UpdateUserRequest {
+  User user = 1;
+  bool force = 2;
+}
+
+
+message UpdateUserResponse {
+}
+
+
+message DebugClearServiceRequest {}
+message DebugClearServiceResponse {}

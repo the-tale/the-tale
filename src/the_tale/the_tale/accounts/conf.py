@@ -42,9 +42,6 @@ settings = utils_app_settings.app_settings('ACCOUNTS',
                                            PREMIUM_EXPIRED_NOTIFICATION_IN=datetime.timedelta(days=3),
                                            PREMIUM_INFINIT_TIMEOUT=datetime.timedelta(days=100 * 365),
 
-                                           SETTINGS_PREV_PREIMIUM_EXPIRED_NOTIFICATION_RUN_TIME_KEY='pref premium expired notification',
-                                           PREMIUM_EXPIRED_NOTIFICATION_RUN_TIME=3,  # UTC time
-
                                            INFORMER_SHOW=True,
                                            INFORMER_LINK='https://informer.the-tale.org/?id=%(account_id)d&type=4',
                                            INFORMER_CREATOR_ID=2557,
@@ -86,5 +83,6 @@ settings = utils_app_settings.app_settings('ACCOUNTS',
 
                                            TT_PLAYERS_TIMERS_ENTRY_POINT='http://localhost:10006/',
                                            TT_PLAYERS_PROPERTIES_ENTRY_POINT='http://localhost:10014/',
+                                           TT_DATA_PROTECTOR_ENTRY_POINT='http://localhost:10023/',
 
                                            FREE_CARDS_FOR_REGISTRATION=10)

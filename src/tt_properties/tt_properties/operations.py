@@ -3,37 +3,42 @@
 from tt_web import postgresql as db
 
 from . import objects
+from . import relations
 
 
 def property_from_row(row):
     return objects.Property(object_id=row['object_id'],
                             type=row['property_type'],
-                            value=row['value'])
+                            value=row['value'],
+                            mode=relations.MODE.UNKNOWN)
 
 
 async def set_properties(properties):
 
     for property in properties:
-        await set_property(property)
+        if property.mode == relations.MODE.REPLACE:
+            await set_property(property)
+        elif property.mode == relations.MODE.APPEND:
+            await append_property(property)
+        else:
+            raise NotImplementedError('unknowm property mode')
 
 
 async def set_property(property):
+    await db.sql('DELETE FROM properties WHERE object_id=%(object_id)s AND property_type=%(type)s',
+                 {'object_id': property.object_id,
+                  'type': property.type})
 
-    result = await db.sql('''UPDATE properties
-                             SET value=%(value)s,
-                                 updated_at=NOW()
-                             WHERE object_id=%(object_id)s AND property_type=%(type)s
-                             RETURNING id''',
-                          {'object_id': property.object_id,
-                           'type': property.type,
-                           'value': property.value})
+    await db.sql('''INSERT INTO properties (object_id, property_type, value, created_at)
+                    VALUES (%(object_id)s, %(type)s, %(value)s, NOW())''',
+                 {'object_id': property.object_id,
+                  'type': property.type,
+                  'value': property.value})
 
-    if result:
-        return
 
-    await db.sql('''INSERT INTO properties (object_id, property_type, value, created_at, updated_at)
-                    VALUES (%(object_id)s, %(type)s, %(value)s, NOW(), NOW())
-                    ON CONFLICT (object_id, property_type) DO UPDATE SET value = EXCLUDED.value''',
+async def append_property(property):
+    await db.sql('''INSERT INTO properties (object_id, property_type, value, created_at)
+                    VALUES (%(object_id)s, %(type)s, %(value)s, NOW())''',
                  {'object_id': property.object_id,
                   'type': property.type,
                   'value': property.value})
@@ -53,11 +58,33 @@ async def get_object_properties(object_id, types):
         return {object_id: []}
 
     result = await db.sql('''SELECT object_id, property_type, value FROM properties
-                             WHERE object_id=%(object_id)s AND property_type IN %(types)s''',
+                             WHERE object_id=%(object_id)s AND property_type IN %(types)s
+                             ORDER BY created_at''',  # guaranty created order, if multiple properties extracted
                           {'object_id': object_id,
                            'types': tuple(types)})
 
     return [property_from_row(row) for row in result]
+
+
+async def get_data_report(object_id):
+    data = []
+
+    result = await db.sql('''SELECT object_id, property_type, value FROM properties
+                             WHERE object_id=%(object_id)s
+                             ORDER BY created_at''',  # guaranty created order, if multiple properties extracted
+                          {'object_id': object_id})
+
+    for row in result:
+        property = property_from_row(row)
+        data.append(('property', {'type': property.type,
+                                  'value': property.value}))
+
+    return data
+
+
+async def clean_object_properties(object_id):
+    await db.sql('DELETE FROM properties WHERE object_id=%(object_id)s',
+                 {'object_id': object_id})
 
 
 async def clean_database():

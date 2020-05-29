@@ -19,11 +19,37 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='properties.proto',
   package='properties',
   syntax='proto3',
-  serialized_pb=_b('\n\x10properties.proto\x12\nproperties\":\n\x08Property\x12\x11\n\tobject_id\x18\x01 \x01(\x04\x12\x0c\n\x04type\x18\x02 \x01(\x04\x12\r\n\x05value\x18\x03 \x01(\t\"2\n\x0ePropertiesList\x12\x11\n\tobject_id\x18\x01 \x01(\x04\x12\r\n\x05types\x18\x02 \x03(\x04\"@\n\x14SetPropertiesRequest\x12(\n\nproperties\x18\x01 \x03(\x0b\x32\x14.properties.Property\"\x17\n\x15SetPropertiesResponse\"C\n\x14GetPropertiesRequest\x12+\n\x07objects\x18\x01 \x03(\x0b\x32\x1a.properties.PropertiesList\"A\n\x15GetPropertiesResponse\x12(\n\nproperties\x18\x01 \x03(\x0b\x32\x14.properties.Property\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
+  serialized_pb=_b('\n\x10properties.proto\x12\nproperties\"\x91\x01\n\x08Property\x12\x11\n\tobject_id\x18\x01 \x01(\x04\x12\x0c\n\x04type\x18\x02 \x01(\x04\x12\r\n\x05value\x18\x03 \x01(\t\x12\'\n\x04mode\x18\x04 \x01(\x0e\x32\x19.properties.Property.Mode\",\n\x04Mode\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0b\n\x07REPLACE\x10\x01\x12\n\n\x06\x41PPEND\x10\x02\"2\n\x0ePropertiesList\x12\x11\n\tobject_id\x18\x01 \x01(\x04\x12\r\n\x05types\x18\x02 \x03(\x04\"@\n\x14SetPropertiesRequest\x12(\n\nproperties\x18\x01 \x03(\x0b\x32\x14.properties.Property\"\x17\n\x15SetPropertiesResponse\"C\n\x14GetPropertiesRequest\x12+\n\x07objects\x18\x01 \x03(\x0b\x32\x1a.properties.PropertiesList\"A\n\x15GetPropertiesResponse\x12(\n\nproperties\x18\x01 \x03(\x0b\x32\x14.properties.Property\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 
+
+_PROPERTY_MODE = _descriptor.EnumDescriptor(
+  name='Mode',
+  full_name='properties.Property.Mode',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='UNKNOWN', index=0, number=0,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='REPLACE', index=1, number=1,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='APPEND', index=2, number=2,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=134,
+  serialized_end=178,
+)
+_sym_db.RegisterEnumDescriptor(_PROPERTY_MODE)
 
 
 _PROPERTY = _descriptor.Descriptor(
@@ -54,11 +80,19 @@ _PROPERTY = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='mode', full_name='properties.Property.mode', index=3,
+      number=4, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
+    _PROPERTY_MODE,
   ],
   options=None,
   is_extendable=False,
@@ -66,8 +100,8 @@ _PROPERTY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=32,
-  serialized_end=90,
+  serialized_start=33,
+  serialized_end=178,
 )
 
 
@@ -104,8 +138,8 @@ _PROPERTIESLIST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=92,
-  serialized_end=142,
+  serialized_start=180,
+  serialized_end=230,
 )
 
 
@@ -135,8 +169,8 @@ _SETPROPERTIESREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=144,
-  serialized_end=208,
+  serialized_start=232,
+  serialized_end=296,
 )
 
 
@@ -159,8 +193,8 @@ _SETPROPERTIESRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=210,
-  serialized_end=233,
+  serialized_start=298,
+  serialized_end=321,
 )
 
 
@@ -190,8 +224,8 @@ _GETPROPERTIESREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=235,
-  serialized_end=302,
+  serialized_start=323,
+  serialized_end=390,
 )
 
 
@@ -221,8 +255,8 @@ _GETPROPERTIESRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=304,
-  serialized_end=369,
+  serialized_start=392,
+  serialized_end=457,
 )
 
 
@@ -245,8 +279,8 @@ _DEBUGCLEARSERVICEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=371,
-  serialized_end=397,
+  serialized_start=459,
+  serialized_end=485,
 )
 
 
@@ -269,10 +303,12 @@ _DEBUGCLEARSERVICERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=399,
-  serialized_end=426,
+  serialized_start=487,
+  serialized_end=514,
 )
 
+_PROPERTY.fields_by_name['mode'].enum_type = _PROPERTY_MODE
+_PROPERTY_MODE.containing_type = _PROPERTY
 _SETPROPERTIESREQUEST.fields_by_name['properties'].message_type = _PROPERTY
 _GETPROPERTIESREQUEST.fields_by_name['objects'].message_type = _PROPERTIESLIST
 _GETPROPERTIESRESPONSE.fields_by_name['properties'].message_type = _PROPERTY

@@ -302,7 +302,7 @@ def take_card_callback(context):
 
     account = accounts_prototypes.AccountPrototype.get_by_id(context.tt_request.timer.owner_id)
 
-    if account is None:
+    if account is None or account.is_removed():
         postprocess_type = tt_protocol_timers_pb2.CallbackAnswer.PostprocessType.Value('REMOVE')
         return tt_api_views.ProtobufOk(content=tt_protocol_timers_pb2.CallbackAnswer(postprocess_type=postprocess_type))
 

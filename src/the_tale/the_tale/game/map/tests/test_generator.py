@@ -38,6 +38,5 @@ def create_test_building_power_point(building_type):
 
 
 for record in places_relations.BUILDING_TYPE.records:
-
     method = create_test_building_power_point(record)
     setattr(GeneratorTests, 'test_%s' % record.name, method)

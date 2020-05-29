@@ -55,7 +55,9 @@ setuptools.setup(
                       'pynames==0.2.2',
                       'utg==0.3.1',
                       'rels==0.3.1',
-                      'smart_imports==0.2.4'],
+                      'smart_imports==0.2.4',
+
+                      'typeguard==2.7.1'],
 
     include_package_data=True,
     test_suite='tests')

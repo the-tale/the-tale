@@ -122,6 +122,27 @@ body {
          margin-left: 0px;
          margin-bottom: -12px;
       }
+
+      .nav {
+
+          li {
+              .navbar-element {
+                  opacity: 0.5;
+              }
+
+              &:hover {
+                  .navbar-element {
+                      opacity: 1.0;
+                  }
+              }
+
+              &.active {
+                  .navbar-element {
+                      opacity: 1.0;
+                  }
+              }
+          }
+      }
    }
 
    footer {

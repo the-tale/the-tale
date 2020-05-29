@@ -1,0 +1,34 @@
+{
+    "database": {"name": "tt_data_protector",
+                 "user": "tt_data_protector",
+                 "password": "tt_data_protector",
+                 "host": "localhost",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "log": {"level": "critical"},
+
+    "custom": {
+        "report_livetime": 60,
+        "sources": {
+            "test_source_1": {"plugin": "tt_data_protector.plugins.test",
+                              "presets": {"1": {"success_on_step": 1,
+                                                "report": [["type_1", "data_1"],
+                                                           ["type_2", "data_2"]]},
+                                          "2": {"success_on_step": 1,
+                                                "report": [["type_3", "data_3"]]},
+                                          "3": {"success_on_step": 2,
+                                                "report": [["type_4", "data_4"]]}}},
+            "test_source_2": {"plugin": "tt_data_protector.plugins.test",
+                              "presets": {"20": {"success_on_step": 2,
+                                                 "report": [["type_3", "data_5"],
+                                                            ["type_3", "data_6"]]},
+                                          "40": {"success_on_step": 3,
+                                                 "report": [["type_5", "data_2"]]}}},
+            "test_source_3": {"plugin": "tt_data_protector.plugins.test",
+                              "presets": {}}
+        }
+    }
+}

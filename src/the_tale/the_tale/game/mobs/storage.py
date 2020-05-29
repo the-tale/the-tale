@@ -78,4 +78,4 @@ class MobsStorage(utils_storage.CachedStorage):
         return self.get_random_mob(hero)
 
 
-mobs = MobsStorage()
+mobs: MobsStorage = MobsStorage()

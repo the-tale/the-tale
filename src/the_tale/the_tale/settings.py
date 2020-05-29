@@ -1,12 +1,22 @@
 
+import sys
+
+TESTS_RUNNING = 'test' in sys.argv or 'testserver' in sys.argv
+
+################################################################
+# typeguard MUST be initialized before any poject related imports
+# and only for tests
+################################################################
+if TESTS_RUNNING:
+    from typeguard.importhook import install_import_hook
+    install_import_hook('the_tale')
+################################################################
+
+
 import smart_imports
 
 smart_imports.all()
 
-
-# NotImplemented settings MUST be defined in settings_local
-
-TESTS_RUNNING = 'test' in sys.argv or 'testserver' in sys.argv
 
 RUNSERVER_RUNNING = 'runserver' in sys.argv
 
@@ -110,6 +120,16 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = '/tmp/emails'
 
 ################################
+# Discord settings
+################################
+
+DISCORD_WIDGET_URL = None
+DISCORD_INVITE_LINK = None
+DISCORD_BIND_COMMAND = 'tt bind'
+DISCORD_HELP_COMMAND = 'tt help'
+DISCORD_BOT_NAME = 'Смотритель'
+
+################################
 # Other settings
 ################################
 
@@ -201,7 +221,6 @@ INSTALLED_APPS = [
     'the_tale.guide',
 
     'the_tale.portal',
-    'the_tale.portal.developers_info',
 
     'the_tale.game.chronicle',  # MUST be before game, since the same bug like with the_tale.accounts.third_party
     'the_tale.game',

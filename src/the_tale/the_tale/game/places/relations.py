@@ -37,7 +37,7 @@ class BUILDING_TYPE(rels_django.DjangoEnum):
 attributes = game_attributes
 
 
-class ATTRIBUTE(attributes.ATTRIBUTE):
+class ATTRIBUTE(game_attributes.ATTRIBUTE):
     records = (attributes.attr('SIZE', 0, 'размер города', default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
                                description='Влияет на развитие специализаций, радиус влияния и на потребление товаров его жителями. Зависит от производства товаров.'),
 

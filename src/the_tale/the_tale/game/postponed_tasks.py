@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class ComplexChangeTask(PostponedLogic):
-    TYPE = None
+    TYPE = NotImplemented
 
     class STATE(rels_django.DjangoEnum):
         records = (('UNPROCESSED', 1, 'в очереди'),

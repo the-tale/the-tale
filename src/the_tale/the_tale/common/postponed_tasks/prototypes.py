@@ -9,40 +9,47 @@ _INTERNAL_LOGICS = {}
 
 class PostponedLogic(object):
 
-    TYPE = None
+    TYPE = NotImplemented
 
-    def __init__(self): pass
+    def __init__(self):
+        pass
 
     def process(self, main_task):
         raise NotImplementedError
 
-    def serialize(self): return {}
+    def serialize(self):
+        return {}
 
     @classmethod
     def deserialize(cls, data):
         return cls(**data)
 
     @property
-    def processed_data(self): return {}
+    def processed_data(self):
+        return {}
 
-    def processed_view(self, resource): pass
+    def processed_view(self, resource):
+        pass
 
     @property
     def error_message(self):
         raise NotImplementedError
 
     @property
-    def uuid(self): return None
+    def uuid(self):
+        return None
 
 
 def _register_postponed_tasks(container, objects):
 
     for obj in utils_discovering.discover_classes(objects, PostponedLogic):
+
+        if obj.TYPE is NotImplemented:
+            continue  # skip abstract classes
+
         if obj.TYPE in container:
             raise exceptions.PostponedTaskException('interanl logic "%s" for postponed task has being registered already' % obj.TYPE)
-        if obj.TYPE is None:
-            continue  # skip abstract classes
-            # raise exceptions.PostponedTaskException(u'interanl logic "%r" for postponed task does not define TYPE' % obj)
+
         container[obj.TYPE] = obj
 
 

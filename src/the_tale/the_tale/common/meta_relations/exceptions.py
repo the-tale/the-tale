@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class MetaRelationsError(utils_exceptions.TheTaleError):
-    MSG = None
+    pass
 
 
 class DuplicateRelationError(MetaRelationsError):

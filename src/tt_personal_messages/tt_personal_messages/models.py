@@ -61,7 +61,7 @@ class Visibility(models.Model):
     account = models.PositiveIntegerField()
     message = models.ForeignKey(Message, related_name='+', on_delete=models.CASCADE, db_column='message')
 
-    visible = models.BooleanField(default=True)
+    visible = models.BooleanField(default=True, db_index=True)
 
     class Meta:
         db_table = 'visibilities'

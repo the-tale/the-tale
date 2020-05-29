@@ -1,0 +1,26 @@
+{
+    "database": {"name": "tt_discord",
+                 "user": "tt_discord",
+                 "password": "tt_discord",
+                 "host": "localhost",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "log": {"level": "critical"},
+
+    "custom": {
+        "data_protector": {
+            "secret": "test.secret"
+        },
+        "discord": {
+            "connect_to_server": true,
+            "command_prefix": "tt_",
+            "token": null,
+            "roles": {"role_1": "1123",
+                      "role_2": "4545",
+                      "role_3": "234523"}
+        }
+    }
+}

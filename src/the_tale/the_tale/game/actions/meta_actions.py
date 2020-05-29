@@ -8,7 +8,7 @@ class MetaAction(object):
     __slots__ = ('percents', 'state', 'last_processed_turn', 'storage')
 
     TYPE = None
-    TEXTGEN_TYPE = None
+    TEXTGEN_TYPE = NotImplemented
 
     class STATE:
         UNINITIALIZED = relations.UNINITIALIZED_STATE
@@ -38,6 +38,12 @@ class MetaAction(object):
         obj.percents = data['percents']
 
         return obj
+
+    def is_valid(self):
+        return False
+
+    def cancel(self):
+        pass
 
     @property
     def description_text_name(self):
@@ -188,6 +194,9 @@ class ArenaPvP1x1(MetaAction):
                 'pvp__actual': info.ui_info(),
                 'pvp__last_turn': info.turn_ui_info()}
 
+    def is_valid(self):
+        return self.hero_1 is not None and self.hero_2 is not None
+
     @property
     def hero_1(self):
         return self.storage.heroes.get(self.hero_1_id)
@@ -258,17 +267,25 @@ class ArenaPvP1x1(MetaAction):
                 self.hero_1.statistics.change_pvp_battles_1x1_victories(1)
                 self.hero_2.statistics.change_pvp_battles_1x1_defeats(1)
 
-        battles = pvp_tt_services.matchmaker.cmd_get_battles_by_participants(participants_ids=(self.hero_1.account_id,
-                                                                                               self.hero_2.account_id))
+        self.finish_battle()
+
+        self.hero_1.health = self.hero_1_old_health
+        self.hero_2.health = self.hero_2_old_health
+
+        self.state = self.STATE.PROCESSED
+
+    def finish_battle(self):
+        battles = pvp_tt_services.matchmaker.cmd_get_battles_by_participants(participants_ids=(self.hero_1_id,
+                                                                                               self.hero_2_id))
 
         matchmaker_battles_ids = {battle.id for battle in battles}
 
         for matchmaker_battle_id in matchmaker_battles_ids:
             pvp_tt_services.matchmaker.cmd_finish_battle(matchmaker_battle_id)
 
-        self.hero_1.health = self.hero_1_old_health
-        self.hero_2.health = self.hero_2_old_health
-
+    def cancel(self):
+        self.finish_battle()
+        self.percents = 1.0
         self.state = self.STATE.PROCESSED
 
     def process_bot(self, bot, enemy, enemy_pvp):

@@ -1068,7 +1068,7 @@ class _QuestMixin:
         return [quests_relations.PERSON_ACTION.HELP,
                 quests_relations.PERSON_ACTION.HARM]
 
-    def create_card(self, type, available_for_auction, action=None, uid=None):
+    def create_card(self, type, available_for_auction, uid=None, action=None):
         if action is None:
             action = random.choice(self.allowed_actions())
 

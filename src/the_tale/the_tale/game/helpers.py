@@ -5,8 +5,7 @@ smart_imports.all()
 
 
 class ComplexChangeTaskMixin(object):
-    PROCESSOR = None
-    LOGIC = None
+    LOGIC = NotImplemented
 
     def use_attributes(self,
                        hero,
@@ -19,6 +18,7 @@ class ComplexChangeTaskMixin(object):
                        highlevel=None,
                        critical=False,
                        card=None,
+                       processor_id=None,
                        battle_id=None,
                        extra_data=None):
 
@@ -48,11 +48,12 @@ class ComplexChangeTaskMixin(object):
         if card is not None:
             data['card'] = {'id': card.uid.hex,
                             'data': card.serialize()}
+            processor_id = card.type.value
 
         if extra_data:
             data.update(extra_data)
 
-        task = self.LOGIC(processor_id=self.PROCESSOR,
+        task = self.LOGIC(processor_id=processor_id,
                           hero_id=hero.id,
                           data=data,
                           step=step,

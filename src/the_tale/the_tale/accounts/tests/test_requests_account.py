@@ -307,7 +307,8 @@ class ResetNickRequestsTests(AccountRequestsTests):
         self.assertNotEqual(old_nick, prototypes.AccountPrototype.get_by_id(self.account_1.id).nick)
 
 
-class BanRequestsTests(AccountRequestsTests, personal_messages_helpers.Mixin):
+class BanRequestsTests(portal_helpers.Mixin,
+                       AccountRequestsTests):
 
     def setUp(self):
         super(BanRequestsTests, self).setUp()
@@ -367,6 +368,11 @@ class BanRequestsTests(AccountRequestsTests, personal_messages_helpers.Mixin):
         self.account_1.reload()
         self.assertTrue(self.account_1.is_ban_forum)
         self.assertTrue(self.account_1.is_ban_game)
+
+    def test_success__sync_with_discord(self):
+        with self.check_discord_synced(self.account_1.id):
+            self.check_ajax_ok(self.post_ajax_json(django_reverse('accounts:ban', args=[self.account_1.id]),
+                                                   self.form_data(relations.BAN_TYPE.FORUM)))
 
 
 class ResetBansRequestsTests(AccountRequestsTests):

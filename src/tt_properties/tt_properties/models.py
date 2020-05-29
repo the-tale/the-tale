@@ -10,8 +10,7 @@ class Property(models.Model):
     value = models.TextField()
 
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'properties'
-        unique_together = [('object_id', 'property_type')]
+        index_together = [('object_id', 'property_type')]

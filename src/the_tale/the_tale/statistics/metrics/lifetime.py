@@ -7,7 +7,7 @@ smart_imports.all()
 class AliveAfterBase(base.BaseMetric):
     TYPE = None
     FULL_CLEAR_RECUIRED = True
-    DAYS = None
+    DAYS = NotImplemented
 
     def get_value(self, date):
         query = accounts_prototypes.AccountPrototype._db_filter(self.db_date_day('created_at', date),

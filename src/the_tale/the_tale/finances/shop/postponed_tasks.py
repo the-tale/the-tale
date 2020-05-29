@@ -23,7 +23,7 @@ class BASE_BUY_TASK_STATE(rels_django.DjangoEnum):
 
 
 class BaseBuyTask(PostponedLogic):
-    TYPE = None
+    TYPE = NotImplemented
     RELATION = BASE_BUY_TASK_STATE
 
     def __init__(self, account_id, transaction, state=None, custom_error=None):
@@ -50,7 +50,8 @@ class BaseBuyTask(PostponedLogic):
                 'custom_error': self.custom_error}
 
     @property
-    def uuid(self): return self.account_id
+    def uuid(self):
+        return self.account_id
 
     @property
     def error_message(self):
@@ -59,7 +60,8 @@ class BaseBuyTask(PostponedLogic):
         return self.state.text
 
     @utils_decorators.lazy_property
-    def account(self): return accounts_prototypes.AccountPrototype.get_by_id(self.account_id) if self.account_id is not None else None
+    def account(self):
+        return accounts_prototypes.AccountPrototype.get_by_id(self.account_id) if self.account_id is not None else None
 
     def process_transaction_requested(self, main_task):
         transaction_state = self.transaction.get_invoice_state()
@@ -80,7 +82,7 @@ class BaseBuyTask(PostponedLogic):
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
     def on_process_transaction_requested__transaction_frozen(self, main_task):
-        main_task.extend_postsave_actions((lambda: amqp_environment.environment.workers.accounts_manager.cmd_task(main_task.id),))
+        main_task.extend_postsave_actions((main_task.cmd_wait,))
 
     def on_process_transaction_frozen(self, storage):
         raise NotImplementedError
@@ -144,12 +146,6 @@ class BaseBuyTask(PostponedLogic):
                                 description='Часть от потраченного вашим рефералом',
                                 uid='referral-bonus',
                                 force=True)
-
-
-class BaseLogicBuyTask(BaseBuyTask):
-
-    def on_process_transaction_requested__transaction_frozen(self, main_task):
-        main_task.extend_postsave_actions((lambda: amqp_environment.environment.workers.supervisor.cmd_logic_task(self.account_id, main_task.id),))
 
 
 class BuyPremium(BaseBuyTask):
@@ -257,7 +253,7 @@ class BuyMarketLot(BaseBuyTask):
                                                 amount=-logic.get_commission(self.price),
                                                 description_for_sender='Комиссия с продажи «{}»'.format(lot_name),
                                                 description_for_recipient='Комиссия с продажи «{}»'.format(lot_name),
-                                                operation_uid='{}-cards-hero-good'.format(conf.settings.MARKET_COMMISSION_OPERATION_UID, lot.full_type),
+                                                operation_uid='{}-cards-hero-good'.format(conf.settings.MARKET_COMMISSION_OPERATION_UID),
                                                 force=True)
 
         personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),

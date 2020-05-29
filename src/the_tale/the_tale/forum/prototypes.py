@@ -333,6 +333,8 @@ class PostPrototype(utils_prototypes.BasePrototype):
     @django_transaction.atomic
     def delete(self, initiator):
 
+        self._model.text = ''
+
         self._model.state = relations.POST_STATE.REMOVED
 
         if self.author == initiator:

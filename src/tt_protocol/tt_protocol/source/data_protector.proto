@@ -1,0 +1,75 @@
+syntax = "proto3";
+package data_protector;
+
+
+message Report {
+  int32 state = 1;
+  string data = 2;
+  double completed_at = 3;
+  double expire_at = 4;
+}
+
+
+message SourceInfo {
+  string source = 1;
+  string id = 2;
+}
+
+
+message RequestReportRequest {
+  repeated SourceInfo ids = 1;
+}
+
+message RequestReportResponse {
+  string report_id = 1;
+}
+
+
+message GetReportRequest {
+  string report_id = 1;
+}
+
+message GetReportResponse {
+  Report report = 1;
+}
+
+
+message RequestDeletionRequest {
+  string core_id = 1;
+  repeated SourceInfo ids = 2;
+}
+
+message RequestDeletionResponse {
+}
+
+
+message PluginReportRequest {
+  string account_id = 1;
+  string secret = 2;
+}
+
+message PluginReportResponse {
+  enum ResultType {
+    SUCCESS = 0;
+    FAILED = 1;
+  }
+  ResultType result = 1;
+  string data = 2;
+}
+
+message PluginDeletionRequest {
+  string account_id = 1;
+  string secret = 2;
+}
+
+message PluginDeletionResponse {
+  enum ResultType {
+    SUCCESS = 0;
+    FAILED = 1;
+  }
+  ResultType result = 1;
+}
+
+
+message DebugClearServiceRequest {}
+message DebugClearServiceResponse {}

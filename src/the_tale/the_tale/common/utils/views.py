@@ -14,11 +14,11 @@ class Context(object):
             raise ViewError(code='internal.try_to_reassign_context_value',
                             message=conf.settings.DEFAUL_ERROR_MESSAGE,
                             info={'name': name})
-        super(Context, self).__setattr__(name, value)
+        super().__setattr__(name, value)
 
 
 class View(object):
-    __slots__ = ('processors', 'logic', 'name', 'path', 'resource', '__doc__', 'csrf_exempt')
+    __slots__ = ('processors', 'logic', 'name', 'path', 'resource', '__doc__', 'csrf_exempt', '__name__', '__qualname__')
 
     def __init__(self, logic):
         self.processors = []
@@ -30,9 +30,8 @@ class View(object):
 
         self.__doc__ = logic.__doc__
 
-        # TODO: uncomment after https://bugs.python.org/issue24329 will be fixed
-        # self.__name__ = logic.__name__
-        # self.__qualname__ = logic.__qualname__
+        self.__name__ = logic.__name__
+        self.__qualname__ = logic.__qualname__
 
     def get_processors(self):
         return self.resource.get_processors() + self.processors
@@ -40,7 +39,7 @@ class View(object):
     def add_processor(self, processor):
         self.processors.insert(0, processor)
 
-    def __call__(self, request, **url_arguments):
+    def __call__(self, request, *argv, **url_arguments):
         context = Context()
 
         context.django_request = request
@@ -74,7 +73,6 @@ class View(object):
         except ViewError as error:
             return self.process_error(error, request, context)
 
-
     def _get_error_response_class(self, request):
 
         accepted_mimetypes = request.META.get('HTTP_ACCEPT')
@@ -90,7 +88,6 @@ class View(object):
 
         return AjaxError
 
-
     def process_error(self, error, request, context):
         error_response_class = self._get_error_response_class(request)
         info = error.info
@@ -100,7 +97,6 @@ class View(object):
                                     context=context,
                                     http_status=error.http_status,
                                     info=info).complete(context)
-
 
     def get_url_record(self):
 
@@ -120,7 +116,6 @@ class View(object):
                                name=self.name,
                                kwargs={})
 
-
     def __lt__(self, other):
         for l, r in zip(self.path, other.path):
             if not l: return True
@@ -137,7 +132,7 @@ class Resource(object):
     __slots__ = ('name', 'processors', 'views', 'parent', 'children')
 
     def __init__(self, name):
-        super(Resource, self).__init__()
+        super().__init__()
         self.name = name
         self.processors = []
         self.views = {}
@@ -173,8 +168,6 @@ class Resource(object):
 
             view = func if isinstance(func, View) else View(logic=func)
 
-            # view = functools.wraps(view.logic)(view)
-
             view.name = name
             view.path = argv
 
@@ -205,6 +198,7 @@ class ProcessorArgument(object):
 
     def __init__(self, default=NotImplemented):
         self.default = default
+
 
 # TODO: write metaclass for processing processor arguments
 class BaseViewProcessor(object):
@@ -253,7 +247,7 @@ class HttpMethodProcessor(BaseViewProcessor):
     ARG_ALLOWED_METHODS = ProcessorArgument()
 
     def initialize(self):
-        super(HttpMethodProcessor, self).initialize()
+        super().initialize()
         self.allowed_methods = frozenset(self.allowed_methods)
 
     def preprocess(self, context):
@@ -335,7 +329,7 @@ class ArgumentProcessor(BaseViewProcessor):
     ARG_IN_LIST = ProcessorArgument(default=False)
 
     def initialize(self):
-        super(ArgumentProcessor, self).initialize()
+        super().initialize()
 
         if sum((1 if self.get_name else 0,
                 1 if self.post_name else 0,
@@ -407,6 +401,15 @@ class MapArgumentProcessor(ArgumentProcessor):
         return mapping.get(raw_value)
 
 
+class UUIDArgumentProcessor(ArgumentProcessor):
+
+    def parse(self, context, raw_value):
+        try:
+            return uuid.UUID(raw_value)
+        except ValueError:
+            self.raise_wrong_format()
+
+
 class IntArgumentProcessor(ArgumentProcessor):
 
     def parse(self, context, raw_value):
@@ -414,6 +417,7 @@ class IntArgumentProcessor(ArgumentProcessor):
             return int(raw_value)
         except ValueError:
             self.raise_wrong_format()
+
 
 class IntsArgumentProcessor(ArgumentProcessor):
 
@@ -479,7 +483,7 @@ class Redirect(BaseResponse):
     __slots__ = ('target_url', 'permanent')
 
     def __init__(self, target_url, permanent=False, **kwargs):
-        super(Redirect, self).__init__(http_mimetype=None, **kwargs)
+        super().__init__(http_mimetype=None, **kwargs)
         self.target_url = target_url
         self.permanent = permanent
 
@@ -492,13 +496,26 @@ class Page(BaseResponse):
     __slots__ = ('template',)
 
     def __init__(self, template, http_mimetype='text/html', **kwargs):
-        super(Page, self).__init__(http_mimetype=http_mimetype, **kwargs)
+        super().__init__(http_mimetype=http_mimetype, **kwargs)
         self.template = template
 
     def complete(self, context):
         self.content['context'] = context
         self.content = utils_jinja2.render(self.template, context=self.content, request=context.django_request)
-        return super(Page, self).complete(context)
+        return super().complete(context)
+
+
+class String(BaseResponse):
+    __slots__ = ('text',)
+
+    def __init__(self, text, http_mimetype='text/html', **kwargs):
+        super().__init__(http_mimetype=http_mimetype, **kwargs)
+        self.text = text
+
+    def complete(self, context):
+        self.content['context'] = context
+        self.content = self.text
+        return super().complete(context)
 
 
 # TODO: refactor error/errors
@@ -526,7 +543,7 @@ class PageError(Page):
                                   'context': context,
                                   'resource': context.resource})# TODO: remove resource (added for compartibility with old version)
 
-        super(PageError, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         self.code = code
         self.errors = error
@@ -538,25 +555,25 @@ class Atom(BaseResponse):
     __slots__ = ('feed',)
 
     def __init__(self, feed, http_mimetype='application/atom+xml', **kwargs):
-        super(Atom, self).__init__(http_mimetype=http_mimetype, **kwargs)
+        super().__init__(http_mimetype=http_mimetype, **kwargs)
         self.feed = feed
 
     def complete(self, context):
         self.content = self.feed.writeString(self.http_charset)
-        return super(Atom, self).complete(context)
+        return super().complete(context)
 
 
 class Ajax(BaseResponse):
 
     def __init__(self, http_mimetype='application/json', **kwargs):
-        super(Ajax, self).__init__(http_mimetype=http_mimetype, **kwargs)
+        super().__init__(http_mimetype=http_mimetype, **kwargs)
 
     def wrap(self, content):
         return content
 
     def complete(self, context):
         self.content = s11n.to_json(self.wrap(self.content))
-        return super(Ajax, self).complete(context)
+        return super().complete(context)
 
 
 class AjaxOk(Ajax):
@@ -569,7 +586,7 @@ class AjaxError(Ajax):
     __slots__ = ('code', 'errors', 'context', 'info')
 
     def __init__(self, code, errors, context, info=None, **kwargs):
-        super(AjaxError, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.code = code
         self.errors = errors
         self.context = context
@@ -592,7 +609,7 @@ class AjaxProcessing(Ajax):
     __slots__ = ('status_url',)
 
     def __init__(self, status_url, **kwargs):
-        super(AjaxProcessing, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.status_url = status_url
 
     def wrap(self, context):
@@ -620,7 +637,10 @@ class PageNumberProcessor(ArgumentProcessor):
     DEFAULT_VALUE = 0
 
     def parse(self, context, raw_value):
-        return max(0, int(raw_value) - 1)
+        try:
+            return max(0, int(raw_value) - 1)
+        except ValueError:
+            self.raise_wrong_format()
 
 
 class TextFilterProcessor(ArgumentProcessor):

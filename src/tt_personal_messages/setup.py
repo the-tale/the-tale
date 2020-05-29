@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import setuptools
 
 VERSION = '0.1'
@@ -14,6 +14,6 @@ setuptools.setup(
     license='BSD',
     packages=setuptools.find_packages(),
     install_requires=['rels==0.3.0'],
-    entry_points={'console_scripts': []},
+    entry_points={'console_scripts': ['tt_personal_messages_clean=tt_personal_messages.commands.tt_personal_messages_clean:main']},
     include_package_data=True,
     test_suite='tests')

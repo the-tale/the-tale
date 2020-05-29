@@ -220,6 +220,12 @@ jQuery(document).ready(function(e) {
 
           {% endif %}
 
+        {% if master_account.is_removed() %}
+        <p class="alert alert-danger">
+          Аккаунт удалён.
+        </p>
+        {% endif %}
+
         {% if master_account.is_ban_forum %}
           <p class="alert alert-error pgf-ban-forum-message">
             Игроку запрещено общаться до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_forum_end_at|timestamp }}"></span>
@@ -358,7 +364,13 @@ jQuery(document).ready(function(e) {
 
                   <tr>
                     <td>Был в игре</td>
-                    <td><span class="pgf-format-date" data-timestamp="{{ master_account.was_in_game_at|timestamp}}"></span></td>
+                    <td>
+                      {% if master_account.is_removed() %}
+                      —
+                      {% else %}
+                      <span class="pgf-format-date" data-timestamp="{{ master_account.was_in_game_at|timestamp}}"></span>
+                      {% endif %}
+                    </td>
                   </tr>
 
                   <tr>

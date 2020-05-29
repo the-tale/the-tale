@@ -42,7 +42,7 @@ class ActionBase(object):
 
     TYPE = None
     SINGLE = True  # is action work with only one hero
-    TEXTGEN_TYPE = None
+    TEXTGEN_TYPE = NotImplemented
     CONTEXT_MANAGER = None
     HELP_CHOICES = set()
     APPROVED_FOR_STEPS_CHAIN = True
@@ -1587,7 +1587,12 @@ class ActionMetaProxyPrototype(ActionBase):
 
     def process(self):
 
-        self.meta_action.process()
+        if not self.meta_action.is_valid():
+            # rollback action if we something go wrong
+            # for example, we lost one of heroes (due user removed its account)
+            self.meta_action.cancel()
+        else:
+            self.meta_action.process()
 
         self.state = self.meta_action.state
         self.percents = self.meta_action.percents
@@ -1691,7 +1696,7 @@ class ActionHealCompanionPrototype(ActionBase):
 
 class ActionMoveSimplePrototype(ActionBase):
     TYPE = relations.ACTION_TYPE.MOVE_SIMPLE
-    TEXTGEN_TYPE = None
+    TEXTGEN_TYPE = 'no texgen type'
 
     @property
     def HELP_CHOICES(self):

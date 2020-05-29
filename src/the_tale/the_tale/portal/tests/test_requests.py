@@ -15,13 +15,18 @@ class TestRequests(utils_testcase.TestCase):
     def test_search(self):
         self.check_html_ok(self.request_html(utils_urls.url('portal:search')))
 
-    def test_landing(self):
-        self.check_html_ok(self.request_html(utils_urls.url('portal:landing')))
+    def test_chat(self):
+        self.check_html_ok(self.request_html(utils_urls.url('portal:chat')))
 
-    def test_landing__authengitacted(self):
+    def test_chat_bind_discord__unlogined(self):
+        self.check_html_ok(self.request_ajax_html(utils_urls.url('portal:chat-bind-discord')),
+                           texts=['common.login_required'])
+
+    def test_chat_bind_discord(self):
         account = self.accounts_factory.create_account()
         self.request_login(account.email)
-        self.check_redirect(utils_urls.url('portal:landing'), utils_urls.url('portal:'))
+
+        self.check_html_ok(self.request_html(utils_urls.url('portal:chat-bind-discord')))
 
     def test_preview(self):
         text = 'simple test text'

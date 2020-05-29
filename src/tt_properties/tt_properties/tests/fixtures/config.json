@@ -10,5 +10,9 @@
 
     "log": {"level": "critical"},
 
-    "custom": {}
+    "custom": {
+        "data_protector": {
+            "secret": "test.secret"
+        }
+    }
 }

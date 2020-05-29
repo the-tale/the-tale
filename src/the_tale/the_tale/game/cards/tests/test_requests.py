@@ -415,6 +415,21 @@ class TakeCardCallbackTests(CardsRequestsTestsBase, tt_api_testcase.TestCaseMixi
         self.assertEqual(cards, {})
 
     @mock.patch('tt_logic.common.checkers.is_player_participate_in_game', mock.Mock(return_value=False))
+    def test_account_removed(self):
+        tt_services.storage.cmd_debug_clear_service()
+
+        accounts_data_protection.first_step_removing(self.account)
+
+        data = self.create_data(secret=django_settings.TT_SECRET,)
+        answer = self.check_protobuf_ok(self.post_protobuf(utils_urls.url('game:cards:tt-take-card-callback'), data),
+                                        answer_type=tt_protocol_timers_pb2.CallbackAnswer)
+
+        self.assertEqual(answer.postprocess_type, self.postprocess_remove)
+
+        cards = tt_services.storage.cmd_get_items(self.account.id)
+        self.assertEqual(cards, {})
+
+    @mock.patch('tt_logic.common.checkers.is_player_participate_in_game', mock.Mock(return_value=False))
     def test_does_not_participate_in_game(self):
         data = self.create_data(secret=django_settings.TT_SECRET)
         answer = self.check_protobuf_ok(self.post_protobuf(utils_urls.url('game:cards:tt-take-card-callback'), data),

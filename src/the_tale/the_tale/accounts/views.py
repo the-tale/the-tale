@@ -12,12 +12,15 @@ smart_imports.all()
 # TODO: rename to UserAccountProcessor
 class CurrentAccountProcessor(utils_views.BaseViewProcessor):
     def preprocess(self, context):
-        context.account = prototypes.AccountPrototype(model=context.django_request.user) if context.django_request.user.is_authenticated else context.django_request.user
+        if context.django_request.user.is_authenticated:
+            context.account = prototypes.AccountPrototype(model=context.django_request.user)
+        else:
+            context.account = context.django_request.user
 
         if context.account.is_authenticated and context.account.is_update_active_state_needed:
-            amqp_environment.environment.workers.accounts_manager.cmd_run_account_method(account_id=context.account.id,
-                                                                                         method_name=prototypes.AccountPrototype.update_active_state.__name__,
-                                                                                         data={})
+            context.account.update_active_state()
+
+            logic.store_client_ip(context.account.id, context.django_request.META['HTTP_X_FORWARDED_FOR'])
 
 
 class SuperuserProcessor(utils_views.BaseViewProcessor):
@@ -46,6 +49,7 @@ class AccountProcessor(utils_views.ArgumentProcessor):
 
 
 class LoginRequiredProcessor(utils_views.BaseViewProcessor):
+    ARG_ERROR_MESSAGE = utils_views.ProcessorArgument(default='У Вас нет прав для проведения данной операции')
 
     def login_page_url(self, target_url):
         return logic.login_page_url(target_url)
@@ -55,7 +59,7 @@ class LoginRequiredProcessor(utils_views.BaseViewProcessor):
             return
 
         if context.django_request.is_ajax():
-            raise utils_views.ViewError(code='common.login_required', message='У Вас нет прав для проведения данной операции')
+            raise utils_views.ViewError(code='common.login_required', message=self.error_message)
 
         return utils_views.Redirect(target_url=self.login_page_url(context.django_request.get_full_path()))
 
@@ -152,6 +156,8 @@ resource.add_child(auth_resource)
 profile_resource = utils_views.Resource(name='profile')
 profile_resource.add_processor(third_party_views.RefuseThirdPartyProcessor())
 resource.add_child(profile_resource)
+
+technical_resource = utils_views.Resource(name='profile')
 
 
 @utils_views.TextFilterProcessor(context_name='prefix', get_name='prefix', default_value=None)
@@ -300,7 +306,7 @@ def give_award(context):
 def reset_nick(context):
 
     logic.change_credentials(account=context.master_account,
-                             new_nick='{} ({})'.format(conf.settings.RESET_NICK_PREFIX, uuid.uuid4().hex))
+                             new_nick=logic.reset_nick_value())
 
     return utils_views.AjaxOk()
 
@@ -330,6 +336,8 @@ def ban(context):
     personal_messages_logic.send_message(sender_id=logic.get_system_user_id(),
                                          recipients_ids=[context.master_account.id],
                                          body=message % {'message': context.form.c.description})
+
+    portal_logic.sync_with_discord(context.master_account)
 
     return utils_views.AjaxOk()
 
@@ -773,6 +781,100 @@ def reset_password(context):
 def update_last_news_reminder_time(context):
     context.account.update_last_news_remind_time()
     return utils_views.AjaxOk()
+
+
+@LoginRequiredProcessor()
+@profile_resource('data-protection-get-data-dialog')
+def data_protection_get_data_dialog(context):
+
+    report_id = tt_services.data_protector.cmd_request_report(ids=data_protection.ids_list(context.account))
+
+    report_url = utils_urls.full_url('https', 'accounts:profile:data-protection-report', report_id.hex)
+
+    return utils_views.Page('accounts/data_protection_dialog.html',
+                            content={'resource': context.resource,
+                                     'report_url': report_url})
+
+
+@utils_views.ArgumentProcessor(context_name='mode', get_name='mode', default_value='readable')
+@utils_views.UUIDArgumentProcessor(context_name='report_id', url_name='id')
+@profile_resource('data-protection-report', '#id', name='data-protection-report')
+def data_protection_report(context):
+    report = tt_services.data_protector.cmd_get_report(id=context.report_id)
+
+    if report.state == tt_api_data_protector.REPORT_STATE.PROCESSING:
+        raise utils_views.ViewError(code='accounts.profile.data_protection_report.report_processing',
+                                    message='Отчёт ещё не сформирован. Обновите страницу через несколько минут.')
+
+    if report.state == tt_api_data_protector.REPORT_STATE.NOT_EXISTS:
+        raise utils_views.ViewError(code='accounts.profile.data_protection_report.report_not_exists',
+                                    message='Отчёт не найден (не запрашивался, уже удалён или вы неверно скопировали ссылку).')
+
+    technical_url = utils_urls.full_url('https', 'accounts:profile:data-protection-report', context.report_id.hex, mode="technical")
+
+    if context.mode == 'technical':
+        return utils_views.AjaxOk(content={'report': report.data,
+                                           'completed_at': report.completed_at.isoformat(),
+                                           'expire_at': report.expire_at.isoformat()})
+    else:
+        report.postprocess_records(data_protection.postprocess_record)
+
+        return utils_views.Page('accounts/data_protection_report.html',
+                                content={'resource': context.resource,
+                                         'report': report.data_by_source(),
+                                         'technical_url': technical_url,
+                                         'completed_at': report.completed_at,
+                                         'expire_at': report.expire_at})
+
+
+@tt_api_views.RequestProcessor(request_class=tt_protocol_data_protector_pb2.PluginReportRequest)
+@tt_api_views.SecretProcessor(secret=django_settings.TT_SECRET)
+@technical_resource('tt', 'data-protection-collect-data', name='tt-data-protection-collect-data', method='post')
+@django_decorators.csrf.csrf_exempt
+def data_protection_collect_data(context):
+
+    account_id = int(context.tt_request.account_id)
+
+    if django_settings.DEBUG and not models.Account.objects.filter(id=account_id).exists():
+        # in develop environment it is normal behaviour
+        # but in productions it MUST be an error
+        result = tt_protocol_data_protector_pb2.PluginDeletionResponse.ResultType.SUCCESS
+        return tt_api_views.ProtobufOk(content=tt_protocol_data_protector_pb2.PluginDeletionResponse(result=result))
+
+    report = data_protection.collect_full_data(account_id)
+
+    result = tt_protocol_data_protector_pb2.PluginReportResponse.ResultType.SUCCESS
+
+    return tt_api_views.ProtobufOk(content=tt_protocol_data_protector_pb2.PluginReportResponse(result=result,
+                                                                                               data=s11n.to_json(report)))
+
+
+@LoginRequiredProcessor()
+@profile_resource('data-protection-request-deletion', method='POST')
+def data_protection_request_deletion(context):
+    data_protection.first_step_removing(context.account)
+    return utils_views.AjaxOk()
+
+
+@tt_api_views.RequestProcessor(request_class=tt_protocol_data_protector_pb2.PluginDeletionRequest)
+@tt_api_views.SecretProcessor(secret=django_settings.TT_SECRET)
+@technical_resource('tt', 'data-protection-delete-data', name='tt-data-protection-delete-data', method='post')
+@django_decorators.csrf.csrf_exempt
+def data_protection_delete_data(context):
+    account_id = int(context.tt_request.account_id)
+
+    if django_settings.DEBUG and not models.Account.objects.filter(id=account_id).exists():
+        # in develop environment it is normal behaviour
+        # but in productions it MUST be an error
+        result = tt_protocol_data_protector_pb2.PluginDeletionResponse.ResultType.SUCCESS
+        return tt_api_views.ProtobufOk(content=tt_protocol_data_protector_pb2.PluginDeletionResponse(result=result))
+
+    if data_protection.remove_data(account_id):
+        result = tt_protocol_data_protector_pb2.PluginDeletionResponse.ResultType.SUCCESS
+    else:
+        result = tt_protocol_data_protector_pb2.PluginDeletionResponse.ResultType.FAILED
+
+    return tt_api_views.ProtobufOk(content=tt_protocol_data_protector_pb2.PluginDeletionResponse(result=result))
 
 
 ################################################

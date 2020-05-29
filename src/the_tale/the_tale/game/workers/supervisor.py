@@ -57,8 +57,8 @@ class Worker(utils_workers.BaseWorker):
 
         self.logger.info('distribute accounts')
 
-        for account_id in accounts_models.Account.objects.all().order_by('id').values_list('id', flat=True).iterator():
-            self.register_account(account_id)
+        for account_id in accounts_models.Account.objects.filter(removed_at=None).order_by('id').values_list('id', flat=True).iterator():
+            self.register_account(account_id, check_removed_state=False)
 
         self.initialized = True
         self.wait_next_turn_answer = False
@@ -102,7 +102,15 @@ class Worker(utils_workers.BaseWorker):
 
         return chosen_worker
 
-    def register_account(self, account_id):
+    def register_account(self, account_id, check_removed_state=True):
+
+        if check_removed_state and accounts_models.Account.objects.filter(id=account_id).exclude(removed_at=None).exists():
+            self.logger.info('skip registration of account %s due it is removed', account_id)
+            # TODO: possible memmory leak
+            # since we do not remove tasks from self.tasks
+            # it should not be significant
+            return
+
         if self.accounts_owners.get(account_id) is not None:
             raise exceptions.DublicateAccountRegistration(account_id=account_id, owner=self.accounts_owners[account_id])
 

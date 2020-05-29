@@ -93,6 +93,10 @@ class GuideResource(utils_resources.Resource):
     def user_agreement(self):
         return self.template('guide/user-agreement.html', {'section': 'user-agreement'})
 
+    @old_views.handler('privacy-policy', method='get')
+    def privacy_policy(self):
+        return self.template('guide/privacy-policy.html', {'section': 'privacy-policy'})
+
     @old_views.handler('account-types', method='get')
     def account_types(self):
         return self.template('guide/account_types.html', {'section': 'account-types'})

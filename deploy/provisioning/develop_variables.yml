@@ -33,6 +33,10 @@ tt_services:
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_personal_messages/"}
+    custom:
+      data_protector:
+        secret: "test.secret"
+
   tt_storage:
     packages:
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
@@ -121,6 +125,9 @@ tt_services:
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_properties/"}
+    custom:
+      data_protector:
+        secret: "test.secret"
 
   tt_clans_properties:
     packages:
@@ -165,6 +172,59 @@ tt_services:
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_uniquer/"}
+
+  tt_discord:
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_discord/"}
+    custom:
+      data_protector:
+        secret: "test.secret"
+      discord:
+        connect_to_server: false
+        command_prefix: 'tt '
+        token: null
+        sync_users_chank_size: 100
+        sleep_on_sync_users_error: 1
+        roles:
+          developer: "706039951514533918"
+          moderator: "706039907143122976"
+          pillar_of_world: "706039836145877002"
+          mighty_keeper: "706039505420812298"
+          keeper: "706039067996848160"
+          spirit_of_pandora: "706039007427166251"
+          hand_of_fate: "706859419257798696"
+          clan_command: "706859419257798696"
+
+  tt_data_protector:
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_data_protector/"}
+    custom:
+      report_livetime: 86400
+      sources:
+        the_tale:
+          plugin: "tt_data_protector.plugins.internal"
+          report_url: "http://localhost:8000/accounts/profile/tt/data-protection-collect-data"
+          deletion_url: "http://localhost:8000/accounts/profile/tt/data-protection-delete-data"
+          secret: "test.secret"
+        tt_personal_messages:
+          plugin: "tt_data_protector.plugins.internal"
+          report_url: "http://localhost:10002/data-protection-collect-data"
+          deletion_url: "http://localhost:10002/data-protection-delete-data"
+          secret: "test.secret"
+        tt_discord:
+          plugin: "tt_data_protector.plugins.internal"
+          report_url: "http://localhost:10022/data-protection-collect-data"
+          deletion_url: "http://localhost:10022/data-protection-delete-data"
+          secret: "test.secret"
+        tt_players_properties:
+          plugin: "tt_data_protector.plugins.internal"
+          report_url: "http://localhost:10014/data-protection-collect-data"
+          deletion_url: "http://localhost:10014/data-protection-delete-data"
+          secret: "test.secret"
 
 
 tt_RAM: 4096

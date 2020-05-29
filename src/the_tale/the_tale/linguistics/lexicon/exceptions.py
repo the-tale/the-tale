@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class LexiconError(linguistics_exceptions.LinguisticsError):
-    MSG = None
+    pass
 
 
 class NoFreeVerificatorSubstitutionError(linguistics_exceptions.LinguisticsError):

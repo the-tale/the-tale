@@ -59,7 +59,7 @@ class Mob(object):
         abilities.randomized_mob_level_up(f.max_ability_points_number(level) - len(record.abilities))
         return abilities
 
-    additional_abilities = []
+    additional_abilities = ()
 
     @property
     def id(self): return self.record.uuid

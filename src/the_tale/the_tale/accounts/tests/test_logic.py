@@ -19,19 +19,16 @@ class TestLogic(utils_testcase.TestCase):
         normal_account._model.created_at = datetime.datetime.fromtimestamp(0)
         normal_account._model.save()
 
-        self.assertTrue(achievements_models.AccountAchievements.objects.all().count(), 2)
-        self.assertEqual(models.Account.objects.all().count(), 2)
-        self.assertEqual(heroes_models.Hero.objects.all().count(), 2)
+        self.assertEqual(fast_account.removed_at, None)
+        self.assertEqual(normal_account.removed_at, None)
 
         logic.block_expired_accounts(logger=mock.Mock())
 
-        self.assertEqual(achievements_models.AccountAchievements.objects.all().count(), 1)
-        self.assertEqual(heroes_models.Hero.objects.all().count(), 1)
-        self.assertEqual(models.Account.objects.all().count(), 1)
+        fast_account.reload()
+        normal_account.reload()
 
-        self.assertEqual(achievements_models.AccountAchievements.objects.filter(id=normal_account.id).count(), 1)
-        self.assertEqual(heroes_models.Hero.objects.filter(id=normal_account.id).count(), 1)
-        self.assertEqual(models.Account.objects.filter(id=normal_account.id).count(), 1)
+        self.assertNotEqual(fast_account.removed_at, None)
+        self.assertEqual(normal_account.removed_at, None)
 
     def test_get_account_id_by_email(self):
         self.assertEqual(logic.get_account_id_by_email('bla@bla.bla'), None)
@@ -134,7 +131,9 @@ class CardsForNewAccountTests(utils_testcase.TestCase):
                          {card.item_full_type for card in self.expected_cards})
 
 
-class ChangeCredentialsTests(utils_testcase.TestCase, personal_messages_helpers.Mixin):
+class ChangeCredentialsTests(personal_messages_helpers.Mixin,
+                             portal_helpers.Mixin,
+                             utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
@@ -154,13 +153,13 @@ class ChangeCredentialsTests(utils_testcase.TestCase, personal_messages_helpers.
         with self.check_delta(lambda: len(cards_tt_services.storage.cmd_get_items(self.fast_account.id)),
                               conf.settings.FREE_CARDS_FOR_REGISTRATION), \
              mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd, \
-             mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
+             mock.patch('the_tale.accounts.logic.update_referrals_number') as update_referrals_number:
                 logic.change_credentials(account=self.fast_account,
                                          new_email='fast_user@test.ru',
                                          new_password=django_auth_hashers.make_password('222222'),
                                          new_nick='test_nick')
 
-        self.assertEqual(cmd_run_account_method.call_count, 0)
+        self.assertEqual(update_referrals_number.call_count, 0)
 
         self.assertEqual(django_auth.authenticate(nick='test_nick', password='222222').id, self.fast_account.id)
         self.assertFalse(prototypes.AccountPrototype.get_by_id(self.fast_account.id).is_fast)
@@ -178,8 +177,7 @@ class ChangeCredentialsTests(utils_testcase.TestCase, personal_messages_helpers.
         cards_tt_services.storage.cmd_debug_clear_service()
 
         with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id))), \
-             mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd, \
-             mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
+             mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd:
                 logic.change_credentials(account=self.account,
                                          new_email='x_user@test.ru',
                                          new_password=django_auth_hashers.make_password('222222'),
@@ -196,16 +194,11 @@ class ChangeCredentialsTests(utils_testcase.TestCase, personal_messages_helpers.
         self.assertTrue(prototypes.AccountPrototype.get_by_id(self.fast_account.id).is_fast)
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd:
-            with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
+            with self.check_delta(lambda: prototypes.AccountPrototype.get_by_id(self.account.id).referrals_number, 1):
                 logic.change_credentials(account=self.fast_account,
                                          new_email='fast_user@test.ru',
                                          new_password=django_auth_hashers.make_password('222222'),
                                          new_nick='test_nick')
-
-        self.assertEqual(cmd_run_account_method.call_count, 1)
-        self.assertEqual(cmd_run_account_method.call_args, mock.call(account_id=self.account.id,
-                                                                     method_name=prototypes.AccountPrototype.update_referrals_number.__name__,
-                                                                     data={}))
 
         self.assertEqual(django_auth.authenticate(nick='test_nick', password='222222').id, self.fast_account.id)
         self.assertFalse(prototypes.AccountPrototype.get_by_id(self.fast_account.id).is_fast)
@@ -246,6 +239,12 @@ class ChangeCredentialsTests(utils_testcase.TestCase, personal_messages_helpers.
         self.assertEqual(self.account.email, 'test_user@test.ru')
         self.assertEqual(django_auth.authenticate(nick=nick, password='111111').id, self.account.id)
         self.assertEqual(django_auth.authenticate(nick=nick, password='111111').nick, nick)
+
+    def test_sync_with_discord_when_nick_changed(self):
+
+        with self.check_discord_synced(self.account.id):
+            logic.change_credentials(account=self.account,
+                                     new_nick='test_nick')
 
 
 class MaxMoneyToTransferTests(bank_helpers.BankTestsMixin, utils_testcase.TestCase):
@@ -348,3 +347,87 @@ class MaxMoneyToTransferTests(bank_helpers.BankTestsMixin, utils_testcase.TestCa
                             operation_uid=accounts_postponed_tasks.TRANSFER_MONEY_UID)
 
         self.assertEqual(logic.max_money_to_transfer(self.account), 1 - 10 - 100 + 1000 - 6666666)
+
+
+class UpdateReferralsNumberTests(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+        game_logic.create_test_map()
+
+    def prepair_data(self, base_account):
+        self.accounts_factory.create_account(referral_of_id=base_account.id)
+        self.accounts_factory.create_account(referral_of_id=base_account.id, is_fast=True)
+
+    def test_update_referrals__for_normal_account(self):
+        account = self.accounts_factory.create_account()
+
+        self.prepair_data(account)
+
+        logic.update_referrals_number(account.id)
+
+        account.reload()
+
+        self.assertEqual(account.referrals_number, 1)
+
+    def test_update_referrals__for_fast_account(self):
+        account = self.accounts_factory.create_account(is_fast=True)
+
+        self.prepair_data(account)
+
+        logic.update_referrals_number(account.id)
+
+        account.reload()
+
+        self.assertEqual(account.referrals_number, 1)
+
+    def test_update_referrals__for_removed_account(self):
+        account = self.accounts_factory.create_account(is_fast=True)
+
+        data_protection.first_step_removing(account)
+
+        data_protection.remove_data(account.id)
+
+        self.prepair_data(account)
+
+        logic.update_referrals_number(account.id)
+
+        account.reload()
+
+        self.assertEqual(account.referrals_number, 0)
+
+
+class StoreClientIpTests(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+        game_logic.create_test_map()
+
+        tt_services.players_properties.cmd_debug_clear_service()
+
+    def test(self):
+        account_1 = self.accounts_factory.create_account()
+        account_2 = self.accounts_factory.create_account()
+
+        logic.store_client_ip(account_1.id, '127.0.0.1')
+        logic.store_client_ip(account_2.id, '127.0.0.2')
+        logic.store_client_ip(account_1.id, '127.0.0.3')
+        logic.store_client_ip(account_2.id, '127.0.0.4')
+        logic.store_client_ip(account_2.id, '127.0.0.2')  # test duplicate
+        logic.store_client_ip(account_1.id, '127.0.0.3')  # test duplicate
+        logic.store_client_ip(account_1.id, '127.0.0.5')
+        logic.store_client_ip(account_1.id, '127.0.0.2')
+
+        ips_1 = tt_services.players_properties.cmd_get_object_property(account_1.id,
+                                                                       tt_services.PLAYER_PROPERTIES.ip_address.name)
+
+        self.assertEqual(ips_1, ['127.0.0.1',
+                                 '127.0.0.3',
+                                 '127.0.0.5',
+                                 '127.0.0.2'])
+
+        ips_2 = tt_services.players_properties.cmd_get_object_property(account_2.id,
+                                                                       tt_services.PLAYER_PROPERTIES.ip_address.name)
+
+        self.assertEqual(ips_2, ['127.0.0.2',
+                                 '127.0.0.4'])

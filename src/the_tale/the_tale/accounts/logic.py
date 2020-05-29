@@ -203,13 +203,6 @@ def logout_user(request):
     request.session[conf.settings.SESSION_FIRST_TIME_VISIT_VISITED_KEY] = True
 
 
-def remove_account(account, force=False):
-    if force or account.can_be_removed():
-        with django_transaction.atomic():
-            game_logic.remove_game_data(account)
-            account.remove()
-
-
 def block_expired_accounts(logger):
 
     expired_before = datetime.datetime.now() - datetime.timedelta(seconds=conf.settings.FAST_ACCOUNT_EXPIRED_TIME)
@@ -227,30 +220,22 @@ def block_expired_accounts(logger):
             logger.error('found fast account with clan, account id: %s', account_model.id)
             continue
 
-        remove_account(prototypes.AccountPrototype(account_model))
+        account = prototypes.AccountPrototype(account_model)
+
+        data_protection.first_step_removing(account)
 
 
 def thin_out_accounts(number, prolong_active_to, logger):
-    restricted_accounts = set()
-    restricted_accounts |= set(models.Account.objects.exclude(clan_id=None).values_list('id', flat=True))
-    restricted_accounts |= set(bills_models.Bill.objects.values_list('owner_id', flat=True))
-    restricted_accounts |= set(blogs_models.Post.objects.values_list('author_id', flat=True))
-    restricted_accounts |= set(blogs_models.Post.objects.values_list('moderator_id', flat=True))
-    restricted_accounts |= set(forum_models.Post.objects.values_list('author_id', flat=True))
-    restricted_accounts |= set(forum_models.Thread.objects.values_list('author_id', flat=True))
+    accounts_to_delete = models.Account.objects.order_by('id').values_list('id', flat=True)[number:]
 
-    all_accounts_ids = set(models.Account.objects.values_list('id', flat=True))
-    all_accounts_ids -= restricted_accounts
+    logger.info('accounts to remove: %s', len(accounts_to_delete))
 
-    accounts_to_delete = sorted(all_accounts_ids)[number:]
+    # just mark account as removed, to not load them in workers
+    models.Account.objects.filter(id__in=accounts_to_delete).update(removed_at=datetime.datetime.now())
 
-    logger.info('accounts to delete: %s', len(accounts_to_delete))
+    active_end_at = datetime.datetime.now() + datetime.timedelta(seconds=prolong_active_to)
 
-    for i, account_model in enumerate(models.Account.objects.filter(id__in=accounts_to_delete)):
-        logger.info('process account %s/%s', i, len(accounts_to_delete))
-        remove_account(prototypes.AccountPrototype(account_model), force=True)
-
-    models.Account.objects.all().update(active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=prolong_active_to))
+    models.Account.objects.exclude(id__in=accounts_to_delete).update(active_end_at=active_end_at)
 
 
 # for bank
@@ -335,11 +320,14 @@ def initiate_transfer_money(sender_id, recipient_id, amount, comment):
     return task
 
 
-def change_credentials(account, new_email=None, new_password=None, new_nick=None):
+def change_credentials(account, new_password=None, new_nick=None, **kwargs):
+
     if new_password:
         account._model.password = new_password
-    if new_email:
-        account._model.email = new_email
+
+    if 'new_email' in kwargs:
+        account._model.email = kwargs['new_email']
+
     if new_nick:
         account.nick = new_nick
 
@@ -361,10 +349,10 @@ def change_credentials(account, new_email=None, new_password=None, new_nick=None
         account.cmd_update_hero()
 
         if account.referral_of_id is not None:
-            amqp_environment.environment.workers.accounts_manager.cmd_run_account_method(
-                account_id=account.referral_of_id,
-                method_name=account.update_referrals_number.__name__,
-                data={})
+            update_referrals_number(account.referral_of_id)
+
+    if new_nick:
+        portal_logic.sync_with_discord(account)
 
 
 def max_money_to_transfer(account):
@@ -391,3 +379,29 @@ def max_money_to_transfer(account):
                       invoice.operation_uid == transfer_uid)
 
     return bought + received - infinit - send
+
+
+def reset_nick_value():
+    return f'{conf.settings.RESET_NICK_PREFIX} ({uuid.uuid4().hex})'
+
+
+def update_referrals_number(account_id):
+    number = models.Account.objects.filter(referral_of_id=account_id,
+                                           is_fast=False,
+                                           removed_at=None).count()
+    models.Account.objects.filter(id=account_id,
+                                  removed_at=None).update(referrals_number=number)
+
+
+def store_client_ip(account_id, ip):
+    ips = tt_services.players_properties.cmd_get_object_property(account_id,
+                                                                 name=tt_services.PLAYER_PROPERTIES.ip_address.name)
+
+    ip = ip.strip()
+
+    if ip in ips:
+        return
+
+    tt_services.players_properties.cmd_set_property(object_id=account_id,
+                                                    name=tt_services.PLAYER_PROPERTIES.ip_address,
+                                                    value=ip)

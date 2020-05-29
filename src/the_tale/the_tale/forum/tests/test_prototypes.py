@@ -339,6 +339,17 @@ class PostPrototypeTests(utils_testcase.TestCase):
 
         self.assertEqual(thread_update.call_count, 1)
 
+    def test_reset_text_on_delete(self):
+        post = prototypes.PostPrototype._db_get_object(0)
+
+        self.assertNotEqual(post.text, '')
+
+        post.delete(self.checked_account)
+
+        post.reload()
+
+        self.assertEqual(post.text, '')
+
     def test_created_at_turn(self):
         game_turn.increment()
         game_turn.increment()

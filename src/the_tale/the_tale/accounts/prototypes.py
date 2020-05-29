@@ -9,6 +9,7 @@ class AccountPrototype(utils_prototypes.BasePrototype):
     _readonly = ('id',
                  'is_authenticated',
                  'created_at',
+                 'updated_at',
                  'is_staff',
                  'is_superuser',
                  'is_bot',
@@ -22,9 +23,13 @@ class AccountPrototype(utils_prototypes.BasePrototype):
                  'action_id',
                  'clan_id',
                  'referrals_number',
-                 'might')
+                 'might',
+                 'removed_at')
     _bidirectional = ('is_fast', 'nick', 'email', 'gender', 'last_news_remind_time', 'personal_messages_subscription', 'news_subscription', 'description')
     _get_by = ('id', 'email', 'nick')
+
+    def is_removed(self):
+        return self.removed_at is not None
 
     def cmd_update_hero(self):
         amqp_environment.environment.workers.supervisor.cmd_update_hero_with_account_data(self.id,
@@ -37,8 +42,11 @@ class AccountPrototype(utils_prototypes.BasePrototype):
                                                                                           clan_id=self.clan_id)
 
     def update_actual_bills(self):
-        self._model.actual_bills = s11n.to_json(bills_logic.actual_bills_accepted_timestamps(self.id))
-        self.save()
+        actual_bills = s11n.to_json(bills_logic.actual_bills_accepted_timestamps(self.id))
+
+        models.Account.objects.filter(id=self.id).update(actual_bills=actual_bills)
+
+        self._model.actual_bills = actual_bills
 
         del self.actual_bills
 
@@ -54,7 +62,9 @@ class AccountPrototype(utils_prototypes.BasePrototype):
 
     @classmethod
     def live_query(cls):
-        return cls._model_class.objects.filter(is_fast=False, is_bot=False).select_related('clan')
+        return cls._model_class.objects.filter(is_fast=False,
+                                               is_bot=False,
+                                               removed_at=None).select_related('clan')
 
     @utils_decorators.lazy_property
     def is_system_user(self):
@@ -86,9 +96,6 @@ class AccountPrototype(utils_prototypes.BasePrototype):
         self._model_class.objects.filter(id=self.id).update(last_news_remind_time=current_time)
         self._model.last_news_remind_time = current_time
 
-    def update_referrals_number(self):
-        self._model.referrals_number = self._model_class.objects.filter(referral_of_id=self.id, is_fast=False).count()
-
     def update_settings(self, form):
         self._model_class.objects.filter(id=self.id).update(personal_messages_subscription=form.c.personal_messages_subscription,
                                                             news_subscription=form.c.news_subscription,
@@ -100,7 +107,12 @@ class AccountPrototype(utils_prototypes.BasePrototype):
         self._model.gender = form.c.gender
 
     def prolong_premium(self, days):
-        self._model.premium_end_at = max(self.premium_end_at, datetime.datetime.now()) + datetime.timedelta(days=days)
+        premium_end_at = max(self.premium_end_at, datetime.datetime.now()) + datetime.timedelta(days=days)
+
+        models.Account.objects.filter(id=self.id).update(premium_end_at=premium_end_at)
+
+        self._model.premium_end_at = premium_end_at
+
         self.cmd_update_hero()
 
     @property
@@ -249,19 +261,25 @@ class AccountPrototype(utils_prototypes.BasePrototype):
 
     @property
     def is_update_active_state_needed(self):
-        return datetime.datetime.now() + datetime.timedelta(seconds=conf.settings.ACTIVE_STATE_TIMEOUT - conf.settings.ACTIVE_STATE_REFRESH_PERIOD) > self.active_end_at
+        return datetime.datetime.now() + datetime.timedelta(seconds=conf.settings.ACTIVE_STATE_TIMEOUT -
+                                                                    conf.settings.ACTIVE_STATE_REFRESH_PERIOD) > self.active_end_at
 
     def update_active_state(self):
-        self._model.active_end_at = self._next_active_end_at()
-        self.save()
+        active_end_at = self._next_active_end_at()
+
+        self._model.active_end_at = active_end_at
+
+        models.Account.objects.filter(id=self.id).update(active_end_at=active_end_at)
 
         self.cmd_update_hero()
 
     @property
-    def was_in_game_at(self): return self.active_end_at - datetime.timedelta(seconds=conf.settings.ACTIVE_STATE_TIMEOUT)
+    def was_in_game_at(self):
+        return self.active_end_at - datetime.timedelta(seconds=conf.settings.ACTIVE_STATE_TIMEOUT)
 
     @property
-    def is_active(self): return self.active_end_at > datetime.datetime.now()
+    def is_active(self):
+        return self.active_end_at > datetime.datetime.now()
 
     @property
     def is_technical(self):
@@ -318,7 +336,7 @@ class AccountPrototype(utils_prototypes.BasePrototype):
 
 class ChangeCredentialsTaskPrototype(utils_prototypes.BasePrototype):
     _model_class = models.ChangeCredentialsTask
-    _readonly = ('id', 'account_id', 'uuid', 'state', 'new_email', 'new_nick', 'new_password')
+    _readonly = ('id', 'account_id', 'uuid', 'state', 'new_email', 'new_nick', 'new_password', 'created_at', 'updated_at')
     _bidirectional = ()
     _get_by = ('id', 'uuid')
 
@@ -424,7 +442,8 @@ class ResetPasswordTaskPrototype(utils_prototypes.BasePrototype):
     _get_by = ('uuid',)
 
     @property
-    def is_time_expired(self): return datetime.datetime.now() > self._model.created_at + datetime.timedelta(seconds=conf.settings.RESET_PASSWORD_TASK_LIVE_TIME)
+    def is_time_expired(self):
+        return datetime.datetime.now() > self._model.created_at + datetime.timedelta(seconds=conf.settings.RESET_PASSWORD_TASK_LIVE_TIME)
 
     @classmethod
     def create(cls, account):
@@ -432,7 +451,9 @@ class ResetPasswordTaskPrototype(utils_prototypes.BasePrototype):
                                                 uuid=uuid.uuid4().hex)
         prototype = cls(model=model)
 
-        post_service_prototypes.MessagePrototype.create(post_service_message_handlers.ResetPasswordHandler(account_id=account.id, task_uuid=prototype.uuid), now=True)
+        post_service_prototypes.MessagePrototype.create(post_service_message_handlers.ResetPasswordHandler(account_id=account.id,
+                                                                                                           task_uuid=prototype.uuid),
+                                                        now=True)
 
         return prototype
 

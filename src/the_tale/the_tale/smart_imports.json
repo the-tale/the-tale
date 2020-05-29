@@ -1,6 +1,19 @@
 {
     "cache_dir": "./.smart_imports",
     "rules": [{"type": "rule_custom",
+               "variables": {"Any": {"module": "typing", "attribute": "Any"},
+                             "Optional": {"module": "typing", "attribute": "Optional"},
+                             "Type": {"module": "typing", "attribute": "Type"},
+                             "Union": {"module": "typing", "attribute": "Union"},
+                             "Set": {"module": "typing", "attribute": "Set"},
+                             "Dict": {"module": "typing", "attribute": "Dict"},
+                             "List": {"module": "typing", "attribute": "List"},
+                             "Tuple": {"module": "typing", "attribute": "Tuple"},
+                             "Iterable": {"module": "typing", "attribute": "Iterable"},
+                             "Callable": {"module": "typing", "attribute": "Callable"},
+                             "ClassVar": {"module": "typing", "attribute": "ClassVar"}}},
+
+              {"type": "rule_custom",
                "variables": {"mock": {"module": "unittest.mock"},
 
                              "tt_calendar": {"module": "tt_calendar"},
@@ -8,6 +21,7 @@
                              "tt_cards_constants": {"module": "tt_logic.cards.constants"},
                              "tt_clans_constants": {"module": "tt_logic.clans.constants"},
                              "tt_beings_relations": {"module": "tt_logic.beings.relations"},
+                             "tt_common_constants": {"module": "tt_logic.common.constants"},
                              "tt_logic_checkers": {"module": "tt_logic.common.checkers"},
                              "tt_emissaries_constants": {"module": "tt_logic.emissaries.constants"},
 

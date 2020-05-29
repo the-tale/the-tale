@@ -28,7 +28,7 @@ class LogicTests(helpers.BaseTestPrototypes):
 
         bill.apply()
 
-        self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id), [time.mktime(bill.voting_end_at.timetuple())])
+        self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id), [utils_logic.to_timestamp(bill.voting_end_at)])
 
         # second bill
 
@@ -38,7 +38,7 @@ class LogicTests(helpers.BaseTestPrototypes):
                                                               old_modifier_name=None)
         bill_2 = prototypes.BillPrototype.create(self.account2, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
-        self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id), [time.mktime(bill.voting_end_at.timetuple())])
+        self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id), [utils_logic.to_timestamp(bill.voting_end_at)])
 
         data = bill_2.user_form_initials
         data['approved'] = True
@@ -49,7 +49,7 @@ class LogicTests(helpers.BaseTestPrototypes):
 
         bill_2.apply()
 
-        self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id), [time.mktime(bill.voting_end_at.timetuple())])
+        self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id), [utils_logic.to_timestamp(bill.voting_end_at)])
 
         # third bill
 
