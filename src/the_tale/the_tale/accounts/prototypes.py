@@ -371,10 +371,18 @@ class ChangeCredentialsTaskPrototype(utils_prototypes.BasePrototype):
         return self._model.new_email is not None and (self._model.old_email != self._model.new_email)
 
     def change_credentials(self):
-        logic.change_credentials(account=self.account,
-                                 new_email=self.new_email,
-                                 new_password=self.new_password,
-                                 new_nick=self.new_nick)
+        arguments = {}
+
+        if self.new_password:
+            arguments['new_password'] = self.new_password
+
+        if self.new_email:
+            arguments['new_email'] = self.new_email
+
+        if self.new_nick:
+            arguments['new_nick'] = self.new_nick
+
+        logic.change_credentials(account=self.account, **arguments)
 
         self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
         self._model.save()
