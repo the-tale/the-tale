@@ -7,7 +7,6 @@ smart_imports.all()
 class Preference(utils_forms.Form):
 
     PREFERENCE = None
-    value = None
 
     def __init__(self, *args, **kwargs):
         self.hero = kwargs.pop('hero')
