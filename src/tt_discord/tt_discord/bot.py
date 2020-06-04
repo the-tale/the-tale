@@ -1,6 +1,8 @@
 
+import re
 import uuid
 import logging
+import dataclasses
 
 from discord.ext import commands as discord_commands
 
@@ -12,6 +14,26 @@ from . import operations
 
 REQUIRED_PERMISSIONS = {'manage_nicknames',
                         'manage_roles'}
+
+
+@dataclasses.dataclass
+class PrefixExtractor:
+    prefix: str
+    prefix_re: re.Pattern
+    fake_prefix: str
+
+    def __init__(self, prefix: str):
+        self.prefix = prefix
+        self.prefix_re = re.compile(prefix)
+        self.fake_prefix = uuid.uuid4().hex
+
+    def __call__(self, bot, message):
+        match = self.prefix_re.match(message.content)
+
+        if match is None:
+            return self.fake_prefix
+
+        return match.group(0)
 
 
 class Bot(discord_commands.Bot):
@@ -103,7 +125,7 @@ DESCRIPTION = '''
 
 def construct(config):
 
-    bot = Bot(command_prefix=config['command_prefix'],
+    bot = Bot(command_prefix=PrefixExtractor(prefix=config['command_prefix']),
               description=DESCRIPTION.strip(),
               help_command=HelpCommand(),
               command_not_found='Команда "{}" не найдена.')

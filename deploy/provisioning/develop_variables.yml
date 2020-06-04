@@ -183,7 +183,7 @@ tt_services:
         secret: "test.secret"
       discord:
         connect_to_server: false
-        command_prefix: 'tt '
+        command_prefix: 'tt\s+'
         token: null
         sync_users_chank_size: 100
         sleep_on_sync_users_error: 1
