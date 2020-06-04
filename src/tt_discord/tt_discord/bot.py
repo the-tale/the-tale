@@ -48,6 +48,11 @@ class Bot(discord_commands.Bot):
 
         await self.reset_not_binded_user_properties(logger=logger)
 
+        # not best solution, but it work and fast in implementation
+        # TODO: rewrite to exclude records changing in database
+        logger.info('request all users resync')
+        await operations.force_all_game_data_update()
+
     async def on_member_join(self, member):
         logging.info("user %s joind guild %s, try to update it's properties", member.id, member.guild.id)
 

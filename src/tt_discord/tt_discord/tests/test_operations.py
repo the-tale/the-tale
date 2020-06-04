@@ -392,13 +392,53 @@ class ForceGameDataUpdateTests(helpers.BaseTests):
         with self.check_event_setupped(True):
             await operations.force_game_data_update(accounts_infos[1].id)
 
-            changes = await operations.get_new_game_data(accounts_infos[1].id)
+        changes = await operations.get_new_game_data(accounts_infos[1].id)
 
-            self.assertEqual(len(changes), 1)
+        self.assertEqual(len(changes), 1)
 
-            self.assertEqual(changes[0]['account_id'], accounts_infos[1].id)
-            self.assertEqual(changes[0]['type'], relations.GAME_DATA_TYPE.NICKNAME)
-            self.assertEqual(changes[0]['data'], {'nickname': 'test nick'})
+        self.assertEqual(changes[0]['account_id'], accounts_infos[1].id)
+        self.assertEqual(changes[0]['type'], relations.GAME_DATA_TYPE.NICKNAME)
+        self.assertEqual(changes[0]['data'], {'nickname': 'test nick'})
+
+
+class ForceAllGameDataUpdateTests(helpers.BaseTests):
+
+    @test_utils.unittest_run_loop
+    async def test_no_record(self):
+        with self.check_event_setupped(True):
+            await operations.force_all_game_data_update()
+
+    @test_utils.unittest_run_loop
+    async def test_has_processed_records(self):
+        accounts_infos = await helpers.create_accounts(game_ids=(666, 777, 888))
+
+        await operations.update_game_data(accounts_infos[1].id, nickname='test nick')
+        await operations.update_game_data(accounts_infos[2].id, nickname='test nick 2')
+
+        await helpers.force_bind(accounts_infos[0].id, discord_id=100500)
+        await helpers.force_bind(accounts_infos[1].id, discord_id=100501)
+        await helpers.force_bind(accounts_infos[2].id, discord_id=100502)
+
+        await operations.mark_game_data_synced(accounts_infos[1].id,
+                                               relations.GAME_DATA_TYPE.NICKNAME,
+                                               datetime.datetime.now())
+
+        result = await db.sql('SELECT * FROM game_data WHERE synced_at IS NULL')
+
+        self.assertEqual({row['account'] for row in result},
+                         {accounts_infos[2].id})
+
+        with self.check_event_setupped(True):
+            await operations.force_all_game_data_update()
+
+        result = await db.sql('SELECT * FROM game_data WHERE synced_at IS NULL')
+
+        self.assertEqual({row['account'] for row in result},
+                         {accounts_infos[1].id, accounts_infos[2].id})
+
+        changes = await operations.get_any_new_game_data(limit=100)
+
+        self.assertEqual(len(changes), 2)
 
 
 class GetNewGameDataTests(helpers.BaseTests):

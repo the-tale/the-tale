@@ -36,7 +36,7 @@ async def _sync_data(bot_instance, config, logger):
     changes = await operations.get_any_new_game_data(config['sync_users_chank_size'])
 
     if not changes:
-        logger.info('synchonisation: no changes detected, wait for changes')
+        logger.info('synchonisation: no changes detected')
         return False
 
     logger.info('synchonisation: changes found (%s)', len(changes))
@@ -95,5 +95,5 @@ async def sync_users(bot_instance, config):
 
 async def remove_account_data(account_info):
     if account_info.discord_id is not None:
-        # unvind will raise conf.SYNC_EVENT_NAME event and force sync_users to update (reset) orphan data
+        # unbind will raise conf.SYNC_EVENT_NAME event and force sync_users to update (reset) orphan data
         await operations.unbind_discord_user(discord_id=account_info.discord_id)
