@@ -132,7 +132,8 @@ class DataProtectionRequestDeletionTests(utils_testcase.TestCase):
         with mock.patch('the_tale.common.tt_api.data_protector.Client.cmd_request_deletion') as cmd_request_deletion:
             self.check_ajax_ok(self.post_ajax_json(utils_urls.url('accounts:profile:data-protection-request-deletion')))
 
-        self.assertEqual(cmd_request_deletion.call_args_list, [mock.call(ids=[('the_tale', self.account.id),
+        self.assertEqual(cmd_request_deletion.call_args_list, [mock.call(core_id=self.account.id,
+                                                                         ids=[('the_tale', self.account.id),
                                                                               ('tt_players_properties', self.account.id),
                                                                               ('tt_personal_messages', self.account.id),
                                                                               ('tt_discord', self.account.id)])])

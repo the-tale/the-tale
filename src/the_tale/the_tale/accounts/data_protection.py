@@ -286,7 +286,8 @@ def remove_data(account_id):
 
 
 def first_step_removing(account):
-    tt_services.data_protector.cmd_request_deletion(ids=ids_list(account))
+    tt_services.data_protector.cmd_request_deletion(core_id=account.id,
+                                                    ids=ids_list(account))
 
     new_password = utils_password.generate_password(len_=conf.settings.RESET_PASSWORD_LENGTH)
     new_password = django_auth_hashers.make_password(new_password)

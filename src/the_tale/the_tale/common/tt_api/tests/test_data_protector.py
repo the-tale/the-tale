@@ -17,7 +17,6 @@ class TTAPiTests(utils_testcase.TestCase):
         self.account = self.accounts_factory.create_account()
 
     def test_request_report(self):
-
         report_id = data_protector_client.cmd_request_report(ids=[('the_tale', self.account.id),
                                                                   ('tt_personal_messages', self.account.id),
                                                                   ('tt_discord', self.account.id)])
@@ -68,3 +67,9 @@ class TTAPiTests(utils_testcase.TestCase):
                                                        state=data_protector.REPORT_STATE.READY,
                                                        completed_at=completed_at,
                                                        expire_at=expire_at))
+
+    def test_request_deletion(self):
+        data_protector_client.cmd_request_deletion(core_id=13,
+                                                   ids=[('the_tale', self.account.id),
+                                                        ('tt_personal_messages', self.account.id),
+                                                        ('tt_discord', self.account.id)])
