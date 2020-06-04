@@ -23,11 +23,11 @@
         </p>
 
         <p>
-          Вы можете <strong><a href="{{settings.DISCORD_INVITE_LINK}}" target="_blank">зайти на сервер</a>, даже если не зарегистрированы в игре</strong>. При этом вы сможете полноценно общаться, но вам не будут доступны дополнительные функции.
+          Вы можете <strong><a href="{{settings.DISCORD_INVITE_LINK}}" target="_blank">зайти в чат</a>, даже если не зарегистрированы в игре</strong>. При этом вы сможете полноценно общаться, но вам не будут доступны дополнительные функции.
         </p>
 
         <p>
-          Если вы зарегистрированы в игре, вы можете <strong><a class="pgf-dialog-simple" href="{{url('portal:chat-bind-discord')}}">связать игровой аккаунт с аккаунтом в Discord</a></strong>. После этого вам станут доступны дополнительные функции:
+          Если вы зарегистрированы в игре, вы можете <strong><a class="info-link pgf-dialog-simple" href="{{url('portal:chat-bind-discord')}}">связать игровой аккаунт с аккаунтом в Discord</a></strong>. После этого вам станут доступны дополнительные функции:
         </p>
 
         <ol>
@@ -40,6 +40,19 @@
         <p>
           На нашем сервера работает бот под ником «{{settings.DISCORD_BOT_NAME}}». Чтобы посмотреть его команды, отправте ему в личном сообщении команду <code style="white-space: nowrap;">{{settings.DISCORD_HELP_COMMAND}}</code>.
         </p>
+
+        <a class="btn btn-success btn-large"
+           href="{{settings.DISCORD_INVITE_LINK}}"
+           target="_blank">В чат</a>
+
+        <a class="btn btn-info btn-large pgf-dialog-simple"
+           href="{{url('portal:chat-bind-discord')}}">
+          Связать аккаунты
+        </a>
+
+        <br/>
+        <br/>
+
 
         <h3>Ники</h3>
 
@@ -143,13 +156,6 @@
 
           </tbody>
         </table>
-
-        <hr/>
-        <br/>
-
-        <a class="btn btn-success btn-large"
-           href="{{settings.DISCORD_INVITE_LINK}}"
-           target="_blank"><strong>В чат</strong></a>
 
       </div>
 
