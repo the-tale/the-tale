@@ -7,16 +7,23 @@ smart_imports.all()
 # path time calculated in turns for normal_hero_speed
 
 
-def neighbours_coordinates(x, y, width, height):
-    cells = ((x - 1, y),
-             (x, y - 1),
-             (x, y + 1),
-             (x + 1, y))
+def neighbours_coordinates(x, y, width, height, cache={}):
 
-    for cell_x, cell_y in cells:
-        if (0 <= cell_x < width and
-            0 <= cell_y < height):
-            yield (cell_x, cell_y)
+    key = (x, y)
+
+    if key in cache:
+        return cache[key]
+
+    cells = [(cell_x, cell_y)
+             for cell_x, cell_y in ((x - 1, y),
+                                    (x, y - 1),
+                                    (x, y + 1),
+                                    (x + 1, y))
+             if (0 <= cell_x < width and 0 <= cell_y < height)]
+
+    cache[key] = tuple(cells)
+
+    return cache[key]
 
 
 def cell_travel_cost(transport, safety, expected_battle_complexity):
@@ -53,7 +60,8 @@ class TravelCost:
     __slots__ = ('_cache', '_map', 'expected_battle_complexity', 'best_cost')
 
     def __init__(self, map, expected_battle_complexity):
-        self._cache = {}
+        self._cache = [[{} for x in range(len(map[0]))]
+                       for y in range(len(map))]
         self._map = map
 
         self.expected_battle_complexity = expected_battle_complexity
@@ -71,16 +79,18 @@ class TravelCost:
                                           expected_battle_complexity=expected_battle_complexity)
 
     def get_cost(self, x_1, y_1, x_2, y_2):
-        key = (x_1, y_1, x_2, y_2)
+        key = (x_2, y_2)
 
-        if key not in self._cache:
-            self._cache[key] = travel_cost(cell_1=self._map[y_1][x_1],
-                                           cell_2=self._map[y_2][x_2],
-                                           expected_battle_complexity=self.expected_battle_complexity)
+        cache = self._cache[y_1][x_1]
 
-            self._cache[(x_2, y_2, x_1, y_1)] = self._cache[key]
+        if key not in cache:
+            cache[key] = travel_cost(cell_1=self._map[y_1][x_1],
+                                     cell_2=self._map[y_2][x_2],
+                                     expected_battle_complexity=self.expected_battle_complexity)
 
-        return self._cache[key]
+            self._cache[y_2][x_2][(x_1, y_1)] = cache[key]
+
+        return cache[key]
 
 
 def find_path_between_places(start_place, finish_place, travel_cost, excluded_cells=()):
@@ -123,8 +133,7 @@ def find_shortest_path(from_x, from_y, to_x, to_y, width, height, travel_cost, e
 
 def _build_path_map(from_x, from_y, to_x, to_y, width, height, travel_cost, excluded_cells):
 
-    path_map = [[logic.MAX_COST for x in range(width)]
-                for y in range(height)]
+    path_map = [[logic.MAX_COST] * width for y in range(height)]
 
     heap = [(travel_cost.best_cost * logic.manhattan_distance(x_1=from_x, y_1=from_y, x_2=to_x, y_2=to_y),
              0,

@@ -142,19 +142,28 @@ def _update_roads_lists(map):
             map[y][x].roads_ids.append(road.id)
 
 
-def _update_nearest_place(map):
+def _update_nearest_place(map, cache=[]):
+
+    if django_settings.TESTS_RUNNING or not cache:
+        cache[:] = []
+
+        for y in range(0, map_conf.settings.HEIGHT):
+            cache.append([None] * map_conf.settings.WIDTH)
+
+            for x in range(0, map_conf.settings.WIDTH):
+
+                best_distance = 999999999
+
+                for place in places_storage.places.all():
+                    distance = dst(x, y, place.x, place.y)
+
+                    if distance < best_distance:
+                        best_distance = distance
+                        cache[y][x] = place.id
+
     for x in range(0, map_conf.settings.WIDTH):
         for y in range(0, map_conf.settings.HEIGHT):
-            cell = map[y][x]
-
-            best_distance = 999999999
-
-            for place in places_storage.places.all():
-                distance = dst(x, y, place.x, place.y)
-
-                if distance < best_distance:
-                    best_distance = distance
-                    cell.nearest_place_id = place.id
+            map[y][x].nearest_place_id = cache[y][x]
 
 
 def update(map):
