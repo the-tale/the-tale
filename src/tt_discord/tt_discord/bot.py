@@ -198,12 +198,22 @@ async def sync_nickname(bot, account_info, data, logger):
             logger.info('discord user %s not found in guild %s', account_info.discord_id, guild.id)
             continue
 
+        if member.nick == nickname:
+            logger.info('discord user %s already has nick %s', account_info.discord_id, nickname)
+            continue
+
         if guild.owner.id == member.id:
             await member.send('Я не могу изменить ваш ник, так как вы являетесь владельцем сервера.')
             continue
 
         await member.edit(nick=nickname, reason='Синхронизация с ником в игре.')
         await member.send('Я изменил ваш ник, чтобы он соответствовал нику в игре.')
+
+
+def compare_roles(roles_1, roles_2):
+    roles_1 = {role.id for role in roles_1 if role.name != '@everyone'}
+    roles_2 = {role.id for role in roles_2 if role.name != '@everyone'}
+    return roles_1 == roles_2
 
 
 async def sync_roles(bot, account_info, data, config, logger):
@@ -225,6 +235,10 @@ async def sync_roles(bot, account_info, data, config, logger):
                 continue
 
             discord_roles.append(guild.get_role(int(config['roles'][name])))
+
+        if compare_roles(member.roles, discord_roles):
+            logger.info('discord user %s already has roles %s', account_info.discord_id, discord_roles)
+            continue
 
         await member.edit(roles=discord_roles, reason='Синхронизация с ролями в игре.')
         await member.send('Я изменил ваши роли, чтобы они соответствовали статусу в игре.')
