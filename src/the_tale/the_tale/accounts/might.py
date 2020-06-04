@@ -118,16 +118,23 @@ def calculate_might(account):  # pylint: disable=R0914
     return might
 
 
+def recalculate_account_might(account):
+    new_might = calculate_might(account)
+
+    if account.might == new_might:
+        return
+
+    account.set_might(new_might)
+    account.cmd_update_hero()
+
+    portal_logic.sync_with_discord(account)
+
+
 def recalculate_accounts_might():
 
     for account_model in prototypes.AccountPrototype.live_query():
         account = prototypes.AccountPrototype(model=account_model)
-
-        new_might = calculate_might(account)
-
-        if account.might != new_might:
-            account.set_might(new_might)
-            account.cmd_update_hero()
+        recalculate_account_might(account)
 
     recalculate_folclor_rating()
 

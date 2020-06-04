@@ -7,7 +7,7 @@ smart_imports.all()
 class CalculateMightTests(utils_testcase.TestCase):
 
     def setUp(self):
-        super(CalculateMightTests, self).setUp()
+        super().setUp()
         self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
@@ -354,10 +354,35 @@ class CalculateMightTests(utils_testcase.TestCase):
         self.assertTrue(might.calculate_might(self.account) > 0)
 
 
+class RecalculateAccountMight(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        game_logic.create_test_map()
+
+        self.account = self.accounts_factory.create_account()
+
+    def test(self):
+        models.Award.objects.create(account=self.account._model, type=relations.AWARD_TYPE.BUG_MINOR)
+
+        with mock.patch('the_tale.portal.logic.sync_with_discord') as sync_with_discord:
+            with self.check_increased(lambda: models.Account.objects.get(id=self.account.id).might):
+                might.recalculate_account_might(self.account)
+
+        self.assertEqual(sync_with_discord.call_args[0][0].id, self.account.id)
+
+        with mock.patch('the_tale.portal.logic.sync_with_discord') as sync_with_discord:
+            with self.check_not_changed(lambda: models.Account.objects.get(id=self.account.id).might):
+                might.recalculate_account_might(self.account)
+
+        self.assertFalse(sync_with_discord.called)
+
+
 class CalculateMightHelpersTests(utils_testcase.TestCase):
 
     def setUp(self):
-        super(CalculateMightHelpersTests, self).setUp()
+        super().setUp()
 
     def test_folclor_post_might(self):
         MIN = blogs_conf.settings.MIN_TEXT_LENGTH
