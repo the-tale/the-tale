@@ -144,7 +144,7 @@ class MEMBER_ROLE(rels_django.DjangoEnum):
                  PERMISSION.BULK_MAILING,
                  PERMISSION.RECEIVE_MESSAGES)),
 
-               ('OFFICER', 3, 'Офицер', 2, '♖',
+               ('OFFICER', 3, 'Офицер', 2, '♗',
                 (PERMISSION.EMISSARIES_PLANING,
                  PERMISSION.EMISSARIES_QUESTS,
                  PERMISSION.TAKE_MEMBER,
