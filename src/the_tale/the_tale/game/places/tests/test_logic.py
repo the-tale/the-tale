@@ -348,6 +348,7 @@ class ChoosePlaceCellByTerrainTests(utils_testcase.TestCase):
             cells.add(logic.choose_place_cell_by_terrain(self.places[0].id, terrains=()))
 
     def test_filter_by_terrains__has_terrains(self):
+        # это странный тест, так как по-умолчанию все клетки карты имеют одинаковый тип ландшафта
         x, y = logic.choose_place_cell_by_terrain(self.places[0].id, terrains=())
 
         terrain = map_storage.cells(x, y).terrain
@@ -355,6 +356,23 @@ class ChoosePlaceCellByTerrainTests(utils_testcase.TestCase):
         for i in range(100):
             test_x, test_y = logic.choose_place_cell_by_terrain(self.places[0].id, terrains=())
             self.assertEqual(map_storage.cells(test_x, test_y).terrain, terrain)
+
+    def test_filter_by_terrains__limit(self):
+        place_x, place_y = self.places[0].x, self.places[0].y
+
+        for i in range(100):
+            x, y = logic.choose_place_cell_by_terrain(self.places[0].id, terrains=(), limit=1)
+            self.assertEqual((x, y), (place_x, place_y))
+
+        cells = set()
+
+        for i in range(100):
+            x, y = logic.choose_place_cell_by_terrain(self.places[0].id, terrains=(), limit=3)
+            cells.add((x, y))
+
+        self.assertEqual(cells, {(place_x, place_y),
+                                 (place_x - 1, place_y),
+                                 (place_x, place_y - 1)})
 
     def test_filter_by_terrains__no_terrains(self):
         expected_cells = set(map_storage.cells.place_cells(self.places[0].id))

@@ -122,7 +122,7 @@ def choose_quest_path_url():
 
 def fact_place(place):
     return questgen_facts.Place(uid=uids.place(place.id),
-                                terrains=[terrain.value for terrain in place.terrains],
+                                terrains=[terrain.value for terrain in map_storage.cells.place_terrains(place.id)],
                                 externals={'id': place.id},
                                 type=place.modifier_quest_type())
 

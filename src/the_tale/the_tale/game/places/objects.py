@@ -180,10 +180,6 @@ class Place(game_names.ManageNameMixin2):
         self.updated_at_turn = game_turn.number()
 
     @property
-    def terrains(self):
-        return map_storage.cells.place_terrains(self.id)
-
-    @property
     def terrain(self):
         return map_storage.map_info.item.terrain[self.y][self.x]
 

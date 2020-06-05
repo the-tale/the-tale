@@ -945,9 +945,9 @@ class QuestPrototype(object):
         if self.hero.id != object_fact.externals['id']:
             return False
 
-        # если городу принадлежит только одна клетка, на которой он находится,
+        # если в окрестностях города только одна клетка (на которой он находится),
         # то прогулкой в его окрестностях считается и нахождение в нём самом
-        if self.hero.position.place and map_storage.cells.place_area(self.hero.position.place_id) > 1:
+        if self.hero.position.place and len(map_storage.cells.place_cells(self.hero.position.place_id)) > 1:
             return False
 
         hero_place = self.hero.position.cell().nearest_place()

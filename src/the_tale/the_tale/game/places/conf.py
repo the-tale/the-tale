@@ -14,4 +14,6 @@ settings = utils_app_settings.app_settings('PLACES',
                                            API_LIST_VERSION='1.1',
                                            API_SHOW_VERSION='2.3',
 
+                                           CHOOSE_BY_TERRAIN_LIMIT=7**2,
+
                                            TT_PLACES_EFFECTS_ENTRY_POINT='http://localhost:10019/')

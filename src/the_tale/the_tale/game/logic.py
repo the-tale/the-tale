@@ -435,9 +435,11 @@ def highlevel_step(logger):
 
         places_logic.update_effects()
 
+        areas = map_storage.cells.get_places_areas()
+
         for place in places_storage.places.all():
             place.attrs.sync_size(c.MAP_SYNC_TIME_HOURS)
-            place.attrs.set_area(map_storage.cells.place_area(place.id))
+            place.attrs.set_area(areas[place.id])
 
             place.sync_race()
             place.sync_habits()

@@ -355,7 +355,7 @@ def get_start_place_for_race(race):
     return choices[0]
 
 
-def choose_place_cell_by_terrain(place_id, terrains, exclude_place_if_can=False):
+def choose_place_cell_by_terrain(place_id, terrains, exclude_place_if_can=False, limit=conf.settings.CHOOSE_BY_TERRAIN_LIMIT):
     cell_choices = ()
 
     if terrains:
@@ -365,14 +365,24 @@ def choose_place_cell_by_terrain(place_id, terrains, exclude_place_if_can=False)
     if not cell_choices:
         cell_choices = map_storage.cells.place_cells(place_id)
 
+    place = storage.places[place_id]
+
     if exclude_place_if_can and len(cell_choices) > 1:
-        place = storage.places[place_id]
         coordinates = (place.x, place.y)
 
         if coordinates in cell_choices:
             cell_choices.remove(coordinates)
 
-    return random.choice(cell_choices)
+    choices = [(navigation_logic.manhattan_distance(*cell, place.x, place.y), cell)
+               for cell in cell_choices]
+    choices.sort()
+
+    if limit:
+        # фунция используется для выбора клеток для посещения в рамках заданий с механикой «побродить вокруг»
+        # ограничивает радиус выбора, чтобы герой не уходил далеко от города (актуально для городов фронтира)
+        choices = list(choices[:limit])
+
+    return random.choice(choices)[1]
 
 
 def register_money_transaction(hero_id, place_id, amount):
