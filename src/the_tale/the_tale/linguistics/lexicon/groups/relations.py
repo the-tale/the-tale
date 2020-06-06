@@ -13,7 +13,7 @@ class LEXICON_GROUP(rels_django.DjangoEnum):
 
     records = (('ACTION_BATTLEPVE1X1', 0, 'Действие: сражение с монстром', 0,
                 'Описание событий, происходящих при сражении с монстрами.',
-                {V.HERO: 'герой', V.HERO__WEAPON: 'оружие героя', V.ACTOR: 'герой или монстр', V.ACTOR__WEAPON: 'оружие героя или монстра', V.DAMAGE: 'количество урона', V.EXPERIENCE: 'опыт', V.ARTIFACT: 'предмет', V.MOB: 'монстр', V.MOB__WEAPON: 'оружие монстра', V.COMPANION: 'спутник', V.COMPANION__WEAPON: 'оружие спутника', V.DATE: 'дата', V.TIME: 'время'}),
+                {V.HERO: 'герой', V.HERO__WEAPON: 'оружие героя', V.ACTOR: 'герой или монстр', V.ACTOR__WEAPON: 'оружие героя или монстра', V.DAMAGE: 'количество урона', V.EXPERIENCE: 'опыт', V.ARTIFACT: 'предмет', V.DROPPED_ARTIFACT: 'выкинутый предмет', V.MOB: 'монстр', V.MOB__WEAPON: 'оружие монстра', V.COMPANION: 'спутник', V.COMPANION__WEAPON: 'оружие спутника', V.DATE: 'дата', V.TIME: 'время'}),
 
                ('ACTION_EQUIPPING', 1, 'Действие: экипировка', 10000,
                 'Описание событий во время изменения экипировки героя.',
@@ -61,7 +61,7 @@ class LEXICON_GROUP(rels_django.DjangoEnum):
 
                ('ANGEL_ABILITY', 12, 'Способности: Хранитель', 120000,
                 'Описание результата использование способностей игрока',
-                {V.HERO: 'герой', V.HERO__WEAPON: 'оружие героя', V.DROPPED_ITEM: 'выкидываемый предмет', V.ENERGY: 'энергия', V.COINS: 'количество монет', V.EXPERIENCE: 'количество опыта', V.HEALTH: 'количество здоровья', V.MOB: 'монстр', V.MOB__WEAPON: 'оружие монстра', V.COMPANION: 'спутник', V.COMPANION__WEAPON: 'оружие спутника', V.DAMAGE: 'урон', V.DATE: 'дата', V.TIME: 'время'}),
+                {V.HERO: 'герой', V.HERO__WEAPON: 'оружие героя', V.ENERGY: 'энергия', V.COINS: 'количество монет', V.EXPERIENCE: 'количество опыта', V.HEALTH: 'количество здоровья', V.MOB: 'монстр', V.MOB__WEAPON: 'оружие монстра', V.COMPANION: 'спутник', V.COMPANION__WEAPON: 'оружие спутника', V.DAMAGE: 'урон', V.DATE: 'дата', V.TIME: 'время'}),
 
                ('HERO_ABILITY', 14, 'Способности', 140000,
                 'Описание применения способностей героем (или монстром)',

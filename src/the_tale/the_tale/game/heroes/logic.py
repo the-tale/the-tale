@@ -64,9 +64,7 @@ def hero_statistics_from_model(hero_model):
                                  pvp_battles_1x1_draws=hero_model.stat_pvp_battles_1x1_draws,
 
                                  cards_used=hero_model.stat_cards_used,
-                                 cards_combined=hero_model.stat_cards_combined,
-
-                                 gifts_returned=hero_model.stat_gifts_returned)
+                                 cards_combined=hero_model.stat_cards_combined)
 
 
 def load_heroes_by_account_ids(account_ids):
@@ -193,8 +191,6 @@ def save_hero(hero, new=False):
 
                      stat_cards_used=hero.statistics.cards_used,
                      stat_cards_combined=hero.statistics.cards_combined,
-
-                     stat_gifts_returned=hero.statistics.gifts_returned,
 
                      health=hero.health,
                      level=hero.level,

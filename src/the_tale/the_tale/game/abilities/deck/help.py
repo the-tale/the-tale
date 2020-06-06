@@ -143,6 +143,4 @@ class Help(prototypes.AbilityPrototype):
                                                   logger=None,
                                                   continue_steps_if_needed=True)
 
-        task.hero.process_removed_artifacts()
-
         return result

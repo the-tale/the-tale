@@ -1554,11 +1554,6 @@ pgf.game.widgets.Abilities = function() {
 
     function UpdateButtons() {
         jQuery('.pgf-ability-help').toggleClass('pgf-hidden', false);
-
-        jQuery('.pgf-ability-drop_item')
-            .toggleClass('pgf-hidden', false)
-            .toggleClass('no-items', !itemsInBag)
-            .toggleClass('pgf-disable', !itemsInBag);
     }
 
     function RenderDeck() {

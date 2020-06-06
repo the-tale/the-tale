@@ -7,7 +7,6 @@ smart_imports.all()
 class BaseEffect(object):
     TYPE = NotImplemented
     DESCRIPTION = NotImplemented
-    REMOVE_ON_HELP = False
 
     @classmethod
     def modify_attribute(cls, type_, value):
@@ -411,7 +410,6 @@ class NoEffect(BaseEffect):
 class ChildGift(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.CHILD_GIFT
     DESCRIPTION = 'Это потерянный подарок ребёнка. Помогите герою, когда артефакт лежит в рюкзаке, и подарок вернётся к ребёнку.'
-    REMOVE_ON_HELP = True
 
 
 EFFECTS = {effect.TYPE: effect

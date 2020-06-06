@@ -102,13 +102,6 @@ class RatingResource(utils_resources.Resource):
 
             def value_getter(values): return values.help_count
 
-        elif self.rating_type.is_GIFTS_RETURNED:
-            ratings_query = ratings_query.filter(account__ratingvalues__gifts_returned__gt=0).order_by('gifts_returned_place')
-
-            def place_getter(places): return places.gifts_returned_place
-
-            def value_getter(values): return values.gifts_returned
-
         elif self.rating_type.is_POLITICS_POWER:
             ratings_query = ratings_query.filter(account__ratingvalues__politics_power__gt=0).order_by('politics_power_place')
 

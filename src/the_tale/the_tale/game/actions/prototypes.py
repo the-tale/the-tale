@@ -758,6 +758,32 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
         return True
 
+    def get_loot(self):
+        loot = artifacts_storage.artifacts.generate_loot(self.hero, self.mob)
+
+        if loot is None:
+            self.hero.add_message('action_battlepve1x1_no_loot', hero=self.hero, mob=self.mob)
+            return
+
+        if not self.hero.bag_is_full:
+            self.hero.put_loot(loot)
+            self.hero.add_message('action_battlepve1x1_put_loot', hero=self.hero, artifact=loot, mob=self.mob)
+            return
+
+        worst_item = self.hero.get_worst_item_in_bag()
+
+        if self.hero.compare_artifacts(loot, worst_item):
+            self.hero.pop_loot(worst_item)
+            self.hero.put_loot(loot)
+            self.hero.add_message('action_battlepve1x1_replace_loot_when_no_space',
+                                  hero=self.hero,
+                                  artifact=loot,
+                                  mob=self.mob,
+                                  dropped_artifact=worst_item)
+            return
+
+        self.hero.add_message('action_battlepve1x1_put_loot_no_space', hero=self.hero, artifact=loot, mob=self.mob)
+
     def _kill_mob(self, hero_alive=True):
         self.mob.kill()
         self.hero.statistics.change_pve_kills(1)
@@ -765,21 +791,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         if not hero_alive:
             return
 
-        loot = artifacts_storage.artifacts.generate_loot(self.hero, self.mob)
-
-        if loot is not None:
-            bag_uuid = self.hero.put_loot(loot)
-
-            if bag_uuid is not None:
-                if loot.is_useless:
-                    self.hero.statistics.change_loot_had(1)
-                else:
-                    self.hero.statistics.change_artifacts_had(1)
-                self.hero.add_message('action_battlepve1x1_put_loot', hero=self.hero, artifact=loot, mob=self.mob)
-            else:
-                self.hero.add_message('action_battlepve1x1_put_loot_no_space', hero=self.hero, artifact=loot, mob=self.mob)
-        else:
-            self.hero.add_message('action_battlepve1x1_no_loot', hero=self.hero, mob=self.mob)
+        self.get_loot()
 
         if self.hero.can_get_exp_for_kill():
             raw_experience = int(c.EXP_FOR_KILL * random.uniform(1.0 - c.EXP_FOR_KILL_DELTA, 1.0 + c.EXP_FOR_KILL_DELTA))
@@ -1242,11 +1254,6 @@ class ActionInPlacePrototype(ActionBase):
             loot = artifacts_storage.artifacts.generate_any_artifact(self.hero, artifact_probability_multiplier=self.hero.companion_steal_artifact_probability_multiplier)
 
             self.hero.put_loot(loot)
-
-            if loot.is_useless:
-                self.hero.statistics.change_loot_had(1)
-            else:
-                self.hero.statistics.change_artifacts_had(1)
 
             self.hero.add_message('action_inplace_companion_steal_item', hero=self.hero, place=self.hero.position.place, artifact=loot, companion=self.hero.companion)
 

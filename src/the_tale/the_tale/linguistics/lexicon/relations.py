@@ -32,7 +32,8 @@ class VARIABLE_VERIFICATOR(rels_django.DjangoEnum):
                # TODO: во время следующей большой переделки добавить одушевлённый артефакт в каждый набор слов (скорее всего мужского рода)
                ('ITEM', 4, 'любой предмет', utg_relations.WORD_TYPE.NOUN, s(['нож', 'ядро', 'пепельница', 'ножницы'],
                                                                             ['кинжал', 'окно', 'мечта', 'макароны'],
-                                                                            ['меч', 'варенье', 'чашка', 'дрова'])),
+                                                                            ['меч', 'варенье', 'чашка', 'дрова'],
+                                                                            ['арбалет', 'облако', 'палица', 'нунчаки'])),
 
                ('TEXT', 5, 'любой текст', utg_relations.WORD_TYPE.TEXT, s(['любой текст'],
                                                                           ['текст текст текст'],
@@ -207,7 +208,7 @@ class VARIABLE(rels_django.DjangoEnum):
                ('VICTIM', 'victim', 'проигравший в pvp', VARIABLE_TYPE.ACTOR),
                ('DUELIST_1', 'duelist_1', '1-ый участник pvp', VARIABLE_TYPE.ACTOR),
                ('DUELIST_2', 'duelist_2', '2-ый участник pvp', VARIABLE_TYPE.ACTOR),
-               ('DROPPED_ITEM', 'dropped_item', 'выпавший предмет', VARIABLE_TYPE.ARTIFACT),
+               ('DROPPED_ARTIFACT', 'dropped_artifact', 'выкидываемый артефакт', VARIABLE_TYPE.ARTIFACT),
                ('EXPERIENCE', 'experience', 'опыт', VARIABLE_TYPE.NUMBER),
                ('HEALTH', 'health', 'здоровье', VARIABLE_TYPE.NUMBER),
                ('MOB', 'mob', 'монстр', VARIABLE_TYPE.MOB),

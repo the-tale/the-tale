@@ -22,5 +22,4 @@ class ABILITY_TYPE(rels_django.DjangoEnum):
     description = rels.Column()
     request_attributes = rels.Column(unique=False)
 
-    records = (('HELP', 'help', 'Помочь', c.ANGEL_HELP_COST, 'Попытаться помочь герою, чем бы тот не занимался', ()),
-               ('DROP_ITEM', 'drop_item', 'Выбросить предмет', c.ANGEL_DROP_ITEM_COST, 'Выбросить из рюкзака самый ненужный предмет', ()))
+    records = (('HELP', 'help', 'Помочь', c.ANGEL_HELP_COST, 'Попытаться помочь герою, чем бы тот не занимался', ()),)

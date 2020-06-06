@@ -215,27 +215,6 @@ class HelpAbilityTest(pvp_helpers.PvPTestsMixin,
 
         self.assertEqual(update_habits.call_args_list, [mock.call(heroes_relations.HABIT_CHANGE_SOURCE.HELP_UNAGGRESSIVE)])
 
-    @mock.patch('the_tale.game.artifacts.effects.Health.REMOVE_ON_HELP', True)
-    def test_return_child_gifts(self):
-        not_child_gift, child_gift, removed_artifact = artifacts_storage.artifacts.all()[:3]
-
-        child_gift.special_effect = artifacts_relations.ARTIFACT_EFFECT.CHILD_GIFT
-        removed_artifact.rare_effect = artifacts_relations.ARTIFACT_EFFECT.HEALTH
-
-        self.hero.bag.put_artifact(not_child_gift.create_artifact(level=1, power=0))
-        self.hero.bag.put_artifact(not_child_gift.create_artifact(level=1, power=0))
-        self.hero.bag.put_artifact(not_child_gift.create_artifact(level=1, power=0))
-
-        self.hero.bag.put_artifact(child_gift.create_artifact(level=1, power=0))
-        self.hero.bag.put_artifact(child_gift.create_artifact(level=1, power=0))
-
-        self.hero.bag.put_artifact(removed_artifact.create_artifact(level=1, power=0))
-        self.hero.bag.put_artifact(removed_artifact.create_artifact(level=1, power=0, rarity=artifacts_relations.RARITY.RARE))
-
-        with self.check_delta(lambda: self.hero.statistics.gifts_returned, 2):
-            with self.check_delta(lambda: self.hero.bag.occupation, -3):
-                self.ability.use(**self.use_attributes())
-
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.HEAL_COMPANION)
     def test_heal_companion__no_companion(self):
         self.assertEqual(self.hero.companion, None)

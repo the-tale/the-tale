@@ -53,27 +53,91 @@ class BattlePvE1x1ActionTest(utils_testcase.TestCase):
         self.assertEqual(self.hero.statistics.pve_kills, 1)
         self.storage._test_save()
 
+    @mock.patch('the_tale.game.balance.constants.GET_LOOT_PROBABILITY', 0)
+    @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 0)
+    @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
+    def test_no_loot(self):
+
+        self.action_battle.mob.health = 0
+
+        with self.check_not_changed(lambda: self.hero.bag.occupation):
+            with self.check_not_changed(lambda: self.hero.statistics.loot_had):
+                with self.check_not_changed(lambda: self.hero.statistics.artifacts_had):
+                    self.storage.process_turn()
+
+        self.assertTrue(any(m.key.is_ACTION_BATTLEPVE1X1_NO_LOOT for m in self.hero.journal.messages))
+
+        self.storage._test_save()
+
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 0)
     @mock.patch('the_tale.game.balance.constants.GET_LOOT_PROBABILITY', 1)
     @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
     def test_loot(self):
-        self.assertEqual(self.hero.statistics.loot_had, 0)
-        self.assertEqual(len(list(self.hero.bag.items())), 0)
+
         self.action_battle.mob.health = 0
-        self.storage.process_turn()
-        self.assertEqual(self.hero.statistics.loot_had, 1)
-        self.assertEqual(len(list(self.hero.bag.items())), 1)
+
+        with self.check_delta(lambda: self.hero.bag.occupation, 1):
+            with self.check_delta(lambda: self.hero.statistics.loot_had, 1):
+                with self.check_not_changed(lambda: self.hero.statistics.artifacts_had):
+                    self.storage.process_turn()
+
+        self.assertTrue(any(m.key.is_ACTION_BATTLEPVE1X1_PUT_LOOT for m in self.hero.journal.messages))
+
         self.storage._test_save()
 
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 1)
     @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
     def test_artifacts(self):
-        self.assertEqual(self.hero.statistics.artifacts_had, 0)
-        self.assertEqual(len(list(self.hero.bag.items())), 0)
         self.action_battle.mob.health = 0
-        self.storage.process_turn()
-        self.assertEqual(self.hero.statistics.artifacts_had, 1)
-        self.assertEqual(len(list(self.hero.bag.items())), 1)
+
+        with self.check_delta(lambda: self.hero.bag.occupation, 1):
+            with self.check_delta(lambda: self.hero.statistics.artifacts_had, 1):
+                with self.check_not_changed(lambda: self.hero.statistics.loot_had):
+                    self.storage.process_turn()
+
+        self.assertTrue(any(m.key.is_ACTION_BATTLEPVE1X1_PUT_LOOT for m in self.hero.journal.messages))
+
+        self.storage._test_save()
+
+    def fill_bag(self, power):
+        for i in range(self.hero.max_bag_size):
+            artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1,
+                                                                               rarity=artifacts_relations.RARITY.NORMAL)
+            artifact.power = power
+            self.hero.put_loot(artifact)
+
+    @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 1)
+    @mock.patch('the_tale.game.balance.constants.GET_LOOT_PROBABILITY', 1)
+    @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
+    def test_replace_loot(self):
+
+        self.action_battle.mob.health = 0
+
+        self.fill_bag(power.Power(0, 0))
+
+        with self.check_not_changed(lambda: self.hero.bag.occupation):
+            with self.check_delta(lambda: self.hero.statistics.artifacts_had, 1):
+                self.storage.process_turn()
+
+        self.assertTrue(any(m.key.is_ACTION_BATTLEPVE1X1_REPLACE_LOOT_WHEN_NO_SPACE for m in self.hero.journal.messages))
+
+        self.storage._test_save()
+
+    @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 1)
+    @mock.patch('the_tale.game.balance.constants.GET_LOOT_PROBABILITY', 1)
+    @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
+    def test_can_not_replace_loot(self):
+
+        self.action_battle.mob.health = 0
+
+        self.fill_bag(power.Power(666, 666))
+
+        with self.check_not_changed(lambda: self.hero.bag.occupation):
+            with self.check_not_changed(lambda: self.hero.statistics.artifacts_had):
+                self.storage.process_turn()
+
+        self.assertTrue(any(m.key.is_ACTION_BATTLEPVE1X1_PUT_LOOT_NO_SPACE for m in self.hero.journal.messages))
+
         self.storage._test_save()
 
     @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)

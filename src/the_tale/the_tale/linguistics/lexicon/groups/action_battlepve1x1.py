@@ -83,4 +83,8 @@ KEYS = [('ACTION_BATTLEPVE1X1_ARTIFACT_BROKEN', 0, 'Дневник: Артефа
          'Герой и враг убили друг друга.',
          [V.DATE, V.TIME, V.MOB, V.HERO], None),
 
+        ('ACTION_BATTLEPVE1X1_REPLACE_LOOT_WHEN_NO_SPACE', 19, 'Журнал: герой заменил предмет в рюкзаке на добычу', relations.LEXICON_GROUP.ACTION_BATTLEPVE1X1,
+         'Герой получил добычу, но в рюкзаке нет для неё места. Поэтому герой выкидывает самый ненужный (дешёвый) предмет из рюкзака и ложит туда добычу.',
+         [V.DATE, V.TIME, V.MOB, V.HERO, V.ARTIFACT, V.DROPPED_ARTIFACT], None),
+
         ]

@@ -29,8 +29,6 @@ settings = utils_app_settings.app_settings('LINGUISTICS_SETTINGS',
                                                                   'ACTION_FIRST_STEPS_NOW': 3,
                                                                   'ACTION_FIRST_STEPS_DESCRIPTION': 3,
                                                                   'ACTION_MOVE_SIMPLE_NEAR_WALK': 4,
-                                                                  'ACTION_IDLENESS_TASK_BOARD': 5,
-                                                                  'ACTION_MOVE_SIMPLE_TO_TELEPORT_WITH_CLAN': 5,
-                                                                  'ACTION_INPLACE_CLAN_COMPANIONS_SUPPORT': 5},
+                                                                  'ACTION_BATTLEPVE1X1_REPLACE_LOOT_WHEN_NO_SPACE': 5},
 
                                            LINGUISTICS_MANAGER_UPDATE_DELAY=datetime.timedelta(minutes=1))

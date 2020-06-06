@@ -101,8 +101,6 @@ class Hero(django_models.Model):
     stat_cards_used = django_models.BigIntegerField(default=0, null=False)
     stat_cards_combined = django_models.BigIntegerField(default=0, null=False)
 
-    stat_gifts_returned = django_models.BigIntegerField(default=0, null=False)
-
     stat_politics_multiplier = django_models.FloatField(default=0, null=False)  # for ratings
 
     def __str__(self):

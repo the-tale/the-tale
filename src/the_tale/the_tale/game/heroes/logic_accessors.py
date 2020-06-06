@@ -232,10 +232,6 @@ class LogicAccessorsMixin(object):
         return self.statistics.quests_done == 0
 
     @property
-    def bag_is_full(self):
-        return self.bag.occupation >= self.max_bag_size
-
-    @property
     def can_upgrade_prefered_slot(self):
         return random.uniform(0, 1) < c.ARTIFACT_FROM_PREFERED_SLOT_PROBABILITY
 

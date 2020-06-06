@@ -42,9 +42,7 @@ class Statistics(object):
                  'pvp_battles_1x1_draws',
 
                  'cards_used',
-                 'cards_combined',
-
-                 'gifts_returned')
+                 'cards_combined')
 
     def __init__(self,
                  pve_deaths,
@@ -82,9 +80,7 @@ class Statistics(object):
                  pvp_battles_1x1_draws,
 
                  cards_used,
-                 cards_combined,
-
-                 gifts_returned):
+                 cards_combined):
 
         self.hero = None
 
@@ -125,8 +121,6 @@ class Statistics(object):
         self.cards_used = cards_used
         self.cards_combined = cards_combined
 
-        self.gifts_returned = gifts_returned
-
     @classmethod
     def create(cls):
         return cls(pve_deaths=0,
@@ -164,9 +158,7 @@ class Statistics(object):
                    pvp_battles_1x1_draws=0,
 
                    cards_used=0,
-                   cards_combined=0,
-
-                   gifts_returned=0)
+                   cards_combined=0)
 
     #########################################
     # kills
@@ -272,9 +264,6 @@ class Statistics(object):
     def change_quests_done(self, value):
         with achievements_storage.achievements.verify(type=achievements_relations.ACHIEVEMENT_TYPE.QUESTS, object=self.hero):
             self.quests_done += value
-
-    def change_gifts_returned(self, value):
-        self.gifts_returned += value
 
     #########################################
     # pvp
