@@ -358,11 +358,7 @@ class BillPrototype(utils_prototypes.BasePrototype):
     @classmethod
     def is_active_bills_limit_reached(cls, account):
         bills_count = cls._model_class.objects.filter(owner_id=account.id, state=relations.BILL_STATE.VOTING).count()
-
-        if account.is_premium:
-            return bills_count >= c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS
-
-        return bills_count >= c.FREE_ACCOUNT_MAX_ACTIVE_BILLS
+        return bills_count >= c.ACCOUNT_MAX_ACTIVE_BILLS
 
     def save(self):
         self._model.technical_data = s11n.to_json(self.data.serialize())

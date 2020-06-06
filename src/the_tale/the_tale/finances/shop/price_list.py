@@ -20,9 +20,8 @@ PREMIUM_DAYS_DESCRIPTION = '''
   <li>на 200% увеличивается максимум энергии (до 72 единиц);</li>
   <li>жизнь героя не замедляется при длительном отсутствии игрока в игре;</li>
   <li>спутник героя не покидает его, когда здоровье спутника опускается до нуля;</li>
-  <li>игрок может одновременно создать до {PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS} записей в Книге Судеб.</li>
 </ul>
-'''.format(PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS=c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS)
+'''
 
 
 def permanent_purchase(uid, purchase_type, cost, transaction_description):

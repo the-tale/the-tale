@@ -62,7 +62,7 @@ class TestIndexRequests(BaseTestRequests):
 
     def test_bill_creation_locked_message(self):
         bill_data = bills.place_renaming.PlaceRenaming(place_id=self.place1.id, name_forms=game_names.generator().get_test_name('new_name_1'))
-        self.create_bills(1, self.account1, 'Caption-a1-%d', bill_data)
+        self.create_bills(c.ACCOUNT_MAX_ACTIVE_BILLS, self.account1, 'Caption-a1-%d', bill_data)
         self.check_html_ok(self.request_html(django_reverse('game:bills:')), texts=(('pgf-active-bills-limit-reached', 1),
                                                                                     ('pgf-create-new-bill-buttons', 0),
                                                                                     ('pgf-can-not-participate-in-politics', 0)))
@@ -519,11 +519,13 @@ class TestCreateRequests(BaseTestRequests):
 
         self.check_ajax_ok(response, data={'next_url': django_reverse('game:bills:show', args=[bill.id])})
 
-    def test_success_second_bill_error(self):
-        self.check_ajax_ok(self.client.post(django_reverse('game:bills:create') + ('?bill_type=%s' % bills.place_renaming.PlaceRenaming.type.value), self.get_post_data()))
+    def test_to_many_bills(self):
+        for i in range(c.ACCOUNT_MAX_ACTIVE_BILLS):
+            self.check_ajax_ok(self.client.post(django_reverse('game:bills:create') + ('?bill_type=%s' % bills.place_renaming.PlaceRenaming.type.value), self.get_post_data()))
+
         self.check_ajax_error(self.client.post(django_reverse('game:bills:create') + ('?bill_type=%s' % bills.place_renaming.PlaceRenaming.type.value), self.get_post_data()),
                               'bills.create.active_bills_limit_reached')
-        self.assertEqual(models.Bill.objects.all().count(), 1)
+        self.assertEqual(models.Bill.objects.all().count(), c.ACCOUNT_MAX_ACTIVE_BILLS)
 
     @mock.patch('the_tale.game.bills.conf.settings.MINIMUM_BILL_OWNER_AGE', conf.settings.MINIMUM_BILL_OWNER_AGE + 1)
     def test_too_young(self):

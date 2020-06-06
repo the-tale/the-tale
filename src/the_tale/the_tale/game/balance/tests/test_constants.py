@@ -389,8 +389,7 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.COMPANIONS_BONUS_DAMAGE_PROBABILITY, 0.25)
 
         self.assertEqual(c.PLACE_MAX_BILLS_NUMBER, 3)
-        self.assertEqual(c.FREE_ACCOUNT_MAX_ACTIVE_BILLS, 1)
-        self.assertEqual(c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS, 4)
+        self.assertEqual(c.ACCOUNT_MAX_ACTIVE_BILLS, 4)
 
         self.assertEqual(c.BILLS_FAME_BORDER, 1000)
 
