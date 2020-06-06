@@ -23,9 +23,8 @@ class ModifiersTests(utils_testcase.TestCase):
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_craft_center(self):
-        with self.check_increased(lambda: self.place_1.attrs.buy_artifact_power):
-            with self.check_increased(lambda: self.place_1.attrs.production):
-                self.place_1.set_modifier(modifiers.CITY_MODIFIERS.CRAFT_CENTER)
+        with self.check_increased(lambda: self.place_1.attrs.production):
+            self.place_1.set_modifier(modifiers.CITY_MODIFIERS.CRAFT_CENTER)
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_SPECIALIZATION', -100500)
     @mock.patch('the_tale.game.balance.constants.PLACE_TYPE_ENOUGH_BORDER', 100)

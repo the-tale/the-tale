@@ -360,7 +360,11 @@ class ActionBase(object):
             self.hero.change_money(heroes_relations.MONEY_SOURCE.EARNED_FROM_HABITS, coins)
             self.hero.add_message(message_type, diary=True, hero=self.hero, coins=coins, **self.action_event_message_arguments())
         elif event_reward.is_ARTIFACT:
-            artifact, unequipped, sell_price = self.hero.receive_artifact(equip=False, better=False, prefered_slot=False, prefered_item=False, archetype=False)
+            artifact, unequipped, sell_price = self.hero.receive_artifact(equip=False,
+                                                                          better=False,
+                                                                          prefered_slot=False,
+                                                                          prefered_item=False,
+                                                                          archetype=False)
             self.hero.add_message(message_type, diary=True, hero=self.hero, artifact=artifact, **self.action_event_message_arguments())
         elif event_reward.is_EXPERIENCE:
             experience = self.hero.add_experience(int(c.HABIT_EVENT_EXPERIENCE * random.uniform(1.0 - c.HABIT_EVENT_EXPERIENCE_DELTA, 1.0 + c.HABIT_EVENT_EXPERIENCE_DELTA)))
@@ -1118,8 +1122,7 @@ class ActionInPlacePrototype(ActionBase):
                                                                           better=True,
                                                                           prefered_slot=True,
                                                                           prefered_item=True,
-                                                                          archetype=True,
-                                                                          power_bonus=self.hero.buy_artifact_power_bonus())
+                                                                          archetype=True)
 
             if unequipped is not None:
                 if artifact.id == unequipped.id:

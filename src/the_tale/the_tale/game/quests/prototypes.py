@@ -700,7 +700,11 @@ class QuestPrototype(object):
         upgrade_choice = cls._get_upgrdade_choice(hero)
 
         if upgrade_choice.is_BUY:
-            artifact, unequipped, sell_price = hero.receive_artifact(equip=True, better=True, prefered_slot=True, prefered_item=True, archetype=True)
+            artifact, unequipped, sell_price = hero.receive_artifact(equip=True,
+                                                                     better=True,
+                                                                     prefered_slot=True,
+                                                                     prefered_item=True,
+                                                                     archetype=True)
 
             if cost is not None:
                 hero.change_money(heroes_relations.MONEY_SOURCE.SPEND_FOR_ARTIFACTS, -cost)

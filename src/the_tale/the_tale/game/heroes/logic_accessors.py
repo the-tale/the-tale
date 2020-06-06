@@ -298,12 +298,6 @@ class LogicAccessorsMixin(object):
 
         return price
 
-    def buy_artifact_power_bonus(self):
-        if self.position.place:
-            return self.position.place.attrs.buy_artifact_power
-
-        return 0
-
     @property
     def battles_per_turn_summand(self):
         return self.attribute_modifier(relations.MODIFIERS.BATTLES_PER_TURN)

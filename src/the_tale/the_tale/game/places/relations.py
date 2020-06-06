@@ -67,8 +67,6 @@ class ATTRIBUTE(game_attributes.ATTRIBUTE):
                                description='Отклонение цены покупки экипировки в городе.'),
                attributes.attr('SELL_PRICE', 15, 'цена продажи предметов', verbose_units='%', formatter=attributes.percents_formatter,
                                description='Отклонение цены продажи предметов в городе.'),
-               attributes.attr('BUY_ARTIFACT_POWER', 16, 'сила покупаемых артефактов', order=0,
-                               description='Сила артефактов, которые герой приобретает в городе.'),
                attributes.attr('ENERGY_REGEN_CHANCE', 19, 'восстановление энергии', verbose_units='%', formatter=attributes.percents_formatter,
                                description='Шанс восстановить энергию при входе в город.'),
                attributes.attr('HERO_REGEN_CHANCE', 20, 'лечение героя', verbose_units='%', formatter=attributes.percents_formatter,
