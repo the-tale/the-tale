@@ -221,7 +221,9 @@ def setup_persons(kb, hero_info):
 
 
 def setup_social_connections(kb):
-    persons_in_kb = {f_person.externals['id']: f_person.uid for f_person in kb.filter(questgen_facts.Person)}
+    persons_in_kb = {f_person.externals['id']: f_person.uid
+                     for f_person in kb.filter(questgen_facts.Person)
+                     if f_person.externals['type'] == game_relations.ACTOR.PERSON.value}
 
     for person_id, person_uid in persons_in_kb.items():
         person = persons_storage.persons[person_id]
