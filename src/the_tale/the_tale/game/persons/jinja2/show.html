@@ -67,7 +67,9 @@
           <div style="cursor: help; display: inline-block;" rel="tooltip" title="{{person.job.effect.description}}">
             {{person.job.name}}
           </div>
+          {% if person.job.effect.bonus_to_negative_effect %}
           — эффект x {{c.JOB_NEGATIVE_POWER_MULTIPLIER}} в случае провала
+          {% endif %}
         </td>
       </tr>
       <tr>

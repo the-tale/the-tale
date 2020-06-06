@@ -95,7 +95,7 @@ class ChangePlaceAttribute(BaseEffect):
         return self.base_value * job_power
 
     def negative_effect_value(self, job_power):
-        return -self.base_value * job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER
+        return -self.base_value * job_power
 
     def short_effect_description(self, value):
         return '{} от {}{} до 0{} на {} дней'.format(self.attribute.text,
@@ -284,7 +284,8 @@ def place_attribute(id, attribute_name, base_value, attribute_text, priority):
             ChangePlaceAttribute(attribute=attribute, base_value=base_value),
             EFFECT_GROUP.ON_PLACE,
             f'При удачном завершении проекта, временно улучшает {attribute_text} города, в случае неудачи — ухудшает.',
-            priority)
+            priority,
+            False)
 
 
 def hero_profit(id, EffectClass, text, priority, description):
@@ -294,7 +295,8 @@ def hero_profit(id, EffectClass, text, priority, description):
             EffectClass(),
             EFFECT_GROUP.ON_HEROES,
             description,
-            priority)
+            priority,
+            True)
 
 
 class EFFECT_GROUP(rels_django.DjangoEnum):
@@ -309,6 +311,7 @@ class EFFECT(rels_django.DjangoEnum):
     group = rels.Column(unique=False)
     description = rels.Column()
     priority = rels.Column(unique=False, single_type=False)
+    bonus_to_negative_effect = rels.Column(unique=False)
 
     records = (place_attribute(1, 'PRODUCTION', base_value=c.JOB_PRODUCTION_BONUS, attribute_text='производство', priority=1),
                place_attribute(2, 'SAFETY', base_value=c.JOB_SAFETY_BONUS, attribute_text='безопасность', priority=0.5),
