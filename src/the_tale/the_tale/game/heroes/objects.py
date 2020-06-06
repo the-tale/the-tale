@@ -370,9 +370,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                 message = message.clone()
 
         if diary:
-            size = conf.settings.DIARY_LOG_LENGTH_PREMIUM if self.is_premium else conf.settings.DIARY_LOG_LENGTH
-
-            tt_services.diary.cmd_push_message(self.id, message, size=size)
+            tt_services.diary.cmd_push_message(self.id, message, size=conf.settings.DIARY_LOG_LENGTH)
 
     def add_message(self, type_, diary=False, journal=True, turn_delta=0, **kwargs):
         if not diary and not self.is_active and not self.is_premium:
