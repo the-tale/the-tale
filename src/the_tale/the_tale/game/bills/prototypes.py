@@ -186,6 +186,8 @@ class BillPrototype(utils_prototypes.BasePrototype):
 
         with django_transaction.atomic():
 
+            ActorPrototype.update_actors(self, self.actors)
+
             if self.is_percents_barier_not_passed:
                 self.state = relations.BILL_STATE.REJECTED
                 self.save()
