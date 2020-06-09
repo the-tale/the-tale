@@ -22,7 +22,9 @@ default = renderer.Renderer(tags=[tags.TAG.b,
                                   tags.TAG.center,
                                   tags.TAG.size,
                                   tags.TAG.color,
-                                  tags.TAG.pre])
+                                  tags.TAG.pre,
+                                  tags.TAG.entity,
+                                  tags.TAG.entity_url])
 
 safe = renderer.Renderer(tags=[tags.TAG.b,
                                tags.TAG.i,
@@ -37,7 +39,9 @@ safe = renderer.Renderer(tags=[tags.TAG.b,
                                tags.TAG.hr,
                                tags.TAG.lsb,
                                tags.TAG.rsb,
-                               tags.TAG.rl])
+                               tags.TAG.rl,
+                               tags.TAG.entity,
+                               tags.TAG.entity_url])
 
 chronicle = renderer.Renderer(tags=[tags.TAG.i,
                                     tags.TAG.url,
@@ -45,4 +49,5 @@ chronicle = renderer.Renderer(tags=[tags.TAG.i,
                                     tags.TAG.list_id,
                                     tags.TAG.lsb,
                                     tags.TAG.rsb,
-                                    tags.TAG.rl])
+                                    tags.TAG.rl,
+                                    tags.TAG.entity_url])

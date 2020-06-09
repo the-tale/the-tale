@@ -126,6 +126,52 @@ class RedLineTag(postmarkup.TagBase):
         return ''
 
 
+class MetaRelationTag(postmarkup.TagBase):
+
+    def __init__(self, name, **kwargs):
+        super().__init__(name, inline=False, auto_close=True)
+        self.tag_key = 'MetaRelationTag.nest_level'
+
+    def render_open(self, parser, node_index):
+        if self.params:
+            uid = self.params.strip()
+            try:
+                meta_object = meta_relations_logic.get_object_by_uid(uid)
+            except meta_relations_exceptions.MetaRelationsError:
+                return '«неизвестный объект игры»'
+        else:
+            return '«неизвестный объект игры»'
+
+        return f'<a href="{meta_object.url}">{meta_object.caption}</a>'
+
+    def render_close(self, parser, node_index):
+        return ''
+
+
+class MetaRelationUrlTag(postmarkup.TagBase):
+
+    def __init__(self, name, **kwargs):
+        super().__init__(name, inline=False)
+        self.tag_key = 'MetaRelationUrlTag.nest_level'
+
+    def render_open(self, parser, node_index):
+        parser.tag_data[self.tag_key] = parser.tag_data.setdefault(self.tag_key, 0) + 1
+        if self.params:
+            uid = self.params.strip()
+            try:
+                meta_object = meta_relations_logic.get_object_by_uid(uid)
+            except meta_relations_exceptions.MetaRelationsError:
+                return '«неизвестный объект игры»'
+        else:
+            return '«неизвестный объект игры»'
+
+        return f'<a href="{meta_object.url}">'
+
+    def render_close(self, parser, node_index):
+        parser.tag_data[self.tag_key] -= 1
+        return '</a>'
+
+
 def tag(id, tag_class, example, args=None, kwargs=None, name=None, single=False):
     if name is None:
         name = id
@@ -167,4 +213,6 @@ class TAG(rels.Relation):
                tag('center', postmarkup.CenterTag, 'отобразить текст по центру'),
                tag('size', postmarkup.SizeTag, '[size=10]размер текста[/size]'),
                tag('color', postmarkup.ColorTag, '[color=#004455]цвет текста[/color]'),
-               tag('pre', postmarkup.SimpleTag, '<pre>без форматирования</pre>', args=['pre']))
+               tag('pre', postmarkup.SimpleTag, '[pre]без форматирования[/pre]', args=['pre']),
+               tag('entity', MetaRelationTag, '[entity=111#222] — ссылка на игровую сущность, текст ссылки меняется вместе с сущностью (см. магнитики на страницах игровых сущностей)', single=True),
+               tag('entity_url', MetaRelationUrlTag, '[entity_url=111#222]текст[/entity_url] — ссылка на игровую сущность, текст ссылки зафиксирован (см. магнитики на страницах игровых сущностей)'))
