@@ -376,9 +376,11 @@ class BillPrototype(utils_prototypes.BasePrototype):
         thread.caption = thread.caption + ' [удалена]'
         thread.save()
 
+        message = f'Запись удалена Хранителем: [entity={initiator.meta_object().uid}]'
+
         forum_prototypes.PostPrototype.create(thread,
                                               accounts_logic.get_system_user(),
-                                              'Запись была удалена',
+                                              message,
                                               technical=True)
 
     @classmethod
