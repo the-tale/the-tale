@@ -155,7 +155,8 @@ class Companion(object):
         return self.healed_at_turn + c.TURNS_IN_HOUR / c.COMPANIONS_HEALS_IN_HOUR <= game_turn.number()
 
     @property
-    def is_dead(self): return self.health <= 0
+    def is_dead(self):
+        return self.health <= 0
 
     def add_experience(self, value, force=False):
 
@@ -183,6 +184,10 @@ class Companion(object):
             self.coherence += 1
 
             self._hero.reset_accessors_cache()
+
+    def has_full_experience(self):
+        return (self.coherence == c.COMPANIONS_MAX_COHERENCE and
+                self.experience_to_next_level == self.experience)
 
     @property
     def actual_coherence(self):

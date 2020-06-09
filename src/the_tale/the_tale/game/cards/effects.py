@@ -117,7 +117,12 @@ class AddCompanionExpirence(ModificatorBase):
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
 
         if task.hero.companion is None:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='У героя сейчас нет спутника.')
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='У героя сейчас нет спутника.')
+
+        if task.hero.companion.has_full_experience():
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Спутник уже имеет максимум возможного опыта.')
 
         task.hero.companion.add_experience(self.modificator, force=True)
 
