@@ -34,7 +34,7 @@ def get_word_restrictions(external, word_form):
     return ((external, restrictions.get(relations.WORD_HAS_PLURAL_FORM.HAS)), )
 
 
-def _process_arguments(args):
+def _process_arguments(args, lexicon_key=None):
     externals = {}
     restrictions = set()
 
@@ -54,7 +54,7 @@ def _process_arguments(args):
 
     for k, v in variables:
         if v is None:
-            logger.warn('unknown variable %s, for variables %s', k, args)
+            logger.warn('unknown variable %s, for key %s, for variables %s', k, lexicon_key, args)
             word_form = lexicon_dictionary.noun(['потерянная переменная'] * 12, 'од,ср')
             variable_restrictions = set()
         else:
@@ -73,7 +73,7 @@ def prepair_get_text(key, args, quiet=False):
     if lexicon_key is None and not quiet:
         raise exceptions.NoLexiconKeyError(key=key)
 
-    externals, restrictions = _process_arguments(args)
+    externals, restrictions = _process_arguments(args, lexicon_key=lexicon_key)
 
     if (not storage.lexicon.item.has_key(lexicon_key) and
         not quiet and
