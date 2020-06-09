@@ -176,6 +176,9 @@ def remove_clan(clan):
     for account_id in accounts_ids:
         portal_logic.sync_with_discord(accounts_prototypes.AccountPrototype.get_by_id(account_id))
 
+    storage.infos.update_version()
+    storage.infos.refresh()
+
 
 def load_clan(clan_id=None, clan_model=None):
 

@@ -11,4 +11,5 @@ class Command(utilities_base.Command):
     LOCKS = ['game_commands']
 
     def _handle(self, *args, **options):
+        emissaries_logic.emissaries_monitoring()
         emissaries_logic.process_events_monitoring()

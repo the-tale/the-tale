@@ -1390,3 +1390,29 @@ class ProcessEventsMonitoring(BaseEmissaryTests):
 
         self.assertLess(updated_at[0], storage.events[emissary_events[0].id].updated_at)
         self.assertEqual(updated_at[1], storage.events[emissary_events[1].id].updated_at)
+
+
+class EmissariessMonitoring(BaseEmissaryTests):
+
+    def test_save_event_on_change(self):
+        account_2 = self.accounts_factory.create_account()
+        clan_2 = self.create_clan(owner=account_2, uid=2)
+
+        emissary_1 = self.create_emissary(clan=self.clan,
+                                          initiator=self.account,
+                                          place_id=self.places[0].id)
+
+        emissary_2 = self.create_emissary(clan=clan_2,
+                                          initiator=account_2,
+                                          place_id=self.places[0].id)
+
+        clans_logic.remove_clan(self.clan)
+
+        with self.check_changed(lambda: storage.emissaries.version):
+            logic.emissaries_monitoring()
+
+        emissary_1 = logic.load_emissary(emissary_1.id)
+        self.assertTrue(emissary_1.state.is_OUT_GAME)
+
+        emissary_2 = logic.load_emissary(emissary_2.id)
+        self.assertTrue(emissary_2.state.is_IN_GAME)

@@ -652,6 +652,12 @@ def process_events_monitoring():
             save_event(event)
 
 
+def emissaries_monitoring():
+    for emissary in storage.emissaries.all():
+        if clans_storage.infos[emissary.clan_id].state.is_REMOVED:
+            dismiss_emissary(emissary.id)
+
+
 def add_clan_experience():
     for event in storage.events.all():
         experience = int(math.ceil(tt_clans_constants.EXPERIENCE_PER_EVENT * event.emissary.attrs.clan_experience))
