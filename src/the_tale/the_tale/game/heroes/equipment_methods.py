@@ -20,7 +20,7 @@ class EquipmentMethodsMixin(object):
         else:
             self.statistics.change_artifacts_had(1)
 
-        if not artifact.type.is_USELESS:
+        if not artifact.is_useless:
             artifact.power += self.bonus_artifact_power
 
         self.bag.put_artifact(artifact)
