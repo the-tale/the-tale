@@ -1152,6 +1152,10 @@ class QuestForEmissary(_QuestMixin, BaseEffect):
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                      message='Карту нельзя использовать, когда герой сражается на Арене.')
 
+        if not task.hero.is_alive:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Карту нельзя использовать, когда герой воскрешается.')
+
         if emissaries_storage.emissaries[emissary_id].clan_id != membership.clan_id:
             if not card.available_for_auction:
                 return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
