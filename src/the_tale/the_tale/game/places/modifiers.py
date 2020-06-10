@@ -48,8 +48,8 @@ class CITY_MODIFIERS(rels_django.DjangoEnum):
                       'Постоянное присутствие военных делает окрестности города безопаснее для путешествий.'),
 
                record('POLITICAL_CENTER', 3, 'Политический центр', questgen_relations.PLACE_TYPE.NONE,
-                      (('STABILITY_RENEWING_SPEED', c.PLACE_STABILITY_RECOVER_SPEED), ('POLITIC_RADIUS', 3), ('FREEDOM', 0.25)),
-                      'Активная политическая жизнь приводит к тому, что в городе увеличивается уровень свободы. Также увеличивается радиус влияния города и ускоряется восстановление стабильности.'),
+                      (('STABILITY', c.PLACE_STABILITY_UNIT), ('POLITIC_RADIUS', 3), ('FREEDOM', 0.25)),
+                      'Активная политическая жизнь приводит к тому, что в городе увеличивается уровень свободы. Также увеличивается радиус влияния города и его стабильность.'),
 
                record('POLIC', 4, 'Полис', questgen_relations.PLACE_TYPE.NONE,
                       (('PRODUCTION', c.PLACE_GOODS_BONUS), ('TERRAIN_RADIUS', 3), ('FREEDOM', 0.1)),

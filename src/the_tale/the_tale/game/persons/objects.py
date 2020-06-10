@@ -220,10 +220,10 @@ class Person(game_names.ManageNameMixin2):
                                         attribute=places_relations.ATTRIBUTE.POLITIC_RADIUS,
                                         value=self.attrs.politic_radius_bonus)
 
-        if self.attrs.stability_renewing_bonus != 0:
+        if self.attrs.stability_bonus != 0:
             yield tt_api_effects.Effect(name=effect_name,
-                                        attribute=places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED,
-                                        value=self.attrs.stability_renewing_bonus)
+                                        attribute=places_relations.ATTRIBUTE.STABILITY,
+                                        value=self.attrs.stability_bonus)
 
         if self.has_building:
             yield tt_api_effects.Effect(name='стабилизация {} ({})'.format(self.building.name, effect_name),

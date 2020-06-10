@@ -75,14 +75,14 @@ class PersonTests(utils_testcase.TestCase):
 
         self.assertIn(places_relations.ATTRIBUTE.POLITIC_RADIUS, place_attributes)
 
-    def test_place_effects__stability_renewing_bonus(self):
+    def test_place_effects__stability_bonus(self):
         self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.TRUTH_SEEKER
         self.person.personality_practical = relations.PERSONALITY_PRACTICAL.RELIABLE
         self.person.refresh_attributes()
 
         place_attributes = set(effect.attribute for effect in self.person.place_effects())
 
-        self.assertIn(places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, place_attributes)
+        self.assertIn(places_relations.ATTRIBUTE.STABILITY, place_attributes)
 
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifiers',
                 mock.Mock(return_value=[]))

@@ -546,8 +546,6 @@ RESOURCE_EXCHANGE_COST_PER_CELL: int = int(math.floor(PLACE_GOODS_BONUS / 40))
 # - с другой, предотвратить скопление одинаковых эффектов (от проектов Мастеров, например)
 PLACE_STANDARD_EFFECT_LENGTH: int = 15  # в днях
 
-PLACE_STABILITY_RECOVER_SPEED: float = PLACE_STABILITY_UNIT / (PLACE_STANDARD_EFFECT_LENGTH * 24)  # стабильности в час
-
 
 ###########################
 # мастера

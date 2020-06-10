@@ -232,10 +232,6 @@ class Place(game_names.ManageNameMixin2):
                                         attribute=relations.ATTRIBUTE.STABILITY,
                                         value=c.PLACE_STABILITY_PENALTY_FOR_RACES * (dominant_race_power - current_race_power))
 
-        yield tt_api_effects.Effect(name='город',
-                                    attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED,
-                                    value=c.PLACE_STABILITY_RECOVER_SPEED)
-
         # politic radius
         yield tt_api_effects.Effect(name='размер города', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size * 0.625)
         yield tt_api_effects.Effect(name='культура',

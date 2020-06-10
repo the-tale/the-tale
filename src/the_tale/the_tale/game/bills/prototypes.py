@@ -210,18 +210,6 @@ class BillPrototype(utils_prototypes.BasePrototype):
                                                   'Запись одобрена. Изменения вступят в силу в ближайшее время.\n\n%s' % results_text,
                                                   technical=True)
 
-            for actor in self.actors:
-                if isinstance(actor, places_objects.Place):
-                    places_logic.register_effect(place_id=actor.id,
-                                                 attribute=places_relations.ATTRIBUTE.STABILITY,
-                                                 value=-self.type.stability,
-                                                 name='запись №{}'.format(self.id),
-                                                 delta=actor.attrs.stability_renewing_speed,
-                                                 refresh_effects=True,
-                                                 refresh_places=True,
-                                                 info={'source': 'bills',
-                                                       'bills_id': self.id})
-
         self.owner.update_actual_bills()
 
         chronicle_tt_services.chronicle.cmd_add_event(tags=[actor.meta_object().tag for actor in self.actors] + [self.meta_object().tag],

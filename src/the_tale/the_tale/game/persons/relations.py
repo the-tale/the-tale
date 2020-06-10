@@ -68,7 +68,7 @@ class ATTRIBUTE(game_attributes.ATTRIBUTE):
                game_attributes.attr('FRIENDS_QUESTS_PRIORITY_BONUS', 7, 'бонус к вероятности соратникам получить задание, связанное с Мастером'),
                game_attributes.attr('ENEMIES_QUESTS_PRIORITY_BONUS', 8, 'бонус к вероятности противников получить задание, связанное с Мастером'),
                game_attributes.attr('POLITIC_RADIUS_BONUS', 9, 'бонус к радиусу влияния города'),
-               game_attributes.attr('STABILITY_RENEWING_BONUS', 10, 'бонус к скорости восстановления стабильности в городе'),
+               game_attributes.attr('STABILITY_BONUS', 10, 'бонус к стабильности в городе'),
                game_attributes.attr('BUILDING_SUPPORT_COST', 11, 'стоимость поддержи здания Мастера городом', default=lambda: c.PLACE_GOODS_FOR_BUILDING_SUPPORT),
                game_attributes.attr('ON_PROFITE_ENERGY', 12, 'прибавка энергии Хранителя за задание, если Мастер получает выгоду'),
                game_attributes.attr('JOB_POWER_BONUS', 13, 'бонус к эффекту проектов Мастера'),
@@ -149,8 +149,8 @@ class PERSONALITY_PRACTICAL(PERSONALITY):
                personality('ACTIVE', 6, 'деятельный', 'POLITIC_RADIUS_BONUS', 1,
                            'деятельный', 'деятельная', 'Увеличивает радиус влияния города.'),
 
-               personality('RELIABLE', 7, 'надёжный', 'STABILITY_RENEWING_BONUS', c.PLACE_STABILITY_RECOVER_SPEED * 0.25,
-                           'надёжный', 'надёжная', 'Увеличивает скорость восстановления стабильности.'),
+               personality('RELIABLE', 7, 'надёжный', 'STABILITY_BONUS', c.PLACE_STABILITY_UNIT,
+                           'надёжный', 'надёжная', 'Увеличивает стабильность города.'),
 
                personality('ORDERLY', 8, 'аккуратный', 'BUILDING_SUPPORT_COST', -int(c.PLACE_GOODS_FOR_BUILDING_SUPPORT / 2),
                            'аккуратный', 'аккуратная', 'Бережливо относится к своему имуществу — уменьшает стоимость поддержки городом своего здания.'),

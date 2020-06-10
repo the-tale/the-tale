@@ -40,9 +40,16 @@ class ModifiersTests(utils_testcase.TestCase):
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_political_center(self):
+        logic.register_effect(place_id=self.place_1.id,
+                              attribute=relations.ATTRIBUTE.STABILITY,
+                              value=-1,
+                              name='test',
+                              refresh_effects=True,
+                              refresh_places=True)
+
         with self.check_increased(lambda: self.place_1.attrs.freedom):
             with self.check_increased(lambda: self.place_1.attrs.politic_radius):
-                with self.check_increased(lambda: self.place_1.attrs.stability_renewing_speed):
+                with self.check_increased(lambda: self.place_1.attrs.stability):
                     self.place_1.set_modifier(modifiers.CITY_MODIFIERS.POLITICAL_CENTER)
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)

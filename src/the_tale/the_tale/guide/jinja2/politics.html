@@ -72,23 +72,13 @@
 </p>
 
 
-<h4>Записи, связанные с городами</h4>
-
-<p>
-  При принятии записи, в каждом городе, на который она оказывает эффект, уменьшается стабильность, что ведёт к изменению прочих параметров города. Поэтому подходить к принятию записей следует аккуратно.
-</p>
-
-<p>
-  <a href="{{url('guide:cities')}}">Подробнее о городах</a>.
-</p>
-
 <h4>Типы записей</h4>
 
 <dl>
   {% for bill_id, bill in BILLS_BY_ID.items() %}
   {% if bill.type.enabled %}
   <div class="dl-record">
-    <dt>{{bill.CAPTION}} <small>стабильность -{{bill.type.stability|percents}}</small></dt>
+    <dt>{{bill.CAPTION}}</dt>
     <dd>
       <p>{{bill.DESCRIPTION|safe}}</p>
     </dd>

@@ -15,30 +15,29 @@ class BILL_STATE(rels_django.DjangoEnum):
 
 
 class BILL_TYPE(rels_django.DjangoEnum):
-    stability = rels.Column(unique=False, single_type=False)
     enabled = rels.Column(unique=False)
 
-    records = (('PLACE_RENAMING', 0, 'переименование города', 1.5 * c.PLACE_STABILITY_UNIT, True),
-               ('PERSON_REMOVE', 1, 'исключить горожанина из Совета', None, False),
-               ('PLACE_DESCRIPTION', 2, 'изменить описание города', 0.4 * c.PLACE_STABILITY_UNIT, True),
-               ('PLACE_CHANGE_MODIFIER', 3, 'изменить специализацию города', 0.4 * c.PLACE_STABILITY_UNIT, True),
-               ('BUILDING_CREATE', 4, 'возвести постройку', 0.4 * c.PLACE_STABILITY_UNIT, True),
-               ('BUILDING_DESTROY', 5, 'разрушить постройку', 1.0 * c.PLACE_STABILITY_UNIT, True),
-               ('BUILDING_RENAMING', 6, 'переименовать постройку', 0.2 * c.PLACE_STABILITY_UNIT, True),
-               ('PLACE_RESOURCE_EXCHANGE', 7, 'обмен ресурсами', 0.8 * c.PLACE_STABILITY_UNIT, True),
-               ('BILL_DECLINE', 8, 'отмена записи в Книге Судеб', 0.4 * c.PLACE_STABILITY_UNIT, True),
-               ('PLACE_RESOURCE_CONVERSION', 9, 'изменение параметров города', 0.8 * c.PLACE_STABILITY_UNIT, True),
-               ('PERSON_CHRONICLE', 10, 'запись в летописи о Мастере', 0, True),
-               ('PLACE_CHRONICLE', 11, 'запись в летописи о городе', 0, True),
-               ('PERSON_MOVE', 12, 'переезд Мастера', 2.0 * c.PLACE_STABILITY_UNIT, True),
-               ('PLACE_CHANGE_RACE', 13, 'изменить расу города', 0.4 * c.PLACE_STABILITY_UNIT, True),
-               ('PERSON_ADD_SOCIAL_CONNECTION', 14, 'добавить социальную связь', 0.6 * c.PLACE_STABILITY_UNIT, True),
-               ('PERSON_REMOVE_SOCIAL_CONNECTION', 15, 'удалить социальную связь', 0.6 * c.PLACE_STABILITY_UNIT, True),
-               ('ROAD_CREATE', 16, 'проложить дорогу', 3.0 * c.PLACE_STABILITY_UNIT, True),
-               ('ROAD_DESTROY', 17, 'разрушить дорогу', 4.0 * c.PLACE_STABILITY_UNIT, True),
-               ('ROAD_CHANGE', 18, 'изменить дорогу', 2.0 * c.PLACE_STABILITY_UNIT, True),
-               ('EMISSARY_CHRONICLE', 19, 'запись в летописи об эмиссаре', 0, True),
-               ('PLACE_CHANGE_TAX_SIZE_BORDER', 20, 'установить поддерживаемый размер города', c.PLACE_STABILITY_UNIT, True),)
+    records = (('PLACE_RENAMING', 0, 'переименование города', True),
+               ('PERSON_REMOVE', 1, 'исключить горожанина из Совета', False),
+               ('PLACE_DESCRIPTION', 2, 'изменить описание города', True),
+               ('PLACE_CHANGE_MODIFIER', 3, 'изменить специализацию города', True),
+               ('BUILDING_CREATE', 4, 'возвести постройку', True),
+               ('BUILDING_DESTROY', 5, 'разрушить постройку', True),
+               ('BUILDING_RENAMING', 6, 'переименовать постройку', True),
+               ('PLACE_RESOURCE_EXCHANGE', 7, 'обмен ресурсами', True),
+               ('BILL_DECLINE', 8, 'отмена записи в Книге Судеб', True),
+               ('PLACE_RESOURCE_CONVERSION', 9, 'изменение параметров города', True),
+               ('PERSON_CHRONICLE', 10, 'запись в летописи о Мастере', True),
+               ('PLACE_CHRONICLE', 11, 'запись в летописи о городе', True),
+               ('PERSON_MOVE', 12, 'переезд Мастера', True),
+               ('PLACE_CHANGE_RACE', 13, 'изменить расу города', True),
+               ('PERSON_ADD_SOCIAL_CONNECTION', 14, 'добавить социальную связь', True),
+               ('PERSON_REMOVE_SOCIAL_CONNECTION', 15, 'удалить социальную связь', True),
+               ('ROAD_CREATE', 16, 'проложить дорогу', True),
+               ('ROAD_DESTROY', 17, 'разрушить дорогу', True),
+               ('ROAD_CHANGE', 18, 'изменить дорогу', True),
+               ('EMISSARY_CHRONICLE', 19, 'запись в летописи об эмиссаре', True),
+               ('PLACE_CHANGE_TAX_SIZE_BORDER', 20, 'установить поддерживаемый размер города', True),)
 
 
 class VOTE_TYPE(rels_django.DjangoEnum):

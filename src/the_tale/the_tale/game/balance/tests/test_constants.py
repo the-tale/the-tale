@@ -303,7 +303,6 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.RESOURCE_EXCHANGE_COST_PER_CELL, 2)
 
         self.assertEqual(c.PLACE_STANDARD_EFFECT_LENGTH, 15)
-        self.assertEqual(round(c.PLACE_STABILITY_RECOVER_SPEED, 4), 0.0003)
 
         self.assertEqual(c.PERSON_MOVE_DELAY_IN_WEEKS, 2)
         self.assertEqual(c.PERSON_MOVE_DELAY, 120960)
