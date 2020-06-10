@@ -87,7 +87,7 @@ class Emissary(game_names.ManageNameMixin2):
 
     @property
     def url(self):
-        return utils_urls.url('game:persons:show', self.id)
+        return utils_urls.url('game:emissaries:show', self.id)
 
     def meta_object(self):
         return meta_relations.Emissary.create_from_object(self)
