@@ -479,6 +479,10 @@ PLACE_GOODS_FOR_BUILDING_SUPPORT: int = PLACE_GOODS_FROM_BEST_PERSON * 3 // 5
 PLACE_AVERAGE_TOTAL_ROADS_PRICE: int = int(1.5 * PLACE_GOODS_BONUS)  # средняя стоимость поддержки дорог для города
 CELL_STABILIZATION_PRICE: int = PLACE_AVERAGE_TOTAL_ROADS_PRICE // 15
 
+ROAD_LENGTH_PRICE_MULTIPLIER: List[Tuple[int, float]] = [(10, 1.0),
+                                                         (20, 1.5),
+                                                         (10**9, 2.0)]
+
 # если размер города равен 1 (минимальный) и производство отрицательное
 # то в городе вводят пошлину в размере "недостающее производство" * PLACE_TAX_PER_ONE_GOODS
 PLACE_TAX_PER_ONE_GOODS: float = 0.1 / PLACE_GOODS_BONUS

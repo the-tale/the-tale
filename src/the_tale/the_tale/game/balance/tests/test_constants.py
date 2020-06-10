@@ -263,6 +263,11 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PLACE_AVERAGE_TOTAL_ROADS_PRICE, 150)
         self.assertEqual(c.CELL_STABILIZATION_PRICE, 10)
 
+        self.assertEqual(c.ROAD_LENGTH_PRICE_MULTIPLIER,
+                         [(10, 1.0),
+                          (20, 1.5),
+                          (10**9, 2.0))
+
         self.assertEqual(c.PLACE_TAX_PER_ONE_GOODS, 0.001)
         self.assertEqual(c.MAX_PRODUCTION_FROM_TAX, 250)
 

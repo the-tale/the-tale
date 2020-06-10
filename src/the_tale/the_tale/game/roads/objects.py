@@ -27,7 +27,14 @@ class Road:
                                     start_y=self.place_1.y,
                                     path=self.path)
 
-    def get_stabilization_price_for(self, place):
+    def price_multiplier(self):
+        for border, multiplier in c.ROAD_LENGTH_PRICE_MULTIPLIER:
+            if self.length <= border:
+                return multiplier
+
+        raise NotImplementedError
+
+    def get_stabilization_price_for(self, place) -> int:
 
         if place.id not in (self.place_1_id, self.place_2_id):
             raise ValueError
@@ -39,7 +46,7 @@ class Road:
                  if cell not in (place_1_point, place_2_point) and
                  map_storage.cells(*cell).dominant_place_id == place.id]
 
-        return logic.road_support_cost(cells)
+        return int(logic.road_support_cost(cells) * self.price_multiplier())
 
     def map_info(self):
         return {'id': self.id,
