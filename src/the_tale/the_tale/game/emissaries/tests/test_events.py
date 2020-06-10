@@ -1393,14 +1393,6 @@ class RevolutionTests(places_helpers.PlacesTestsMixin,
              self.check_delta(lambda: number(self.account.id), 1):
             yield
 
-    def test_on_create__already_has_same_protector(self):
-        self.set_protector(place_id=self.emissary.place_id,
-                           clan_id=self.emissary.clan_id)
-
-        with self.assertRaises(exceptions.OnEventCreateError):
-            with self.concrete_event.on_create(self.emissary):
-                pass
-
     def test_notify_other_clans_on_create(self):
         with self.check_messages_received_by_other_clan():
             self.concrete_event.after_create(self.get_event())

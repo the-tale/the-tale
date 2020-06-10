@@ -987,14 +987,6 @@ class Revolution(EventBase):
 
         return emissary.can_participate_in_pvp()
 
-    @contextlib.contextmanager
-    def on_create(self, emissary):
-
-        if emissary.place.attrs.clan_protector == emissary.clan_id:
-            raise exceptions.OnEventCreateError(message='already protector')
-
-        yield
-
     def message(self, template, emissary):
         clan_info = clans_storage.infos[emissary.clan_id]
         place = emissary.place
@@ -1082,7 +1074,7 @@ class Revolution(EventBase):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = f'Делает гильдию эмиссара протектором города, в котором тот находится. Проваливается, если в момент завершения мероприятия эмиссар не находится в числе лидеров города, либо имеет не более {cls.POWER_BARRIER} влияния, либо имеет меньше влияния, чем эмиссар текущей гильдии-протектора. При начале и завершении мероприятия будет отправлено соответствующее сообщение всем членам гильдий (с эмиссарами в городе) с правом «{clans_relations.PERMISSION.RECEIVE_MESSAGES.text}». Начать мероприятие может только эмиссар с суммой способностей больше {tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP}.'
+        text = f'Делает гильдию эмиссара протектором города, в котором тот находится. Проваливается, если в момент завершения мероприятия эмиссар не находится в числе лидеров города, либо имеет не более {cls.POWER_BARRIER} влияния, либо имеет меньше влияния, чем эмиссар текущей гильдии-протектора. При начале и завершении мероприятия будет отправлено соответствующее сообщение всем членам гильдий (с эмиссарами в городе) с правом «{clans_relations.PERMISSION.RECEIVE_MESSAGES.text}». Начать мероприятие может только эмиссар с суммой способностей больше {tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP}. Может быть начато даже, если гильдия уже является протектором города.'
         return text
 
 
