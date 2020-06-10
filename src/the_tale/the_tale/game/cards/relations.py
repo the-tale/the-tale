@@ -37,5 +37,5 @@ class STORAGE(rels_django.DjangoEnum):
 
 
 class RECEIVE_MODE(rels_django.DjangoEnum):
-    records = (('PERSONAL_ONLY', 0, 'вы получаете карты доступные «для всех»'),
-               ('ALL', 1, 'вы получаете карты доступные «для подписчиков» и «для всех»'))
+    records = (('PERSONAL_ONLY', 0, 'стандартный набор'),
+               ('ALL', 1, 'расширенный набор'))
