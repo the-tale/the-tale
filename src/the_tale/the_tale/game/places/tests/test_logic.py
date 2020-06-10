@@ -820,3 +820,20 @@ class SyncProtectoratTests(helpers.PlacesTestsMixin,
         logic.sync_protectorat(self.places[0])
 
         self.assertEqual(self.places[0].attrs.clan_protector, self.clan.id)
+
+    def test_clan_removed(self):
+        self.set_protector(place_id=self.places[0].id,
+                           clan_id=self.clan.id)
+
+        self.assertEqual(self.places[0].attrs.clan_protector, self.clan.id)
+
+        self.create_emissary(clan=self.clan,
+                             initiator=self.account,
+                             place_id=self.places[0].id)
+
+        clans_logic.remove_clan(self.clan)
+        emissaries_logic.emissaries_monitoring()
+
+        logic.sync_protectorat(self.places[0])
+
+        self.assertEqual(self.places[0].attrs.clan_protector, None)
