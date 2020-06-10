@@ -1024,7 +1024,7 @@ class SatisfyRequirementsTests(PrototypeTestsBase):
         with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._move_hero_near') as move_hero_near:
             self.quest.satisfy_located_near(requirement)
 
-        self.assertEqual(move_hero_near.call_args_list, [mock.call(destination=self.place_2, terrains=[1, 2])])
+        self.assertEqual(move_hero_near.call_args_list, [mock.call(place=self.place_2, terrains=[1, 2])])
 
     def test_satisfy_located_near__no_place(self):
         requirement = questgen_requirements.LocatedNear(object=self.hero_fact.uid, place=None, terrains=[1, 2])
@@ -1032,7 +1032,7 @@ class SatisfyRequirementsTests(PrototypeTestsBase):
         with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._move_hero_near') as move_hero_near:
             self.quest.satisfy_located_near(requirement)
 
-        self.assertEqual(move_hero_near.call_args_list, [mock.call(destination=None, terrains=[1, 2])])
+        self.assertEqual(move_hero_near.call_args_list, [mock.call(place=None, terrains=[1, 2])])
 
     # located on road
 
@@ -1150,7 +1150,7 @@ class PrototypeMoveHeroTests(PrototypeTestsBase):
         self.quest._move_hero_near(self.place_1)
 
         self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE)
-        self.assertEqual(self.hero.actions.current_action.destination.id, self.place_1.id)
+        self.assertEqual(self.hero.actions.current_action.destination, None)
         self.assertNotEqual(self.hero.actions.current_action.path.destination_coordinates(),
                             (self.place_1.x, self.place_1.y))
 
@@ -1167,7 +1167,7 @@ class PrototypeMoveHeroTests(PrototypeTestsBase):
         self.quest._move_hero_near(self.place_3)
 
         self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE)
-        self.assertEqual(self.hero.actions.current_action.destination.id, self.place_3.id)
+        self.assertEqual(self.hero.actions.current_action.destination, None)
         self.assertNotEqual(self.hero.actions.current_action.path.destination_coordinates(),
                             (self.place_3.x, self.place_3.y))
 
@@ -1177,7 +1177,7 @@ class PrototypeMoveHeroTests(PrototypeTestsBase):
         self.quest._move_hero_near(self.place_1)
 
         self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE)
-        self.assertEqual(self.hero.actions.current_action.place.id, self.place_1.id)
+        self.assertEqual(self.hero.actions.current_action.destination, None)
         self.assertNotEqual(self.hero.actions.current_action.path.destination_coordinates(),
                             (self.place_1.x, self.place_1.y))
 

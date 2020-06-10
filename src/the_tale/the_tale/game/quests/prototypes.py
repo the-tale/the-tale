@@ -372,8 +372,8 @@ class QuestPrototype(object):
                                                             destination=destination,
                                                             break_at=None)
 
-    def _move_hero_near(self, destination, terrains=None):
-        to_x, to_y = places_logic.choose_place_cell_by_terrain(destination.id, terrains, exclude_place_if_can=True)
+    def _move_hero_near(self, place, terrains=None):
+        to_x, to_y = places_logic.choose_place_cell_by_terrain(place.id, terrains, exclude_place_if_can=True)
 
         path = navigation_path.simple_path(from_x=self.hero.position.cell_x,
                                            from_y=self.hero.position.cell_y,
@@ -383,7 +383,7 @@ class QuestPrototype(object):
 
         actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
                                                             path=path,
-                                                            destination=destination,
+                                                            destination=None,
                                                             break_at=None)
 
     def _get_fixed_path(self, place_from, place_to):
@@ -898,12 +898,11 @@ class QuestPrototype(object):
 
     def do_move_near(self, action):
         if action.place:
-            destination = places_storage.places.get(self.knowledge_base[action.place].externals['id'])
-
+            place = places_storage.places.get(self.knowledge_base[action.place].externals['id'])
         else:
-            destination = self.hero.position.cell().nearest_place()
+            place = self.hero.position.cell().nearest_place()
 
-        self._move_hero_near(destination=destination, terrains=action.terrains)
+        self._move_hero_near(place=place, terrains=action.terrains)
 
     ################################
     # check requirements callbacks
@@ -1049,12 +1048,12 @@ class QuestPrototype(object):
         if not isinstance(object_fact, questgen_facts.Hero) or self.hero.id != object_fact.externals['id']:
             raise exceptions.UnknownRequirementError(requirement=requirement)
 
-        destination = None
+        place = None
 
         if requirement.place is not None:
-            destination = places_storage.places.get(self.knowledge_base[requirement.place].externals['id'])
+            place = places_storage.places.get(self.knowledge_base[requirement.place].externals['id'])
 
-        self._move_hero_near(destination=destination, terrains=requirement.terrains)
+        self._move_hero_near(place=place, terrains=requirement.terrains)
 
     def satisfy_located_on_road(self, requirement):
         object_fact = self.knowledge_base[requirement.object]
