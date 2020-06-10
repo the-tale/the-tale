@@ -185,7 +185,8 @@ MIDDLEWARE = ('django.middleware.common.CommonMiddleware',
               'the_tale.common.settings.middleware.SettingsMiddleware',
               'the_tale.accounts.middleware.RegistrationMiddleware',
               'the_tale.accounts.third_party.middleware.ThirdPartyMiddleware',
-              'the_tale.accounts.middleware.FirstTimeVisitMiddleware')
+              'the_tale.accounts.middleware.FirstTimeVisitMiddleware',
+              'the_tale.common.utils.middleware.NoCacheMiddleware')
 
 ROOT_URLCONF = 'the_tale.urls'
 
@@ -281,9 +282,6 @@ AMQP_BROKER_VHOST = '/the_tale'
 if TESTS_RUNNING:
     INSTALLED_APPS.append('test_without_migrations')
 
-    # commented, to allow parallel testing
-    # TEST_RUNNER = 'django_slowtests.DiscoverSlowestTestsRunner'
-    # NUM_SLOW_TESTS = 10
 
 ################
 # CACHING
@@ -296,10 +294,8 @@ CACHES = {'default': {'BACKEND': 'django_redis.cache.RedisCache',
                           'SERIALIZER': 'django_redis.serializers.json.JSONSerializer'}}}
 
 
-CACHE_MIDDLEWARE_SECONDS = 24 * 60 * 60
-CACHE_MIDDLEWARE_KEY_PREFIX = ''
-
 MAINTENANCE_FILE = '/var/www/the_tale/maintenance.html'
+
 
 try:
     from the_tale.settings_local import *  # pylint: disable=W0403,W0401,W0614
