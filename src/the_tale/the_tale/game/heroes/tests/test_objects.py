@@ -11,7 +11,9 @@ def get_simple_cache_data(*argv, **kwargs):
             'action': {'data': None}}
 
 
-class HeroTest(utils_testcase.TestCase, personal_messages_helpers.Mixin):
+class HeroTest(personal_messages_helpers.Mixin,
+               places_helpers.PlacesTestsMixin,
+               utils_testcase.TestCase):
 
     def setUp(self):
         super(HeroTest, self).setUp()
@@ -517,6 +519,29 @@ class HeroTest(utils_testcase.TestCase, personal_messages_helpers.Mixin):
         self.hero.actual_bills.append(time.time())
 
         self.assertEqual(self.hero.actual_bills_number, 3)
+
+    def test_clan_membership(self):
+        self.assertTrue(self.hero.clan_membership().is_NOT_IN_CLAN)
+
+        self.hero.clan_id = 666
+        self.assertTrue(self.hero.clan_membership().is_IN_CLAN)
+
+    def test_protectorat_ownership(self):
+        self.assertTrue(self.hero.protectorat_ownership().is_NO_PROTECTORAT)
+
+        clan_id = 666
+
+        self.hero.clan_id = clan_id
+        self.assertTrue(self.hero.protectorat_ownership().is_NO_PROTECTORAT)
+
+        self.set_protector(self.hero.position.place_id, clan_id)
+        self.assertTrue(self.hero.protectorat_ownership().is_HAS_PROTECTORAT)
+
+        self.set_protector(self.hero.position.place_id, clan_id+1)
+        self.assertTrue(self.hero.protectorat_ownership().is_NO_PROTECTORAT)
+
+        self.hero.position.cell().dominant_place_id = None
+        self.assertTrue(self.hero.protectorat_ownership().is_NO_PROTECTORAT)
 
 
 class HeroLevelUpTests(utils_testcase.TestCase, personal_messages_helpers.Mixin):

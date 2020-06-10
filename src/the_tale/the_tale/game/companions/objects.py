@@ -68,7 +68,9 @@ class Companion(object):
                         linguistics_restrictions.get(self.record.movement),
                         linguistics_restrictions.get(self.record.body),
                         linguistics_restrictions.get(self.record.size),
-                        linguistics_restrictions.get(self.record.orientation)]
+                        linguistics_restrictions.get(self.record.orientation),
+                        linguistics_restrictions.get(heroes_relations.CLAN_MEMBERSHIP.NOT_IN_CLAN),
+                        linguistics_restrictions.get(heroes_relations.PROTECTORAT_OWNERSHIP.NO_PROTECTORAT)]
 
         for feature in self.record.features:
             restrictions.append(linguistics_restrictions.get(feature))

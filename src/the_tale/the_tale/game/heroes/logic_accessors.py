@@ -665,7 +665,8 @@ class LogicAccessorsMixin(object):
                         linguistics_restrictions.get(self.first_death),
                         linguistics_restrictions.get(self.death_age),
 
-                        linguistics_restrictions.get(self.clan_membership()),)
+                        linguistics_restrictions.get(self.clan_membership()),
+                        linguistics_restrictions.get(self.protectorat_ownership()),)
 
         self._cached_modifiers['#linguistics_restrictions'] = restrictions
 

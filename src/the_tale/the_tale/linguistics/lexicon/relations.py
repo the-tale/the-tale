@@ -163,7 +163,9 @@ class VARIABLE_TYPE(rels_django.DjangoEnum):
                                                                                                                  linguistics_restrictions.GROUP.BEING_ORIENTATION,
                                                                                                                  linguistics_restrictions.GROUP.UPBRINGING,
                                                                                                                  linguistics_restrictions.GROUP.FIRST_DEATH,
-                                                                                                                 linguistics_restrictions.GROUP.AGE), ('weapon',)),
+                                                                                                                 linguistics_restrictions.GROUP.AGE,
+                                                                                                                 linguistics_restrictions.GROUP.CLAN_MEMBERSHIP,
+                                                                                                                 linguistics_restrictions.GROUP.PROTECTORAT_OWNERSHIP), ('weapon',)),
 
                ('MODIFIER', 8, 'модификатор города', VARIABLE_VERIFICATOR.MODIFIER, _construct_utg_name_form, (linguistics_restrictions.GROUP.CITY_MODIFIER,
                                                                                                                linguistics_restrictions.GROUP.PLURAL_FORM), ()),

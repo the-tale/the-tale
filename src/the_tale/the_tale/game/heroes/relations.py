@@ -285,3 +285,8 @@ class ENERGY_REGENERATION(rels_django.DjangoEnum):
 class CLAN_MEMBERSHIP(rels_django.DjangoEnum):
     records = (('NOT_IN_CLAN', 0, 'не состоит в гильдии'),
                ('IN_CLAN', 1, 'состоит в гильдии'))
+
+
+class PROTECTORAT_OWNERSHIP(rels_django.DjangoEnum):
+    records = (('HAS_PROTECTORAT', 0, 'гильдия героя — протектор города, в окрестнотсях которого тот находится'),
+               ('NO_PROTECTORAT', 1, 'гильдия героя не является протектором города, в окрестнотсях которого тот находится'))

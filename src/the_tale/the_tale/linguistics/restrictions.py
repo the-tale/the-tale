@@ -81,7 +81,8 @@ class GROUP(rels_django.DjangoEnum):
                ('FIRST_DEATH', 53, 'первая смерть', tt_beings_relations.FIRST_DEATH, True),
                ('AGE', 54, 'возраст в котором умер', tt_beings_relations.AGE, False),
 
-               ('CLAN_MEMBERSHIP', 55, 'членство в гильдии', heroes_relations.CLAN_MEMBERSHIP, True))
+               ('CLAN_MEMBERSHIP', 55, 'членство в гильдии', heroes_relations.CLAN_MEMBERSHIP, True),
+               ('PROTECTORAT_OWNERSHIP', 56, 'в своём протекторате', heroes_relations.PROTECTORAT_OWNERSHIP, True))
 
 
 def get(value):

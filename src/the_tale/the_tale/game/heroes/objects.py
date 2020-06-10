@@ -187,6 +187,20 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         return relations.CLAN_MEMBERSHIP.IN_CLAN
 
+    def protectorat_ownership(self):
+        if self.clan_id is None:
+            return relations.PROTECTORAT_OWNERSHIP.NO_PROTECTORAT
+
+        dominant_place = self.position.cell().dominant_place()
+
+        if dominant_place is None:
+            return relations.PROTECTORAT_OWNERSHIP.NO_PROTECTORAT
+
+        if dominant_place.attrs.clan_protector == self.clan_id:
+            return relations.PROTECTORAT_OWNERSHIP.HAS_PROTECTORAT
+
+        return relations.PROTECTORAT_OWNERSHIP.NO_PROTECTORAT
+
     ##########################
     # experience
     ##########################
