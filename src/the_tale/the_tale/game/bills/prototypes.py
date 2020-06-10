@@ -77,7 +77,8 @@ class BillPrototype(utils_prototypes.BasePrototype):
         self._model.votes_refrained = models.Vote.objects.filter(bill=self._model, type=relations.VOTE_TYPE.REFRAINED).count()
 
     @property
-    def is_percents_barier_not_passed(self): return self.votes_for_percents < conf.settings.MIN_VOTES_PERCENT
+    def is_percents_barier_not_passed(self):
+        return self.votes_for_percents < conf.settings.MIN_VOTES_PERCENT
 
     @property
     def last_bill_event_text(self):
@@ -156,10 +157,7 @@ class BillPrototype(utils_prototypes.BasePrototype):
             self.state = relations.BILL_STATE.STOPPED
             self.save()
 
-            forum_prototypes.PostPrototype.create(forum_prototypes.ThreadPrototype(self._model.forum_thread),
-                                                  accounts_logic.get_system_user(),
-                                                  'Запись потеряла смысл, голосование остановлено. %s' % results_text,
-                                                  technical=True)
+            self.post_to_forum('Запись потеряла смысл, голосование остановлено. %s' % results_text)
 
     def apply(self):
         if not self.state.is_VOTING:
@@ -192,10 +190,8 @@ class BillPrototype(utils_prototypes.BasePrototype):
                 self.state = relations.BILL_STATE.REJECTED
                 self.save()
 
-                forum_prototypes.PostPrototype.create(forum_prototypes.ThreadPrototype(self._model.forum_thread),
-                                                      accounts_logic.get_system_user(),
-                                                      'Запись отклонена.\n\n%s' % results_text,
-                                                      technical=True)
+                self.post_to_forum('Запись отклонена.\n\n%s' % results_text)
+
                 return False
 
             self.data.apply(self)
@@ -205,10 +201,7 @@ class BillPrototype(utils_prototypes.BasePrototype):
             with achievements_storage.achievements.verify(type=achievements_relations.ACHIEVEMENT_TYPE.POLITICS_ACCEPTED_BILLS, object=self.owner):
                 self.save()
 
-            forum_prototypes.PostPrototype.create(forum_prototypes.ThreadPrototype(self._model.forum_thread),
-                                                  accounts_logic.get_system_user(),
-                                                  'Запись одобрена. Изменения вступят в силу в ближайшее время.\n\n%s' % results_text,
-                                                  technical=True)
+            self.post_to_forum('Запись одобрена. Изменения вступят в силу в ближайшее время.\n\n%s' % results_text)
 
         self.owner.update_actual_bills()
 
@@ -235,10 +228,7 @@ class BillPrototype(utils_prototypes.BasePrototype):
 
         self.save()
 
-        forum_prototypes.PostPrototype.create(forum_prototypes.ThreadPrototype(self._model.forum_thread),
-                                              accounts_logic.get_system_user(),
-                                              results_text,
-                                              technical=True)
+        self.post_to_forum(results_text)
 
         return True
 
@@ -266,6 +256,22 @@ class BillPrototype(utils_prototypes.BasePrototype):
 
         return rendered_text
 
+    def sync_forum_thread_caption(self):
+        thread = forum_prototypes.ThreadPrototype(self._model.forum_thread)
+
+        thread.caption = self.caption
+
+        if self.state.is_REMOVED:
+            thread.caption = thread.caption + ' [удалена]'
+
+        thread.save()
+
+    def post_to_forum(self, message):
+        forum_prototypes.PostPrototype.create(self.forum_thread,
+                                              accounts_logic.get_system_user(),
+                                              message,
+                                              technical=True)
+
     def _initialize_with_form(self, form, is_updated=True):
         self.data.initialize_with_form(form)
 
@@ -276,6 +282,8 @@ class BillPrototype(utils_prototypes.BasePrototype):
         self._model.depends_on_id = form.c.depends_on
         self._model.approved_by_moderator = False
         self._model.chronicle_on_accepted = form.c.chronicle_on_accepted
+
+        self.sync_forum_thread_caption()
 
     @django_transaction.atomic
     def update(self, form):
@@ -292,23 +300,23 @@ class BillPrototype(utils_prototypes.BasePrototype):
 
         ActorPrototype.update_actors(self, self.actors)
 
-        thread = forum_prototypes.ThreadPrototype(self._model.forum_thread)
-        thread.caption = form.c.caption
-        thread.save()
-
         text = '[url="%s%s"]Запись[/url] была отредактирована, все голоса сброшены.' % (django_settings.SITE_URL,
                                                                                         django_reverse('game:bills:show', args=[self.id]))
 
-        forum_prototypes.PostPrototype.create(thread,
-                                              accounts_logic.get_system_user(),
-                                              self.bill_info_text(text),
-                                              technical=True)
+        self.post_to_forum(self.bill_info_text(text))
 
     @django_transaction.atomic
     def update_by_moderator(self, form):
         self._initialize_with_form(form, is_updated=False)
         self._model.approved_by_moderator = form.c.approved
         self.save()
+
+        ActorPrototype.update_actors(self, self.actors)
+
+        text = '[url="%s%s"]Запись[/url] была отредактирована модератором.' % (django_settings.SITE_URL,
+                                                                               django_reverse('game:bills:show', args=[self.id]))
+
+        self.post_to_forum(self.bill_info_text(text))
 
     @classmethod
     @django_transaction.atomic
@@ -360,16 +368,9 @@ class BillPrototype(utils_prototypes.BasePrototype):
         self.state = relations.BILL_STATE.REMOVED
         self.save()
 
-        thread = forum_prototypes.ThreadPrototype(self._model.forum_thread)
-        thread.caption = thread.caption + ' [удалена]'
-        thread.save()
+        self.sync_forum_thread_caption()
 
-        message = f'Запись удалена Хранителем: [entity={initiator.meta_object().uid}]'
-
-        forum_prototypes.PostPrototype.create(thread,
-                                              accounts_logic.get_system_user(),
-                                              message,
-                                              technical=True)
+        self.post_to_forum(f'Запись удалена Хранителем: [entity={initiator.meta_object().uid}]')
 
     @classmethod
     def get_applicable_bills_ids(cls):

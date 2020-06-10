@@ -216,19 +216,16 @@ class TestPrototypeApply(helpers.BaseTestPrototypes):
 
         self.prepair_data_to_approve()
 
-        self.assertEqual(forum_models.Post.objects.all().count(), 1)
+        with self.check_delta(forum_models.Post.objects.all().count, 1):
+            self.assertTrue(self.bill.apply())
 
-        self.assertTrue(self.bill.apply())
+            self.assertEqual(accounts_prototypes.AccountPrototype.get_by_id(self.bill.owner.id).actual_bills,
+                             [utils_logic.to_timestamp(self.bill.voting_end_at)])
 
-        self.assertEqual(accounts_prototypes.AccountPrototype.get_by_id(self.bill.owner.id).actual_bills,
-                         [utils_logic.to_timestamp(self.bill.voting_end_at)])
+            self.assertEqual(self.bill.owner.actual_bills,
+                             [utils_logic.to_timestamp(self.bill.voting_end_at)])
 
-        self.assertEqual(self.bill.owner.actual_bills,
-                         [utils_logic.to_timestamp(self.bill.voting_end_at)])
-
-        self.assertTrue(self.bill.state.is_ACCEPTED)
-
-        self.assertEqual(forum_models.Post.objects.all().count(), 2)
+            self.assertTrue(self.bill.state.is_ACCEPTED)
 
         bill = prototypes.BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state.is_ACCEPTED)

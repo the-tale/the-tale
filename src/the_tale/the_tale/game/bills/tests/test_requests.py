@@ -923,7 +923,7 @@ class TestModerateRequests(BaseTestRequests):
 
         self.check_ajax_ok(self.client.post(utils_urls.url('game:bills:vote', self.bill.id, type=relations.VOTE_TYPE.FOR.value), {}))
 
-        with self.check_not_changed(forum_models.Post.objects.count):
+        with self.check_delta(forum_models.Post.objects.count, 1):
             with self.check_not_changed(lambda: prototypes.BillPrototype.get_by_id(self.bill.id).updated_at):
                 with self.check_not_changed(models.Vote.objects.count):
                     self.check_ajax_ok(self.client.post(django_reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()))
