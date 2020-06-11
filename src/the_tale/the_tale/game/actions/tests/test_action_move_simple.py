@@ -22,7 +22,7 @@ class MoveSimpleTests(clans_helpers.ClansTestsMixin,
         self.account = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.action_idl = self.hero.actions.current_action
@@ -697,7 +697,7 @@ class MoveSimpleNoDestinationTests(clans_helpers.ClansTestsMixin,
         account = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
+        self.storage.load_account_data(account.id)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
         self.action_idl = self.hero.actions.current_action
@@ -866,7 +866,7 @@ class MoveSimpleBreakAtTests(clans_helpers.ClansTestsMixin,
         self.account = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.action_idl = self.hero.actions.current_action

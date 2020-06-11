@@ -89,7 +89,7 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
     companion_data = data.get('companion')
     companion = companions_objects.Companion.deserialize(companion_data) if companion_data else None
 
-    return objects.Hero(id=hero_model.id,
+    hero = objects.Hero(id=hero_model.id,
                         account_id=hero_model.account_id,
                         clan_id=hero_model.clan_id,
                         health=hero_model.health,
@@ -129,6 +129,10 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         death_age=tt_beings_relations.AGE(data.get('death_age', tt_beings_relations.AGE.MATURE.value)),
                         first_death=tt_beings_relations.FIRST_DEATH(data.get('first_death', tt_beings_relations.FIRST_DEATH.FROM_THE_MONSTER_FANGS.value)),
                         utg_name=utg_words.Word.deserialize(data['name']))
+
+    sync_hero_external_data(hero)
+
+    return hero
 
 
 def save_hero(hero, new=False):
@@ -450,3 +454,15 @@ def get_places_path_modifiers(hero):
                                   for effect in get_places_path_modifiers_effects(hero, place))
 
     return modifiers
+
+
+def sync_hero_external_data(hero):
+    account = accounts_prototypes.AccountPrototype.get_by_id(hero.id)
+
+    hero.is_fast = account.is_fast
+    hero.active_state_end_at = account.active_end_at
+    hero.premium_state_end_at = account.premium_end_at
+    hero.ban_state_end_at = account.ban_game_end_at
+    hero.might = account.might
+    hero.actual_bills = account.actual_bills
+    hero.clan_id = account.clan_id

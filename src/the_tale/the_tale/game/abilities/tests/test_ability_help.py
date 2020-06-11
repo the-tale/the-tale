@@ -16,7 +16,7 @@ class HelpAbilityTest(pvp_helpers.PvPTestsMixin,
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.action_idl = self.hero.actions.current_action
 

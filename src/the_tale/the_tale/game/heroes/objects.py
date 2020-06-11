@@ -424,15 +424,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
     # service
     ##########################
 
-    def update_with_account_data(self, is_fast, premium_end_at, active_end_at, ban_end_at, might, actual_bills, clan_id):
-        self.is_fast = is_fast
-        self.active_state_end_at = active_end_at
-        self.premium_state_end_at = premium_end_at
-        self.ban_state_end_at = ban_end_at
-        self.might = might
-        self.actual_bills = actual_bills
-        self.clan_id = clan_id
-
     def get_achievement_account_id(self):
         return self.account_id
 
@@ -606,7 +597,9 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         cls.modify_ui_info_with_turn(data, for_last_turn=for_last_turn)
 
-        if recache_if_required and cls.is_ui_continue_caching_required(data['ui_caching_started_at']) and game_prototypes.GameState.is_working():
+        if (recache_if_required and
+            cls.is_ui_continue_caching_required(data['ui_caching_started_at']) and
+            game_prototypes.GameState.is_working()):
             amqp_environment.environment.workers.supervisor.cmd_start_hero_caching(account_id)
 
         if patch_turns is not None and data['patch_turn'] in patch_turns:

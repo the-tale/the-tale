@@ -15,7 +15,7 @@ class SharpRandomArtifactTests(helpers.CardsTestMixin, utils_testcase.TestCase):
         self.account_1 = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account_1)
+        self.storage.load_account_data(self.account_1.id)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
@@ -37,7 +37,7 @@ class SharpAllArtifactsTests(helpers.CardsTestMixin, utils_testcase.TestCase):
         self.account_1 = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account_1)
+        self.storage.load_account_data(self.account_1.id)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 

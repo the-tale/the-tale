@@ -28,7 +28,7 @@ class AccountPrototypeTests(utils_testcase.TestCase, personal_messages_helpers.M
     @mock.patch('the_tale.accounts.conf.settings.ACTIVE_STATE_REFRESH_PERIOD', 0)
     def test_update_active_state__expired(self):
         self.assertTrue(self.account.is_update_active_state_needed)
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as cmd_mark_hero_as_active:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_sync_hero_required') as cmd_mark_hero_as_active:
             self.account.update_active_state()
         self.assertEqual(cmd_mark_hero_as_active.call_count, 1)
 
@@ -142,21 +142,19 @@ class AccountPrototypeTests(utils_testcase.TestCase, personal_messages_helpers.M
                                        motto='zzz',
                                        description='qqq')
 
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as cmd_update_hero_with_account_data:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_sync_hero_required') as cmd_sync_hero_required:
             self.account.set_clan_id(clan.id)
 
         self.assertEqual(self.account.clan_id, clan.id)
         self.assertEqual(models.Account.objects.get(id=self.account.id).clan_id, clan.id)
 
-        self.assertEqual(cmd_update_hero_with_account_data.call_count, 1)
-        self.assertEqual(cmd_update_hero_with_account_data.call_args[1]['clan_id'], clan.id)
+        self.assertEqual(cmd_sync_hero_required.call_count, 1)
 
     def test_ban_game(self):
         self.assertFalse(self.account.is_ban_game)
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as cmd_update_hero_with_account_data:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_sync_hero_required') as cmd_sync_hero_required:
             self.account.ban_game(days=1)
-        self.assertEqual(cmd_update_hero_with_account_data.call_count, 1)
-        self.assertEqual(cmd_update_hero_with_account_data.call_args[1]['ban_end_at'], self.account.ban_game_end_at)
+        self.assertEqual(cmd_sync_hero_required.call_count, 1)
         self.assertTrue(self.account.is_ban_game)
         self.account._model.ban_game_end_at = datetime.datetime.now()
         self.assertFalse(self.account.is_ban_game)

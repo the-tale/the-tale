@@ -15,7 +15,7 @@ class QuestsTests(utils_testcase.TestCase,
         self.account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.hero_uid = uids.hero(self.hero.id)

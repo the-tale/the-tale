@@ -253,7 +253,8 @@ def remove_account_data(account_id):
                      referral_of_id=None,
                      referrals_number=0,
                      action_id=None,
-                     might=0)
+                     might=0,
+                     actual_bills='[]')
 
     models.Account.objects.filter(id=account_id).update(**arguments)
 
@@ -261,7 +262,7 @@ def remove_account_data(account_id):
 def remove_data(account_id):
 
     # must be first
-    if not heroes_data_protection.remove_data(account_id):
+    if not heroes_data_protection.before_remove_data(account_id):
         return False
 
     shop_data_protection.remove_data(account_id)
@@ -270,6 +271,8 @@ def remove_data(account_id):
     clans_data_protection.remove_account_data(account_id)
 
     remove_account_data(account_id)
+
+    heroes_data_protection.remove_data(account_id)
 
     remove_might_data(account_id)
     remove_reset_password_data(account_id)

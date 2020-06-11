@@ -171,7 +171,7 @@ class DataProtectionDeleteDataTests(tt_api_testcase.TestCaseMixin,
     def test_first_call(self):
         data = self.create_data(secret=django_settings.TT_SECRET)
 
-        with mock.patch('the_tale.game.heroes.data_protection.remove_data', mock.Mock(return_value=False)):
+        with mock.patch('the_tale.game.heroes.data_protection.before_remove_data', mock.Mock(return_value=False)):
             with self.check_not_changed(lambda: models.Account.objects.get(id=self.account.id).email):
                 url = utils_urls.url('accounts:profile:tt-data-protection-delete-data')
                 answer = self.check_protobuf_ok(self.post_ajax_binary(url, data),
@@ -182,7 +182,7 @@ class DataProtectionDeleteDataTests(tt_api_testcase.TestCaseMixin,
     def test_second_call(self):
         data = self.create_data(secret=django_settings.TT_SECRET)
 
-        with mock.patch('the_tale.game.heroes.data_protection.remove_data', mock.Mock(return_value=True)):
+        with mock.patch('the_tale.game.heroes.data_protection.before_remove_data', mock.Mock(return_value=True)):
             with self.check_changed(lambda: models.Account.objects.get(id=self.account.id).email):
                 url = utils_urls.url('accounts:profile:tt-data-protection-delete-data')
                 answer = self.check_protobuf_ok(self.post_ajax_binary(url, data),

@@ -36,8 +36,8 @@ class LogicStorageTests(utils_testcase.TestCase):
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
-        self.storage.load_account_data(self.account_1)
-        self.storage.load_account_data(self.account_2)
+        self.storage.load_account_data(self.account_1.id)
+        self.storage.load_account_data(self.account_2.id)
 
         self.hero_1 = self.storage.accounts_to_heroes[self.account_1.id]
         self.hero_2 = self.storage.accounts_to_heroes[self.account_2.id]
@@ -60,8 +60,8 @@ class LogicStorageTests(utils_testcase.TestCase):
         self.assertEqual(action_regenerate.storage, self.storage)
 
         storage = logic_storage.LogicStorage()
-        storage.load_account_data(self.account_1)
-        storage.load_account_data(self.account_2)
+        storage.load_account_data(self.account_1.id)
+        storage.load_account_data(self.account_2.id)
         self.assertEqual(len(storage.heroes), 2)
         self.assertEqual(len(storage.accounts_to_heroes), 2)
         self.assertEqual(storage.bundles_to_accounts, {self.hero_1.actions.current_action.bundle_id: set([self.account_1.id]),
@@ -86,8 +86,8 @@ class LogicStorageTests(utils_testcase.TestCase):
         self.assertIs(self.hero_1.actions.current_action.saved_meta_action, self.hero_2.actions.current_action.saved_meta_action)
 
         storage = logic_storage.LogicStorage()
-        storage.load_account_data(self.account_1)
-        storage.load_account_data(self.account_2)
+        storage.load_account_data(self.account_1.id)
+        storage.load_account_data(self.account_2.id)
 
         self.assertEqual(len(storage.meta_actions), 1)
         self.assertEqual(len(storage.meta_actions_to_actions), 1)
@@ -403,10 +403,10 @@ class LogicStorageTests(utils_testcase.TestCase):
         account_3 = self.accounts_factory.create_account()
         account_4 = self.accounts_factory.create_account()
 
-        self.storage.load_account_data(account_3)
+        self.storage.load_account_data(account_3.id)
         hero_3 = self.storage.accounts_to_heroes[account_3.id]
 
-        self.storage.load_account_data(account_4)
+        self.storage.load_account_data(account_4.id)
         hero_4 = self.storage.accounts_to_heroes[account_4.id]
 
         self.hero_1.actions.current_action.bundle_id = hero_3.actions.current_action.bundle_id
@@ -432,10 +432,10 @@ class LogicStorageTests(utils_testcase.TestCase):
         account_3 = self.accounts_factory.create_account()
         account_4 = self.accounts_factory.create_account()
 
-        self.storage.load_account_data(account_3)
+        self.storage.load_account_data(account_3.id)
         hero_3 = self.storage.accounts_to_heroes[account_3.id]
 
-        self.storage.load_account_data(account_4)
+        self.storage.load_account_data(account_4.id)
         hero_4 = self.storage.accounts_to_heroes[account_4.id]
 
         self.hero_1.actions.current_action.bundle_id = hero_3.actions.current_action.bundle_id
@@ -570,9 +570,9 @@ class LogicStorageTests(utils_testcase.TestCase):
         account_4 = self.accounts_factory.create_account()
         account_5 = self.accounts_factory.create_account()
 
-        self.storage.load_account_data(account_3)
-        self.storage.load_account_data(account_4)
-        self.storage.load_account_data(account_5)
+        self.storage.load_account_data(account_3.id)
+        self.storage.load_account_data(account_4.id)
+        self.storage.load_account_data(account_5.id)
 
         hero_3 = self.storage.accounts_to_heroes[account_3.id]
         hero_4 = self.storage.accounts_to_heroes[account_4.id]
@@ -608,9 +608,9 @@ class LogicStorageTests(utils_testcase.TestCase):
         account_4 = self.accounts_factory.create_account()
         account_5 = self.accounts_factory.create_account()
 
-        self.storage.load_account_data(account_3)
-        self.storage.load_account_data(account_4)
-        self.storage.load_account_data(account_5)
+        self.storage.load_account_data(account_3.id)
+        self.storage.load_account_data(account_4.id)
+        self.storage.load_account_data(account_5.id)
 
         hero_3 = self.storage.accounts_to_heroes[account_3.id]
         hero_4 = self.storage.accounts_to_heroes[account_4.id]
@@ -649,8 +649,8 @@ class LogicStorageTests(utils_testcase.TestCase):
         account_3 = self.accounts_factory.create_account()
         account_4 = self.accounts_factory.create_account()
 
-        self.storage.load_account_data(account_3)
-        self.storage.load_account_data(account_4)
+        self.storage.load_account_data(account_3.id)
+        self.storage.load_account_data(account_4.id)
 
         hero_3 = self.storage.accounts_to_heroes[account_3.id]
         hero_4 = self.storage.accounts_to_heroes[account_4.id]
@@ -678,7 +678,7 @@ class LogicStorageTests(utils_testcase.TestCase):
 
         account_3 = self.accounts_factory.create_account()
 
-        self.storage.load_account_data(account_3)
+        self.storage.load_account_data(account_3.id)
 
         hero_3 = self.storage.accounts_to_heroes[account_3.id]
         bundle_3_id = hero_3.actions.current_action.bundle_id
@@ -716,7 +716,7 @@ class LogicStorageTests(utils_testcase.TestCase):
 
         account_3 = self.accounts_factory.create_account()
 
-        self.storage.load_account_data(account_3)
+        self.storage.load_account_data(account_3.id)
 
         hero_3 = self.storage.accounts_to_heroes[account_3.id]
 

@@ -19,7 +19,7 @@ class BaseHabitTest(utils_testcase.TestCase):
         account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
+        self.storage.load_account_data(account.id)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
     def check_crit_chance_equal(self, mob, expected_crit_chance):

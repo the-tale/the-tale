@@ -14,7 +14,7 @@ class HeroDescriptionTests(utils_testcase.TestCase):
         account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
+        self.storage.load_account_data(account.id)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
     def test_no_description(self):
@@ -72,12 +72,21 @@ class CreateHero(utils_testcase.TestCase):
                                   attributes={key: value for key, value in self.attributes.items() if key != attribute })
 
     def test_account_attributes(self):
-        attributes = {'is_fast': random.choice((True, False)),
-                      'is_bot': random.choice((True, False)),
-                      'might': random.randint(1, 1000),
-                      'active_state_end_at': datetime.datetime.fromtimestamp(1),
-                      'premium_state_end_at': datetime.datetime.fromtimestamp(2),
-                      'ban_state_end_at': datetime.datetime.fromtimestamp(3)}
+        self.account.is_fast = random.choice((True, False))
+        self.account.if_bot = random.choice((True, False))
+        self.account._model.might = random.randint(1, 1000)
+        self.account._model.active_end_at = datetime.datetime.fromtimestamp(1)
+        self.account._model.premium_end_at = datetime.datetime.fromtimestamp(2)
+        self.account._model.ban_game_end_at = datetime.datetime.fromtimestamp(3)
+
+        self.account.save()
+
+        attributes = {'is_fast': self.account.is_fast,
+                      'is_bot': self.account.is_bot,
+                      'might': self.account.might,
+                      'active_state_end_at': self.account.active_end_at,
+                      'premium_state_end_at': self.account.premium_end_at,
+                      'ban_state_end_at': self.account.ban_game_end_at}
 
         logic.create_hero(account_id=self.account.id, attributes=attributes)
 
@@ -126,7 +135,7 @@ class RegisterSpendingTests(utils_testcase.TestCase):
         account = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
+        self.storage.load_account_data(account.id)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
         self.hero.premium_state_end_at
@@ -193,7 +202,7 @@ class GetPlacesPathModifiersTests(places_helpers.PlacesTestsMixin,
         account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
+        self.storage.load_account_data(account.id)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
     def place_0_cost(self):
@@ -273,3 +282,42 @@ class GetPlacesPathModifiersTests(places_helpers.PlacesTestsMixin,
             with self.check_almost_delta(self.place_0_cost, expected_delta):
                 self.places[0].habit_peacefulness.set_habit(place_direction * c.HABITS_BORDER)
                 self.hero.habit_peacefulness.set_habit(hero_direction * c.HABITS_BORDER)
+
+
+class SyncHeroExternalData(clans_helpers.ClansTestsMixin,
+                           utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        game_logic.create_test_map()
+
+        self.prepair_forum_for_clans()
+
+        self.account = self.accounts_factory.create_account(is_fast=True)
+        self.hero = logic.load_hero(self.account.id)
+
+    def test_account_data(self):
+
+        clan = self.create_clan(self.account, 1)
+
+        self.account.reload()
+
+        self.account.is_fast = True
+        self.account._model.premium_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.account._model.active_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.account._model.ban_game_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.account._model.might = 666
+        self.account._model.actual_bills = '[7]'
+
+        self.account.save()
+
+        logic.sync_hero_external_data(self.hero)
+
+        self.assertTrue(self.hero.is_fast)
+        self.assertEqual(self.hero.active_state_end_at, self.account.active_end_at)
+        self.assertEqual(self.hero.premium_state_end_at, self.account.premium_end_at)
+        self.assertEqual(self.hero.ban_state_end_at, self.account.ban_game_end_at)
+        self.assertEqual(self.hero.might, 666)
+        self.assertEqual(self.hero.actual_bills, [7])
+        self.assertEqual(self.hero.clan_id, clan.id)

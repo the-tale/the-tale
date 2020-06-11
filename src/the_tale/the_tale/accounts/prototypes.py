@@ -32,14 +32,7 @@ class AccountPrototype(utils_prototypes.BasePrototype):
         return self.removed_at is not None
 
     def cmd_update_hero(self):
-        amqp_environment.environment.workers.supervisor.cmd_update_hero_with_account_data(self.id,
-                                                                                          is_fast=self.is_fast,
-                                                                                          premium_end_at=self.premium_end_at,
-                                                                                          active_end_at=self.active_end_at,
-                                                                                          ban_end_at=self.ban_game_end_at,
-                                                                                          might=self.might,
-                                                                                          actual_bills=self.actual_bills,
-                                                                                          clan_id=self.clan_id)
+        amqp_environment.environment.workers.supervisor.cmd_sync_hero_required(self.id)
 
     def update_actual_bills(self):
         actual_bills = s11n.to_json(bills_logic.actual_bills_accepted_timestamps(self.id))

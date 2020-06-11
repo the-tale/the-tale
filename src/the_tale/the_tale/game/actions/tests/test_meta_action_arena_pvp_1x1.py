@@ -90,8 +90,8 @@ class ArenaPvP1x1Test(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
         supervisor_task.process(bundle_id=100500)
 
         storage = game_logic_storage.LogicStorage()
-        storage.load_account_data(account_1)
-        storage.load_account_data(account_2)
+        storage.load_account_data(account_1.id)
+        storage.load_account_data(account_2.id)
 
         hero_1 = storage.accounts_to_heroes[account_1.id]
 
@@ -273,8 +273,8 @@ class ArenaPvP1x1Test(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
         account_2 = self.accounts_factory.create_account(is_bot=True)
 
         storage = game_logic_storage.LogicStorage()
-        storage.load_account_data(account_1)
-        storage.load_account_data(account_2)
+        storage.load_account_data(account_1.id)
+        storage.load_account_data(account_2.id)
 
         hero_1 = storage.accounts_to_heroes[account_1.id]
         hero_2 = storage.accounts_to_heroes[account_2.id]
@@ -293,8 +293,8 @@ class ArenaPvP1x1Test(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
         account_2 = self.accounts_factory.create_account()
 
         storage = game_logic_storage.LogicStorage()
-        storage.load_account_data(account_1)
-        storage.load_account_data(account_2)
+        storage.load_account_data(account_1.id)
+        storage.load_account_data(account_2.id)
 
         hero_1 = storage.accounts_to_heroes[account_1.id]
         hero_2 = storage.accounts_to_heroes[account_2.id]
@@ -313,8 +313,8 @@ class ArenaPvP1x1Test(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
         account_2 = self.accounts_factory.create_account(is_bot=True)
 
         storage = game_logic_storage.LogicStorage()
-        storage.load_account_data(account_1)
-        storage.load_account_data(account_2)
+        storage.load_account_data(account_1.id)
+        storage.load_account_data(account_2.id)
 
         hero_1 = storage.accounts_to_heroes[account_1.id]
         hero_2 = storage.accounts_to_heroes[account_2.id]
@@ -336,8 +336,8 @@ class ArenaPvP1x1Test(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
         account_2 = self.accounts_factory.create_account()
 
         storage = game_logic_storage.LogicStorage()
-        storage.load_account_data(account_1)
-        storage.load_account_data(account_2)
+        storage.load_account_data(account_1.id)
+        storage.load_account_data(account_2.id)
 
         hero_1 = storage.accounts_to_heroes[account_1.id]
         hero_2 = storage.accounts_to_heroes[account_2.id]

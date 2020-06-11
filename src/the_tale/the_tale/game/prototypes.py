@@ -61,8 +61,8 @@ class SupervisorTaskPrototype(utils_prototypes.BasePrototype):
         account_1 = accounts_prototypes.AccountPrototype.get_by_id(account_1_id)
         account_2 = accounts_prototypes.AccountPrototype.get_by_id(account_2_id)
 
-        storage.load_account_data(account_1)
-        storage.load_account_data(account_2)
+        storage.load_account_data(account_1.id)
+        storage.load_account_data(account_2.id)
 
         hero_1 = storage.accounts_to_heroes[account_1_id]
         hero_2 = storage.accounts_to_heroes[account_2_id]

@@ -14,7 +14,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.hero.preferences.set(relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, relations.ENERGY_REGENERATION.SACRIFICE)
@@ -41,7 +41,7 @@ class HeroPreferencesMobTest(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.mob_uuid = mobs_storage.mobs.get_all_mobs_for_level(level=self.hero.level)[0].uuid
@@ -81,7 +81,7 @@ class HeroPreferencesPlaceTest(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
     def test_preferences_serialization(self):
@@ -187,7 +187,7 @@ class HeroPreferencesFriendTest(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.friend = self.place_1.persons[0]
@@ -303,7 +303,7 @@ class HeroPreferencesEnemyTest(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.enemy = self.place_1.persons[0]
@@ -419,7 +419,7 @@ class HeroPreferencesEquipmentSlotTest(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.slot_1 = relations.EQUIPMENT_SLOT.HAND_PRIMARY
@@ -447,7 +447,7 @@ class HeroPreferencesFavoriteItemTest(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.slot_1 = relations.EQUIPMENT_SLOT.HAND_PRIMARY
@@ -475,7 +475,7 @@ class HeroPreferencesRiskLevelTest(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.risk_1 = relations.RISK_LEVEL.VERY_HIGH
@@ -503,7 +503,7 @@ class HeroPreferencesArchetypeTest(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.mage = game_relations.ARCHETYPE.MAGICAL
@@ -530,7 +530,7 @@ class HeroPreferencesCompanionDedicationTest(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.egoism = relations.COMPANION_DEDICATION.EGOISM
@@ -560,7 +560,7 @@ class HeroPreferencesCompanionEmpathyTest(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.empath = relations.COMPANION_EMPATHY.EMPATH
@@ -591,7 +591,7 @@ class HeroPreferencesQuestsRegionTest(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
     def test_preferences_serialization(self):
@@ -616,7 +616,7 @@ class HeroPreferencesQuestsRegionSizeTest(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
     def test_preferences_serialization(self):

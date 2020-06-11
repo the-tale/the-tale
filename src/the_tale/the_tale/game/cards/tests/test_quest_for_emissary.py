@@ -26,7 +26,7 @@ class QuestsForEmissaryTest(helpers.CardsTestMixin,
         self.clan = self.create_clan(self.account, 0)
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
 
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 

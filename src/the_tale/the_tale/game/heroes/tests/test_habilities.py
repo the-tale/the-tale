@@ -16,7 +16,7 @@ class HabilitiesContainerTest(utils_testcase.TestCase):
         account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
+        self.storage.load_account_data(account.id)
 
         self.hero = self.storage.accounts_to_heroes[account.id]
 
@@ -331,7 +331,7 @@ class ChooseAbilityTaskTest(utils_testcase.TestCase):
         account = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
+        self.storage.load_account_data(account.id)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
     def get_new_ability_id(self, hero=None):
@@ -419,7 +419,7 @@ class HabilitiesViewsTest(utils_testcase.TestCase):
         self.account2 = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account1)
+        self.storage.load_account_data(self.account1.id)
         self.hero = self.storage.accounts_to_heroes[self.account1.id]
 
     def get_new_ability_id(self, hero=None):

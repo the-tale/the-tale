@@ -23,7 +23,7 @@ class HeroTest(personal_messages_helpers.Mixin,
         account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
+        self.storage.load_account_data(account.id)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
         personal_messages_tt_services.personal_messages.cmd_debug_clear_service()
@@ -118,13 +118,7 @@ class HeroTest(personal_messages_helpers.Mixin,
         # inactive heroes get the same exp, insteed experience penalty  there action delayed
         self.assertTrue(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
-        self.hero.update_with_account_data(is_fast=False,
-                                           premium_end_at=datetime.datetime.now(),
-                                           active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
-                                           ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60),
-                                           might=0,
-                                           actual_bills=[],
-                                           clan_id=None)
+        self.hero.active_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
 
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
@@ -136,13 +130,7 @@ class HeroTest(personal_messages_helpers.Mixin,
 
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_PREMIUM_ACCOUNT)
 
-        self.hero.update_with_account_data(is_fast=False,
-                                           premium_end_at=datetime.datetime.now(),
-                                           active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
-                                           ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60),
-                                           might=666,
-                                           actual_bills=[],
-                                           clan_id=None)
+        self.hero.premium_state_end_at = datetime.datetime.now()
 
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
@@ -190,25 +178,6 @@ class HeroTest(personal_messages_helpers.Mixin,
         with mock.patch('the_tale.game.places.objects.Place.depends_from_all_heroes', True):
             with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
                 self.assertFalse(self.hero.can_change_person_power(self.place_1.persons[0]))
-
-    def test_update_with_account_data(self):
-        self.hero.is_fast = True
-        self.hero.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=1)
-
-        self.hero.update_with_account_data(is_fast=False,
-                                           premium_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
-                                           active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
-                                           ban_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
-                                           might=666,
-                                           actual_bills=[7],
-                                           clan_id=None)
-
-        self.assertFalse(self.hero.is_fast)
-        self.assertTrue(self.hero.active_state_end_at > datetime.datetime.now())
-        self.assertTrue(self.hero.premium_state_end_at > datetime.datetime.now())
-        self.assertTrue(self.hero.ban_state_end_at > datetime.datetime.now())
-        self.assertEqual(self.hero.might, 666)
-        self.assertEqual(self.hero.actual_bills, [7])
 
     def test_reward_modifier__risk_level(self):
         self.assertEqual(self.hero.quest_money_reward_multiplier(), 1.0)
@@ -554,7 +523,7 @@ class HeroLevelUpTests(utils_testcase.TestCase, personal_messages_helpers.Mixin)
         self.account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         personal_messages_tt_services.personal_messages.cmd_debug_clear_service()
@@ -952,7 +921,7 @@ class HeroUiInfoTest(utils_testcase.TestCase):
         account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
+        self.storage.load_account_data(account.id)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
     def test_is_ui_caching_required(self):
@@ -1139,10 +1108,14 @@ class HeroUiInfoTest(utils_testcase.TestCase):
     def test_cached_ui_info_for_hero__turn_in_patch_turns(self):
         old_info = self.hero.ui_info(actual_guaranteed=True, old_info=None)
         old_info['patch_turn'] = 666
-        old_info['changed_fields'].extend(field for field in old_info.keys() if random.random() < 0.5)
+        old_info['changed_fields'].extend(field for field in old_info.keys()
+                                          if random.random() < 0.5 or field == 'action')
 
         with mock.patch('the_tale.common.utils.cache.get', lambda x: copy.deepcopy(old_info)):
-            data = self.hero.cached_ui_info_for_hero(account_id=self.hero.account_id, recache_if_required=False, patch_turns=[665, 666, 667], for_last_turn=False)
+            data = self.hero.cached_ui_info_for_hero(account_id=self.hero.account_id,
+                                                     recache_if_required=False,
+                                                     patch_turns=[665, 666, 667],
+                                                     for_last_turn=False)
 
         self.assertNotEqual(data['patch_turn'], None)
         self.assertEqual(set(data.keys()) | {'changed_fields', 'action'}, set(old_info['changed_fields']))

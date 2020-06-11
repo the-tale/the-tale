@@ -14,7 +14,7 @@ class HeroStatisticsTest(utils_testcase.TestCase):
         account = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
+        self.storage.load_account_data(account.id)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
         self.hero.statistics.change_money(relations.MONEY_SOURCE.EARNED_FROM_LOOT, 10)

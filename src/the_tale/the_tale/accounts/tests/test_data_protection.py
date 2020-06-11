@@ -534,7 +534,8 @@ class RemoveDataTests(utils_testcase.TestCase):
              mock.patch('the_tale.accounts.data_protection.remove_change_credentials_data') as remove_change_credentials_data, \
              mock.patch('the_tale.accounts.friends.data_protection.remove_data') as friends_remove_data, \
              mock.patch('the_tale.accounts.third_party.data_protection.remove_data') as third_party_remove_data, \
-             mock.patch('the_tale.game.heroes.data_protection.remove_data', mock.Mock(return_value=False)) as heroes_remove_data, \
+             mock.patch('the_tale.game.heroes.data_protection.before_remove_data', mock.Mock(return_value=False)) as heroes_before_remove_data, \
+             mock.patch('the_tale.game.heroes.data_protection.remove_data') as heroes_remove_data, \
              mock.patch('the_tale.finances.bank.data_protection.remove_data') as bank_remove_data, \
              mock.patch('the_tale.finances.shop.data_protection.remove_data') as shop_remove_data, \
              mock.patch('the_tale.finances.xsolla.data_protection.remove_data') as xsolla_remove_data:
@@ -551,7 +552,8 @@ class RemoveDataTests(utils_testcase.TestCase):
                           xsolla_remove_data]:
             self.assertEqual(mock_call.call_count, 0)
 
-        self.assertEqual(heroes_remove_data.call_args_list, [mock.call(self.accounts[0].id)])
+        self.assertEqual(heroes_before_remove_data.call_args_list, [mock.call(self.accounts[0].id)])
+        self.assertEqual(heroes_remove_data.call_args_list, [])
 
     def test_second_call(self):
 
@@ -561,13 +563,15 @@ class RemoveDataTests(utils_testcase.TestCase):
              mock.patch('the_tale.accounts.data_protection.remove_change_credentials_data') as remove_change_credentials_data, \
              mock.patch('the_tale.accounts.friends.data_protection.remove_data') as friends_remove_data, \
              mock.patch('the_tale.accounts.third_party.data_protection.remove_data') as third_party_remove_data, \
-             mock.patch('the_tale.game.heroes.data_protection.remove_data', mock.Mock(return_value=True)) as heroes_remove_data, \
+             mock.patch('the_tale.game.heroes.data_protection.before_remove_data', mock.Mock(return_value=True)) as heroes_before_remove_data, \
+             mock.patch('the_tale.game.heroes.data_protection.remove_data') as heroes_remove_data, \
              mock.patch('the_tale.finances.bank.data_protection.remove_data') as bank_remove_data, \
              mock.patch('the_tale.finances.shop.data_protection.remove_data') as shop_remove_data, \
              mock.patch('the_tale.finances.xsolla.data_protection.remove_data') as xsolla_remove_data:
             data_protection.remove_data(self.accounts[0].id)
 
         for mock_call in [heroes_remove_data,
+                          heroes_before_remove_data,
                           remove_account_data,
                           remove_might_data,
                           remove_reset_password_data,

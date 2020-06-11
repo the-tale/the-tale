@@ -13,7 +13,7 @@ class GeneralTest(utils_testcase.TestCase):
         self.account = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.action_idl = self.hero.actions.current_action
@@ -161,7 +161,7 @@ class GeneralTest(utils_testcase.TestCase):
 
         account_2 = self.accounts_factory.create_account()
 
-        self.storage.load_account_data(account_2)
+        self.storage.load_account_data(account_2.id)
         hero_2 = self.storage.accounts_to_heroes[account_2.id]
 
         meta_action = meta_actions.ArenaPvP1x1.create(self.storage, self.hero, hero_2)

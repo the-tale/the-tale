@@ -18,10 +18,10 @@ class QuestsGeneratorWorkerTests(clans_helpers.ClansTestsMixin,
         self.account_4 = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account_1)
-        self.storage.load_account_data(self.account_2)
-        self.storage.load_account_data(self.account_3)
-        self.storage.load_account_data(self.account_4)
+        self.storage.load_account_data(self.account_1.id)
+        self.storage.load_account_data(self.account_2.id)
+        self.storage.load_account_data(self.account_3.id)
+        self.storage.load_account_data(self.account_4.id)
         self.hero_1 = self.storage.accounts_to_heroes[self.account_1.id]
         self.hero_2 = self.storage.accounts_to_heroes[self.account_2.id]
         self.hero_3 = self.storage.accounts_to_heroes[self.account_3.id]

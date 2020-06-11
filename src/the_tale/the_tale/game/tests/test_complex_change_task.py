@@ -13,7 +13,7 @@ class ComplexChangeTasksTests(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.task = abilities_postponed_tasks.UseAbilityTask(processor_id=abilities_relations.ABILITY_TYPE.HELP.value,
