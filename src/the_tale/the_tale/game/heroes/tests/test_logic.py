@@ -248,7 +248,7 @@ class GetPlacesPathModifiersTests(places_helpers.PlacesTestsMixin,
         self.places[0].refresh_attributes()
         self.assertEqual(self.places[0].attrs.tax, 0)
 
-        with self.check_almost_delta(self.place_0_cost, c.PATH_MODIFIER_NORMAL_DELTA):
+        with self.check_almost_delta(self.place_0_cost, c.PATH_MODIFIER_MAJOR_DELTA):
             self.create_effect(self.places[0].id,
                                value=100,
                                attribute=places_relations.ATTRIBUTE.TAX,

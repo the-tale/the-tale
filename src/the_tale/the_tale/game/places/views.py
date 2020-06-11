@@ -84,6 +84,13 @@ def show(context):
 
     clan_region = places_storage.clans_regions.region_for_place(context.place.id)
 
+    path_modifier = None
+    path_modifier_effects = None
+
+    if context.account.is_authenticated:
+        hero = heroes_logic.load_hero(account_id=context.account.id)
+        path_modifier, path_modifier_effects = heroes_logic.get_place_path_modifiers_info(hero, context.place)
+
     return utils_views.Page('places/show.html',
                             content={'place': context.place,
                                      'place_bills': info.place_info_bills(context.place),
@@ -103,4 +110,6 @@ def show(context):
                                      'emissaries_powers': emissaries_powers,
                                      'place_distances': place_distances,
                                      'places_storage': storage.places,
+                                     'path_modifier': path_modifier,
+                                     'path_modifier_effects': path_modifier_effects,
                                      'protector_candidates': logic.protector_candidates_for_ui(context.place.id)})

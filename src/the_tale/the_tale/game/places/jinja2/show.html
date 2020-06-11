@@ -67,6 +67,7 @@
   <h3>Экономика</h3>
   <table class="table table-condensed">
     <tbody>
+      {{places_macros.place_path_modifiers(path_modifier, path_modifier_effects)}}
       {{game_macros.attribute_record(place, 'size')}}
       {{game_macros.attribute_record(place, 'tax_size_border')}}
       {{game_macros.attribute_record(place, 'power_economic')}}

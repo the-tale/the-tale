@@ -1,4 +1,5 @@
 {% import 'clans/macros.html' as clans_macros with context %}
+{% import 'map/macros.html' as map_macros with context %}
 
 {% macro place_description(place) %}
   Земля
@@ -42,4 +43,33 @@
     {{clans_macros.clan_link(clan_info, show_name=false) -}}
     {%- if not loop.last -%},{% endif%}
   {% endfor %}
+{% endmacro %}
+
+
+{% macro place_path_modifiers(path_modifier, path_modifier_effects) %}
+  <tr>
+    <th>оценка пути через город</th>
+    <td>
+      {% if path_modifier is not none %}
+        {{ path_modifier|percents(2) }}
+      {% else %}
+        0%
+      {% endif %}
+    </td>
+    <td>
+      {% set path_description = "Модификатор оценки «сложности» отрезка пути, проходящего через этот город. Отрезок пути — кусок пути героя между двумя городами, на оценку его сложности влияют оба города. Чем меньше, тем легче герой воспринимает путь.<br/><strong>Этот модификатор действует только для ВАШЕГО героя.</strong>" %}
+      {% if path_modifier_effects is not none %}
+        <a href="javascript:void(0)"
+           class="info-link"
+           rel="tooltip"
+           title="{{map_macros.power_incoming_tooltip(path_description, path_modifier_effects, percents=true, reverse=true)}}">подробнее</a>
+         {% else %}
+           <a href="javascript:void(0)"
+              class="info-link"
+              rel="tooltip"
+              title="{{path_description}}">подробнее</a>
+            {% endif %}
+    </td>
+  </tr>
+
 {% endmacro %}

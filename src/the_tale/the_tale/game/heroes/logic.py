@@ -429,7 +429,7 @@ def get_places_path_modifiers_effects(hero, place):
         yield tt_api_effects.Effect(name='живёт противник', attribute=None, value=+c.PATH_MODIFIER_NORMAL_DELTA)
 
     if place.attrs.tax > 0:
-        yield tt_api_effects.Effect(name='пошлина', attribute=None, value=+c.PATH_MODIFIER_NORMAL_DELTA)
+        yield tt_api_effects.Effect(name='пошлина', attribute=None, value=+c.PATH_MODIFIER_MAJOR_DELTA)
 
     if (not place.habit_honor.interval.is_NEUTRAL and not hero.habit_honor.interval.is_NEUTRAL):
         modifier = (place.habit_honor.interval.direction *
@@ -454,6 +454,15 @@ def get_places_path_modifiers(hero):
                                   for effect in get_places_path_modifiers_effects(hero, place))
 
     return modifiers
+
+
+def get_place_path_modifiers_info(hero, place):
+    path_modifier_effects = [(effect.name, effect.value)
+                             for effect in get_places_path_modifiers_effects(hero, place)]
+    path_modifier_effects.sort(key=lambda effect: effect[1])
+    path_modifier = sum(value for name, value in path_modifier_effects)
+
+    return path_modifier, path_modifier_effects
 
 
 def sync_hero_external_data(hero):

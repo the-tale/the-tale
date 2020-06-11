@@ -117,10 +117,7 @@ def cell_info(context):
     path_modifier_effects = None
 
     if hero and place:
-        path_modifier_effects = [(effect.name, effect.value)
-                                 for effect in heroes_logic.get_places_path_modifiers_effects(hero, place)]
-        path_modifier_effects.sort(key=lambda effect: effect[1])
-        path_modifier = sum(value for name, value in path_modifier_effects)
+        path_modifier, path_modifier_effects = heroes_logic.get_place_path_modifiers_info(hero, place)
 
     return utils_views.Page('map/cell_info.html',
                             content={'place': place,
