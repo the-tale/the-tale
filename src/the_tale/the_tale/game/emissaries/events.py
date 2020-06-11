@@ -163,18 +163,17 @@ class Rest(EventBase):
     __slots__ = ()
 
     TYPE = relations.EVENT_TYPE.REST
-    HAS_PROTECTORAT_BONUS = True
+    HAS_PROTECTORAT_BONUS = False
 
     @classmethod
-    def health_per_step(cls, raw_ability_power, bonus):
+    def health_per_step(cls, raw_ability_power):
         return cls.actual_value(raw_ability_power,
                                 tt_emissaries_constants.HEALTH_REGENERATION_MIN,
                                 tt_emissaries_constants.HEALTH_REGENERATION_MAX,
-                                bonus=bonus)
+                                bonus=0)
 
     def on_step(self, event):
-        health_to_regenerate = self.health_per_step(self.raw_ability_power,
-                                                    bonus=event.emissary.protectorat_event_bonus())
+        health_to_regenerate = self.health_per_step(self.raw_ability_power)
 
         event.emissary.health = min(event.emissary.health + health_to_regenerate, event.emissary.attrs.max_health)
 
@@ -184,8 +183,7 @@ class Rest(EventBase):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        health = cls.health_per_step(raw_ability_power,
-                                     bonus=emissary.protectorat_event_bonus() if emissary else 0)
+        health = cls.health_per_step(raw_ability_power)
         return f'Восстанавливает эмиссару {health} здоровья каждый час.'
 
 

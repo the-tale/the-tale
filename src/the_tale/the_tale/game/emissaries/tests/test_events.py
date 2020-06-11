@@ -141,11 +141,12 @@ class RestTests(places_helpers.PlacesTestsMixin,
                          self.concrete_event.event_description(self.emissary))
 
     def test_health_per_step(self):
-        self.assertEqual(self.concrete_event.health_per_step(0, bonus=0), 11)
-        self.assertEqual(self.concrete_event.health_per_step(250, bonus=2), 37)
-        self.assertEqual(self.concrete_event.health_per_step(500, bonus=0), 14)
-        self.assertEqual(self.concrete_event.health_per_step(1000, bonus=3), 61)
-        self.assertEqual(self.concrete_event.health_per_step(2000, bonus=0), 20)
+        self.assertEqual(self.concrete_event.health_per_step(0), 5)
+        self.assertEqual(self.concrete_event.health_per_step(250), 6)
+        self.assertEqual(self.concrete_event.health_per_step(500), 6)
+        self.assertEqual(self.concrete_event.health_per_step(1000), 6)
+        self.assertEqual(self.concrete_event.health_per_step(2000), 7)
+        self.assertEqual(self.concrete_event.health_per_step(10000), 13)
 
     def test_ability_power(self):
         self.assertEqual(self.concrete_event.ability_power(777), 777 / tt_emissaries_constants.MAXIMUM_ATTRIBUTE_MAXIMUM)
@@ -259,20 +260,7 @@ class RestTests(places_helpers.PlacesTestsMixin,
 
         logic.save_emissary(self.emissary)
 
-        delta = self.concrete_event.health_per_step(self.concrete_event.raw_ability_power, bonus=0)
-
-        with self.check_delta(lambda: logic.load_emissary(self.emissary.id).health, delta):
-            self.concrete_event.on_step(self.get_event())
-
-    def test_on_step__protectorat(self):
-        self.emissary.health = 1
-
-        self.set_protector(self.emissary.place_id, self.emissary.clan_id)
-
-        logic.save_emissary(self.emissary)
-
-        delta = self.concrete_event.health_per_step(self.concrete_event.raw_ability_power,
-                                                    bonus=tt_emissaries_constants.PROTECTORAT_BONUSES[1])
+        delta = self.concrete_event.health_per_step(self.concrete_event.raw_ability_power)
 
         with self.check_delta(lambda: logic.load_emissary(self.emissary.id).health, delta):
             self.concrete_event.on_step(self.get_event())
