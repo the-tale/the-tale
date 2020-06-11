@@ -797,3 +797,42 @@ def send_event_success_message(event, account, suffix):
     personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
                                          recipients_ids=[account.id],
                                          body=message)
+
+
+def remove_orphan_event_effects(logger=None):
+    for effect in places_storage.effects.all():
+
+        if effect.attribute.type.is_REWRITABLE:
+            continue
+
+        if effect.info is None:
+            continue
+
+        if 'event' not in effect.info:
+            continue
+
+        event = storage.events.get_or_load(effect.info['event'])
+
+        if event is None:
+            places_logic.remove_effect(effect.id, place_id=None)
+
+            if logger:
+                logger.info(f'effect {effect.id} orphan due event not exists')
+
+            continue
+
+        if event.state.is_STOPPED:
+            places_logic.remove_effect(effect.id, place_id=None)
+
+            if logger:
+                logger.info(f'effect {effect.id} orphan due event is stopped')
+
+            continue
+
+        if event.concrete_event.effect_id != effect.id:
+            places_logic.remove_effect(effect.id, place_id=None)
+
+            if logger:
+                logger.info(f'effect {effect.id} orphan due event has other effect')
+
+            continue
