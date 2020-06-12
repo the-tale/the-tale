@@ -35,9 +35,9 @@
 
 {% macro emissary_status(emissary) %}
   {% if emissary.state.is_IN_GAME %}
-    <span style="color:green;">{{emissary.state.text}}</span>
+    <!-- <span style="color:green;">{{emissary.state.text}}</span> -->
   {% else %}
-    <span style="color:red;">{{emissary.state.text}} ({{emissary.remove_reason.text|lower}})</span>
+    <span style="color:red;">{{emissary.remove_reason.text|lower}}</span>
   {% endif %}
 {% endmacro %}
 
@@ -75,10 +75,6 @@
       {% endif %}
 
       <th>влияние</th>
-
-      {% if show_status %}
-      <th>статус</th>
-      {% endif %}
     </tr>
   </thead>
   <tbody>
@@ -92,6 +88,10 @@
       </td>
       <td>
         {{emissary_verbose(emissary)}}
+
+        {% if show_status %}
+        {{emissary_status(emissary)}}
+        {% endif %}
 
         {% if emissary.is_place_leader() %}
         {{leader_marker()}}
@@ -131,11 +131,6 @@
         <a href="{{ url('game:politic-power:history', emissary=emissary.id) }}">{{powers[emissary.id]|int}}</a>
       </td>
 
-      {% if show_status %}
-      <td>
-        {{emissary_status(emissary)}}
-      </td>
-      {% endif %}
     </tr>
     {% endfor %}
   </tbody>
