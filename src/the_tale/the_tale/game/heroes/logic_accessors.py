@@ -647,7 +647,12 @@ class LogicAccessorsMixin(object):
                         linguistics_restrictions.get(self.race),
                         linguistics_restrictions.get(self.habit_honor.interval),
                         linguistics_restrictions.get(self.habit_peacefulness.interval),
+
                         linguistics_restrictions.get(self.preferences.archetype),
+                        linguistics_restrictions.get(self.preferences.energy_regeneration_type),
+                        linguistics_restrictions.get(self.preferences.companion_dedication),
+                        linguistics_restrictions.get(self.preferences.companion_empathy),
+
                         linguistics_restrictions.get(self.communication_verbal),
                         linguistics_restrictions.get(self.communication_gestures),
                         linguistics_restrictions.get(self.communication_telepathic),
