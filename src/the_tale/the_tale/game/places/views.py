@@ -91,6 +91,10 @@ def show(context):
         hero = heroes_logic.load_hero(account_id=context.account.id)
         path_modifier, path_modifier_effects = heroes_logic.get_place_path_modifiers_info(hero, context.place)
 
+    roads = roads_logic.get_roads_connected_to(context.place)
+
+    roads = {(road.place_1_id if road.place_1_id != context.place.id else road.place_2_id): road for road in roads }
+
     return utils_views.Page('places/show.html',
                             content={'place': context.place,
                                      'place_bills': info.place_info_bills(context.place),
@@ -112,4 +116,5 @@ def show(context):
                                      'places_storage': storage.places,
                                      'path_modifier': path_modifier,
                                      'path_modifier_effects': path_modifier_effects,
-                                     'protector_candidates': logic.protector_candidates_for_ui(context.place.id)})
+                                     'protector_candidates': logic.protector_candidates_for_ui(context.place.id),
+                                     'roads': roads})

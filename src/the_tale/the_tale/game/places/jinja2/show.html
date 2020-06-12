@@ -403,13 +403,13 @@
   <div class="accordion-group">
     <div class="accordion-heading">
       <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-place-accordion" href="#pgf-place-distances">
-        Расстояния
+        Расстояния и дороги
       </a>
     </div>
     <div id="pgf-place-distances" class="accordion-body collapse" style="height: 0px;">
       <div class="accordion-inner">
         <p>
-          Расстояния (манхэттенские) до каждого из городов Пандоры.
+          Информация о расстояниях (манхэттенских) до каждого из городов Пандоры и дорогах, которые выходят из этого города.
         </p>
 
         <table class="table table-condensed">
@@ -417,7 +417,8 @@
             <tr>
               <th width="25px">№</th>
               <th width="150px">город</th>
-              <th>расстояние (клеток)</th>
+              <th width="150px">расстояние (клеток)</th>
+              <th>дорога</th>
             </tr>
           </thead>
           <tbody>
@@ -426,6 +427,22 @@
               <td>{{loop.index}}</td>
               <td><a href="{{url('game:places:show', place_id)}}">{{places_storage[place_id].name}}</a></td>
               <td>{{distance}}</td>
+              <td>
+                {% if place_id not in roads %}
+                —
+                {% else %}
+                {% set road = roads[place_id] %}
+                <ul>
+                  <li>длина: {{road.length}}</li>
+                  <li>
+                    стоимость поддержки:
+                    {{road.get_stabilization_price_for(places_storage[place_id])}}
+                    продукции (для текущего города)
+                  </li>
+                  <li>путь из {{road.place_1.utg_name.forms[1]}}: {{road.path}}</li>
+                </ul>
+                {% endif %}
+              </td>
             </tr>
             {% endfor %}
           </tbody>
