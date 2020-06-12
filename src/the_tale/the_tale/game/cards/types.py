@@ -49,8 +49,8 @@ class CARD(rels.Relation):
                ('REPAIR_ALL_ARTIFACTS', 46, 'благословение Великого Творца', FOR_ALL, RARE,
                 effects.RepairAllArtifacts(), []),
 
-               ('CANCEL_QUEST', 47, 'другие заботы', FOR_ALL, UNCOMMON,
-                effects.CancelQuest(), []),
+               ('CANCEL_QUEST', 47, 'другие заботы', FOR_ALL, COMMON,
+                effects.CancelQuest(), [reactors.Special(2, 'STOP_IDLENESS', new_cards_number=1),]),
 
                ('GET_ARTIFACT_COMMON', 48, 'внезапная находка', FOR_ALL, COMMON,
                 effects.GetArtifact(type=0), [reactors.Simple3()]),
