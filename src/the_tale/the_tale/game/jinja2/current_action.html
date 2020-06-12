@@ -33,6 +33,16 @@ jQuery(document).ready(function(e) {
 });
 </script>
 
+<style>
+  .cards-button {
+      margin: 0.25em;
+      /* height: 32px !important; */
+      line-height: 32px !important;
+      font-size: 11pt !important;
+      text-align: center;
+  }
+</style>
+
 {% if not resource.account.is_premium %}
 
   <div style="margin-bottom: 0.5em;">
@@ -99,9 +109,8 @@ jQuery(document).ready(function(e) {
         <li class="pgf-change-cards-receive-mode">
           {% set current_cards_receive_mode = resource.account.cards_receive_mode() %}
           {% set CARDS_RECEIVE_MODE = value('the_tale.game.cards.relations').RECEIVE_MODE %}
-            <a style="margin: 0.25em; height: 18px; font-weight: bold;"
-
-               class="pgf-forms-post-simple"
+            <a style="font-weight: bold;"
+               class="pgf-forms-post-simple cards-button"
                data-action-type="reload"
                {% if current_cards_receive_mode.is_PERSONAL_ONLY %}
                href="{{ value('the_tale.game.cards.logic').change_receive_mode_url(CARDS_RECEIVE_MODE.ALL) }}"
@@ -124,15 +133,15 @@ jQuery(document).ready(function(e) {
         </li>
 
           <li class="pgf-get-card-button pgf-hidden">
-            <a href="#" style="margin: 0.25em; height: 18px;">Взять карту! x <span class="pgf-new-cards-number"></span></a>
+            <a href="#" class="cards-button">Взять карту! x <span class="pgf-new-cards-number"></span></a>
           </li>
 
           <li class="pgf-storage-card-button">
-            <a href="#" style="margin: 0.25em; height: 18px;">Хранилище</a>
+            <a href="#" class="cards-button">Хранилище</a>
           </li>
 
           <li class="pgf-transformator-card-button">
-            <a href="#" style="margin: 0.25em; height: 18px;">Превращение</a>
+            <a href="#" class="cards-button">Превращение</a>
           </li>
 
           <li class="divider"></li>
