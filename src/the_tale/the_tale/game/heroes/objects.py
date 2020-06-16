@@ -48,7 +48,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  'abilities',
                  'bag',
                  'equipment',
-                 'actual_bills',
 
                  'upbringing',
                  'death_age',
@@ -100,7 +99,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  premium_state_end_at,
                  ban_state_end_at,
                  last_rare_operation_at_turn,
-                 actual_bills,
                  utg_name,
                  upbringing,
                  death_age,
@@ -156,8 +154,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         self.equipment = equipment
         self.equipment.hero = self
-
-        self.actual_bills = actual_bills
 
         self.created_at_turn = created_at_turn
         self.saved_at_turn = saved_at_turn

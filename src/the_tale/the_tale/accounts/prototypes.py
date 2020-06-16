@@ -34,21 +34,6 @@ class AccountPrototype(utils_prototypes.BasePrototype):
     def cmd_update_hero(self):
         amqp_environment.environment.workers.supervisor.cmd_sync_hero_required(self.id)
 
-    def update_actual_bills(self):
-        actual_bills = s11n.to_json(bills_logic.actual_bills_accepted_timestamps(self.id))
-
-        models.Account.objects.filter(id=self.id).update(actual_bills=actual_bills)
-
-        self._model.actual_bills = actual_bills
-
-        del self.actual_bills
-
-        self.cmd_update_hero()
-
-    @utils_decorators.lazy_property
-    def actual_bills(self):
-        return s11n.from_json(self._model.actual_bills)
-
     @property
     def account_id(self):
         return self.id

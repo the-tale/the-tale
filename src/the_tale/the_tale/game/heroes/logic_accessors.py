@@ -68,10 +68,12 @@ class LogicAccessorsMixin(object):
         priority = quest.priority
 
         if quest.is_HELP_FRIEND:
-            priority *= self.attribute_modifier(relations.MODIFIERS.FRIEND_QUEST_PRIORITY) + self.preferences.friend.attrs.friends_quests_priority_bonus
+            priority *= (self.attribute_modifier(relations.MODIFIERS.FRIEND_QUEST_PRIORITY) +
+                                                 self.preferences.friend.attrs.friends_quests_priority_bonus)
 
         if quest.is_INTERFERE_ENEMY:
-            priority *= self.attribute_modifier(relations.MODIFIERS.ENEMY_QUEST_PRIORITY) + self.preferences.enemy.attrs.enemies_quests_priority_bonus
+            priority *= (self.attribute_modifier(relations.MODIFIERS.ENEMY_QUEST_PRIORITY) +
+                                                 self.preferences.enemy.attrs.enemies_quests_priority_bonus)
 
         if quest.quest_type.is_CHARACTER:
             priority *= self.attribute_modifier(relations.MODIFIERS.CHARACTER_QUEST_PRIORITY)
@@ -122,14 +124,11 @@ class LogicAccessorsMixin(object):
                                                                active_end_at=self.active_state_end_at,
                                                                is_premium=self.is_premium)
 
-    def can_change_all_powers(self):
+    def participate_in_power_rating(self):
         if self.is_banned:
             return False
 
         return self.is_premium
-
-    def can_change_person_power(self, person):
-        return self.can_change_place_power(person.place)
 
     def can_change_place_power(self, place):
         if self.is_banned:
@@ -247,14 +246,6 @@ class LogicAccessorsMixin(object):
     ################################
 
     @property
-    def actual_bills_number(self):
-        time_border = time.time() - bills_conf.settings.BILL_ACTUAL_LIVE_TIME * 24 * 60 * 60
-        return min(len([bill_voted_time
-                        for bill_voted_time in self.actual_bills
-                        if bill_voted_time > time_border]),
-                   conf.settings.ACTIVE_BILLS_MAXIMUM)
-
-    @property
     def power(self):
         return power.Power.clean_power_for_hero_level(self.level) + self.equipment.get_power()
 
@@ -369,7 +360,8 @@ class LogicAccessorsMixin(object):
     def might_crit_chance(self): return min(1, f.might_crit_chance(self.might) + self.attribute_modifier(relations.MODIFIERS.MIGHT_CRIT_CHANCE))
 
     @property
-    def politics_power_might(self): return f.politics_power_might(self.might)
+    def politics_power_might(self) -> int:
+        return tt_politic_power_formulas.might_to_power(self.might)
 
     @property
     def damage_modifier(self): return self.attribute_modifier(relations.MODIFIERS.DAMAGE)
@@ -559,58 +551,19 @@ class LogicAccessorsMixin(object):
         return (turn_number % conf.settings.INACTIVE_HERO_DELAY) == (self.id % conf.settings.INACTIVE_HERO_DELAY)
 
     @property
-    def politics_power_level(self):
-        return f.politics_power_for_level(self.level)
-
-    @property
-    def politics_power_bills(self):
-        return self.actual_bills_number * conf.settings.POWER_PER_ACTIVE_BILL
-
-    @property
     def politics_power_modifier(self):
         return self.attribute_modifier(relations.MODIFIERS.POWER)
 
-    @property
-    def friend_power_modifier(self):
-        return self.attribute_modifier(relations.MODIFIERS.POWER_TO_FRIEND)
+    def politic_power_bonus(self) -> float:
 
-    @property
-    def enemy_power_modifier(self):
-        return self.attribute_modifier(relations.MODIFIERS.POWER_TO_ENEMY)
+        if self.is_banned:
+            return 0.0
 
-    @property
-    def place_power_modifier(self):
-        return 0
-
-    def politics_power_multiplier(self, friend=False, enemy=False, hometown=False):
-        modifier = 1.0
-
-        if friend:
-            modifier += self.friend_power_modifier
-
-        if enemy:
-            modifier += self.enemy_power_modifier
-
-        if hometown:
-            modifier += self.place_power_modifier
-
+        modifier = 0.0
         modifier += self.politics_power_modifier
-        modifier += self.politics_power_bills
-        modifier += self.politics_power_level
         modifier += self.politics_power_might
-        modifier += self.preferences.risk_level.power_modifier
 
-        return max(0, modifier)
-
-    def modify_politics_power(self, power, person=None, place=None, emissary=None):
-
-        is_friend = person and self.preferences.friend and person.id == self.preferences.friend.id
-        is_enemy = person and self.preferences.enemy and person.id == self.preferences.enemy.id
-        is_hometown = place and self.preferences.place and place.id == self.preferences.place.id
-
-        multiplier = self.politics_power_multiplier(friend=is_friend, enemy=is_enemy, hometown=is_hometown)
-
-        return int(power * multiplier)
+        return max(0.0, modifier)
 
     mob_type = tt_beings_relations.TYPE.CIVILIZED
     intellect_level = tt_beings_relations.INTELLECT_LEVEL.NORMAL

@@ -124,7 +124,6 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         premium_state_end_at=hero_model.premium_state_end_at,
                         ban_state_end_at=hero_model.ban_state_end_at,
                         last_rare_operation_at_turn=hero_model.last_rare_operation_at_turn,
-                        actual_bills=data['actual_bills'],
                         upbringing=tt_beings_relations.UPBRINGING(data.get('upbringing', tt_beings_relations.UPBRINGING.PHILISTINE.value)),
                         death_age=tt_beings_relations.AGE(data.get('death_age', tt_beings_relations.AGE.MATURE.value)),
                         first_death=tt_beings_relations.FIRST_DEATH(data.get('first_death', tt_beings_relations.FIRST_DEATH.FROM_THE_MONSTER_FANGS.value)),
@@ -141,7 +140,6 @@ def save_hero(hero, new=False):
             'quests': hero.quests.serialize(),
             'equipment': hero.equipment.serialize(),
             'bag': hero.bag.serialize(),
-            'actual_bills': hero.actual_bills,
             'death_age': hero.death_age.value,
             'upbringing': hero.upbringing.value,
             'first_death': hero.first_death.value,
@@ -157,7 +155,7 @@ def save_hero(hero, new=False):
                      raw_power_magic=hero.power.magic,
                      quest_created_time=hero.quests.min_quest_created_time,
                      preferences=s11n.to_json(hero.preferences.serialize()),
-                     stat_politics_multiplier=hero.politics_power_multiplier() if hero.can_change_all_powers() else 0,
+                     stat_politics_multiplier=hero.politic_power_bonus() if hero.participate_in_power_rating() else 0,
 
                      stat_pve_deaths=hero.statistics.pve_deaths,
                      stat_pve_kills=hero.statistics.pve_kills,
@@ -333,7 +331,6 @@ def create_hero(account_id, attributes):
                         premium_state_end_at=attributes['premium_state_end_at'],
                         ban_state_end_at=attributes['ban_state_end_at'],
                         last_rare_operation_at_turn=game_turn.number(),
-                        actual_bills=[],
                         upbringing=attributes['upbringing'],
                         death_age=attributes['death_age'],
                         first_death=attributes['first_death'],
@@ -473,5 +470,4 @@ def sync_hero_external_data(hero):
     hero.premium_state_end_at = account.premium_end_at
     hero.ban_state_end_at = account.ban_game_end_at
     hero.might = account.might
-    hero.actual_bills = account.actual_bills
     hero.clan_id = account.clan_id

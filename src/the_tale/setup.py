@@ -57,7 +57,7 @@ setuptools.setup(
                       'rels==0.3.1',
                       'smart_imports==0.2.4',
 
-                      'typeguard==2.7.1'],
+                      'typeguard==2.9.1'],
 
     include_package_data=True,
     test_suite='tests')

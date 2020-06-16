@@ -104,7 +104,6 @@ class Account(django_auth_models.AbstractBaseUser, django_auth_models.Permission
     permanent_purchases = django_models.TextField(default='[]')
 
     might = django_models.FloatField(default=0.0)
-    actual_bills = django_models.TextField(default='[]')
 
     USERNAME_FIELD = 'nick'
     REQUIRED_FIELDS = ['email']
@@ -113,11 +112,14 @@ class Account(django_auth_models.AbstractBaseUser, django_auth_models.Permission
         ordering = ['nick']
         permissions = (("moderate_account", "Может редактировать аккаунты и т.п."), )
 
-    def __str__(self): return self.nick
+    def __str__(self):
+        return self.nick
 
-    def get_full_name(self): return self.nick
+    def get_full_name(self):
+        return self.nick
 
-    def get_short_name(self): return self.nick
+    def get_short_name(self):
+        return self.nick
 
 
 class Award(django_models.Model):

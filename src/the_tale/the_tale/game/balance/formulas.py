@@ -160,21 +160,6 @@ def might_crit_chance(might: float) -> float:
     return math.log(might, 10) / 10.0
 
 
-def politics_power_might(might: float) -> float:
-    if might < 1:
-        return 0
-    return math.log(might, 10) / 10.0
-
-
-def politics_power_for_level(level: int) -> float:
-    return math.log(level, 4)
-
-
-def normal_job_power(heroes_number: int) -> float:
-    magic = 3  # магическое число, отражающее сложность выполнения проекта
-    return c.HERO_POWER_PER_DAY * c.NORMAL_JOB_LENGTH * c.EXPECTED_HERO_QUEST_POWER_MODIFIER * heroes_number * magic
-
-
 def might_pvp_effectiveness_bonus(might: float) -> float:
     if might < 1:
         return 0
@@ -193,20 +178,6 @@ def experience_for_quest__real(max_path_length: float) -> float:
 def experience_for_quest(max_path_length: float) -> float:
     return int(math.ceil(experience_for_quest__real(max_path_length) * random.uniform(1.0 - c.EXP_PER_QUEST_FRACTION,
                                                                                       1.0 + c.EXP_PER_QUEST_FRACTION)))
-
-#########################################
-# расчёт изменения влияния песроанажа
-#########################################
-
-
-def person_power_for_quest__real(path_length: float) -> float:
-    # multiply by 2 since in most quests hero must return to start point
-    return 2 * path_to_turns(path_length) / c.TURNS_IN_HOUR * (c.HERO_POWER_PER_DAY / 24.0)
-
-
-def person_power_for_quest(path_length: float) -> int:
-    return int(math.ceil(person_power_for_quest__real(path_length) * random.uniform(1.0 - c.PERSON_POWER_PER_QUEST_FRACTION,
-                                                                                    1.0 + c.PERSON_POWER_PER_QUEST_FRACTION)))
 
 
 def max_ability_points_number(level: int) -> int:

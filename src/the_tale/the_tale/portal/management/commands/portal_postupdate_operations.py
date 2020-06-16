@@ -38,11 +38,6 @@ class Command(utilities_base.Command):
         linguistics_logic.update_words_usage_info()
 
         self.logger.info('')
-        self.logger.info('SYNC ACTUAL BILLS')
-
-        bills_logic.update_actual_bills_for_all_accounts()
-
-        self.logger.info('')
         self.logger.info('REFRESH ATTRIBUTES')
 
         places_logic.refresh_all_places_attributes()

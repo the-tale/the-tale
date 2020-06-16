@@ -189,38 +189,6 @@ class AccountPrototypeTests(utils_testcase.TestCase, personal_messages_helpers.M
                                                                         old_value=0,
                                                                         new_value=666)])
 
-    @mock.patch('the_tale.game.bills.conf.settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
-    # fixt segmentation fault when testing with sqlite
-    def test_1_update_actual_bills(self):
-        forum_category = forum_models.Category.objects.create(caption='category-1', slug='category-1')
-        forum_models.SubCategory.objects.create(caption=bills_conf.settings.FORUM_CATEGORY_UID + '-caption',
-                                                uid=bills_conf.settings.FORUM_CATEGORY_UID,
-                                                category=forum_category)
-
-        self.account.update_actual_bills()
-        self.assertEqual(self.account.actual_bills, [])
-
-        bill_data = bills_bills.place_change_modifier.PlaceModifier(place_id=self.place_1.id,
-                                                                    modifier_id=places_modifiers.CITY_MODIFIERS.TRADE_CENTER,
-                                                                    modifier_name=places_modifiers.CITY_MODIFIERS.TRADE_CENTER.text,
-                                                                    old_modifier_name=None)
-        bill = bills_prototypes.BillPrototype.create(self.account, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
-
-        self.account.update_actual_bills()
-        self.assertEqual(self.account.actual_bills, [])
-
-        data = bill.user_form_initials
-        data['approved'] = True
-        form = bills_bills.place_change_modifier.PlaceModifier.ModeratorForm(data)
-        self.assertTrue(form.is_valid())
-        bill.update_by_moderator(form)
-
-        bill.apply()
-
-        self.account.update_actual_bills()
-        self.assertEqual(self.account.actual_bills, [utils_logic.to_timestamp(bill.voting_end_at)])
-
 
 class AccountPrototypeBanTests(utils_testcase.TestCase):
 

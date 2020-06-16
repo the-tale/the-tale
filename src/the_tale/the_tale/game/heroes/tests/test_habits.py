@@ -247,9 +247,6 @@ class HonorHabitModifiersTest(BaseHabitTest):
         self.assertTrue(self.hero.check_attribute(relations.MODIFIERS.KILL_BEFORE_BATTLE))
         self.assertFalse(self.hero.check_attribute(relations.MODIFIERS.PICKED_UP_IN_ROAD))
 
-        self.assertTrue(self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_ENEMY, 1.0) > 1.0)
-        self.assertEqual(self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_FRIEND, 1.0), 1.0)
-
         self.check_crit_chance_equal(self.mob_neutral, 0.0)
         self.check_crit_chance_equal(self.mob_civilized, 0.05)
         self.check_crit_chance_equal(self.mob_monster, 0.0)
@@ -263,9 +260,6 @@ class HonorHabitModifiersTest(BaseHabitTest):
     def test_left_2(self):
         self.assertFalse(self.hero.check_attribute(relations.MODIFIERS.KILL_BEFORE_BATTLE))
         self.assertFalse(self.hero.check_attribute(relations.MODIFIERS.PICKED_UP_IN_ROAD))
-
-        self.assertEqual(self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_ENEMY, 1.0), 1.0)
-        self.assertEqual(self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_FRIEND, 1.0), 1.0)
 
         self.check_crit_chance_equal(self.mob_neutral, 0.0)
         self.check_crit_chance_equal(self.mob_civilized, 0.05)
@@ -281,9 +275,6 @@ class HonorHabitModifiersTest(BaseHabitTest):
         self.assertFalse(self.hero.check_attribute(relations.MODIFIERS.KILL_BEFORE_BATTLE))
         self.assertFalse(self.hero.check_attribute(relations.MODIFIERS.PICKED_UP_IN_ROAD))
 
-        self.assertEqual(self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_ENEMY, 1.0), 1.0)
-        self.assertEqual(self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_FRIEND, 1.0), 1.0)
-
         self.check_crit_chance_equal(self.mob_neutral, 0.0)
         self.check_crit_chance_equal(self.mob_civilized, 0.0)
         self.check_crit_chance_equal(self.mob_monster, 0.0)
@@ -297,9 +288,6 @@ class HonorHabitModifiersTest(BaseHabitTest):
     def test_neutral(self):
         self.assertFalse(self.hero.check_attribute(relations.MODIFIERS.KILL_BEFORE_BATTLE))
         self.assertFalse(self.hero.check_attribute(relations.MODIFIERS.PICKED_UP_IN_ROAD))
-
-        self.assertEqual(self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_ENEMY, 1.0), 1.0)
-        self.assertEqual(self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_FRIEND, 1.0), 1.0)
 
         self.check_crit_chance_equal(self.mob_neutral, 0.0)
         self.check_crit_chance_equal(self.mob_civilized, 0.0)
@@ -315,9 +303,6 @@ class HonorHabitModifiersTest(BaseHabitTest):
         self.assertFalse(self.hero.check_attribute(relations.MODIFIERS.KILL_BEFORE_BATTLE))
         self.assertFalse(self.hero.check_attribute(relations.MODIFIERS.PICKED_UP_IN_ROAD))
 
-        self.assertEqual(self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_ENEMY, 1.0), 1.0)
-        self.assertEqual(self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_FRIEND, 1.0), 1.0)
-
         self.check_crit_chance_equal(self.mob_neutral, 0.0)
         self.check_crit_chance_equal(self.mob_civilized, 0.0)
         self.check_crit_chance_equal(self.mob_monster, 0.0)
@@ -332,9 +317,6 @@ class HonorHabitModifiersTest(BaseHabitTest):
         self.assertFalse(self.hero.check_attribute(relations.MODIFIERS.KILL_BEFORE_BATTLE))
         self.assertFalse(self.hero.check_attribute(relations.MODIFIERS.PICKED_UP_IN_ROAD))
 
-        self.assertEqual(self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_ENEMY, 1.0), 1.0)
-        self.assertEqual(self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_FRIEND, 1.0), 1.0)
-
         self.check_crit_chance_equal(self.mob_neutral, 0.0)
         self.check_crit_chance_equal(self.mob_civilized, 0.0)
         self.check_crit_chance_equal(self.mob_monster, 0.04)
@@ -348,9 +330,6 @@ class HonorHabitModifiersTest(BaseHabitTest):
     def test_right_3(self):
         self.assertFalse(self.hero.check_attribute(relations.MODIFIERS.KILL_BEFORE_BATTLE))
         self.assertTrue(self.hero.check_attribute(relations.MODIFIERS.PICKED_UP_IN_ROAD))
-
-        self.assertEqual(self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_ENEMY, 1.0), 1.0)
-        self.assertTrue(self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_FRIEND, 1.0))
 
         self.check_crit_chance_equal(self.mob_neutral, 0.0)
         self.check_crit_chance_equal(self.mob_civilized, 0.0)

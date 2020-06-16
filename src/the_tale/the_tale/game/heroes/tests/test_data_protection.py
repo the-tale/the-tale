@@ -110,7 +110,6 @@ class RemoveDataTests(clans_helpers.ClansTestsMixin,
         self.accounts[0]._model.active_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         self.accounts[0]._model.ban_game_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         self.accounts[0]._model.might = 100500
-        self.accounts[0]._model.actual_bills = '[10034, 1231231]'
 
         self.accounts[0].save()
 
@@ -147,5 +146,4 @@ class RemoveDataTests(clans_helpers.ClansTestsMixin,
         self.assertEqual(hero.active_state_end_at, zero)
         self.assertEqual(hero.ban_state_end_at, zero)
         self.assertEqual(hero.might, 0)
-        self.assertEqual(hero.actual_bills, [])
         self.assertEqual(hero.clan_id, None)

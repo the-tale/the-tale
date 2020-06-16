@@ -92,8 +92,6 @@ class TTPowerImpactsTests(utils_testcase.TestCase):
         self.amount = 100500
         self.fame = 1000
 
-        self.expected_power = round(self.person.place.attrs.freedom * self.amount)
-
     def test_person_inner_circle(self):
         impacts = list(logic.tt_power_impacts(person_inner_circle=True,
                                               place_inner_circle=False,
@@ -109,31 +107,31 @@ class TTPowerImpactsTests(utils_testcase.TestCase):
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PERSON,
                                                             target_id=self.person.id,
-                                                            amount=self.expected_power),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PERSON,
                                                             target_id=self.person.id,
-                                                            amount=self.expected_power),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.JOB_PERSON_POSITIVE,
                                                             target_id=self.person.id,
-                                                            amount=self.expected_power),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.person.place.id,
-                                                            amount=self.expected_power),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.FAME,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.person.place.id,
-                                                            amount=self.fame * self.person.attrs.places_help_amount)])
+                                                            amount=self.fame)])
 
     def test_place_inner_circle(self):
         impacts = list(logic.tt_power_impacts(person_inner_circle=False,
@@ -144,31 +142,33 @@ class TTPowerImpactsTests(utils_testcase.TestCase):
                                               amount=self.amount,
                                               fame=self.fame))
 
+        self.maxDiff = None
+
         self.assertCountEqual(impacts,
                               [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PERSON,
                                                             target_id=self.person.id,
-                                                            amount=self.expected_power),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.person.place.id,
-                                                            amount=self.expected_power),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.person.place.id,
-                                                            amount=self.expected_power),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.FAME,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.person.place.id,
-                                                            amount=self.fame * self.person.attrs.places_help_amount)])
+                                                            amount=self.fame)])
 
     def test_inner_circle(self):
         impacts = list(logic.tt_power_impacts(person_inner_circle=True,
@@ -185,37 +185,37 @@ class TTPowerImpactsTests(utils_testcase.TestCase):
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PERSON,
                                                             target_id=self.person.id,
-                                                            amount=self.expected_power),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PERSON,
                                                             target_id=self.person.id,
-                                                            amount=self.expected_power),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.JOB_PERSON_POSITIVE,
                                                             target_id=self.person.id,
-                                                            amount=self.expected_power),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.person.place.id,
-                                                            amount=self.expected_power),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.person.place.id,
-                                                            amount=self.expected_power),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.FAME,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.person.place.id,
-                                                            amount=self.fame * self.person.attrs.places_help_amount)])
+                                                            amount=self.fame)])
 
     def test_outer_circle(self):
         impacts = list(logic.tt_power_impacts(person_inner_circle=False,
@@ -232,19 +232,19 @@ class TTPowerImpactsTests(utils_testcase.TestCase):
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PERSON,
                                                             target_id=self.person.id,
-                                                            amount=self.expected_power),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.person.place.id,
-                                                            amount=self.expected_power),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.FAME,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.person.place.id,
-                                                            amount=self.fame * self.person.attrs.places_help_amount)])
+                                                            amount=self.fame)])
 
     def test_amount_below_zero(self):
         impacts = list(logic.tt_power_impacts(person_inner_circle=True,
@@ -261,88 +261,31 @@ class TTPowerImpactsTests(utils_testcase.TestCase):
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PERSON,
                                                             target_id=self.person.id,
-                                                            amount=-self.expected_power),
+                                                            amount=-self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PERSON,
                                                             target_id=self.person.id,
-                                                            amount=-self.expected_power),
+                                                            amount=-self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.JOB_PERSON_NEGATIVE,
                                                             target_id=self.person.id,
-                                                            amount=abs(self.expected_power)),
+                                                            amount=abs(self.amount)),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.person.place.id,
-                                                            amount=-self.expected_power),
+                                                            amount=-self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.person.place.id,
-                                                            amount=-self.expected_power)])
-
-    def test_has_building(self):
-        places_logic.create_building(self.person, utg_name=game_names.generator().get_test_name())
-
-        impacts = list(logic.tt_power_impacts(person_inner_circle=True,
-                                              place_inner_circle=True,
-                                              actor_type=self.actor_type,
-                                              actor_id=self.actor_id,
-                                              person=self.person,
-                                              amount=self.amount,
-                                              fame=self.fame))
-
-        multiplier = (1 + c.BUILDING_PERSON_POWER_BONUS)
-
-        expected_power = round(self.person.place.attrs.freedom * self.amount * multiplier)
-
-        self.assertCountEqual(impacts,
-                              [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
-                                                            actor_type=self.actor_type,
-                                                            actor_id=self.actor_id,
-                                                            target_type=tt_api_impacts.OBJECT_TYPE.PERSON,
-                                                            target_id=self.person.id,
-                                                            amount=expected_power),
-                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
-                                                            actor_type=self.actor_type,
-                                                            actor_id=self.actor_id,
-                                                            target_type=tt_api_impacts.OBJECT_TYPE.PERSON,
-                                                            target_id=self.person.id,
-                                                            amount=expected_power),
-                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
-                                                            actor_type=self.actor_type,
-                                                            actor_id=self.actor_id,
-                                                            target_type=tt_api_impacts.OBJECT_TYPE.JOB_PERSON_POSITIVE,
-                                                            target_id=self.person.id,
-                                                            amount=expected_power),
-                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
-                                                            actor_type=self.actor_type,
-                                                            actor_id=self.actor_id,
-                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
-                                                            target_id=self.person.place.id,
-                                                            amount=expected_power),
-                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
-                                                            actor_type=self.actor_type,
-                                                            actor_id=self.actor_id,
-                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
-                                                            target_id=self.person.place.id,
-                                                            amount=expected_power),
-                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.FAME,
-                                                            actor_type=self.actor_type,
-                                                            actor_id=self.actor_id,
-                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
-                                                            target_id=self.person.place.id,
-                                                            amount=self.fame * self.person.attrs.places_help_amount)])
-
-
-def fake_tt_power_impacts(**kwargs):
-    yield kwargs
+                                                            amount=-self.amount)])
 
 
 class ImpactsFromHeroTests(utils_testcase.TestCase):
@@ -362,14 +305,28 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
 
         self.expected_power = round(self.person.place.attrs.freedom * self.amount)
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: False)
+    def test_final_politic_power_calculation(self):
+        with mock.patch('the_tale.game.politic_power.logic.final_politic_power') as final_politic_power:
+            list(logic.impacts_from_hero(hero=self.hero,
+                                         person=self.person,
+                                         power=1000,
+                                         inner_circle_places=set(),
+                                         inner_circle_persons=set(),
+                                         impacts_generator=politic_power_helpers.fake_tt_power_impacts))
+
+        self.assertEqual(final_politic_power.call_args_list, [mock.call(power=1000,
+                                                                        place=self.person.place,
+                                                                        person=self.person,
+                                                                        hero=self.hero)])
+
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=False)
     def test_can_not_change_power(self):
         impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
                                                         person=self.person,
                                                         power=1000,
                                                         inner_circle_places=set(),
                                                         inner_circle_persons=set(),
-                                                        impacts_generator=fake_tt_power_impacts))
+                                                        impacts_generator=politic_power_helpers.fake_tt_power_impacts))
         self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
                                              'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
                                              'amount': 0,
@@ -378,92 +335,89 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                              'person_inner_circle': False,
                                              'place_inner_circle': False}])
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
-    @mock.patch('the_tale.game.heroes.objects.Hero.modify_politics_power', lambda self, power, person: power * 0.75)
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=True)
     def test_can_change_power(self):
         impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
                                                         person=self.person,
                                                         power=1000,
                                                         inner_circle_places=set(),
                                                         inner_circle_persons=set(),
-                                                        impacts_generator=fake_tt_power_impacts))
+                                                        impacts_generator=politic_power_helpers.fake_tt_power_impacts))
+
         self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
                                              'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
-                                             'amount': 750,
+                                             'amount': 1000,
                                              'fame': c.HERO_FAME_PER_HELP,
                                              'person': self.person,
                                              'person_inner_circle': False,
                                              'place_inner_circle': False}])
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=True, places_help_amount=2)
+    def test_change_fame(self):
+        impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
+                                                        person=self.person,
+                                                        power=1000,
+                                                        inner_circle_places=set(),
+                                                        inner_circle_persons=set(),
+                                                        impacts_generator=politic_power_helpers.fake_tt_power_impacts))
+
+        self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
+                                             'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
+                                             'amount': 1000,
+                                             'fame': 2 * c.HERO_FAME_PER_HELP,
+                                             'person': self.person,
+                                             'person_inner_circle': False,
+                                             'place_inner_circle': False}])
+
+    def check_person_inner_circle(self, inner_circle_persons):
+        impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
+                                                        person=self.person,
+                                                        power=1000,
+                                                        inner_circle_places=set(),
+                                                        inner_circle_persons=inner_circle_persons,
+                                                        impacts_generator=politic_power_helpers.fake_tt_power_impacts))
+        self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
+                                             'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
+                                             'amount': 1000,
+                                             'fame': c.HERO_FAME_PER_HELP,
+                                             'person': self.person,
+                                             'person_inner_circle': True,
+                                             'place_inner_circle': False}])
+
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=True)
     def test_person_inner_circle(self):
         self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.FRIEND, self.person)
+        self.check_person_inner_circle(inner_circle_persons=set())
 
-        impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
-                                                        person=self.person,
-                                                        power=1000,
-                                                        inner_circle_places=set(),
-                                                        inner_circle_persons=set(),
-                                                        impacts_generator=fake_tt_power_impacts))
-        self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
-                                             'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
-                                             'amount': 1000,
-                                             'fame': c.HERO_FAME_PER_HELP,
-                                             'person': self.person,
-                                             'person_inner_circle': True,
-                                             'place_inner_circle': False}])
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=True)
     def test_person_inner_circle__extended_inner_circle(self):
+        self.check_person_inner_circle(inner_circle_persons={self.person.id})
+
+    def check_place_inner_circle(self, inner_circle_places):
         impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
                                                         person=self.person,
                                                         power=1000,
-                                                        inner_circle_places=set(),
-                                                        inner_circle_persons={self.person.id},
-                                                        impacts_generator=fake_tt_power_impacts))
+                                                        inner_circle_places=inner_circle_places,
+                                                        inner_circle_persons=set(),
+                                                        impacts_generator=politic_power_helpers.fake_tt_power_impacts))
         self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
                                              'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
                                              'amount': 1000,
                                              'fame': c.HERO_FAME_PER_HELP,
                                              'person': self.person,
-                                             'person_inner_circle': True,
-                                             'place_inner_circle': False}])
+                                             'person_inner_circle': False,
+                                             'place_inner_circle': True}])
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=True)
     def test_place_inner_circle(self):
         self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.PLACE, self.place_1)
+        self.check_place_inner_circle(inner_circle_places=set())
 
-        impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
-                                                        person=self.person,
-                                                        power=1000,
-                                                        inner_circle_places=set(),
-                                                        inner_circle_persons=set(),
-                                                        impacts_generator=fake_tt_power_impacts))
-        self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
-                                             'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
-                                             'amount': 1000,
-                                             'fame': c.HERO_FAME_PER_HELP,
-                                             'person': self.person,
-                                             'person_inner_circle': False,
-                                             'place_inner_circle': True}])
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=True)
     def test_place_inner_circle__extended_inner_circle(self):
-        impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
-                                                        person=self.person,
-                                                        power=1000,
-                                                        inner_circle_places={self.place_1.id},
-                                                        inner_circle_persons=set(),
-                                                        impacts_generator=fake_tt_power_impacts))
-        self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
-                                             'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
-                                             'amount': 1000,
-                                             'fame': c.HERO_FAME_PER_HELP,
-                                             'person': self.person,
-                                             'person_inner_circle': False,
-                                             'place_inner_circle': True}])
+        self.check_place_inner_circle(inner_circle_places={self.place_1.id})
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: False)
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=False)
     def test_social_connections__can_not_change_power(self):
         self.person.attrs.social_relations_partners_power_modifier = 0.1
         self.person.attrs.social_relations_concurrents_power_modifier = 0.2
@@ -476,7 +430,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                         power=1000,
                                                         inner_circle_places=set(),
                                                         inner_circle_persons=set(),
-                                                        impacts_generator=fake_tt_power_impacts))
+                                                        impacts_generator=politic_power_helpers.fake_tt_power_impacts))
 
         self.assertCountEqual(impact_arguments, [{'actor_id': self.hero.id,
                                                   'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
@@ -500,7 +454,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                   'person_inner_circle': False,
                                                   'place_inner_circle': False}])
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: False)
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=False)
     def test_social_connections__can_not_change_power__power_below_zero(self):
         self.person.attrs.social_relations_partners_power_modifier = 0.1
         self.person.attrs.social_relations_concurrents_power_modifier = 0.2
@@ -513,7 +467,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                         power=-1000,
                                                         inner_circle_places=set(),
                                                         inner_circle_persons=set(),
-                                                        impacts_generator=fake_tt_power_impacts))
+                                                        impacts_generator=politic_power_helpers.fake_tt_power_impacts))
 
         self.assertCountEqual(impact_arguments, [{'actor_id': self.hero.id,
                                                   'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
@@ -537,7 +491,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                   'person_inner_circle': False,
                                                   'place_inner_circle': False}])
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=True)
     def test_social_connections__can_change_power(self):
         self.person.attrs.social_relations_partners_power_modifier = 0.1
         self.person.attrs.social_relations_concurrents_power_modifier = 0.2
@@ -550,7 +504,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                         power=10000,
                                                         inner_circle_places=set(),
                                                         inner_circle_persons=set(),
-                                                        impacts_generator=fake_tt_power_impacts))
+                                                        impacts_generator=politic_power_helpers.fake_tt_power_impacts))
         self.assertCountEqual(impact_arguments, [{'actor_id': self.hero.id,
                                                   'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
                                                   'amount': 10000,
@@ -573,7 +527,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                   'person_inner_circle': False,
                                                   'place_inner_circle': False}])
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=True)
     def test_social_connections__person_inner_circles(self):
         self.person.attrs.social_relations_partners_power_modifier = 0.1
         self.person.attrs.social_relations_concurrents_power_modifier = 0.2
@@ -588,7 +542,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                         power=10000,
                                                         inner_circle_places=set(),
                                                         inner_circle_persons=set(),
-                                                        impacts_generator=fake_tt_power_impacts))
+                                                        impacts_generator=politic_power_helpers.fake_tt_power_impacts))
         self.assertCountEqual(impact_arguments, [{'actor_id': self.hero.id,
                                                   'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
                                                   'amount': 10000,
@@ -611,7 +565,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                   'person_inner_circle': True,
                                                   'place_inner_circle': False}])
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=True)
     def test_social_connections__place_inner_circles(self):
         self.person.attrs.social_relations_partners_power_modifier = 0.1
         self.person.attrs.social_relations_concurrents_power_modifier = 0.2
@@ -626,7 +580,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                         power=10000,
                                                         inner_circle_places=set(),
                                                         inner_circle_persons=set(),
-                                                        impacts_generator=fake_tt_power_impacts))
+                                                        impacts_generator=politic_power_helpers.fake_tt_power_impacts))
 
         self.assertCountEqual(impact_arguments, [{'actor_id': self.hero.id,
                                                   'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
@@ -650,7 +604,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                   'person_inner_circle': False,
                                                   'place_inner_circle': True}])
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=True)
     def test_social_connections__place_inner_circles__power_below_zero(self):
         self.person.attrs.social_relations_partners_power_modifier = 0.1
         self.person.attrs.social_relations_concurrents_power_modifier = 0.2
@@ -665,7 +619,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                         power=-10000,
                                                         inner_circle_places=set(),
                                                         inner_circle_persons=set(),
-                                                        impacts_generator=fake_tt_power_impacts))
+                                                        impacts_generator=politic_power_helpers.fake_tt_power_impacts))
 
         self.assertCountEqual(impact_arguments, [{'actor_id': self.hero.id,
                                                   'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
@@ -689,6 +643,8 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                   'person_inner_circle': False,
                                                   'place_inner_circle': True}])
 
+    @mock.patch('the_tale.game.politic_power.logic.final_politic_power', lambda power, **kwargs: power)
+    @mock.patch('the_tale.game.persons.attributes.Attributes.places_help_amount', 1)
     def test_social_connections_between_frontier_and_core(self):
         self.person.attrs.social_relations_partners_power_modifier = 0.1
         self.person.attrs.social_relations_concurrents_power_modifier = 0.2
@@ -707,7 +663,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                         power=10000,
                                                         inner_circle_places=set(),
                                                         inner_circle_persons=set(),
-                                                        impacts_generator=fake_tt_power_impacts))
+                                                        impacts_generator=politic_power_helpers.fake_tt_power_impacts))
 
         self.assertCountEqual(impact_arguments, [{'actor_id': self.hero.id,
                                                   'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
@@ -732,6 +688,8 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                   'place_inner_circle': False}])
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_premium', True)
+    @mock.patch('the_tale.game.politic_power.logic.final_politic_power', lambda power, **kwargs: power)
+    @mock.patch('the_tale.game.persons.attributes.Attributes.places_help_amount', 1)
     def test_social_connections_between_core_and_frontier(self):
         self.person.attrs.social_relations_partners_power_modifier = 0.1
         self.person.attrs.social_relations_concurrents_power_modifier = 0.2
@@ -750,7 +708,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                         power=10000,
                                                         inner_circle_places=set(),
                                                         inner_circle_persons=set(),
-                                                        impacts_generator=fake_tt_power_impacts))
+                                                        impacts_generator=politic_power_helpers.fake_tt_power_impacts))
 
         self.assertCountEqual(impact_arguments, [{'actor_id': self.hero.id,
                                                   'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,

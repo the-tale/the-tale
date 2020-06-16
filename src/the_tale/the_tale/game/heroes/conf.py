@@ -41,8 +41,6 @@ settings = utils_app_settings.app_settings('HEROES',
                                            UNLOAD_TIMEOUT=c.TURN_DELTA * 3,
                                            RARE_OPERATIONS_INTERVAL=1000,
                                            INACTIVE_HERO_DELAY=int(10),  # для неактивных героев замедлять время в N раз
-                                           POWER_PER_ACTIVE_BILL=1.5,
-                                           ACTIVE_BILLS_MAXIMUM=4,
 
                                            TT_DIARY_ENTRY_POINT='http://localhost:10001/',
 

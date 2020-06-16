@@ -253,8 +253,7 @@ def remove_account_data(account_id):
                      referral_of_id=None,
                      referrals_number=0,
                      action_id=None,
-                     might=0,
-                     actual_bills='[]')
+                     might=0)
 
     models.Account.objects.filter(id=account_id).update(**arguments)
 

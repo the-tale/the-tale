@@ -97,88 +97,6 @@ class PrototypeTests(PrototypeTestsBase,
         self.complete_quest(self.check_ui_info, positive_results=False)
         self.assertNotEqual(self.hero.quests.interfered_persons, {})
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
-    def test_give_person_power__profession(self):
-
-        person = persons_storage.persons.all()[0]
-
-        power_without_profession = self.quest.finish_quest_person_power(questgen_quests_base_quest.RESULTS.SUCCESSED, uids.person(person.id))
-
-        self.quest.knowledge_base += questgen_facts.ProfessionMarker(person=uids.person(person.id), profession=666)
-
-        power_with_profession = self.quest.finish_quest_person_power(questgen_quests_base_quest.RESULTS.SUCCESSED, uids.person(person.id))
-
-        self.assertTrue(power_with_profession < power_without_profession)
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
-    def test_give_person_power__profession_not_affect_power_bonus(self):
-
-        person = persons_storage.persons.all()[0]
-
-        self.quest.knowledge_base += questgen_facts.ProfessionMarker(person=uids.person(person.id), profession=666)
-
-        power_with_profession = self.quest.finish_quest_person_power(questgen_quests_base_quest.RESULTS.SUCCESSED, uids.person(person.id))
-
-        self.quest.current_info.power_bonus = 666
-
-        new_power = self.quest.finish_quest_person_power(questgen_quests_base_quest.RESULTS.SUCCESSED, uids.person(person.id))
-
-        self.assertEqual(power_with_profession + 666, new_power)
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
-    def test_give_person_power__power_bonus(self):
-        person = persons_storage.persons.all()[0]
-
-        self.quest.current_info.power = 10
-        self.quest.current_info.power_bonus = 1
-
-        power = self.quest.finish_quest_person_power(questgen_quests_base_quest.RESULTS.SUCCESSED, uids.person(person.id))
-        self.assertEqual(power, 10 + 1)
-
-        power = self.quest.finish_quest_person_power(questgen_quests_base_quest.RESULTS.FAILED, uids.person(person.id))
-        self.assertEqual(power, -10 - 1)
-
-        power = self.quest.finish_quest_person_power(questgen_quests_base_quest.RESULTS.NEUTRAL, uids.person(person.id))
-        self.assertEqual(power, 0)
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
-    def test_give_place_power__power_bonus(self):
-        self.quest.current_info.power = 10
-        self.quest.current_info.power_bonus = 1
-
-        power = self.quest.finish_quest_place_power(questgen_quests_base_quest.RESULTS.SUCCESSED, uids.place(self.place_1.id))
-        self.assertEqual(power, 10 + 1)
-
-        power = self.quest.finish_quest_place_power(questgen_quests_base_quest.RESULTS.FAILED, uids.place(self.place_1.id))
-        self.assertEqual(power, -10 - 1)
-
-        power = self.quest.finish_quest_place_power(questgen_quests_base_quest.RESULTS.NEUTRAL, uids.place(self.place_1.id))
-        self.assertEqual(power, 0)
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
-    def test_give_emissary_power__power_bonus(self):
-        self.prepair_forum_for_clans()
-
-        account = self.accounts_factory.create_account()
-
-        clan = self.create_clan(owner=account, uid=1)
-
-        emissary = self.create_emissary(clan=clan,
-                                        initiator=account,
-                                        place_id=self.place_1.id)
-
-        self.quest.current_info.power = 10
-        self.quest.current_info.power_bonus = 1
-
-        power = self.quest.finish_quest_emissary_power(questgen_quests_base_quest.RESULTS.SUCCESSED, uids.emissary(emissary.id))
-        self.assertEqual(power, 10 + 1)
-
-        power = self.quest.finish_quest_emissary_power(questgen_quests_base_quest.RESULTS.FAILED, uids.emissary(emissary.id))
-        self.assertEqual(power, -10 - 1)
-
-        power = self.quest.finish_quest_emissary_power(questgen_quests_base_quest.RESULTS.NEUTRAL, uids.emissary(emissary.id))
-        self.assertEqual(power, 0)
-
     def test_power_on_end_quest_for_fast_account_hero(self):
         game_tt_services.debug_clear_service()
 
@@ -313,18 +231,6 @@ class PrototypeTests(PrototypeTestsBase,
             emissary.attrs.experience_bonus = 1.0
 
         self.assertTrue(self.quest.get_expirience_for_quest(self.quest.current_info.uid, self.hero) > 100)
-
-    @mock.patch('the_tale.game.balance.formulas.person_power_for_quest', lambda x: 100)
-    def test_get_politic_power_for_quest__from_person(self):
-        for person in persons_storage.persons.all():
-            person.attrs.politic_power_bonus = 0.0
-
-        self.assertEqual(self.quest.get_politic_power_for_quest(self.quest.current_info.uid, self.hero), 100)
-
-        for person in persons_storage.persons.all():
-            person.attrs.politic_power_bonus = 1.0
-
-        self.assertTrue(self.quest.get_politic_power_for_quest(self.quest.current_info.uid, self.hero) >= 200)
 
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 0)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda *argv: False)
@@ -553,13 +459,27 @@ class PrototypeTests(PrototypeTestsBase,
             with self.check_not_changed(lambda: self.hero.companion.coherence):
                 self.quest._finish_quest(mock.Mock(results=mock.Mock(items=lambda: [])), self.hero)
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.is_premium', True)
-    def test_give_power__add_bonus_power(self):
+    def test_finish_quest_power(self):
+        self.quest.current_info.power = 100
+        self.quest.current_info.power_bonus = 0
+        self.assertEqual(self.quest.finish_quest_power(questgen_quests_base_quest.RESULTS.SUCCESSED), 100)
 
-        self.quest.current_info.power = 10
-        self.quest.current_info.power_bonus = 1
+        self.quest.current_info.power_bonus = 312
+        self.assertEqual(self.quest.finish_quest_power(questgen_quests_base_quest.RESULTS.SUCCESSED), 412)
 
-        self.assertEqual(self.quest.get_current_power(2), 20)
+        self.quest.current_info.power = 100
+        self.quest.current_info.power_bonus = 0
+        self.assertEqual(self.quest.finish_quest_power(questgen_quests_base_quest.RESULTS.FAILED), -100)
+
+        self.quest.current_info.power_bonus = 312
+        self.assertEqual(self.quest.finish_quest_power(questgen_quests_base_quest.RESULTS.FAILED), -412)
+
+        self.quest.current_info.power = 100
+        self.quest.current_info.power_bonus = 0
+        self.assertEqual(self.quest.finish_quest_power(questgen_quests_base_quest.RESULTS.NEUTRAL), 0)
+
+        self.quest.current_info.power_bonus = 312
+        self.assertEqual(self.quest.finish_quest_power(questgen_quests_base_quest.RESULTS.NEUTRAL), 0)
 
 
 class InterpreterCallbacksTests(PrototypeTestsBase):

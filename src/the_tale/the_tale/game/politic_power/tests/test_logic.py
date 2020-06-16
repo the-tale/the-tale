@@ -84,13 +84,13 @@ class SyncPowerTests(utils_testcase.TestCase):
 
         impacts = game_tt_services.personal_impacts.cmd_get_targets_impacts(targets=targets)
 
-        self.assertCountEqual([impact.amount for impact in impacts], [math.floor(100 * c.PLACE_POWER_REDUCE_FRACTION),
-                                                                      math.floor(400 * c.PLACE_POWER_REDUCE_FRACTION)])
+        self.assertCountEqual([impact.amount for impact in impacts], [math.floor(100 * tt_politic_power_constants.POWER_REDUCE_FRACTION),
+                                                                      math.floor(400 * tt_politic_power_constants.POWER_REDUCE_FRACTION)])
 
         impacts = game_tt_services.crowd_impacts.cmd_get_targets_impacts(targets=targets)
 
-        self.assertCountEqual([impact.amount for impact in impacts], [math.floor(200 * c.PLACE_POWER_REDUCE_FRACTION),
-                                                                      math.floor(300 * c.PLACE_POWER_REDUCE_FRACTION)])
+        self.assertCountEqual([impact.amount for impact in impacts], [math.floor(200 * tt_politic_power_constants.POWER_REDUCE_FRACTION),
+                                                                      math.floor(300 * tt_politic_power_constants.POWER_REDUCE_FRACTION)])
 
 
 class GetInnerCircleTests(utils_testcase.TestCase):
@@ -300,3 +300,67 @@ class GetLastPowerImpactsTests(utils_testcase.TestCase):
                               not impact.type.is_MONEY and
                               not impact.type.is_EMISSARY_POWER)][:3],
                          loaded_impacts)
+
+
+class FinalPoliticPowerTests(clans_helpers.ClansTestsMixin,
+                             utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.places = game_logic.create_test_map()
+
+        self.place = self.places[0]
+        self.person = self.place.persons[0]
+
+        self.account = self.accounts_factory.create_account()
+        self.hero = heroes_logic.load_hero(self.account.id)
+
+    def test_bonus(self):
+        self.assertEqual(logic.final_politic_power(1000, bonus=-0.5), 500)
+        self.assertEqual(logic.final_politic_power(1000), 1000)
+        self.assertEqual(logic.final_politic_power(1000, bonus=0.5), 1500)
+
+    def test_place(self):
+        with mock.patch('the_tale.game.places.attributes.Attributes.politic_power_bonus', -0.5):
+            self.assertEqual(logic.final_politic_power(1000, place=self.place), 500)
+
+        with mock.patch('the_tale.game.places.attributes.Attributes.politic_power_bonus', 0):
+            self.assertEqual(logic.final_politic_power(1000, place=self.place), 1000)
+
+        with mock.patch('the_tale.game.places.attributes.Attributes.politic_power_bonus', 0.5):
+            self.assertEqual(logic.final_politic_power(1000, place=self.place), 1500)
+
+    def test_person(self):
+        with mock.patch('the_tale.game.persons.attributes.Attributes.politic_power_bonus', -0.5):
+            self.assertEqual(logic.final_politic_power(1000, person=self.person), 500)
+
+        with mock.patch('the_tale.game.persons.attributes.Attributes.politic_power_bonus', 0):
+            self.assertEqual(logic.final_politic_power(1000, person=self.person), 1000)
+
+        with mock.patch('the_tale.game.persons.attributes.Attributes.politic_power_bonus', 0.5):
+            self.assertEqual(logic.final_politic_power(1000, person=self.person), 1500)
+
+    def test_hero(self):
+        with mock.patch('the_tale.game.heroes.objects.Hero.politic_power_bonus', lambda self: -0.5):
+            self.assertEqual(logic.final_politic_power(1000, hero=self.hero), 500)
+
+        with mock.patch('the_tale.game.heroes.objects.Hero.politic_power_bonus', lambda self: 0):
+            self.assertEqual(logic.final_politic_power(1000, hero=self.hero), 1000)
+
+        with mock.patch('the_tale.game.heroes.objects.Hero.politic_power_bonus', lambda self: 0.5):
+            self.assertEqual(logic.final_politic_power(1000, hero=self.hero), 1500)
+
+    def test_minimum_value(self):
+        self.assertEqual(logic.final_politic_power(1000, bonus=-100500), 0)
+
+    def test_complex(self):
+        with mock.patch('the_tale.game.places.attributes.Attributes.politic_power_bonus', 2):
+            with mock.patch('the_tale.game.persons.attributes.Attributes.politic_power_bonus', 3):
+                with mock.patch('the_tale.game.heroes.objects.Hero.politic_power_bonus', lambda self: 5):
+                    self.assertEqual(logic.final_politic_power(1000,
+                                                               place=self.place,
+                                                               person=self.person,
+                                                               hero=self.hero,
+                                                               bonus=7),
+                                     1000 * (1 + 2 + 3 + 5 + 7))

@@ -199,7 +199,7 @@ class HeroMoney(HeroMethod):
     TARGET_LEVEL = f.lvl_after_time(3 * 365 * 24)
 
     def money(self, job_power):
-        return max(1, int(math.ceil(f.normal_action_price(self.TARGET_LEVEL) * job_power * c.NORMAL_JOB_LENGTH)))
+        return max(1, int(math.ceil(f.normal_action_price(self.TARGET_LEVEL) * job_power * c.JOB_MIN_LENGTH)))
 
     def positive_effect_value(self, job_power):
         return self.money(job_power)
@@ -222,7 +222,7 @@ class HeroExperience(HeroMethod):
 
         return max(1, int(math.ceil(f.experience_for_quest__real(places_storage.places.expected_minimum_quest_distance()) *
                                     job_power *
-                                    c.NORMAL_JOB_LENGTH)))
+                                    c.JOB_MIN_LENGTH)))
 
     def positive_effect_value(self, job_power):
         return self.experience(job_power)
@@ -264,7 +264,7 @@ class HeroCards(HeroMethod):
     METHOD_NAME = 'job_cards'
 
     def cards_number(self, job_power):
-        return max(1, int(math.ceil(24.0 / tt_cards_constants.NORMAL_RECEIVE_TIME * c.NORMAL_JOB_LENGTH * job_power)))
+        return max(1, int(math.ceil(24.0 / tt_cards_constants.NORMAL_RECEIVE_TIME * c.JOB_MIN_LENGTH * job_power)))
 
     def positive_effect_value(self, job_power):
         return self.cards_number(job_power)

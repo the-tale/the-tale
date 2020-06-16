@@ -17,6 +17,16 @@ def job_power(power, powers):
     return c.JOB_MIN_POWER + delta * (index + 1)
 
 
+def normal_job_power(heroes_number: int) -> int:
+    quests_per_day = 2
+    complexity = 1.5
+
+    return int(math.ceil(tt_politic_power_constants.MEDIUM_QUEST_POWER *
+                         (quests_per_day * c.JOB_MIN_LENGTH) *
+                         heroes_number *
+                         complexity))
+
+
 def update_job(job, actor_id):
 
     power = job.load_power(actor_id)

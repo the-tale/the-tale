@@ -13,16 +13,9 @@ class IMPACT_TYPE(rels_django.DjangoEnum):
                ('EMISSARY_POWER', 5, 'влияния эмиссара'))
 
 
+@dataclasses.dataclass
 class PowerImpact(tt_api_impacts.Impact):
-    __slots__ = ('type',)
-
-    def __init__(self, type, **kwargs):
-        super().__init__(**kwargs)
-        self.type = type
-
-    def __eq__(self, other):
-        return (super().__eq__(other) and
-                self.type == other.type)
+    type: Any = NotImplemented
 
     @classmethod
     def from_tt_object(cls, type, tt_impact):

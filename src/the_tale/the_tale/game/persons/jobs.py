@@ -72,7 +72,7 @@ class PersonJob(jobs_objects.Job):
     POSITIVE_TARGET_TYPE = tt_api_impacts.OBJECT_TYPE.JOB_PERSON_POSITIVE
     NEGATIVE_TARGET_TYPE = tt_api_impacts.OBJECT_TYPE.JOB_PERSON_NEGATIVE
 
-    NORMAL_POWER = f.normal_job_power(politic_power_conf.settings.PERSON_INNER_CIRCLE_SIZE)
+    NORMAL_POWER = jobs_logic.normal_job_power(politic_power_conf.settings.PERSON_INNER_CIRCLE_SIZE)
 
     def load_power(self, actor_id):
         return politic_power_logic.get_job_power(person_id=actor_id)
@@ -83,9 +83,11 @@ class PersonJob(jobs_objects.Job):
     def get_job_power(self, actor_id):
         current_person = storage.persons[actor_id]
 
+        powers = [politic_power_storage.persons.total_power_fraction(person.id)
+                  for person in current_person.place.persons]
+
         return jobs_logic.job_power(power=politic_power_storage.persons.total_power_fraction(current_person.id),
-                                    powers=[politic_power_storage.persons.total_power_fraction(person.id)
-                                            for person in current_person.place.persons]) + current_person.attrs.job_power_bonus
+                                    powers=powers) + current_person.attrs.job_power_bonus
 
     def get_project_name(self, actor_id):
         person = storage.persons[actor_id]

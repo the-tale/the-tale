@@ -29,7 +29,8 @@ class PersonJobTests(utils_testcase.TestCase):
         self.assertTrue(self.job.ACTOR_TYPE.is_PERSON)
         self.assertTrue(self.job.POSITIVE_TARGET_TYPE.is_JOB_PERSON_POSITIVE)
         self.assertTrue(self.job.NEGATIVE_TARGET_TYPE.is_JOB_PERSON_NEGATIVE)
-        self.assertEqual(self.job.NORMAL_POWER, f.normal_job_power(politic_power_conf.settings.PERSON_INNER_CIRCLE_SIZE))
+        self.assertEqual(self.job.NORMAL_POWER,
+                         jobs_logic.normal_job_power(politic_power_conf.settings.PERSON_INNER_CIRCLE_SIZE))
 
     def test_load_power(self):
         with mock.patch('the_tale.game.politic_power.logic.get_job_power', mock.Mock(return_value=666)) as get_job_power:

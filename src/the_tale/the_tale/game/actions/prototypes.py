@@ -1153,41 +1153,6 @@ class ActionInPlacePrototype(ActionBase):
         if coins is not None:
             self.hero.add_message('action_inplace_diary_spend_useless', diary=True, hero=self.hero, coins=coins)
 
-    def spend_money__impact(self):
-        coins = self.try_to_spend_money()
-
-        if coins is None:
-            return
-
-        choices = []
-
-        if self.hero.preferences.friend is not None and self.hero.preferences.friend.place.id == self.hero.position.place.id:
-            choices.append((True, self.hero.preferences.friend))
-
-        if self.hero.preferences.enemy is not None and self.hero.preferences.enemy.place.id == self.hero.position.place.id:
-            choices.append((False, self.hero.preferences.enemy))
-
-        if not choices:
-            choices.append((random.choice([True, False]), random.choice(self.hero.position.place.persons)))
-
-        impact_type, person = random.choice(choices)
-
-        if impact_type:
-            power_direction = 1
-            self.hero.add_message('action_inplace_diary_impact_good', diary=True, hero=self.hero, coins=coins, person=person)
-        else:
-            power_direction = -1
-            self.hero.add_message('action_inplace_diary_impact_bad', diary=True, hero=self.hero, coins=coins, person=person)
-
-        if not self.hero.can_change_person_power(person):
-            return
-
-        power = power_direction * f.person_power_for_quest(places_storage.places.expected_minimum_quest_distance())
-
-        impacts = list(persons_logic.impacts_from_hero(self.hero, person, power, inner_circle_places=set(), inner_circle_persons=set()))
-
-        politic_power_logic.add_power_impacts(impacts)
-
     def spend_money__experience(self):
         coins = self.try_to_spend_money()
 
@@ -1227,9 +1192,6 @@ class ActionInPlacePrototype(ActionBase):
 
         elif self.hero.next_spending.is_USELESS:
             self.spend_money__useless()
-
-        elif self.hero.next_spending.is_IMPACT:
-            self.spend_money__impact()
 
         elif self.hero.next_spending.is_EXPERIENCE:
             self.spend_money__experience()

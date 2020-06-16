@@ -214,7 +214,7 @@ class RestTests(places_helpers.PlacesTestsMixin,
         self.emissary.traits = frozenset()
         self.emissary.refresh_attributes()
 
-        self.assertEqual(self.concrete_event.power_for_day_cost(self.emissary), 9)
+        self.assertEqual(self.concrete_event.power_for_day_cost(self.emissary), 502)
 
     def test_power_cost_modificator(self):
         self.assertCountEqual(self.concrete_event.TYPE.abilities,
@@ -253,7 +253,8 @@ class RestTests(places_helpers.PlacesTestsMixin,
         self.emissary.refresh_attributes()
 
         self.assertEqual(self.concrete_event.power_cost(self.emissary, days=7),
-                         int(math.ceil(7 * (logic.expected_power_per_day()/2) * (1 - 2 * tt_clans_constants.PRICE_START_EVENT_DELTA))))
+                         7 * int(math.ceil((logic.expected_power_per_day()/2) *
+                                           (1 - 2 * tt_clans_constants.PRICE_START_EVENT_DELTA))))
 
     def test_on_step(self):
         self.emissary.health = 1

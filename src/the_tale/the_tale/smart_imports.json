@@ -11,6 +11,7 @@
                              "Tuple": {"module": "typing", "attribute": "Tuple"},
                              "Iterable": {"module": "typing", "attribute": "Iterable"},
                              "Callable": {"module": "typing", "attribute": "Callable"},
+                             "Generator": {"module": "typing", "attribute": "Generator"},
                              "ClassVar": {"module": "typing", "attribute": "ClassVar"}}},
 
               {"type": "rule_custom",
@@ -24,6 +25,8 @@
                              "tt_common_constants": {"module": "tt_logic.common.constants"},
                              "tt_logic_checkers": {"module": "tt_logic.common.checkers"},
                              "tt_emissaries_constants": {"module": "tt_logic.emissaries.constants"},
+                             "tt_politic_power_constants": {"module": "tt_logic.politic_power.constants"},
+                             "tt_politic_power_formulas": {"module": "tt_logic.politic_power.formulas"},
 
                              "django_decorators": {"module": "django.views.decorators"},
                              "django_dispatch": {"module": "django.dispatch"},

@@ -42,12 +42,12 @@ class QuestInfo(object):
                 'actors': self.actors,
                 'used_markers': self.used_markers}
 
-    def ui_info(self, hero):
+    def ui_info(self):
         # show experience modified by hero level and abilities
-        experience = int(self.experience * hero.experience_modifier) if hero is not None else self.experience
+        experience = int(self.experience)
 
         # show power modified by hero level and abilities
-        power = int((self.power + self.power_bonus) * hero.politics_power_multiplier()) if hero is not None else self.power
+        power = int(self.power + self.power_bonus)
 
         return {'type': self.type,
                 'uid': self.uid,
@@ -415,25 +415,10 @@ class QuestPrototype(object):
         else:
             real_break_at = (percents - nearest_percents) / (1 - nearest_percents)
 
-        # log_data = {'hero_id': self.hero.id,
-        #             'percents': percents,
-        #             'nearest_percents': nearest_percents,
-        #             'hero_coordinates': (self.hero.position.x, self.hero.position.y),
-        #             'path_coordinates': (x, y),
-        #             'place_from': place_from.id,
-        #             'place_to': place_to.id,
-        #             'path_to': path_to.serialize(),
-        #             'real_break_at': real_break_at}
-
-        # logger.info('_move_hero_on_road for hero %s, properties: %s', self.hero.id, log_data)
-
         actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
                                                             path=path_to,
                                                             destination=place_to,
                                                             break_at=real_break_at)
-
-    def get_current_power(self, power):
-        return power * self.current_info.power
 
     def modify_person_power(self, power, person):
         power += (1 if power > 0 else -1) * self.current_info.power_bonus
@@ -468,7 +453,7 @@ class QuestPrototype(object):
         if person_habits_change_source:
             hero.update_habits(person_habits_change_source)
 
-        power = self.finish_quest_person_power(result, object_fact.uid)
+        power = self.finish_quest_power(result)
 
         return persons_logic.impacts_from_hero(hero,
                                                person=persons_storage.persons[person_id],
@@ -481,12 +466,12 @@ class QuestPrototype(object):
 
         emissary = emissaries_storage.emissaries.get_or_load(emissary_id)
 
-        power = self.finish_quest_emissary_power(result, object_fact.uid)
+        power = self.finish_quest_power(result)
 
         return emissaries_logic.impacts_from_hero(hero, emissary, power)
 
     def give_power_to_place(self, hero, object_fact, result):
-        power = self.finish_quest_place_power(result, object_fact.uid)
+        power = self.finish_quest_power(result)
 
         return places_logic.impacts_from_hero(hero,
                                               place=places_storage.places[object_fact.externals['id']],
@@ -542,40 +527,13 @@ class QuestPrototype(object):
 
     def finish_quest_power(self, result):
         if result == questgen_quests_base_quest.RESULTS.SUCCESSED:
-            object_politic_power = 1
+            power_direction = 1
         elif result == questgen_quests_base_quest.RESULTS.FAILED:
-            object_politic_power = -1
+            power_direction = -1
         else:
-            object_politic_power = 0
+            power_direction = 0
 
-        object_politic_power = self.get_current_power(object_politic_power)
-
-        power_bonus = 0
-
-        if result != questgen_quests_base_quest.RESULTS.NEUTRAL:
-            power_bonus = (1 if object_politic_power > 0 else -1) * self.current_info.power_bonus
-
-        return object_politic_power, power_bonus
-
-    def finish_quest_person_power(self, result, object_uid):
-        object_politic_power, power_bonus = self.finish_quest_power(result)
-
-        has_profession_marker = [marker
-                                 for marker in self.knowledge_base.filter(questgen_facts.ProfessionMarker)
-                                 if marker.person == object_uid]
-
-        if has_profession_marker:
-            object_politic_power /= len(persons_relations.PERSON_TYPE.records)
-
-        return object_politic_power + power_bonus
-
-    def finish_quest_emissary_power(self, result, object_uid):
-        object_politic_power, power_bonus = self.finish_quest_power(result)
-        return object_politic_power + power_bonus
-
-    def finish_quest_place_power(self, result, object_uid):
-        object_politic_power, power_bonus = self.finish_quest_power(result)
-        return object_politic_power + power_bonus
+        return power_direction * (self.current_info.power + self.current_info.power_bonus)
 
     def get_state_by_jump_pointer(self):
         return self.knowledge_base[self.knowledge_base[self.machine.pointer.jump].state_to]
@@ -753,11 +711,12 @@ class QuestPrototype(object):
 
     def _start_quest(self, start, hero):
         hero.quests.update_history(start.type, game_turn.number())
+
         self.quests_stack.append(QuestInfo.construct(type=start.type,
                                                      uid=start.uid,
                                                      knowledge_base=self.machine.knowledge_base,
                                                      experience=self.get_expirience_for_quest(start.uid, hero),
-                                                     power=self.get_politic_power_for_quest(start.uid, hero),
+                                                     power=tt_politic_power_formulas.base_quest_power(quest_rung=hero.level),
                                                      hero=hero))
 
     def quest_participants(self, quest_uid):
@@ -810,32 +769,6 @@ class QuestPrototype(object):
                                     sum(emissaries_experience_bonuses.values()))
 
         return max(1, experience)
-
-    def get_politic_power_for_quest(self, quest_uid, hero):
-        base_politic_power = f.person_power_for_quest(places_storage.places.expected_minimum_quest_distance())
-
-        politic_power_modifier = 1.0
-
-        for participant in self.quest_participants(quest_uid):
-
-            fact = self.knowledge_base[participant.participant]
-
-            if not isinstance(fact, questgen_facts.Person):
-                continue
-
-            person_type = logic.extract_person_type(fact)
-
-            if person_type.is_PERSON:
-                person = persons_storage.persons.get(fact.externals['id'])
-                politic_power_modifier += person.attrs.politic_power_bonus
-
-            elif person_type.is_EMISSARY:
-                pass
-
-            else:
-                raise NotImplementedError
-
-        return int(base_politic_power * politic_power_modifier)
 
     ################################
     # general callbacks
@@ -1076,14 +1009,14 @@ class QuestPrototype(object):
     ################################
 
     def ui_info(self):
-        return {'line': [info.ui_info(self.hero) for info in self.quests_stack]}
+        return {'line': [info.ui_info() for info in self.quests_stack]}
 
     @classmethod
     def no_quests_ui_info(cls, in_place):
         if in_place:
-            return {'line': [NO_QUEST_INFO__IN_PLACE.ui_info(None)]}
+            return {'line': [NO_QUEST_INFO__IN_PLACE.ui_info()]}
         else:
-            return {'line': [NO_QUEST_INFO__OUT_PLACE.ui_info(None)]}
+            return {'line': [NO_QUEST_INFO__OUT_PLACE.ui_info()]}
 
     @classmethod
     def next_spending_ui_info(cls, spending):
@@ -1099,4 +1032,4 @@ class QuestPrototype(object):
                                        power_bonus=0,
                                        actors={'goal': (spending, 'цель')},
                                        used_markers=set())
-        return {'line': [NEXT_SPENDING_INFO.ui_info(None)]}
+        return {'line': [NEXT_SPENDING_INFO.ui_info()]}

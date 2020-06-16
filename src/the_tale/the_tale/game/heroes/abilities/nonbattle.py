@@ -199,7 +199,7 @@ class DIPLOMATIC(prototypes.AbilityPrototype):
     ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = relations.ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    MAXIMUM_MULTIPLIER = 2.0
+    MAXIMUM_MULTIPLIER = tt_politic_power_constants.MODIFIER_HERO_ABILITIES
 
     NAME = 'Дипломатичный'
     normalized_name = NAME

@@ -51,7 +51,6 @@ class ConstantsTest(unittest.TestCase):
 
         self.assertGreater(c.DEBUFFED_ATTRIBUT_INCREMENT_DELTA, 0)
 
-        self.assertEqual(c.QUEST_POWER_BONUS, 0.5)
         self.assertEqual(c.QUEST_EXPERIENCE_BUFF, 2.0)
         self.assertEqual(c.QUEST_EXPERIENCE_DEBUFF, 0.7)
 

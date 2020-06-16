@@ -85,13 +85,13 @@ class CARD(rels.Relation):
                 effects.AddExperience(base=50, level=4), [reactors.Simple3()]),
 
                ('ADD_POWER_COMMON', 78, 'новые обстоятельства', FOR_PREMIUMS, COMMON,
-                effects.AddPoliticPower(base=c.CARD_BONUS_FOR_QUEST, level=1), [reactors.Simple3()]),
+                effects.AddPoliticPower(base=tt_politic_power_constants.CARD_MAX_POWER, level=5), [reactors.Simple3()]),
                ('ADD_POWER_UNCOMMON', 79, 'специальная операция', FOR_PREMIUMS, UNCOMMON,
-                effects.AddPoliticPower(base=c.CARD_BONUS_FOR_QUEST, level=2), [reactors.Simple3()]),
+                effects.AddPoliticPower(base=tt_politic_power_constants.CARD_MAX_POWER, level=4), [reactors.Simple3()]),
                ('ADD_POWER_RARE', 80, 'слово Дабнглана', FOR_PREMIUMS, RARE,
-                effects.AddPoliticPower(base=c.CARD_BONUS_FOR_QUEST, level=3), [reactors.Simple3()]),
+                effects.AddPoliticPower(base=tt_politic_power_constants.CARD_MAX_POWER, level=3), [reactors.Simple3()]),
                ('ADD_POWER_EPIC', 81, 'благословение Дабнглана', FOR_PREMIUMS, EPIC,
-                effects.AddPoliticPower(base=c.CARD_BONUS_FOR_QUEST, level=4), [reactors.Simple3()]),
+                effects.AddPoliticPower(base=tt_politic_power_constants.CARD_MAX_POWER, level=2), [reactors.Simple3()]),
 
                ('SHORT_TELEPORT', 82, 'телепорт', FOR_ALL, COMMON,
                 effects.ShortTeleport(), [reactors.Special(3, 'LONG_TELEPORT')]),
@@ -136,7 +136,7 @@ class CARD(rels.Relation):
                 effects.UpgradeArtifact(), []),
 
                ('ADD_POWER_LEGENDARY', 107, 'туз в рукаве', FOR_PREMIUMS, LEGENDARY,
-                effects.AddPoliticPower(base=c.CARD_BONUS_FOR_QUEST, level=5), []),
+                effects.AddPoliticPower(base=tt_politic_power_constants.CARD_MAX_POWER, level=1), []),
 
                ('CHANGE_HERO_SPENDINGS', 116, 'новая цель', FOR_ALL, COMMON,
                 effects.ChangeItemOfExpenditure(), [reactors.Same2()]),

@@ -4,7 +4,8 @@ import smart_imports
 smart_imports.all()
 
 
-class Place(game_names.ManageNameMixin2):
+class Place(game_names.ManageNameMixin2,
+            game_attributes.AttributesMixin):
     __slots__ = ('id',
                  'x', 'y',
                  'updated_at',
@@ -309,6 +310,10 @@ class Place(game_names.ManageNameMixin2):
                                         attribute=relations.ATTRIBUTE.PRODUCTION,
                                         value=-stabilization_price)
 
+        yield tt_api_effects.Effect(name='Свобода',
+                                    attribute=relations.ATTRIBUTE.POLITIC_POWER_BONUS,
+                                    value=tt_politic_power_formulas.power_modifier_from_freedom(self.attrs.freedom))
+
         # safety
         yield tt_api_effects.Effect(name='стабильность',
                                     attribute=relations.ATTRIBUTE.SAFETY,
@@ -324,8 +329,6 @@ class Place(game_names.ManageNameMixin2):
                                     value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY)
 
         # freedom
-        yield tt_api_effects.Effect(name='город',
-                                    attribute=relations.ATTRIBUTE.FREEDOM, value=1.0)
         yield tt_api_effects.Effect(name='стабильность',
                                     attribute=relations.ATTRIBUTE.FREEDOM,
                                     value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_FREEDOM_PENALTY)
@@ -344,13 +347,12 @@ class Place(game_names.ManageNameMixin2):
     def effects_generator(self, order):
 
         if relations.ATTRIBUTE.PRODUCTION.order == order:
-            # force map to resinc, too recalculate road support cost
+            # force map to resync, too recalculate road support cost
             map_storage.cells.sync(force=True)
 
         # TODO: do something with postchecks
         stability = 0
         culture = 0
-        freedom = 0
         production = 0
 
         for effect in self._effects_generator():
@@ -360,8 +362,6 @@ class Place(game_names.ManageNameMixin2):
                 stability += effect.value
             if effect.attribute.is_CULTURE:
                 culture += effect.value
-            if effect.attribute.is_FREEDOM:
-                freedom += effect.value
             if effect.attribute.is_PRODUCTION:
                 production += effect.value
             yield effect
@@ -381,12 +381,6 @@ class Place(game_names.ManageNameMixin2):
                 yield tt_api_effects.Effect(name='бродячие артисты',
                                             attribute=relations.ATTRIBUTE.CULTURE,
                                             value=c.PLACE_MIN_CULTURE - culture)
-
-        if relations.ATTRIBUTE.FREEDOM.order == order:
-            if freedom < c.PLACE_MIN_FREEDOM:
-                yield tt_api_effects.Effect(name='Пять звёзд',
-                                            attribute=relations.ATTRIBUTE.FREEDOM,
-                                            value=c.PLACE_MIN_FREEDOM - freedom)
 
         compensation = 0
 
@@ -419,33 +413,6 @@ class Place(game_names.ManageNameMixin2):
                 yield tt_api_effects.Effect(name='компенсация потерь пошлиной',
                                             attribute=relations.ATTRIBUTE.TAX,
                                             value=min(1.0, c.PLACE_TAX_PER_ONE_GOODS * abs(production)))
-
-    def effects_for_attribute(self, attribute):
-        for effect in self.effects_generator(attribute.order):
-            if effect.attribute == attribute:
-                yield effect
-
-    def tooltip_effects_for_attribute(self, attribute):
-        effects = [(effect.name, effect.value) for effect in self.effects_for_attribute(attribute)]
-        effects.sort(key=lambda x: x[1], reverse=True)
-        return effects
-
-    def attribute_ui_info(self, attribute_name):
-        attribute = getattr(relations.ATTRIBUTE, attribute_name.upper())
-        return (attribute, getattr(self.attrs, attribute_name.lower()))
-
-    def all_effects(self):
-        for order in relations.ATTRIBUTE.EFFECTS_ORDER:
-            for effect in self.effects_generator(order):
-                yield effect
-
-    def refresh_attributes(self):
-        self.attrs.reset()
-
-        for effect in self.all_effects():
-            effect.apply_to(self.attrs)
-
-        self.attrs.sync()
 
     def set_modifier(self, modifier):
         self._modifier = modifier

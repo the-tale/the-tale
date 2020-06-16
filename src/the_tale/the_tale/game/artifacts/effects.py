@@ -66,7 +66,7 @@ class Experience(BaseEffect):
 class PersonPower(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.POWER
     DESCRIPTION = 'Немного увеличивает влияние героя (бонус к влиянию: 10%)'
-    MODIFIER = 0.1
+    MODIFIER = tt_politic_power_constants.MODIFIER_HERO_ARTIFACTS_RARE
 
     @classmethod
     def modify_attribute(cls, type_, value):
@@ -146,7 +146,7 @@ class GreatExperience(BaseEffect):
 class GreatPersonPower(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.GREAT_POWER
     DESCRIPTION = 'Сильно увеличивает влияние героя  (бонус к влиянию: 50%)'
-    MODIFIER = 0.5
+    MODIFIER = tt_politic_power_constants.MODIFIER_HERO_ARTIFACTS_EPIC
 
     @classmethod
     def modify_attribute(cls, type_, value):

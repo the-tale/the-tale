@@ -284,31 +284,6 @@ PATH_MINIMUM_COST_MULTIPLIER: float = 0.25
 QUESTS_PILGRIMAGE_FRACTION: float = 0.025  # вероятность отправить героя в паломничество
 
 ##########################
-# Влияние
-##########################
-
-HERO_FAME_PER_HELP: int = 1000  # стандартное количество известности, которое получает герой за помощь городу
-HERO_POWER_PER_DAY: int = 100  # базовое количество влияния, которое герой 1-ого уровня производит в день на одного жителя задействованного в заданиях
-PERSON_POWER_PER_QUEST_FRACTION: float = 0.33  # разброс влияния за задание
-PERSON_POWER_FOR_RANDOM_SPEND: int = 200
-
-MINIMUM_CARD_POWER: int = HERO_POWER_PER_DAY
-
-EXPECTED_HERO_QUEST_POWER_MODIFIER: float = 5
-
-# в 2 раза больше, так как карту надо применять к конкретному квесту, а не сразу к мастеру
-# в EXPECTED_HERO_QUEST_POWER_MODIFIER раз меньше, так как на эффект квеста действует политический бонус героя, считаем его в среднем равным EXPECTED_HERO_QUEST_POWER_MODIFIER
-
-CARD_BONUS_FOR_QUEST: int = int(2 * MINIMUM_CARD_POWER / EXPECTED_HERO_QUEST_POWER_MODIFIER)
-
-NORMAL_JOB_LENGTH: int = 4  # минимальная длительность занятия мастера в днях
-
-JOB_MIN_POWER: float = 0.5
-JOB_MAX_POWER: float = 2.0
-
-JOB_NEGATIVE_POWER_MULTIPLIER: float = 2.0  # множитель награды для противников: ломать — не строить
-
-##########################
 # споособности
 ##########################
 
@@ -346,7 +321,6 @@ PICKED_UP_IN_ROAD_PROBABILITY: float = PICKED_UP_IN_ROAD_SPEED_BONUS / PICKED_UP
 
 HABIT_QUEST_PRIORITY_MODIFIER: float = 1.0  # модификатор приоритета выбора заданий от предпочтений
 
-HONOR_POWER_BONUS_FRACTION: float = 1.5  # бонус к влиянию для чести
 MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE: float = 0.02  # вероятность крита по типу монстра, если все монстры этого типа
 
 HABIT_QUEST_REWARD_MAX_BONUS: float = 1.0  # максимальный бонус к награде за задание при выборе, совпадающем с чертой
@@ -377,12 +351,6 @@ _TELEPORT_TURNS_BONUS: float = _TELEPORT_SAVED_TURNS * _HELPS_IN_TURN
 
 # процент сохранённых ходов от мирного расхождения с монстрами
 _PEACEFULL_TURNS_BONUS: float = (PEACEFULL_BATTLE_PROBABILITY * float(BATTLES_BEFORE_HEAL) * BATTLE_LENGTH) / ACTIONS_CYCLE_LENGTH
-
-# print 'battles in day', TURNS_IN_HOUR * 24 / ACTIONS_CYCLE_LENGTH * BATTLES_BEFORE_HEAL
-# print 'inverted', 1.0 / (TURNS_IN_HOUR * 24 / ACTIONS_CYCLE_LENGTH * BATTLES_BEFORE_HEAL)
-# print 'strike', _FIRST_STRIKE_TURNS_BONUS
-# print 'battle', _BATTLE_TURNS_BONUS
-# print 'teleport', _TELEPORT_TURNS_BONUS
 
 EXP_FOR_KILL: int = 2 * EXP_PER_HOUR  # средний опыт за убийство монстра
 EXP_FOR_KILL_DELTA: float = 0.3  # разброс опыта за убийство
@@ -442,7 +410,6 @@ PLACE_ABSOLUTE_MAX_PERSONS: int = PLACE_MAX_PERSONS[-1]
 
 PLACE_MIN_STABILITY: float = 0.0
 PLACE_MIN_CULTURE: float = 0.2
-PLACE_MIN_FREEDOM: float = 0.1
 
 PLACE_BASE_STABILITY: float = 1.0
 
@@ -452,14 +419,10 @@ PLACE_MAX_FRONTIER_ECONOMIC: int = 5
 
 PLACE_NEW_PLACE_LIVETIME: int = 2 * 7 * 24 * 60 * 60
 
-PLACE_POWER_HISTORY_WEEKS: int = 6  # количество недель, которое хранится влияние города
-PLACE_POWER_HISTORY_LENGTH: int = int(PLACE_POWER_HISTORY_WEEKS * 7 * 24 * TURNS_IN_HOUR)  # в ходах
-
-PLACE_POWER_RECALCULATE_STEPS: float = PLACE_POWER_HISTORY_LENGTH / MAP_SYNC_TIME
-PLACE_POWER_REDUCE_FRACTION: float = math.pow(0.01, 1.0 / PLACE_POWER_RECALCULATE_STEPS)
-
-PLACE_FAME_REDUCE_FRACTION: float = PLACE_POWER_REDUCE_FRACTION
-PLACE_MONEY_REDUCE_FRACTION: float = PLACE_POWER_REDUCE_FRACTION
+PLACE_MONEY_HISTORY_WEEKS: int = 6  # количество недель, которое хранится влияние города
+PLACE_MONEY_HISTORY_LENGTH: int = int(PLACE_MONEY_HISTORY_WEEKS * 7 * 24 * TURNS_IN_HOUR)  # в ходах
+PLACE_MONEY_RECALCULATE_STEPS: float = PLACE_MONEY_HISTORY_LENGTH / MAP_SYNC_TIME
+PLACE_MONEY_REDUCE_FRACTION: float = math.pow(0.01, 1.0 / PLACE_MONEY_RECALCULATE_STEPS)
 
 PLACE_TYPE_NECESSARY_BORDER: int = 75
 PLACE_TYPE_ENOUGH_BORDER: int = 50
@@ -537,13 +500,6 @@ PLACE_HABITS_CHANGE_SPEED_MAXIMUM: float = 10
 PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY: float = 10
 PLACE_HABITS_EVENT_PROBABILITY: float = 0.025
 
-JOB_PRODUCTION_BONUS: int = PLACE_GOODS_BONUS
-JOB_SAFETY_BONUS: float = PLACE_SAFETY_FROM_BEST_PERSON
-JOB_TRANSPORT_BONUS: float = PLACE_TRANSPORT_FROM_BEST_PERSON
-JOB_FREEDOM_BONUS: float = PLACE_FREEDOM_FROM_BEST_PERSON
-JOB_STABILITY_BONUS: float = PLACE_STABILITY_UNIT
-JOB_CULTURE_BONUS: float = PLACE_CULTURE_FROM_BEST_PERSON
-
 
 RESOURCE_EXCHANGE_COST_PER_CELL: int = int(math.floor(PLACE_GOODS_BONUS / 40))
 
@@ -565,15 +521,12 @@ PERSON_SOCIAL_CONNECTIONS_LIMIT: int = 3
 PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME_IN_WEEKS: int = 2
 PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME: int = int(TURNS_IN_HOUR * 24 * 7 * PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME_IN_WEEKS)
 
-PERSON_SOCIAL_CONNECTIONS_POWER_BONUS: float = 0.1
-
 ###########################
 # здания
 ###########################
 
 BUILDING_POSITION_RADIUS: int = 2
 
-BUILDING_PERSON_POWER_BONUS: float = 0.5
 BUILDING_TERRAIN_POWER_MULTIPLIER: float = 0.5  # building terrain power is percent from city power
 
 ###########################
@@ -674,4 +627,34 @@ PLACE_MAX_BILLS_NUMBER: int = 3
 
 ACCOUNT_MAX_ACTIVE_BILLS: int = 4
 
+
+#################################
+# Fame
+#################################
+
+HERO_FAME_PER_HELP: int = 1000  # стандартное количество известности, которое получает герой за помощь городу
+
+PLACE_FAME_HISTORY_WEEKS: int = 6  # количество недель, которое хранится влияние города
+PLACE_FAME_HISTORY_LENGTH: int = int(PLACE_FAME_HISTORY_WEEKS * 7 * 24 * TURNS_IN_HOUR)  # в ходах
+PLACE_FAME_RECALCULATE_STEPS: float = PLACE_FAME_HISTORY_LENGTH / MAP_SYNC_TIME
+PLACE_FAME_REDUCE_FRACTION: float = math.pow(0.01, 1.0 / PLACE_FAME_RECALCULATE_STEPS)
+
 BILLS_FAME_BORDER: int = HERO_FAME_PER_HELP
+
+##################
+# проекты Мастеров
+##################
+
+JOB_MIN_LENGTH: int = 4  # минимальная длительность занятия мастера в днях
+
+JOB_MIN_POWER: float = 0.5
+JOB_MAX_POWER: float = 2.0
+
+JOB_NEGATIVE_POWER_MULTIPLIER: float = 2.0  # множитель награды для противников: ломать — не строить
+
+JOB_PRODUCTION_BONUS: int = PLACE_GOODS_BONUS
+JOB_SAFETY_BONUS: float = PLACE_SAFETY_FROM_BEST_PERSON
+JOB_TRANSPORT_BONUS: float = PLACE_TRANSPORT_FROM_BEST_PERSON
+JOB_FREEDOM_BONUS: float = PLACE_FREEDOM_FROM_BEST_PERSON
+JOB_STABILITY_BONUS: float = PLACE_STABILITY_UNIT
+JOB_CULTURE_BONUS: float = PLACE_CULTURE_FROM_BEST_PERSON

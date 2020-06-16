@@ -76,7 +76,7 @@
         <th>до завершения проекта</th>
         <td>
           {{person.job.will_be_completed_after()|verbose_timedelta}} (если хватает влияния)
-          <i class="icon-info-sign" rel="tooltip" title="Проект длится минимум {{c.NORMAL_JOB_LENGTH}} дня"></i>
+          <i class="icon-info-sign" rel="tooltip" title="Проект длится минимум {{c.JOB_MIN_LENGTH}} дня"></i>
         </td>
       </tr>
       <tr>
@@ -218,6 +218,26 @@
                 <td>{{effect.logic.short_effect_description(effect.logic.positive_effect_value(job_power))}}</td>
                 <td>{{effect.logic.short_effect_description(effect.logic.negative_effect_value(job_power))}}</td>
               </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-group">
+      <div class="accordion-heading">
+        <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-person-accordion" href="#pgf-person-all-attributes">
+          Все параметры Мастера
+        </a>
+      </div>
+      <div id="pgf-person-all-attributes" class="accordion-body collapse" style="height: 0px;">
+        <div class="accordion-inner">
+          <table class="table table-condensed">
+            <tbody>
+              {% for attribute in person.attrs.attributes_by_name() %}
+              {{game_macros.attribute_record(person, attribute.name)}}
               {% endfor %}
             </tbody>
           </table>

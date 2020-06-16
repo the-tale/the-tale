@@ -27,14 +27,6 @@ KEYS = [('ACTION_INPLACE_DESCRIPTION', 80000, 'Описание', relations.LEXI
          'Герой тратит деньги, чтобы немного подучиться',
          [V.DATE, V.TIME, V.COINS, V.HERO, V.EXPERIENCE], 'hero#N -coins#G +experience#EXP'),
 
-        ('ACTION_INPLACE_DIARY_IMPACT_BAD', 80005, 'Дневник: Траты на вредительство жителю', relations.LEXICON_GROUP.ACTION_INPLACE,
-         'Герой тратит деньги, чтобы навредить жителю города',
-         [V.DATE, V.TIME, V.PERSON, V.COINS, V.HERO], 'hero#N -coins#G'),
-
-        ('ACTION_INPLACE_DIARY_IMPACT_GOOD', 80006, 'Дневник: Траты на помощь жителю', relations.LEXICON_GROUP.ACTION_INPLACE,
-         'Герой тратит деньги на помощь жителю города.',
-         [V.DATE, V.TIME, V.PERSON, V.COINS, V.HERO], 'hero#N -coins#G'),
-
         ('ACTION_INPLACE_DIARY_INSTANT_HEAL_FOR_MONEY', 80007, 'Дневник: Траты на лечение', relations.LEXICON_GROUP.ACTION_INPLACE,
          'Герой тратит деньги на лечение.',
          [V.DATE, V.TIME, V.COINS, V.HERO, V.HEALTH], 'hero#N +health#HP -coins#G'),

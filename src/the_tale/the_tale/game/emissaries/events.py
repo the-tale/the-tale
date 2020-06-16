@@ -89,7 +89,8 @@ class EventBase:
         return cost
 
     @classmethod
-    def power_for_day_cost(cls, emissary):
+    def power_for_day_cost(cls, emissary) -> int:
+
         return int(math.ceil(logic.expected_power_per_day() *
                              cls.TYPE.power_cost_modifier *
                              tt_emissaries_constants.EVENT_POWER_FRACTION *
@@ -106,8 +107,8 @@ class EventBase:
         return cost
 
     @classmethod
-    def power_cost(cls, emissary, days):
-        return int(math.ceil(cls.power_for_day_cost(emissary) * days))
+    def power_cost(cls, emissary, days: int) -> int:
+        return cls.power_for_day_cost(emissary) * days
 
     @contextlib.contextmanager
     def on_create(self, emissary):

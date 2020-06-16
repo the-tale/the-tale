@@ -29,7 +29,6 @@ class HabilitiesNonBattleTest(utils_testcase.TestCase):
 
         self.assertEqual(relations.ITEMS_OF_EXPENDITURE.INSTANT_HEAL.priority, priorities[relations.ITEMS_OF_EXPENDITURE.INSTANT_HEAL])
         self.assertEqual(relations.ITEMS_OF_EXPENDITURE.USELESS.priority, priorities[relations.ITEMS_OF_EXPENDITURE.USELESS])
-        self.assertEqual(relations.ITEMS_OF_EXPENDITURE.IMPACT.priority, priorities[relations.ITEMS_OF_EXPENDITURE.IMPACT])
 
         self.assertTrue(relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT.priority < priorities[relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT])
         self.assertTrue(relations.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT.priority < priorities[relations.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT])
@@ -71,11 +70,8 @@ class HabilitiesNonBattleTest(utils_testcase.TestCase):
         self.assertEqual(self.hero.max_bag_size, c.MAX_BAG_SIZE + 2)
 
     def test_diplomatic(self):
-        old_power_modifier = self.hero.politics_power_multiplier()
-
-        self.hero.abilities.add(heroes_abilities_nonbattle.DIPLOMATIC.get_id())
-
-        self.assertTrue(old_power_modifier < self.hero.politics_power_multiplier())
+        with self.check_increased(self.hero.politic_power_bonus):
+            self.hero.abilities.add(heroes_abilities_nonbattle.DIPLOMATIC.get_id())
 
     def test_open_minded(self):
         with self.check_increased(lambda: self.hero.habits_increase_modifier):

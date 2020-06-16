@@ -31,7 +31,7 @@ class JobTest(utils_testcase.TestCase):
 
     def test_can_be_completed_at_turn(self):
         self.assertEqual(self.job.can_be_completed_at_turn(),
-                         int(self.job.created_at_turn + c.NORMAL_JOB_LENGTH * 24 * c.TURNS_IN_HOUR))
+                         int(self.job.created_at_turn + c.JOB_MIN_LENGTH * 24 * c.TURNS_IN_HOUR))
 
     def test_is_completed__after_minimum_time(self):
 

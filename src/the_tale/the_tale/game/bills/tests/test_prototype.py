@@ -167,9 +167,7 @@ class TestPrototypeApply(helpers.BaseTestPrototypes):
         self.assertEqual(forum_models.Post.objects.all().count(), 1)
 
         with self.check_not_changed(lambda: self.place1.attrs.stability):
-            with self.check_not_changed(lambda: accounts_prototypes.AccountPrototype.get_by_id(self.bill.owner.id).actual_bills):
-                with self.check_not_changed(lambda: self.bill.owner.actual_bills):
-                    self.assertFalse(self.bill.apply())
+            self.assertFalse(self.bill.apply())
 
             self.assertTrue(self.bill.state.is_REJECTED)
 
@@ -218,12 +216,6 @@ class TestPrototypeApply(helpers.BaseTestPrototypes):
 
         with self.check_delta(forum_models.Post.objects.all().count, 1):
             self.assertTrue(self.bill.apply())
-
-            self.assertEqual(accounts_prototypes.AccountPrototype.get_by_id(self.bill.owner.id).actual_bills,
-                             [utils_logic.to_timestamp(self.bill.voting_end_at)])
-
-            self.assertEqual(self.bill.owner.actual_bills,
-                             [utils_logic.to_timestamp(self.bill.voting_end_at)])
 
             self.assertTrue(self.bill.state.is_ACCEPTED)
 

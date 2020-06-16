@@ -62,10 +62,6 @@ def days_from_game_months(months):
 
 
 class POWER_BONUS_CHANGES(rels_django.DjangoEnum):
-    bonus = rels.Column()
-
-    BONUS = c.HERO_POWER_PER_DAY * 4 * 4 * 4  # like 4-th grade power card
-
-    records = (('DOWN', 0, 'уменьшить на %d' % BONUS, -BONUS),
-               ('NOT_CHANGE', 1, 'не изменять', 0),
-               ('UP', 2, 'увеличить на %d' % BONUS, BONUS))
+    records = (('DOWN', 0, 'уменьшить'),
+               ('NOT_CHANGE', 1, 'не изменять'),
+               ('UP', 2, 'увеличить'))

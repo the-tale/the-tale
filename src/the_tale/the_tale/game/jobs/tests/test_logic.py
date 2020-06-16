@@ -56,6 +56,15 @@ class JobPowerTests(utils_testcase.TestCase):
         self.assertEqual(logic.job_power(2, [1, 2, 2]), c.JOB_MIN_POWER + delta * 2)
 
 
+class NormalJobPowerTests(utils_testcase.TestCase):
+
+    def test_normal_job_power(self):
+        self.assertEqual(logic.normal_job_power(1), 52344)
+        self.assertEqual(logic.normal_job_power(5), 261720)
+        self.assertEqual(logic.normal_job_power(7), 366408)
+        self.assertEqual(logic.normal_job_power(10), 523440)
+
+
 class CreateJobTests(utils_testcase.TestCase):
 
     def setUp(self):

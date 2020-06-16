@@ -143,24 +143,6 @@ class HeroTest(personal_messages_helpers.Mixin,
         with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
             self.assertFalse(self.hero.can_participate_in_pvp)
 
-    def test_can_change_person_power(self):
-        self.assertFalse(self.hero.can_change_person_power(self.place_1.persons[0]))
-
-    def test_can_change_person_power__premium(self):
-        self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        self.assertTrue(self.hero.can_change_person_power(self.place_1.persons[0]))
-
-    def test_can_change_person_power__depends_from_all_heroes(self):
-        with mock.patch('the_tale.game.places.objects.Place.depends_from_all_heroes', True):
-            self.assertTrue(self.hero.can_change_person_power(self.place_1.persons[0]))
-
-    def test_can_change_person_power__banned(self):
-        self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-
-        with mock.patch('the_tale.game.places.objects.Place.depends_from_all_heroes', True):
-            with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
-                self.assertFalse(self.hero.can_change_person_power(self.place_1.persons[0]))
-
     def test_can_change_place_power(self):
         self.assertFalse(self.hero.can_change_place_power(self.place_1))
 
@@ -177,7 +159,7 @@ class HeroTest(personal_messages_helpers.Mixin,
 
         with mock.patch('the_tale.game.places.objects.Place.depends_from_all_heroes', True):
             with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
-                self.assertFalse(self.hero.can_change_person_power(self.place_1.persons[0]))
+                self.assertFalse(self.hero.can_change_place_power(self.place_1))
 
     def test_reward_modifier__risk_level(self):
         self.assertEqual(self.hero.quest_money_reward_multiplier(), 1.0)
@@ -480,14 +462,6 @@ class HeroTest(personal_messages_helpers.Mixin,
         for i in range(1000):
             self.hero.switch_spending()
             self.assertFalse(self.hero.next_spending.is_HEAL_COMPANION)
-
-    def test_actual_bills_number(self):
-        self.hero.actual_bills.append(time.time() - bills_conf.settings.BILL_ACTUAL_LIVE_TIME * 24 * 60 * 60)
-        self.hero.actual_bills.append(time.time() - bills_conf.settings.BILL_ACTUAL_LIVE_TIME * 24 * 60 * 60 + 1)
-        self.hero.actual_bills.append(time.time() - 1)
-        self.hero.actual_bills.append(time.time())
-
-        self.assertEqual(self.hero.actual_bills_number, 3)
 
     def test_clan_membership(self):
         self.assertTrue(self.hero.clan_membership().is_NOT_IN_CLAN)

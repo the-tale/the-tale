@@ -15,10 +15,6 @@ class FormulasTest(utils_testcase.TestCase):
         self.assertTrue(f.experience_for_quest(100) < f.experience_for_quest(1000) < f.experience_for_quest(10000))
         self.assertEqual(int(f.experience_for_quest__real(100)), 152)
 
-    def test_person_power_for_quest(self):
-        self.assertTrue(f.person_power_for_quest(100) < f.person_power_for_quest(1000) < f.person_power_for_quest(10000))
-        self.assertEqual(int(f.person_power_for_quest__real(100)), 181)
-
     def test_companions_defend_in_battle_probability(self):
         self.assertEqual(round(f.companions_defend_in_battle_probability(0), 5), 0.15)
         self.assertEqual(round(f.companions_defend_in_battle_probability(25), 5), 0.16875)

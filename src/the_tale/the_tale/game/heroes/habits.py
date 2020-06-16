@@ -43,12 +43,6 @@ class Honor(Habit):
             super(Honor, self).change(delta)
 
     def modify_attribute(self, modifier, value):
-        if modifier.is_POWER_TO_ENEMY and self._real_interval.is_LEFT_3:
-            return value + c.HONOR_POWER_BONUS_FRACTION
-
-        if modifier.is_POWER_TO_FRIEND and self._real_interval.is_RIGHT_3:
-            return value + c.HONOR_POWER_BONUS_FRACTION
-
         if modifier.is_QUEST_MARKERS and (self._real_interval.is_LEFT_1 or self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3):
             value[questgen_relations.OPTION_MARKERS.DISHONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER))
             return value

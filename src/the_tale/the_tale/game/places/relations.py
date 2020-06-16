@@ -54,13 +54,12 @@ class ATTRIBUTE(game_attributes.ATTRIBUTE):
                attributes.attr('TRANSPORT', 8, 'транспорт', verbose_units='%', formatter=attributes.percents_formatter,
                                description='Вклад города в развитие транспортной инфраструктуры в его окрестностях.'),
                attributes.attr('FREEDOM', 9, 'свобода', verbose_units='%', formatter=attributes.percents_formatter,
-                               description='Насколько активна политическая жизнь в городе (как сильно изменяется влияние Мастеров от действий героев).'),
+                               description='Насколько активна политическая жизнь в городе. Определяет бонус, которые будет добавлен к влиянию, принесённому героем городу или Мастеру в этом городе.'),
                attributes.attr('TAX', 10, 'пошлина', verbose_units='%', formatter=attributes.percents_formatter, order=3,
                                description='Размер пошлины, которую платят герои при посещении города (процент от наличности в кошельке героя).'),
                attributes.attr('STABILITY', 11, 'стабильность', order=0, verbose_units='%', formatter=attributes.percents_formatter,
                                description='Отражает текущую ситуацию в городе и влияет на многие его параметры. Уменьшается от изменений, происходящих в городе (например, при одобрении записи в Книге Судеб).'),
-               attributes.attr('STABILITY_RENEWING_SPEED', 12, 'восстановление стабильности', order=-1, verbose_units='% в час', formatter=attributes.percents_formatter,
-                               description='Скорость уменьшения штрафов к стабильности, вызванных созданием записей в Книге Судеб.'),
+
                attributes.attr('EXPERIENCE_BONUS', 13, 'бонус к опыту', verbose_units='%', formatter=attributes.percents_formatter,
                                description='Бонус к количеству опыта за задания, связанные с этим городом.'),
                attributes.attr('BUY_PRICE', 14, 'цена покупки предметов', verbose_units='%', formatter=attributes.percents_formatter,
@@ -74,7 +73,7 @@ class ATTRIBUTE(game_attributes.ATTRIBUTE):
                attributes.attr('COMPANION_REGEN_CHANCE', 21, 'лечение спутника', verbose_units='%', formatter=attributes.percents_formatter,
                                description='Шанс спутника подлечиться при входе в город.'),
                attributes.attr('POWER_ECONOMIC', 22, 'экономика', default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
-                               description='Влияет на скорость производства товаров в городе. Зависит от общей суммы влияния, поступившего в город, в результате выполнения героями заданий за определённый период времени (примерное количество недель: %d). Влияние от задания может быть отрицательным. Чем больше суммарное влияние по сравнению с другими городами, тем больше размер экономики. Расчитывается отдельно для городов Фронтира и центра.' % c.PLACE_POWER_HISTORY_WEEKS),
+                               description=f'Влияет на скорость производства товаров в городе. Зависит от общей суммы влияния, поступившего в город, в результате выполнения героями заданий за определённый период времени (примерное количество недель: {tt_politic_power_constants.POWER_HISTORY_WEEKS}). Влияние от задания может быть отрицательным. Чем больше суммарное влияние по сравнению с другими городами, тем больше размер экономики. Расчитывается отдельно для городов Фронтира и центра.'),
 
                # modifiers MUST be calculated before stability
                attributes.attr('MODIFIER_TRADE_CENTER', 23, 'специализация «Торговый центр»', order=-2, formatter=attributes.float_formatter,
@@ -105,7 +104,7 @@ class ATTRIBUTE(game_attributes.ATTRIBUTE):
                attributes.attr('AREA', 34, 'площадь владений', order=0, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
                                description='Площадь владений города. Чем больше у города владений, тем больше производство в нём. На Фронтире бонус к производству меньше.'),
                attributes.attr('MONEY_ECONOMIC', 35, 'торговля', default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
-                               description='Влияет на скорость производства товаров в городе. Зависит от общего количества потраченных и полученных героями денег в городе за определённый период времени (примерное количество недель: %d). Чем больше сумма по сравнению с другими городами, тем больше размер торговли. Расчитывается отдельно для городов Фронтира и центра.' % c.PLACE_POWER_HISTORY_WEEKS),
+                               description=f'Влияет на скорость производства товаров в городе. Зависит от общего количества потраченных и полученных героями денег в городе за определённый период времени (примерное количество недель: {c.PLACE_MONEY_HISTORY_WEEKS}). Чем больше сумма по сравнению с другими городами, тем больше размер торговли. Расчитывается отдельно для городов Фронтира и центра.'),
 
                attributes.attr('TASK_BOARD', 36, 'доска заданий',
                                default=set, serializer=list, deserializer=set, apply=game_attributes.set_applier,
@@ -144,7 +143,11 @@ class ATTRIBUTE(game_attributes.ATTRIBUTE):
                attributes.attr('CLAN_PROTECTOR', 45, 'гильдия-протектор', default=lambda: None,
                                apply=game_attributes.replace_applier, type=game_attributes.ATTRIBUTE_TYPE.REWRITABLE,
                                formatter=game_attributes.clan_formatter,
-                               description='Гильдия, протекторатом которого является город. Мероприятяи эмиссаров гильдии-протектора, проводимые в городе, получают дополнительные и/или усиленные эффекты.'))
+                               description='Гильдия, протекторатом которого является город. Мероприятяи эмиссаров гильдии-протектора, проводимые в городе, получают дополнительные и/или усиленные эффекты.'),
+
+               attributes.attr('POLITIC_POWER_BONUS', 46, 'бонус к влиянию',
+                               order=2, verbose_units='%', formatter=attributes.percents_formatter,
+                               description='Дополнительное влияние, если герой выполнил задание в пользу города. Все бонусы к влиянию суммируются и применяются как модификатор к влиянию от задания.'),)
 
 
 ATTRIBUTE.EFFECTS_ORDER = sorted(set(record.order for record in ATTRIBUTE.records))

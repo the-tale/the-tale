@@ -104,3 +104,14 @@ class PersonTests(utils_testcase.TestCase):
         place_attributes = set(effect.attribute for effect in self.person.place_effects())
 
         self.assertIn(places_relations.ATTRIBUTE.PRODUCTION, place_attributes)
+
+    def test_politic_power_bonus(self):
+        places_logic.create_building(self.person,
+                                     utg_name=game_names.generator().get_test_name(name='building-name'))
+
+        self.person.personality_practical = relations.PERSONALITY_PRACTICAL.INFLUENTIAL
+        self.person.refresh_attributes()
+
+        self.assertEqual(self.person.attrs.politic_power_bonus,
+                         tt_politic_power_constants.MODIFIER_PERSON_CHARACTER +
+                         tt_politic_power_constants.MODIFIER_PERSON_BUILDING)

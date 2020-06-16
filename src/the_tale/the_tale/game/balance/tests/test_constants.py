@@ -148,22 +148,6 @@ class ConstantsTest(utils_testcase.TestCase):
 
         self.assertEqual(c.QUESTS_PILGRIMAGE_FRACTION, 0.025)
 
-        self.assertEqual(c.HERO_FAME_PER_HELP, 1000)
-        self.assertEqual(c.HERO_POWER_PER_DAY, 100)
-        self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)
-        self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
-
-        self.assertEqual(c.MINIMUM_CARD_POWER, 100)
-        self.assertEqual(c.EXPECTED_HERO_QUEST_POWER_MODIFIER, 5)
-        self.assertEqual(c.CARD_BONUS_FOR_QUEST, 40)
-
-        self.assertEqual(c.NORMAL_JOB_LENGTH, 4)
-
-        self.assertEqual(c.JOB_MIN_POWER, 0.5)
-        self.assertEqual(c.JOB_MAX_POWER, 2.0)
-
-        self.assertEqual(c.JOB_NEGATIVE_POWER_MULTIPLIER, 2.0)
-
         self.assertEqual(c.PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER, 2)
 
         self.assertEqual(c.ABILITIES_ACTIVE_MAXIMUM, 5)
@@ -192,7 +176,6 @@ class ConstantsTest(utils_testcase.TestCase):
 
         self.assertEqual(c.HABIT_QUEST_PRIORITY_MODIFIER, 1)
 
-        self.assertEqual(c.HONOR_POWER_BONUS_FRACTION, 1.5)
         self.assertEqual(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE, 0.02)
 
         self.assertEqual(c.HABIT_QUEST_REWARD_MAX_BONUS, 1.0)
@@ -232,7 +215,6 @@ class ConstantsTest(utils_testcase.TestCase):
 
         self.assertEqual(c.PLACE_MIN_STABILITY, 0)
         self.assertEqual(c.PLACE_MIN_CULTURE, 0.2)
-        self.assertEqual(c.PLACE_MIN_FREEDOM, 0.1)
 
         self.assertEqual(c.PLACE_BASE_STABILITY, 1.0)
 
@@ -242,13 +224,10 @@ class ConstantsTest(utils_testcase.TestCase):
 
         self.assertEqual(c.PLACE_NEW_PLACE_LIVETIME, 2 * 7 * 24 * 60 * 60)
 
-        self.assertEqual(c.PLACE_POWER_HISTORY_WEEKS, 6)
-        self.assertEqual(c.PLACE_POWER_HISTORY_LENGTH, 362880)
-
-        self.assertEqual(c.PLACE_POWER_RECALCULATE_STEPS, 1008)
-        self.assertEqual(c.PLACE_POWER_REDUCE_FRACTION, 0.9954417990588478)
-
-        self.assertEqual(c.PLACE_FAME_REDUCE_FRACTION, 0.9954417990588478)
+        self.assertEqual(c.PLACE_MONEY_HISTORY_WEEKS, 6)
+        self.assertEqual(c.PLACE_MONEY_HISTORY_LENGTH, 362880)
+        self.assertEqual(c.PLACE_MONEY_RECALCULATE_STEPS, 1008.0)
+        self.assertEqual(c.PLACE_MONEY_REDUCE_FRACTION, 0.9954417990588478)
         self.assertEqual(c.PLACE_MONEY_REDUCE_FRACTION, 0.9954417990588478)
 
         self.assertEqual(c.PLACE_TYPE_NECESSARY_BORDER, 75)
@@ -300,13 +279,6 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY, 10)
         self.assertEqual(c.PLACE_HABITS_EVENT_PROBABILITY, 0.025)
 
-        self.assertEqual(c.JOB_PRODUCTION_BONUS, 100)
-        self.assertAlmostEqual(c.JOB_SAFETY_BONUS, 0.025)
-        self.assertEqual(c.JOB_TRANSPORT_BONUS, 0.125)
-        self.assertEqual(c.JOB_FREEDOM_BONUS, 0.125)
-        self.assertAlmostEqual(c.JOB_STABILITY_BONUS, 0.1)
-        self.assertEqual(c.JOB_CULTURE_BONUS, 0.15)
-
         self.assertEqual(c.RESOURCE_EXCHANGE_COST_PER_CELL, 2)
 
         self.assertEqual(c.PLACE_STANDARD_EFFECT_LENGTH, 15)
@@ -319,11 +291,8 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME_IN_WEEKS, 2)
         self.assertEqual(c.PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME, 120960)
 
-        self.assertEqual(c.PERSON_SOCIAL_CONNECTIONS_POWER_BONUS, 0.1)
-
         self.assertEqual(c.BUILDING_POSITION_RADIUS, 2)
 
-        self.assertEqual(c.BUILDING_PERSON_POWER_BONUS, 0.5)
         self.assertEqual(c.BUILDING_TERRAIN_POWER_MULTIPLIER, 0.5)
 
         self.assertEqual(c.COMPANIONS_DEFENDS_IN_BATTLE, 1.5)
@@ -397,7 +366,28 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PLACE_MAX_BILLS_NUMBER, 3)
         self.assertEqual(c.ACCOUNT_MAX_ACTIVE_BILLS, 4)
 
+        self.assertEqual(c.HERO_FAME_PER_HELP, 1000)
+
+        self.assertEqual(c.PLACE_FAME_HISTORY_WEEKS, 6)
+        self.assertEqual(c.PLACE_FAME_HISTORY_LENGTH, 362880)
+        self.assertEqual(c.PLACE_FAME_RECALCULATE_STEPS, 1008)
+        self.assertEqual(c.PLACE_FAME_REDUCE_FRACTION, 0.9954417990588478)
+
         self.assertEqual(c.BILLS_FAME_BORDER, 1000)
+
+        self.assertEqual(c.JOB_MIN_LENGTH, 4)
+
+        self.assertEqual(c.JOB_MIN_POWER, 0.5)
+        self.assertEqual(c.JOB_MAX_POWER, 2.0)
+
+        self.assertEqual(c.JOB_NEGATIVE_POWER_MULTIPLIER, 2.0)
+
+        self.assertEqual(c.JOB_PRODUCTION_BONUS, 100)
+        self.assertAlmostEqual(c.JOB_SAFETY_BONUS, 0.025)
+        self.assertEqual(c.JOB_TRANSPORT_BONUS, 0.125)
+        self.assertEqual(c.JOB_FREEDOM_BONUS, 0.125)
+        self.assertAlmostEqual(c.JOB_STABILITY_BONUS, 0.1)
+        self.assertEqual(c.JOB_CULTURE_BONUS, 0.15)
 
     def test_dedication_maximum_multiplier(self):
         multiplier = ((1 + c.COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA) *

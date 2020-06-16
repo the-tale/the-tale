@@ -104,6 +104,8 @@ class Worker(utils_workers.BaseWorker):
 
     def register_account(self, account_id, check_removed_state=True):
 
+        self.logger.info('register account %s', account_id)
+
         if check_removed_state and accounts_models.Account.objects.filter(id=account_id).exclude(removed_at=None).exists():
             self.logger.info('skip registration of account %s due it is removed', account_id)
             # TODO: possible memmory leak

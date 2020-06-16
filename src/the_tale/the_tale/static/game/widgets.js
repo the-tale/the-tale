@@ -516,15 +516,17 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
     var data = {};
 
     function RenderQuests() {
-        pgf.base.HideTooltips(widget, 'pgf-actor-tooltip');
+        pgf.base.HideTooltips();
 
         if (data.quests.length == 0) {
             pgf.game.widgets._RenderQuest(0, [], currentQuest);
-            return;
+        }
+        else {
+            var quest = data.quests.quests[data.quests.quests.length - 1];
+            pgf.game.widgets._RenderQuest(0, quest.line[quest.line.length-1], currentQuest);
         }
 
-        var quest = data.quests.quests[data.quests.quests.length - 1];
-        pgf.game.widgets._RenderQuest(0, quest.line[quest.line.length-1], currentQuest);
+        jQuery('[rel="tooltip"]', widget).tooltip(pgf.base.tooltipsArgs);
     }
 
     function RenderChoiceVariant(index, variant, element) {
@@ -635,6 +637,7 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
     function RenderQuests() {
         pgf.base.HideTooltips(widget, 'pgf-actor-tooltip');
         pgf.base.RenderTemplateList(questsContainer, data.quests.quests, RenderQuestsLine, {});
+        jQuery('[rel="tooltip"]', questsContainer).tooltip(pgf.base.tooltipsArgs);
     }
 
     this.Refresh = function(game_data) {

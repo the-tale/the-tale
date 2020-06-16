@@ -4,8 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount, fame):
-    amount = round(amount * place.attrs.freedom)
+def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount: int, fame: int):
 
     impact_types = [game_tt_services.IMPACT_TYPE.OUTER_CIRCLE]
 
@@ -33,18 +32,18 @@ def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount, fame):
 
 
 def impacts_from_hero(hero, place, power, inner_circle_places, impacts_generator=tt_power_impacts):
-    place_power = 0
-
     can_change_power = hero.can_change_place_power(place)
 
-    place_power = hero.modify_politics_power(power, place=place)
+    place_power = politic_power_logic.final_politic_power(power=power,
+                                                          place=place,
+                                                          hero=hero)
 
     yield from impacts_generator(inner_circle=hero.preferences.place_is_hometown(place) or (place.id in inner_circle_places),
                                  actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                  actor_id=hero.id,
                                  place=place,
                                  amount=place_power if can_change_power else 0,
-                                 fame=c.HERO_FAME_PER_HELP if 0 < place_power else 0)
+                                 fame=c.HERO_FAME_PER_HELP if 0 < power else 0)
 
 
 def load_place(place_id=None, place_model=None):

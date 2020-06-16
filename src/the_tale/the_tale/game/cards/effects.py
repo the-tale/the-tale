@@ -129,21 +129,23 @@ class AddCompanionExpirence(ModificatorBase):
         return task.logic_result()
 
 
-class AddPoliticPower(ModificatorBase):
+class AddPoliticPower(InvertModificatorBase):
     __slots__ = ()
 
     @property
     def DESCRIPTION(self):
-        return 'Увеличивает влияние текущего задания, на {power} базовых единиц. Итоговый бонус зависит от влиятельности героя. Можно использовать только одну карту на задание.'.format(power=self.modificator)
+        return 'Увеличивает влияние текущего задания, на {power} базовых единиц. Итоговый бонус зависит от влиятельности героя. Можно использовать только одну карту на задание.'.format(power=self.upper_modificator)
 
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
         if not task.hero.quests.has_quests:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='У героя нет задания.')
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='У героя нет задания.')
 
         if task.hero.quests.current_quest.current_info.power_bonus != 0:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Вы уже добавили влияние для текущего задания.')
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Вы уже добавили влияние для текущего задания.')
 
-        task.hero.quests.current_quest.current_info.power_bonus += self.modificator
+        task.hero.quests.current_quest.current_info.power_bonus += self.upper_modificator
         task.hero.quests.mark_updated()
 
         return task.logic_result()
@@ -375,7 +377,7 @@ class ChangeItemOfExpenditure(BaseEffect):
 
     def allowed_items(self):
         return [item for item in heroes_relations.ITEMS_OF_EXPENDITURE.records
-                if not item.is_USELESS and not item.is_IMPACT]
+                if not item.is_USELESS]
 
     def create_card(self, type, available_for_auction, item=None, uid=None):
         if item is None:

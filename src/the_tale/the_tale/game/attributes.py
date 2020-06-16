@@ -61,8 +61,17 @@ def create_attributes_class(ATTRIBUTES):
                     continue
                 setattr(self, attribute.name.lower(), attribute.default())
 
+        def attribute_by_name(self, name):
+            return getattr(ATTRIBUTES, name)
+
         def attributes_by_name(self):
             return sorted(ATTRIBUTES.records, key=lambda x: x.text)
+
+        def effects_order(self):
+            return ATTRIBUTES.EFFECTS_ORDER
+
+        def sync(self):
+            pass
 
         def __eq__(self, other):
             return self.serialize() == other.serialize()
@@ -103,3 +112,39 @@ def clan_formatter(value):
     clan = clans_storage.infos[value]
 
     return f'[{clan.abbr}] {clan.name}'
+
+
+class AttributesMixin:
+
+    def effects_generator(self, order):
+        for effect in self._effects_generator():
+            if effect.attribute.order != order:
+                continue
+            yield effect
+
+    def effects_for_attribute(self, attribute):
+        for effect in self.effects_generator(attribute.order):
+            if effect.attribute == attribute:
+                yield effect
+
+    def tooltip_effects_for_attribute(self, attribute):
+        effects = [(effect.name, effect.value) for effect in self.effects_for_attribute(attribute)]
+        effects.sort(key=lambda x: x[1], reverse=True)
+        return effects
+
+    def attribute_ui_info(self, attribute_name):
+        attribute = self.attrs.attribute_by_name(attribute_name.upper())
+        return (attribute, getattr(self.attrs, attribute_name.lower()))
+
+    def all_effects(self):
+        for order in self.attrs.effects_order():
+            for effect in self.effects_generator(order):
+                yield effect
+
+    def refresh_attributes(self):
+        self.attrs.reset()
+
+        for effect in self.all_effects():
+            effect.apply_to(self.attrs)
+
+        self.attrs.sync()

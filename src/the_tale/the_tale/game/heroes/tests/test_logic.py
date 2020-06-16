@@ -308,7 +308,6 @@ class SyncHeroExternalData(clans_helpers.ClansTestsMixin,
         self.account._model.active_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         self.account._model.ban_game_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         self.account._model.might = 666
-        self.account._model.actual_bills = '[7]'
 
         self.account.save()
 
@@ -319,5 +318,4 @@ class SyncHeroExternalData(clans_helpers.ClansTestsMixin,
         self.assertEqual(self.hero.premium_state_end_at, self.account.premium_end_at)
         self.assertEqual(self.hero.ban_state_end_at, self.account.ban_game_end_at)
         self.assertEqual(self.hero.might, 666)
-        self.assertEqual(self.hero.actual_bills, [7])
         self.assertEqual(self.hero.clan_id, clan.id)

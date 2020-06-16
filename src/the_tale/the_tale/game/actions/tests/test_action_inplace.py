@@ -667,49 +667,6 @@ class InPlaceActionSpendMoneyTest(utils_testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_useless, money - self.hero.money)
         self.storage._test_save()
 
-    def test_impact(self):
-        game_tt_services.debug_clear_service()
-
-        while not self.hero.next_spending.is_IMPACT:
-            self.hero.switch_spending()
-
-        money = self.hero.spend_amount
-        self.hero.money = money
-
-        self.storage.process_turn()
-
-        impacts = politic_power_logic.get_last_power_impacts(limit=100)
-
-        self.assertTrue(len(impacts) == 0)
-
-        self.assertEqual(self.hero.money, 0)
-
-        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
-        self.assertEqual(self.hero.statistics.money_spend_for_impact, money - self.hero.money)
-        self.storage._test_save()
-
-    def test_impact__can_change_power(self):
-        game_tt_services.debug_clear_service()
-
-        while not self.hero.next_spending.is_IMPACT:
-            self.hero.switch_spending()
-
-        money = self.hero.spend_amount
-        self.hero.money = money
-
-        with mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True):
-            self.storage.process_turn()
-
-        impacts = politic_power_logic.get_last_power_impacts(limit=100)
-
-        self.assertTrue(len(impacts) == 2)
-
-        self.assertEqual(self.hero.money, 0)
-
-        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
-        self.assertEqual(self.hero.statistics.money_spend_for_impact, money - self.hero.money)
-        self.storage._test_save()
-
     def test_experience(self):
         while not self.hero.next_spending.is_EXPERIENCE:
             self.hero.switch_spending()
