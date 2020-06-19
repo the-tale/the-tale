@@ -43,7 +43,7 @@ class ACHIEVEMENT_TYPE(rels_django.DjangoEnum):
                ('POLITICS_VOTES_TOTAL', 9, 'Отданные голосов', ACHIEVEMENTS_SOURCE.ACCOUNT),
                ('POLITICS_VOTES_FOR', 10, 'Голоса, отданные «за»', ACHIEVEMENTS_SOURCE.ACCOUNT),
                ('POLITICS_VOTES_AGAINST', 11, 'Голоса, отданные «против»', ACHIEVEMENTS_SOURCE.ACCOUNT),
-               ('KEEPER_HELP_COUNT', 12, 'Помощь герою', ACHIEVEMENTS_SOURCE.GAME_OBJECT),
+               ('KEEPER_HELP_COUNT', 12, 'Помощь герою', ACHIEVEMENTS_SOURCE.NONE),
                ('KEEPER_MIGHT', 13, 'Могущество', ACHIEVEMENTS_SOURCE.ACCOUNT),
                ('HABITS_HONOR', 14, 'Черты: Честь', ACHIEVEMENTS_SOURCE.GAME_OBJECT),
                ('HABITS_PEACEFULNESS', 15, 'Черты: Миролюбие', ACHIEVEMENTS_SOURCE.GAME_OBJECT),

@@ -341,36 +341,23 @@ class PrototypeTests(PrototypeTestsBase,
     def test_give_energy_on_reward(self):
         self.complete_quest(positive_results=True)
 
-        time.sleep(0.1)
+        self.assertNotEqual(self.hero.last_religion_action_at_turn, 0)
 
-        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype.get_state_by_jump_pointer', lambda qp: self.quest.knowledge_base[self.quest.machine.pointer.state]):
+        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype.get_state_by_jump_pointer',
+                        lambda qp: self.quest.knowledge_base[self.quest.machine.pointer.state]):
             for person in persons_storage.persons.all():
-                person.attrs.on_profite_energy = 0
+                person.attrs.reset_religion_ceremony_timeout_on_reward = 0
 
-            with self.check_not_changed(lambda: game_tt_services.energy.cmd_balance(self.hero.account_id)):
-                self.quest.give_energy_on_reward()
-                time.sleep(0.1)
+            with self.check_not_changed(lambda: self.hero.last_religion_action_at_turn):
+                self.quest.reset_religion_ceremony_timeout_on_reward()
 
             for person in persons_storage.persons.all():
-                person.attrs.on_profite_energy = 1
+                person.attrs.reset_religion_ceremony_timeout_on_reward = 1
 
-            with self.check_increased(lambda: game_tt_services.energy.cmd_balance(self.hero.account_id)):
-                self.quest.give_energy_on_reward()
-                time.sleep(0.1)
+            with self.check_decreased(lambda: self.hero.last_religion_action_at_turn):
+                self.quest.reset_religion_ceremony_timeout_on_reward()
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_regenerate_energy', False)
-    def test_give_energy_on_reward__energy_regeneration_restricted(self):
-        self.complete_quest(positive_results=True)
-
-        time.sleep(0.1)
-
-        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype.get_state_by_jump_pointer', lambda qp: self.quest.knowledge_base[self.quest.machine.pointer.state]):
-            for person in persons_storage.persons.all():
-                person.attrs.on_profite_energy = 1
-
-            with self.check_not_changed(lambda: game_tt_services.energy.cmd_balance(self.hero.account_id)):
-                self.quest.give_energy_on_reward()
-                time.sleep(0.1)
+        self.assertEqual(self.hero.last_religion_action_at_turn, 0)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: True)
     @mock.patch('the_tale.game.balance.constants.ARTIFACT_POWER_DELTA', 0.0)

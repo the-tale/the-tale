@@ -99,10 +99,6 @@ KEYS = [('ACTION_INPLACE_DESCRIPTION', 80000, 'Описание', relations.LEXI
          'запись о характере города (Миролюбие: уровень 3)',
          [V.DATE, V.TIME, V.HERO, V.PLACE], None),
 
-        ('ACTION_INPLACE_INSTANT_ENERGY_REGEN', 80025, 'Журнал: Восстановление энергии в святом городе', relations.LEXICON_GROUP.ACTION_INPLACE,
-         'Игрок восстанавливает немного энергии, когда герой посещает город.',
-         [V.DATE, V.TIME, V.HERO, V.PLACE, V.ENERGY], 'hero#N +energy#EN'),
-
         ('ACTION_INPLACE_INSTANT_HEAL', 80026, 'Журнал: Лечение в курорте', relations.LEXICON_GROUP.ACTION_INPLACE,
          'Герой моментально излечивается благодаря типу города «Курорт».',
          [V.DATE, V.TIME, V.HERO, V.PLACE], None),

@@ -29,8 +29,6 @@ class ResurrectActionTest(utils_testcase.TestCase):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_resurrect.leader, True)
         self.assertEqual(self.action_resurrect.bundle_id, self.action_idl.bundle_id)
-        self.assertEqual(len(self.action_resurrect.HELP_CHOICES), 1)
-        self.assertTrue(list(self.action_resurrect.HELP_CHOICES)[0].is_RESURRECT)
         self.storage._test_save()
 
     def test_processed(self):
@@ -53,6 +51,27 @@ class ResurrectActionTest(utils_testcase.TestCase):
 
         self.storage._test_save()
 
+    def test_one_step(self):
+
+        with self.check_increased(lambda: self.action_resurrect.percents):
+            with self.check_not_changed(lambda: self.hero.is_alive):
+                self.storage.process_turn(continue_steps_if_needed=False)
+
+        self.storage._test_save()
+
+    def test_one_step__already_alive(self):
+
+        self.hero.resurrect()
+
+        self.storage.process_turn(continue_steps_if_needed=False)
+
+        self.assertEqual(self.action_resurrect.percents, 1.0)
+        self.assertEqual(self.action_resurrect.state, self.action_resurrect.STATE.PROCESSED)
+        self.assertEqual(self.hero.health, self.hero.max_health)
+        self.assertEqual(self.hero.is_alive, True)
+
+        self.storage._test_save()
+
     def test_full(self):
 
         while len(self.hero.actions.actions_list) != 1:
@@ -63,19 +82,6 @@ class ResurrectActionTest(utils_testcase.TestCase):
         self.assertTrue(self.action_idl.leader)
         self.assertEqual(self.hero.health, self.hero.max_health)
 
-        self.assertEqual(self.hero.is_alive, True)
-
-        self.storage._test_save()
-
-    def test_fast_resurrect(self):
-
-        self.action_resurrect.fast_resurrect()
-
-        self.storage.process_turn(continue_steps_if_needed=False)
-        self.assertEqual(len(self.hero.actions.actions_list), 1)
-        self.assertEqual(self.hero.actions.current_action, self.action_idl)
-
-        self.assertEqual(self.hero.health, self.hero.max_health)
         self.assertEqual(self.hero.is_alive, True)
 
         self.storage._test_save()

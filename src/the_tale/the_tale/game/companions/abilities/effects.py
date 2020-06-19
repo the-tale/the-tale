@@ -255,9 +255,9 @@ class CompanionExpPerHeal(MultiplierChecker):
     CHECK_MODIFIER = heroes_relations.MODIFIERS.COMPANION_EXP_PER_HEAL
 
 
-class DoubleEnergyRegeneration(Summand):
-    TYPE = relations.EFFECT.COMPANION_DOUBLE_ENERGY_REGENERATION
-    MODIFIER = heroes_relations.MODIFIERS.DOUBLE_ENERGY_REGENERATION
+class DoubleReligionProfit(Summand):
+    TYPE = relations.EFFECT.COMPANION_DOUBLE_RELIGION_PROFIT
+    MODIFIER = heroes_relations.MODIFIERS.DOUBLE_RELIGION_PROFIT
 
 
 class CompanionEatCorpses(MultiplierChecker):
@@ -337,8 +337,8 @@ class Huckster(Summand):
 
 
 class EtherealMagnet(Summand):
-    TYPE = relations.EFFECT.MIGHT_CRIT_CHANCE
-    MODIFIER = heroes_relations.MODIFIERS.MIGHT_CRIT_CHANCE
+    TYPE = relations.EFFECT.CHARACTER_QUEST_PRIORITY
+    MODIFIER = heroes_relations.MODIFIERS.CHARACTER_QUEST_PRIORITY
 
 
 class CompanionTeleport(Summand):
@@ -494,8 +494,8 @@ class ABILITIES(rels_django.DjangoEnum):
         ('WISE', 46, 'мудрый', 'спутник иногда делится мудростью с героем, давая тому немного опыта.', CompanionSayWisdom(0.5, 1.0), RARITY_BIGER, False, True),
         ('DIFFICULT', 47, 'сложный', 'ухаживая за спутником, герой может получить немного опыта', CompanionExpPerHeal(0.5, 1.0), RARITY_BIGER, False, True),
 
-        ('FAN', 48, 'поклонник', 'возносит хвалу Хранителю вместе с героем и с небольшой вероятностью даёт бонусную энергию', DoubleEnergyRegeneration(0.05, 0.1), RARITY_BIGER, False, True),
-        ('SAN', 49, 'сан', 'возносит хвалу Хранителю вместе с героем и с хорошей вероятностью даёт бонусную энергию', DoubleEnergyRegeneration(0.1, 0.2), RARITY_BIGEST, False, True),
+        ('FAN', 48, 'поклонник', 'возносит хвалу Хранителю вместе с героем и с небольшой вероятностью увеличивает эффект ритуала', DoubleReligionProfit(0.05, 0.1), RARITY_BIGER, False, True),
+        ('SAN', 49, 'сан', 'возносит хвалу Хранителю вместе с героем и с хорошей вероятностью увеличивает эффект ритуала', DoubleReligionProfit(0.1, 0.2), RARITY_BIGEST, False, True),
 
         ('EAT_CORPSES', 50, 'пожиратель', 'после боя иногда ест труп врага, пополняя себе здоровье. Не ест конструктов, нежить, демонов и стихийных существ.', CompanionEatCorpses(0.5, 1), RARITY_BIGER, False, True),
         ('REGENERATE', 51, 'регенерация', 'во время отдыха может восстановить своё здоровье', CompanionRegenerate(0.5, 1.0), RARITY_BIGER, False, True),
@@ -519,7 +519,7 @@ class ABILITIES(rels_django.DjangoEnum):
         # TODO: increase rarity?
         huckster('HUCKSTER', 64, 'торгаш', 'помогает герою торговаться, увеличивая цены продажи и уменьшая цены покупки', RARITY_BIG),
 
-        ('CONTACT', 65, 'связной', 'служит маяком для Хранителя и увеличивает шанс критической помощи', EtherealMagnet(0.05, 0.1), RARITY_BIGEST, False, True),
+        ('CONTACT', 65, 'связной', 'Помогает чётче мыслить и лучше ощущать Хранителя. Герой начинает чаще браться за задания, связанные с предпочтениями.', EtherealMagnet(0.2, 1.0), RARITY_BIGEST, False, True),
 
         ('TELEPORTATOR', 66, 'телепортатор', 'периодически переносит героя между городами или ключевыми точками задания', CompanionTeleport(0.05, 0.1), RARITY_BIGEST, False, True),
         ('FLYER', 67, 'ездовой летун', 'часто  переносит героя на небольшое расстояние по воздуху', CompanionFly(0.05, 0.1), RARITY_BIGEST, False, True),

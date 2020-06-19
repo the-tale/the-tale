@@ -45,7 +45,6 @@ class Command(utilities_base.Command):
                                                  'ARTIFACT_RARITY': artifacts_relations.RARITY,
                                                  'CARD_RARITY': cards_relations.RARITY,
                                                  'CARD': cards_types.CARD,
-                                                 'ABILITY_TYPE': abilities_relations.ABILITY_TYPE,
                                                  'SPRITES': map_relations.SPRITES,
                                                  'CELL_SIZE': map_conf.settings.CELL_SIZE,
                                                  'LINGUISTICS_FORMATTERS': LINGUISTICS_FORMATTERS,

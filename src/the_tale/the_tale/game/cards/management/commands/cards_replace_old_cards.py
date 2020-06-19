@@ -9,24 +9,11 @@ class FakeEffect(effects.BaseEffect):
 
 
 class ALL_CARDS(types.CARD):
-    records = (('MOST_COMMON_PLACES_UNCOMMON', 70, 'ошибка в архивах', types.FOR_ALL, types.UNCOMMON, FakeEffect(), []),
-               ('MOST_COMMON_PLACES_RARE', 71, 'фальшивые рекомендации', types.FOR_ALL, types.RARE, FakeEffect(), []),
-               ('MOST_COMMON_PLACES_EPIC', 72, 'застолье в Совете', types.FOR_ALL, types.EPIC, FakeEffect(), []),
-               ('MOST_COMMON_PLACES_LEGENDARY', 73, 'интриги', types.FOR_ALL, types.LEGENDARY, FakeEffect(), []),
-
-               ('ADD_PERSON_POWER_COMMON', 123, 'случай', types.FOR_PREMIUMS, types.COMMON, FakeEffect(), []),
-               ('ADD_PERSON_POWER_UNCOMMON', 124, 'происки судьбы', types.FOR_PREMIUMS, types.UNCOMMON, FakeEffect(), []),
-               ('ADD_PERSON_POWER_RARE', 125, 'неожиданное обстоятельство', types.FOR_PREMIUMS, types.RARE, FakeEffect(), []),
-               ('ADD_PERSON_POWER_EPIC', 126, 'афера', types.FOR_PREMIUMS, types.EPIC, FakeEffect(), []),
-               ('ADD_PERSON_POWER_LEGENDARY', 127, 'преступление века', types.FOR_PREMIUMS, types.LEGENDARY, FakeEffect(), []),
-
-               ('ADD_PLACE_POWER_COMMON', 128, 'странные деньки', types.FOR_PREMIUMS, types.COMMON, FakeEffect(), []),
-               ('ADD_PLACE_POWER_UNCOMMON', 129, 'происшествие', types.FOR_PREMIUMS, types.UNCOMMON, FakeEffect(), []),
-               ('ADD_PLACE_POWER_RARE', 130, 'судьбоносный день', types.FOR_PREMIUMS, types.RARE, FakeEffect(), []),
-               ('ADD_PLACE_POWER_EPIC', 131, 'экономический кризис', types.FOR_PREMIUMS, types.EPIC, FakeEffect(), []),
-               ('ADD_PLACE_POWER_LEGENDARY', 132, 'политический кризис', types.FOR_PREMIUMS, types.LEGENDARY, FakeEffect(), []),
-
-               ('LEVEL_UP', 1, 'озарение', types.FOR_ALL, types.LEGENDARY, FakeEffect(), []))
+    records = (('ADD_BONUS_ENERGY_COMMON', 5, 'капля энергии', types.FOR_ALL, types.COMMON, FakeEffect(), []),
+               ('ADD_BONUS_ENERGY_UNCOMMON', 6, 'чаша Силы', types.FOR_ALL, types.UNCOMMON, FakeEffect(), []),
+               ('ADD_BONUS_ENERGY_RARE', 7, 'магический вихрь', types.FOR_ALL, types.RARE, FakeEffect(), []),
+               ('ADD_BONUS_ENERGY_EPIC', 8, 'энергетический шторм', types.FOR_ALL, types.EPIC, FakeEffect(), []),
+               ('ADD_BONUS_ENERGY_LEGENDARY', 9, 'шквал Силы', types.FOR_ALL, types.LEGENDARY, FakeEffect(), []))
 
 
 def constructor(type, **kwargs):
@@ -40,25 +27,11 @@ def constructor(type, **kwargs):
 
 
 CONSTRUCTORS_MAP = {
-    '1': constructor(type=types.CARD.ADD_EXPERIENCE_LEGENDARY),
-
-    '70': constructor(type=types.CARD.ADD_POWER_UNCOMMON),
-    '71': constructor(type=types.CARD.QUEST_FOR_PLACE),
-    '72': constructor(type=types.CARD.QUEST_FOR_PERSON),
-    '73': constructor(type=types.CARD.ADD_POWER_LEGENDARY),
-
-    '123': constructor(type=types.CARD.QUEST_FOR_EMISSARY),
-    '124': constructor(type=types.CARD.ADD_POWER_UNCOMMON),
-    '125': constructor(type=types.CARD.QUEST_FOR_PLACE),
-    '126': constructor(type=types.CARD.QUEST_FOR_PERSON),
-    '127': constructor(type=types.CARD.ADD_POWER_LEGENDARY),
-
-    '128': constructor(type=types.CARD.QUEST_FOR_EMISSARY),
-    '129': constructor(type=types.CARD.ADD_POWER_UNCOMMON),
-    '130': constructor(type=types.CARD.QUEST_FOR_PLACE),
-    '131': constructor(type=types.CARD.QUEST_FOR_PERSON),
-    '132': constructor(type=types.CARD.ADD_POWER_LEGENDARY)
-    }
+    '5': constructor(type=types.CARD.REGENERATE),
+    '6': constructor(type=types.CARD.LONG_TELEPORT),
+    '7': constructor(type=types.CARD.HEAL_COMPANION_RARE),
+    '8': constructor(type=types.CARD.HEAL_COMPANION_EPIC),
+    '9': constructor(type=types.CARD.ADD_GOLD_LEGENDARY)}
 
 
 class DepreactedStorageClient(tt_services.StorageClient):

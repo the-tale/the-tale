@@ -19,6 +19,5 @@ class RATING_TYPE(rels_django.DjangoEnum):
                 'Для участия в рейтинге необходимо провести минимум %(min_pvp_battles)s боёв' % {'min_pvp_battles': heroes_conf.settings.MIN_PVP_BATTLES}, 'pvp_battles_1x1_victories'),
                ('REFERRALS_NUMBER', 'referrals_number', 'Последователи', '', 'referrals_number'),
                ('ACHIEVEMENTS_POINTS', 'achievements_points', 'Очки достижений', '', 'achievements_points'),
-               ('HELP_COUNT', 'help_count', 'Помощь герою', '', 'help_count'),
                ('POLITICS_POWER', 'politics_power', 'Влиятельность', 'Влияние, которое герой оказывает своими заданиями (участвуют только герои, влияющие на всех Мастеров)', 'politics_power'),
                )

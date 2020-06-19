@@ -57,7 +57,7 @@ class CreateHero(utils_testcase.TestCase):
 
         self.assertIn(hero.gender, (game_relations.GENDER.MALE,
                                     game_relations.GENDER.FEMALE))
-        self.assertEqual(hero.preferences.energy_regeneration_type, hero.race.energy_regeneration)
+        self.assertEqual(hero.preferences.religion_type, hero.race.religion_type)
         self.assertEqual(hero.habit_honor.raw_value, 0)
         self.assertEqual(hero.habit_peacefulness.raw_value, 0)
         self.assertTrue(hero.preferences.archetype.is_NEUTRAL)

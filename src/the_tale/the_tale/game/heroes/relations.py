@@ -32,7 +32,7 @@ class PREFERENCE_TYPE(rels_django.DjangoEnum):
                ('PLACE', 1, 'родной город', 'place', '_prepair_place', True),
                ('FRIEND', 2, 'соратник', 'friend', '_prepair_person', True),
                ('ENEMY', 3, 'противник', 'enemy', '_prepair_person', True),
-               ('ENERGY_REGENERATION_TYPE', 4, 'религиозность', 'energy_regeneration_type', '_prepair_energy_regeneration', False),
+               ('RELIGION_TYPE', 4, 'религиозность', 'religion_type', '_prepair_religion_type', False),
                ('EQUIPMENT_SLOT', 5, 'экипировка', 'equipment_slot', '_prepair_equipment_slot', True),
                ('RISK_LEVEL', 6, 'уровень риска', 'risk_level', '_prepair_risk_level', False),
                ('FAVORITE_ITEM', 7, 'любимая вещь', 'favorite_item', '_prepair_equipment_slot', True),
@@ -141,7 +141,6 @@ class MODIFIERS(rels_django.DjangoEnum):
                ('HEALTH', 1, 'здоровье', lambda: 1.0),
                ('DAMAGE', 2, 'урон', lambda: 1.0),
                ('SPEED', 3, 'скорость', lambda: 1.0),
-               ('MIGHT_CRIT_CHANCE', 4, 'шанс критического срабатвания способности Хранителя', lambda: 0.0),
                ('EXPERIENCE', 5, 'опыт', lambda: 1.0),
                ('MAX_BAG_SIZE', 6, 'максимальный размер рюкзака', lambda: 0),
                ('POWER', 7, 'влияние героя', lambda: 0.0),
@@ -166,7 +165,7 @@ class MODIFIERS(rels_django.DjangoEnum):
                ('REST_LENGTH', 31, 'длительность отдыха', lambda: 1.0),
                ('RESURRECT_LENGTH', 32, 'длительность воскрешения', lambda: 1.0),
                ('IDLE_LENGTH', 33, 'длительность бездействия', lambda: 1.0),
-               ('DOUBLE_ENERGY_REGENERATION', 35, 'вероятность восстановить в 2 раза больше энергии', lambda: 0),
+               ('DOUBLE_RELIGION_PROFIT', 35, 'вероятность увеличить эффект религиозных обрядов в 2 раза', lambda: 0),
                ('BONUS_ARTIFACT_POWER', 36, 'бонус к силе артефактов получаемых', lambda: power.Power(0, 0)),
                ('ADDITIONAL_ABILITIES', 37, 'дополнительные способности', lambda: []),
                ('FEAR', 39, 'монстры могу убежать в начале боя', lambda: 0),
@@ -225,46 +224,41 @@ class HABIT_CHANGE_SOURCE(rels_django.DjangoEnum):
     honor = rels.Column(unique=False)
     peacefulness = rels.Column(unique=False)
 
-    records = (('QUEST_HONORABLE', 0, 'выбор чести в задании игроком', questgen_relations.OPTION_MARKERS.HONORABLE, False, None, c.HABITS_QUEST_ACTIVE_DELTA, 0.0),
-               ('QUEST_DISHONORABLE', 1, 'выбор бесчестия в задании игроком', questgen_relations.OPTION_MARKERS.DISHONORABLE, False, None, -c.HABITS_QUEST_ACTIVE_DELTA, 0.0),
-               ('QUEST_AGGRESSIVE', 2, 'выборе агрессивности в задании игроком', questgen_relations.OPTION_MARKERS.AGGRESSIVE, False, None, 0.0, -c.HABITS_QUEST_ACTIVE_DELTA),
-               ('QUEST_UNAGGRESSIVE', 3, 'выбор миролюбия в задании игроком', questgen_relations.OPTION_MARKERS.UNAGGRESSIVE, False, None, 0.0, c.HABITS_QUEST_ACTIVE_DELTA),
+    records = (('QUEST_HONORABLE', 0, 'выбор чести в задании игроком', questgen_relations.OPTION_MARKERS.HONORABLE, False, None, c.HABITS_ACTIVE_DELTA, 0.0),
+               ('QUEST_DISHONORABLE', 1, 'выбор бесчестия в задании игроком', questgen_relations.OPTION_MARKERS.DISHONORABLE, False, None, -c.HABITS_ACTIVE_DELTA, 0.0),
+               ('QUEST_AGGRESSIVE', 2, 'выборе агрессивности в задании игроком', questgen_relations.OPTION_MARKERS.AGGRESSIVE, False, None, 0.0, -c.HABITS_ACTIVE_DELTA),
+               ('QUEST_UNAGGRESSIVE', 3, 'выбор миролюбия в задании игроком', questgen_relations.OPTION_MARKERS.UNAGGRESSIVE, False, None, 0.0, c.HABITS_ACTIVE_DELTA),
 
-               ('QUEST_HONORABLE_DEFAULT', 4, 'выбор чести в задании героем', questgen_relations.OPTION_MARKERS.HONORABLE, True, False, c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
-               ('QUEST_DISHONORABLE_DEFAULT', 5, 'выбор бесчестия в задании героем', questgen_relations.OPTION_MARKERS.DISHONORABLE, True, False, -c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
-               ('QUEST_AGGRESSIVE_DEFAULT', 6, 'выборе агрессивности в задании героем', questgen_relations.OPTION_MARKERS.AGGRESSIVE, True, False, 0.0, -c.HABITS_QUEST_PASSIVE_DELTA),
-               ('QUEST_UNAGGRESSIVE_DEFAULT', 7, 'выбор миролюбия в задании героем', questgen_relations.OPTION_MARKERS.UNAGGRESSIVE, True, False, 0.0, c.HABITS_QUEST_PASSIVE_DELTA),
+               ('QUEST_HONORABLE_DEFAULT', 4, 'выбор чести в задании героем', questgen_relations.OPTION_MARKERS.HONORABLE, True, False, c.HABITS_PASSIVE_DELTA, 0.0),
+               ('QUEST_DISHONORABLE_DEFAULT', 5, 'выбор бесчестия в задании героем', questgen_relations.OPTION_MARKERS.DISHONORABLE, True, False, -c.HABITS_PASSIVE_DELTA, 0.0),
+               ('QUEST_AGGRESSIVE_DEFAULT', 6, 'выборе агрессивности в задании героем', questgen_relations.OPTION_MARKERS.AGGRESSIVE, True, False, 0.0, -c.HABITS_PASSIVE_DELTA),
+               ('QUEST_UNAGGRESSIVE_DEFAULT', 7, 'выбор миролюбия в задании героем', questgen_relations.OPTION_MARKERS.UNAGGRESSIVE, True, False, 0.0, c.HABITS_PASSIVE_DELTA),
 
-               ('HELP_AGGRESSIVE', 8, 'помощь в бою', None, None, None, 0.0, -c.HABITS_HELP_ABILITY_DELTA),
-               ('HELP_UNAGGRESSIVE', 9, 'помощь вне боя', None, None, None, 0.0, c.HABITS_HELP_ABILITY_DELTA),
-               ('ARENA_SEND', 10, 'отправка на арену', None, None, None, 0.0, -c.HABITS_ARENA_ABILITY_DELTA),
-               ('ARENA_LEAVE', 11, 'покидание арены', None, None, None, 0.0, c.HABITS_ARENA_ABILITY_DELTA),
+               ('COMPANION_DISHONORABLE', 12, 'спутник склоняет к бесчестию', None, None, None, -c.HABITS_PASSIVE_DELTA, 0.0),
+               ('COMPANION_HONOR_NEUTRAL_1', 13, 'спутник склоняет к нейтральной чести 1', None, None, False, -c.HABITS_PASSIVE_DELTA, 0.0),
+               ('COMPANION_HONOR_NEUTRAL_2', 14, 'спутник склоняет к нейтральной чести 2', None, None, False, c.HABITS_PASSIVE_DELTA, 0.0),
+               ('COMPANION_HONORABLE', 15, 'спутнки склоняет к чести', None, None, None, c.HABITS_PASSIVE_DELTA, 0.0),
+               ('COMPANION_AGGRESSIVE', 16, 'спутнки склоняет к агрессивности', None, None, None, 0.0, -c.HABITS_PASSIVE_DELTA),
+               ('COMPANION_PEACEFULL_NEUTRAL_1', 17, 'спутник склоняет к нейтральной агрессивности 1', None, None, False, 0.0, -c.HABITS_PASSIVE_DELTA),
+               ('COMPANION_PEACEFULL_NEUTRAL_2', 18, 'спутник склоняет к нейтральной агрессивности 2', None, None, False, 0.0, c.HABITS_PASSIVE_DELTA),
+               ('COMPANION_PEACEFULL', 19, 'спутник склоняет к миролюбию', None, None, None, 0.0, c.HABITS_PASSIVE_DELTA),
 
-               ('COMPANION_DISHONORABLE', 12, 'спутник склоняет к бесчестию', None, None, None, -c.HABITS_HELP_ABILITY_DELTA, 0.0),
-               ('COMPANION_HONOR_NEUTRAL_1', 13, 'спутник склоняет к нейтральной чести 1', None, None, False, -c.HABITS_HELP_ABILITY_DELTA, 0.0),
-               ('COMPANION_HONOR_NEUTRAL_2', 14, 'спутник склоняет к нейтральной чести 2', None, None, False, c.HABITS_HELP_ABILITY_DELTA, 0.0),
-               ('COMPANION_HONORABLE', 15, 'спутнки склоняет к чести', None, None, None, c.HABITS_HELP_ABILITY_DELTA, 0.0),
-               ('COMPANION_AGGRESSIVE', 16, 'спутнки склоняет к агрессивности', None, None, None, 0.0, -c.HABITS_HELP_ABILITY_DELTA),
-               ('COMPANION_PEACEFULL_NEUTRAL_1', 17, 'спутник склоняет к нейтральной агрессивности 1', None, None, False, 0.0, -c.HABITS_HELP_ABILITY_DELTA),
-               ('COMPANION_PEACEFULL_NEUTRAL_2', 18, 'спутник склоняет к нейтральной агрессивности 2', None, None, False, 0.0, c.HABITS_HELP_ABILITY_DELTA),
-               ('COMPANION_PEACEFULL', 19, 'спутник склоняет к миролюбию', None, None, None, 0.0, c.HABITS_HELP_ABILITY_DELTA),
-
-               ('MASTER_QUEST_HONORABLE', 20, 'бонус от мастера к чести', questgen_relations.OPTION_MARKERS.HONORABLE, None, None, c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
-               ('MASTER_QUEST_DISHONORABLE', 21, 'бонус от мастера к бесчестью', questgen_relations.OPTION_MARKERS.DISHONORABLE, None, None, -c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
-               ('MASTER_QUEST_AGGRESSIVE', 22, 'бонус от мастера к аггресивности', questgen_relations.OPTION_MARKERS.AGGRESSIVE, None, None, 0.0, -c.HABITS_QUEST_PASSIVE_DELTA),
-               ('MASTER_QUEST_UNAGGRESSIVE', 23, 'бонус от мастера к миролюбию', questgen_relations.OPTION_MARKERS.UNAGGRESSIVE, None, None, 0.0, c.HABITS_QUEST_PASSIVE_DELTA))
+               ('MASTER_QUEST_HONORABLE', 20, 'бонус от мастера к чести', questgen_relations.OPTION_MARKERS.HONORABLE, None, None, c.HABITS_PASSIVE_DELTA, 0.0),
+               ('MASTER_QUEST_DISHONORABLE', 21, 'бонус от мастера к бесчестью', questgen_relations.OPTION_MARKERS.DISHONORABLE, None, None, -c.HABITS_PASSIVE_DELTA, 0.0),
+               ('MASTER_QUEST_AGGRESSIVE', 22, 'бонус от мастера к аггресивности', questgen_relations.OPTION_MARKERS.AGGRESSIVE, None, None, 0.0, -c.HABITS_PASSIVE_DELTA),
+               ('MASTER_QUEST_UNAGGRESSIVE', 23, 'бонус от мастера к миролюбию', questgen_relations.OPTION_MARKERS.UNAGGRESSIVE, None, None, 0.0, c.HABITS_PASSIVE_DELTA))
 
 
-class ENERGY_REGENERATION(rels_django.DjangoEnum):
+class RELIGION_TYPE(rels_django.DjangoEnum):
     delay = rels.Column(unique=False)
     period = rels.Column(unique=False)
     amount = rels.Column(unique=False)
     length = rels.Column(unique=False)
     linguistics_slugs = rels.Column()
 
-    _PERIOD = c.ANGEL_ENERGY_REGENERATION_PERIOD
-    _AMOUNT = c.ANGEL_ENERGY_REGENERATION_AMAUNT
-    _LENGTH = c.ANGEL_ENERGY_REGENERATION_LENGTH
+    _PERIOD = c.ACTION_RELIGION_PERIOD
+    _AMOUNT = c.ACTION_RELIGION_EXPERIENCE
+    _LENGTH = c.ACTION_RELIGION_TIME
 
     records = (('PRAY', 0, 'молитва', 1, 1 * _PERIOD, 1 * _AMOUNT, 1 * _LENGTH, ('pray', )),
                ('SACRIFICE', 1, 'жертвоприношение', 2, 2 * _PERIOD, 2 * _AMOUNT, 2 * _LENGTH, ('sacrifice_fire', 'sacrifice_blood', 'sacrifice_knife')),

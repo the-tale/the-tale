@@ -484,17 +484,17 @@ class CompanionExpPerHealTests(BaseEffectsTests):
                 self.apply_ability(ability)
 
 
-class DoubleEnergyRegenerationTests(BaseEffectsTests):
+class DoubleReligionProfitTests(BaseEffectsTests):
 
     def test_effect(self):
-        effect = effects.DoubleEnergyRegeneration(0.1)
-        self.assertEqual(effect._modify_attribute({}, MODIFIERS.DOUBLE_ENERGY_REGENERATION, 0), 0.1)
-        self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.DOUBLE_ENERGY_REGENERATION,)), 11), 11)
+        effect = effects.DoubleReligionProfit(0.1)
+        self.assertEqual(effect._modify_attribute({}, MODIFIERS.DOUBLE_RELIGION_PROFIT, 0), 0.1)
+        self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.DOUBLE_RELIGION_PROFIT,)), 11), 11)
 
     def test_in_game(self):
-        ability = self.get_ability(effects.DoubleEnergyRegeneration)
+        ability = self.get_ability(effects.DoubleReligionProfit)
 
-        with self.check_changed(lambda: self.hero.regenerate_double_energy_probability):
+        with self.check_changed(lambda: self.hero.double_religion_profit_probability):
             self.apply_ability(ability)
 
 
@@ -663,13 +663,13 @@ class EtherealMagnetTests(BaseEffectsTests):
 
     def test_effect(self):
         effect = effects.EtherealMagnet(0.1)
-        self.assertEqual(effect._modify_attribute({}, MODIFIERS.MIGHT_CRIT_CHANCE, 0), 0.1)
-        self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.MIGHT_CRIT_CHANCE,)), 11), 11)
+        self.assertEqual(effect._modify_attribute({}, MODIFIERS.CHARACTER_QUEST_PRIORITY, 0), 0.1)
+        self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.CHARACTER_QUEST_PRIORITY,)), 11), 11)
 
     def test_in_game(self):
         ability = self.get_ability(effects.EtherealMagnet)
 
-        with self.check_changed(lambda: self.hero.might_crit_chance):
+        with self.check_changed(lambda: self.hero.attribute_modifier(heroes_relations.MODIFIERS.CHARACTER_QUEST_PRIORITY)):
             self.apply_ability(ability)
 
 

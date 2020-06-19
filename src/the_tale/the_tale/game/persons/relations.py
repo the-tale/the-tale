@@ -134,7 +134,8 @@ class ATTRIBUTE(game_attributes.ATTRIBUTE):
                game_attributes.attr('STABILITY_BONUS', 10, 'бонус к стабильности в городе',
                                     verbose_units='%', formatter=game_attributes.percents_formatter),
                game_attributes.attr('BUILDING_SUPPORT_COST', 11, 'стоимость поддержи здания Мастера городом'),
-               game_attributes.attr('ON_PROFITE_ENERGY', 12, 'прибавка энергии Хранителя за задание, если Мастер получает выгоду'),
+               game_attributes.attr('RESET_RELIGION_CEREMONY_TIMEOUT_ON_REWARD', 12, 'обряд в честь Хранителя',
+                                    description='Вероятность провести обряд в честь Хранителя, если Мастер получает выгоду'),
                game_attributes.attr('JOB_POWER_BONUS', 13, 'бонус к эффекту проектов Мастера',
                                     verbose_units='%', formatter=game_attributes.percents_formatter),
                game_attributes.attr('JOB_GROUP_PRIORITY', 14, 'бонус к приоритету типов проектов Мастера',
@@ -226,8 +227,8 @@ class PERSONALITY_PRACTICAL(PERSONALITY):
                personality('ORDERLY', 8, 'аккуратный', 'BUILDING_SUPPORT_COST', -int(c.PLACE_GOODS_FOR_BUILDING_SUPPORT / 2),
                            'аккуратный', 'аккуратная', 'Бережливо относится к своему имуществу — уменьшает стоимость поддержки городом своего здания.'),
 
-               personality('DEVOUT', 9, 'набожный', 'ON_PROFITE_ENERGY', 4,
-                           'набожный', 'набожная', 'За каждое задание, в котором Мастер получил выгоду, возносит хвалу Хранителям героев, и те получают немного энергии.'),
+               personality('DEVOUT', 9, 'набожный', 'RESET_RELIGION_CEREMONY_TIMEOUT_ON_REWARD', 1.0,
+                           'набожный', 'набожная', 'Каждое задание, в котором Мастер получил выгоду, сподвигает героя скорее провести обряд в честь Хранителя.'),
 
                personality('HARDWORKING', 10, 'трудолюбивый', 'JOB_POWER_BONUS', 0.5,
                            'трудолюбивый', 'трудолюбивая', 'У проектов Мастера более сильный эффект.'),

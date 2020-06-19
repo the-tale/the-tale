@@ -164,55 +164,27 @@ class InPlaceActionTest(helpers.ActionEventsTestsMixin,
         self.assertFalse(any(message.key.is_ACTION_INPLACE_CLAN_COMPANIONS_SUPPORT for message in self.hero.journal.messages))
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
-    def test_instant_energy_regen_in_holy_city(self):
+    def test_reset_religion_action_cooldown(self):
         self.hero.position.previous_place_id = None
         self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
+        self.hero.last_religion_action_at_turn = 666
 
-        with self.check_delta(lambda: game_tt_services.energy.cmd_balance(self.hero.account_id),
-                              c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE):
-            prototypes.ActionInPlacePrototype.create(hero=self.hero)
-            time.sleep(0.1)
-
-        self.storage._test_save()
-
-    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_regenerate_energy', False)
-    def test_instant_energy_regen_in_holy_city__regen_disabled(self):
-        self.hero.position.previous_place_id = None
-        self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
-        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
-
-        with self.check_not_changed(lambda: game_tt_services.energy.cmd_balance(self.hero.account_id)):
-            prototypes.ActionInPlacePrototype.create(hero=self.hero)
-            time.sleep(0.1)
-
-        self.storage._test_save()
-
-    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
-    def test_instant_energy_regen_in_holy_city__no_regen(self):
-        self.hero.position.previous_place_id = None
-
-        self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.NONE)
-
-        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
-
-        with self.check_not_changed(lambda: game_tt_services.energy.cmd_balance(self.hero.account_id)):
+        with self.check_delta(lambda: self.hero.last_religion_action_at_turn, -666):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
-    def test_instant_energy_regen_in_holy_city__place_not_changed(self):
-
+    def test_reset_religion_action_cooldown__place_not_changed(self):
         self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
         self.hero.position.update_previous_place()
+        self.hero.last_religion_action_at_turn = 666
 
         self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_not_changed(lambda: game_tt_services.energy.cmd_balance(self.hero.account_id)):
-            with self.check_not_changed(lambda: len(self.hero.journal.messages)):
-                prototypes.ActionInPlacePrototype.create(hero=self.hero)
+        with self.check_not_changed(lambda: self.hero.last_religion_action_at_turn):
+            prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
 
@@ -329,17 +301,17 @@ class InPlaceActionTest(helpers.ActionEventsTestsMixin,
         self.assertEqual(self.hero.position.previous_place, self.hero.position.place)
         self.storage._test_save()
 
-    def test_regenerate_energy_action_create(self):
-        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.PRAY)
-        self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
+    def test_religion_ceremony_action_create(self):
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE, heroes_relations.RELIGION_TYPE.PRAY)
+        self.hero.last_religion_action_at_turn -= max(next(zip(*heroes_relations.RELIGION_TYPE.select('period'))))
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 3)
-        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionRegenerateEnergyPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionReligionCeremonyPrototype.TYPE)
         self.storage._test_save()
 
-    def test_regenerate_energy_action_not_create_for_sacrifice(self):
-        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.SACRIFICE)
-        self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
+    def test_religion_ceremony_action_not_create_for_sacrifice(self):
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE, heroes_relations.RELIGION_TYPE.SACRIFICE)
+        self.hero.last_religion_action_at_turn -= max(next(zip(*heroes_relations.RELIGION_TYPE.select('period'))))
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)

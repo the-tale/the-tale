@@ -89,7 +89,7 @@ class ModifiersTests(utils_testcase.TestCase):
         self.place_1.attrs.size = 10
         self.place_1.refresh_attributes()
 
-        with self.check_increased(lambda: self.place_1.attrs.energy_regen_chance):
+        with self.check_increased(lambda: self.place_1.attrs.reset_religion_ceremony_timeout_chance):
             with self.check_decreased(lambda: self.place_1.attrs.production):
                 with self.check_increased(lambda: self.place_1.attrs.transport):
                     with self.check_decreased(lambda: self.place_1.attrs.freedom):

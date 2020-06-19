@@ -68,16 +68,8 @@ class PowerImpact(tt_api_impacts.Impact):
                    transaction=transaction)
 
 
-class EnergyClient(tt_api_bank.Client):
-    pass
-
-
 class ImpactsClient(tt_api_impacts.Client):
     pass
-
-
-energy = EnergyClient(entry_point=conf.settings.TT_ENERGY_ENTRY_POINT,
-                      transaction_lifetime=conf.settings.ENERGY_TRANSACTION_LIFETIME)
 
 
 personal_impacts = ImpactsClient(entry_point=conf.settings.TT_IMPACTS_PERSONAL_ENTRY_POINT,

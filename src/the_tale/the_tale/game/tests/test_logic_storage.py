@@ -54,7 +54,7 @@ class LogicStorageTests(utils_testcase.TestCase):
         self.assertEqual(self.storage.bundles_to_accounts, {self.hero_1.actions.current_action.bundle_id: set([self.account_1.id]),
                                                             self.hero_2.actions.current_action.bundle_id: set([self.account_2.id])})
 
-        action_regenerate = actions_prototypes.ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
+        action_regenerate = actions_prototypes.ActionReligionCeremonyPrototype.create(hero=self.hero_1)
 
         self.assertEqual(self.action_idl_1.storage, self.storage)
         self.assertEqual(action_regenerate.storage, self.storage)
@@ -108,7 +108,7 @@ class LogicStorageTests(utils_testcase.TestCase):
 
     def test_action_release_account_data(self):
 
-        actions_prototypes.ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
+        actions_prototypes.ActionReligionCeremonyPrototype.create(hero=self.hero_1)
 
         self.storage.skipped_heroes.add(self.hero_1.id)
 
@@ -255,7 +255,7 @@ class LogicStorageTests(utils_testcase.TestCase):
         self.assertNotEqual(self.storage.current_cache, old_cache)
 
     def test_process_turn_single_hero__runned_outside_storage(self):
-        action_1 = actions_prototypes.ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
+        action_1 = actions_prototypes.ActionReligionCeremonyPrototype.create(hero=self.hero_1)
         action_1.state = action_1.STATE.PROCESSED
 
         action_2 = actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero_1,
@@ -282,7 +282,7 @@ class LogicStorageTests(utils_testcase.TestCase):
         self.storage.process_turn()  # just nothing was broken
 
     def test_process_turn__process_action_chain(self):
-        action_1 = actions_prototypes.ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
+        action_1 = actions_prototypes.ActionReligionCeremonyPrototype.create(hero=self.hero_1)
         action_1.state = action_1.STATE.PROCESSED
 
         action_2 = actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero_1,
@@ -531,7 +531,7 @@ class LogicStorageTests(utils_testcase.TestCase):
         self.assertEqual(save_hero_data.call_args, mock.call(self.hero_2.id))
 
     def test_remove_action__from_middle(self):
-        actions_prototypes.ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
+        actions_prototypes.ActionReligionCeremonyPrototype.create(hero=self.hero_1)
         self.assertRaises(exceptions.RemoveActionFromMiddleError, self.storage.remove_action, self.action_idl_1)
 
     def test_remove_action__metaaction(self):

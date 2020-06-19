@@ -214,7 +214,7 @@ class RestTests(places_helpers.PlacesTestsMixin,
         self.emissary.traits = frozenset()
         self.emissary.refresh_attributes()
 
-        self.assertEqual(self.concrete_event.power_for_day_cost(self.emissary), 502)
+        self.assertEqual(self.concrete_event.power_for_day_cost(self.emissary), 511)
 
     def test_power_cost_modificator(self):
         self.assertCountEqual(self.concrete_event.TYPE.abilities,

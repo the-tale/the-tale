@@ -10,7 +10,8 @@ def remove(apps, schema_editor):
                                                                       240006,
                                                                       240007,
                                                                       80005,
-                                                                      80006)).delete()
+                                                                      80006,
+                                                                      80025)).delete()
 
 
 class Migration(migrations.Migration):

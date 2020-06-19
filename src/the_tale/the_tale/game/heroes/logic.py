@@ -53,8 +53,6 @@ def hero_statistics_from_model(hero_model):
                                  artifacts_had=hero_model.stat_artifacts_had,
                                  loot_had=hero_model.stat_loot_had,
 
-                                 help_count=hero_model.stat_help_count,
-
                                  quests_done=hero_model.stat_quests_done,
 
                                  companions_count=hero_model.stat_companions_count,
@@ -106,7 +104,7 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         companion=companion,
                         journal=messages.JournalContainer(),  # we are not storing journal in database, since messages in it replaced very fast
                         quests=quests_container.QuestsContainer.deserialize(data.get('quests', {})),
-                        abilities=abilities.AbilitiesPrototype.deserialize(s11n.from_json(hero_model.abilities)),
+                        abilities=abilities.AbilitiesPrototype.deserialize(data.get('abilities')),
                         bag=bag.Bag.deserialize(data['bag']),
                         equipment=bag.Equipment.deserialize(data['equipment']),
                         created_at_turn=hero_model.created_at_turn,
@@ -117,7 +115,7 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         is_fast=hero_model.is_fast,
                         gender=hero_model.gender,
                         race=hero_model.race,
-                        last_energy_regeneration_at_turn=hero_model.last_energy_regeneration_at_turn,
+                        last_religion_action_at_turn=data.get('last_religion_action_at_turn', 0),
                         might=hero_model.might,
                         ui_caching_started_at=hero_model.ui_caching_started_at,
                         active_state_end_at=hero_model.active_state_end_at,
@@ -143,13 +141,14 @@ def save_hero(hero, new=False):
             'death_age': hero.death_age.value,
             'upbringing': hero.upbringing.value,
             'first_death': hero.first_death.value,
-            'position': hero.position.serialize()}
+            'position': hero.position.serialize(),
+            'abilities': hero.abilities.serialize(),
+            'last_religion_action_at_turn': hero.last_religion_action_at_turn}
 
     arguments = dict(saved_at_turn=game_turn.number(),
                      saved_at=datetime.datetime.now(),
                      clan_id=hero.clan_id,
                      data=data,
-                     abilities=s11n.to_json(hero.abilities.serialize()),
                      actions=s11n.to_json(hero.actions.serialize()),
                      raw_power_physic=hero.power.physic,
                      raw_power_magic=hero.power.magic,
@@ -181,8 +180,6 @@ def save_hero(hero, new=False):
                      stat_artifacts_had=hero.statistics.artifacts_had,
                      stat_loot_had=hero.statistics.loot_had,
 
-                     stat_help_count=hero.statistics.help_count,
-
                      stat_quests_done=hero.statistics.quests_done,
 
                      stat_companions_count=hero.statistics.companions_count,
@@ -207,7 +204,6 @@ def save_hero(hero, new=False):
                      is_fast=hero.is_fast,
                      gender=hero.gender,
                      race=hero.race,
-                     last_energy_regeneration_at_turn=hero.last_energy_regeneration_at_turn,
                      might=hero.might,
                      ui_caching_started_at=hero.ui_caching_started_at,
                      active_state_end_at=hero.active_state_end_at,
@@ -233,8 +229,8 @@ def dress_new_hero(hero):
 
 
 def preferences_for_new_hero(hero):
-    if hero.preferences.energy_regeneration_type is None:
-        hero.preferences.set(relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, hero.race.energy_regeneration)
+    if hero.preferences.religion_type is None:
+        hero.preferences.set(relations.PREFERENCE_TYPE.RELIGION_TYPE, hero.race.religion_type)
     if hero.preferences.risk_level is None:
         hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.NORMAL)
     if hero.preferences.archetype is None:
@@ -324,7 +320,7 @@ def create_hero(account_id, attributes):
                         is_alive=True,
                         gender=attributes['gender'],
                         race=attributes['race'],
-                        last_energy_regeneration_at_turn=game_turn.number(),
+                        last_religion_action_at_turn=game_turn.number(),
                         might=attributes['might'],
                         ui_caching_started_at=datetime.datetime.now(),
                         active_state_end_at=attributes['active_state_end_at'],
@@ -344,7 +340,7 @@ def create_hero(account_id, attributes):
     save_hero(hero, new=True)
 
     models.HeroPreferences.create(hero,
-                                  energy_regeneration_type=hero.preferences.energy_regeneration_type,
+                                  religion_type=hero.preferences.religion_type,
                                   risk_level=relations.RISK_LEVEL.NORMAL,
                                   archetype=attributes['archetype'],
                                   companion_dedication=relations.COMPANION_DEDICATION.NORMAL,

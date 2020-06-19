@@ -48,9 +48,6 @@ def get_api_types():
             TypeReference('actor_types', 'Задания: типы актёров', quests_relations.ACTOR_TYPE),
             TypeReference('buildings_types', 'Здания: типы', places_relations.BUILDING_TYPE),
 
-            TypeReference('ability_type', 'Игрок: тип способности', abilities_relations.ABILITY_TYPE,
-                          fields=(('значение', 'value'), ('описание', 'text'), ('атрибуты запроса', 'request_attributes'))),
-
             TypeReference('gender', 'Общее: пол', game_relations.GENDER),
             TypeReference('race', 'Общее: раса', game_relations.RACE),
             TypeReference('habits', 'Общее: черты', game_relations.HABIT_TYPE,

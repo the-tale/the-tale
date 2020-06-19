@@ -565,21 +565,10 @@ class QuestPrototype(object):
 
         return scale
 
-    def give_energy_on_reward(self):
-        if not self.hero.can_regenerate_energy:
-            return
-
-        energy = sum(person.attrs.on_profite_energy
-                     for person in self.positive_results_masters())
-
-        if energy == 0:
-            return
-
-        game_tt_services.energy.cmd_change_balance(account_id=self.hero.account_id,
-                                                   type='for_quest',
-                                                   amount=energy,
-                                                   asynchronous=True,
-                                                   autocommit=True)
+    def reset_religion_ceremony_timeout_on_reward(self):
+        if random.random() < sum(person.attrs.reset_religion_ceremony_timeout_on_reward
+                                 for person in self.positive_results_masters()):
+            self.hero.reset_religion_action_timeout()
 
     def _give_reward(self, hero, reward_type, scale):
 
@@ -588,9 +577,8 @@ class QuestPrototype(object):
         scale = quest_info.get_real_reward_scale(hero, scale)
         scale = self.modify_reward_scale(scale)
 
-        self.give_energy_on_reward()
+        self.reset_religion_ceremony_timeout_on_reward()
 
-        # hero receive artifact
         if hero.can_get_artifact_for_quest():
 
             level_delta = int(math.ceil(abs(scale)))

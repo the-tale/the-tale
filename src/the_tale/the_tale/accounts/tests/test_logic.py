@@ -107,22 +107,29 @@ class CardsForNewAccountTests(utils_testcase.TestCase):
                                                                          type=cards_types.CARD.CHANGE_ABILITIES_CHOICES),
             cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
                                                                   type=cards_types.CARD.CHANGE_PREFERENCE,
-                                                                  preference=heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
+                                                                  preference=heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE),
             cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
                                                                   type=cards_types.CARD.CHANGE_PREFERENCE,
-                                                                  preference=heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
+                                                                  preference=heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE),
             cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
                                                                   type=cards_types.CARD.CHANGE_PREFERENCE,
                                                                   preference=heroes_relations.PREFERENCE_TYPE.PLACE),
             cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
                                                                   type=cards_types.CARD.CHANGE_PREFERENCE,
-                                                                  preference=heroes_relations.PREFERENCE_TYPE.FRIEND),
-            cards_types.CARD.ADD_BONUS_ENERGY_RARE.effect.create_card(available_for_auction=False,
-                                                                      type=cards_types.CARD.ADD_BONUS_ENERGY_RARE)]
+                                                                  preference=heroes_relations.PREFERENCE_TYPE.FRIEND)]
+
+        for _ in range(2):
+            self.expected_cards.append(cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                                             type=cards_types.CARD.CHANGE_PREFERENCE,
+                                                                                             preference=heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE))
 
         for _ in range(5):
             self.expected_cards.append(cards_types.CARD.STOP_IDLENESS.effect.create_card(available_for_auction=False,
                                                                                          type=cards_types.CARD.STOP_IDLENESS))
+
+        for _ in range(10):
+            self.expected_cards.append(cards_types.CARD.STOP_IDLENESS.effect.create_card(available_for_auction=False,
+                                                                                         type=cards_types.CARD.REGENERATION))
 
     def test_change_and_load(self):
         cards = cards_tt_services.storage.cmd_get_items(self.account.id)

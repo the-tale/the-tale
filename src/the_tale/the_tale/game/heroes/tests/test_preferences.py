@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class HeroPreferencesEnergyRegenerationTypeTest(utils_testcase.TestCase):
-    PREFERENCE_TYPE = relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE
+    PREFERENCE_TYPE = relations.PREFERENCE_TYPE.RELIGION_TYPE
 
     def setUp(self):
         super(HeroPreferencesEnergyRegenerationTypeTest, self).setUp()
@@ -17,7 +17,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(utils_testcase.TestCase):
         self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero.preferences.set(relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, relations.ENERGY_REGENERATION.SACRIFICE)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.RELIGION_TYPE, relations.RELIGION_TYPE.SACRIFICE)
         logic.save_hero(self.hero)
 
     def test_preferences_serialization(self):
@@ -25,10 +25,10 @@ class HeroPreferencesEnergyRegenerationTypeTest(utils_testcase.TestCase):
         self.assertEqual(data, preferences.HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
-        self.hero.preferences.set(relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, relations.ENERGY_REGENERATION.PRAY)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.RELIGION_TYPE, relations.RELIGION_TYPE.PRAY)
         logic.save_hero(self.hero)
         self.hero = logic.load_hero(hero_id=self.hero.id)
-        self.assertEqual(self.hero.preferences.energy_regeneration_type, relations.ENERGY_REGENERATION.PRAY)
+        self.assertEqual(self.hero.preferences.religion_type, relations.RELIGION_TYPE.PRAY)
 
 
 class HeroPreferencesMobTest(utils_testcase.TestCase):

@@ -31,17 +31,13 @@
 
     - cron:
         name: soft currency rollback
+        state : absent
         cron_file: tt_soft_currency
-        minute: 0
-        user: tt_soft_currency
-        job: /home/tt_soft_currency/current/venv/bin/tt_bank_rollback_hanged_transactions -c /etc/tt_soft_currency/config.json
 
     - cron:
         name: soft currency rollback
+        state : absent
         cron_file: tt_soft_currency
-        minute: 0
-        user: tt_soft_currency
-        job: /home/tt_soft_currency/current/venv/bin/tt_bank_remove_old_transactions -c /etc/tt_soft_currency/config.json -t 86400
 
     - cron:
         name: clean personal messages

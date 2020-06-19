@@ -114,12 +114,15 @@ class LogicAccessorsMixin(object):
         slot, unequipped, equipped = self.get_equip_candidates()  # pylint: disable=W0612
         return equipped is not None
 
-    @property
-    def need_regenerate_energy(self):
-        return game_turn.number() > self.last_energy_regeneration_at_turn + self.preferences.energy_regeneration_type.period
+    def reset_religion_action_timeout(self):
+        self.last_religion_action_at_turn = 0
 
     @property
-    def can_regenerate_energy(self):
+    def need_religion_ceremony(self):
+        return game_turn.number() > self.last_religion_action_at_turn + self.preferences.religion_type.period
+
+    @property
+    def can_religion_ceremony(self):
         return tt_logic_checkers.is_player_participate_in_game(is_banned=self.is_banned,
                                                                active_end_at=self.active_state_end_at,
                                                                is_premium=self.is_premium)
@@ -235,8 +238,8 @@ class LogicAccessorsMixin(object):
         return random.uniform(0, 1) < c.ARTIFACT_FROM_PREFERED_SLOT_PROBABILITY
 
     @property
-    def can_regenerate_double_energy(self):
-        return random.uniform(0, 1) < self.regenerate_double_energy_probability
+    def can_receive_double_religiion_profit(self):
+        return random.uniform(0, 1) < self.double_religion_profit_probability
 
     def can_leave_battle_in_fear(self):
         return random.uniform(0, 1) < self.attribute_modifier(relations.MODIFIERS.FEAR)
@@ -334,8 +337,8 @@ class LogicAccessorsMixin(object):
         return self.attribute_modifier(relations.MODIFIERS.BONUS_ARTIFACT_POWER)
 
     @property
-    def regenerate_double_energy_probability(self):
-        return self.attribute_modifier(relations.MODIFIERS.DOUBLE_ENERGY_REGENERATION)
+    def double_religion_profit_probability(self):
+        return self.attribute_modifier(relations.MODIFIERS.DOUBLE_RELIGION_PROFIT)
 
     @property
     def rest_length(self):
@@ -355,9 +358,6 @@ class LogicAccessorsMixin(object):
 
     @property
     def might_pvp_effectiveness_bonus(self): return f.might_pvp_effectiveness_bonus(self.might)
-
-    @property
-    def might_crit_chance(self): return min(1, f.might_crit_chance(self.might) + self.attribute_modifier(relations.MODIFIERS.MIGHT_CRIT_CHANCE))
 
     @property
     def politics_power_might(self) -> int:
@@ -602,7 +602,7 @@ class LogicAccessorsMixin(object):
                         linguistics_restrictions.get(self.habit_peacefulness.interval),
 
                         linguistics_restrictions.get(self.preferences.archetype),
-                        linguistics_restrictions.get(self.preferences.energy_regeneration_type),
+                        linguistics_restrictions.get(self.preferences.religion_type),
                         linguistics_restrictions.get(self.preferences.companion_dedication),
                         linguistics_restrictions.get(self.preferences.companion_empathy),
 

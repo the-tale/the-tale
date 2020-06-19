@@ -20,7 +20,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  'is_fast',
                  'gender',
                  'race',
-                 'last_energy_regeneration_at_turn',
+                 'last_religion_action_at_turn',
                  'might',
                  'ui_caching_started_at',
                  'active_state_end_at',
@@ -92,7 +92,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  is_fast,
                  gender,
                  race,
-                 last_energy_regeneration_at_turn,
+                 last_religion_action_at_turn,
                  might,
                  ui_caching_started_at,
                  active_state_end_at,
@@ -163,7 +163,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         self.is_fast = is_fast
         self.gender = gender
         self.race = race
-        self.last_energy_regeneration_at_turn = last_energy_regeneration_at_turn
+        self.last_religion_action_at_turn = last_religion_action_at_turn
         self.might = might
         self.ui_caching_started_at = ui_caching_started_at
         self.active_state_end_at = active_state_end_at
@@ -443,8 +443,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
             if self.statistics.pvp_battles_1x1_number >= conf.settings.MIN_PVP_BATTLES:
                 return int(float(self.statistics.pvp_battles_1x1_victories) / self.statistics.pvp_battles_1x1_number * 100)
             return 0
-        elif achievement_type.is_KEEPER_HELP_COUNT:
-            return self.statistics.help_count
         elif achievement_type.is_HABITS_HONOR:
             return self.habit_honor.raw_value
         elif achievement_type.is_HABITS_PEACEFULNESS:
@@ -513,7 +511,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                     'bag': self.bag.ui_info(self),
                     'equipment': self.equipment.ui_info(self),
                     'might': {'value': self.might,
-                              'crit_chance': self.might_crit_chance,
                               'pvp_effectiveness_bonus': self.might_pvp_effectiveness_bonus,
                               'politics_power': self.politics_power_might},
                     'permissions': {'can_participate_in_pvp': self.can_participate_in_pvp,

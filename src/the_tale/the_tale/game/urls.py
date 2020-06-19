@@ -5,7 +5,6 @@ smart_imports.all()
 
 
 urlpatterns = [django_urls.url(r'^heroes/', django_urls.include(('the_tale.game.heroes.urls', 'heroes'))),
-               django_urls.url(r'^abilities/', django_urls.include(('the_tale.game.abilities.urls', 'abilities'))),
                django_urls.url(r'^map/', django_urls.include(('the_tale.game.map.urls', 'map'))),
                django_urls.url(r'^quests/', django_urls.include(('the_tale.game.quests.urls', 'quests'))),
                django_urls.url(r'^balance/', django_urls.include(('the_tale.game.balance.urls', 'balance'))),

@@ -87,11 +87,6 @@ def _form_game_account_info(turn_number, account, is_own, client_turns=None):
 
     data['is_old'] = (data['hero']['actual_on_turn'] < turn_number)
 
-    if is_own:
-        data['energy'] = game_tt_services.energy.cmd_balance(account.id)
-    else:
-        data['energy'] = None
-
     return data
 
 
@@ -317,6 +312,16 @@ def game_info_from_1_9_to_1_8(data):
 
     if data['enemy'] is not None:
         _game_info_from_1_9_to_1_8__heroes(data['enemy']['hero'])
+
+    return data
+
+
+def game_info_from_1_10_to_1_9(data):
+    if data['account'] is not None:
+        data['account']['energy'] = 0
+
+    if data['enemy'] is not None:
+        data['enemy']['energy'] = None
 
     return data
 

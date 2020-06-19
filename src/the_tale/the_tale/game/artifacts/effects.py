@@ -228,18 +228,18 @@ class DoubleEnergy(BaseEffect):
 
     @classmethod
     def modify_attribute(cls, type_, value):
-        return value + cls.MULTIPLIER if type_.is_DOUBLE_ENERGY_REGENERATION else value
+        return value + cls.MULTIPLIER if type_.is_DOUBLE_RELIGION_PROFIT else value
 
 
 class PeaceOfMind(DoubleEnergy):
     TYPE = relations.ARTIFACT_EFFECT.PEACE_OF_MIND
-    DESCRIPTION = 'Хранитель иногда получает в два раза больше энергии от героя'
+    DESCRIPTION = 'иногда увеличивает в два раза эффект ритуала в честь Хранителя'
     MULTIPLIER = 0.2
 
 
 class Concentration(DoubleEnergy):
     TYPE = relations.ARTIFACT_EFFECT.CONCENTRATION
-    DESCRIPTION = 'Хранитель в редких случаях получает в два раза больше энергии от героя'
+    DESCRIPTION = 'в редких случаях увеличивает в два раза эффект ритуала в честь Хранителя'
     MULTIPLIER = 0.05
 
 

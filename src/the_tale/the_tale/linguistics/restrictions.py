@@ -84,7 +84,7 @@ class GROUP(rels_django.DjangoEnum):
                ('CLAN_MEMBERSHIP', 55, 'членство в гильдии', heroes_relations.CLAN_MEMBERSHIP, True),
                ('PROTECTORAT_OWNERSHIP', 56, 'в своём протекторате', heroes_relations.PROTECTORAT_OWNERSHIP, True),
 
-               ('HERO_PREFERENCE_ENERGY_REGENERATION_TYPE', 57, 'религиозность', heroes_relations.ENERGY_REGENERATION, True),
+               ('HERO_PREFERENCE_RELIGION_TYPE', 57, 'религиозность', heroes_relations.RELIGION_TYPE, True),
                ('HERO_PREFERENCE_RISK_LEVEL', 58, 'уровень риска', heroes_relations.RISK_LEVEL, True),
                ('HERO_PREFERENCE_COMPANION_DEDICATION', 60, 'отношения со спутником', heroes_relations.COMPANION_DEDICATION, True),
                ('HERO_PREFERENCE_COMPANION_EMPATHY', 61, 'эмпатия', heroes_relations.COMPANION_EMPATHY, True))

@@ -151,37 +151,7 @@ pgf.game.constants.CARD_RARITY = {
     }};
 
 pgf.game.constants.CARD_TYPE = {
-        "5": {
-        "text": "капля энергии",
-        "rarity": 0,
-        "description": "Вы получаете 10 единиц энергии.",
-        "combiners": [
-                        "3 x «капля энергии» => «чаша Силы»"        ]
-    },    "6": {
-        "text": "чаша Силы",
-        "rarity": 1,
-        "description": "Вы получаете 35 единиц энергии.",
-        "combiners": [
-                        "3 x «чаша Силы» => «магический вихрь»"        ]
-    },    "7": {
-        "text": "магический вихрь",
-        "rarity": 2,
-        "description": "Вы получаете 120 единиц энергии.",
-        "combiners": [
-                        "3 x «магический вихрь» => «энергетический шторм»"        ]
-    },    "8": {
-        "text": "энергетический шторм",
-        "rarity": 3,
-        "description": "Вы получаете 420 единиц энергии.",
-        "combiners": [
-                        "3 x «энергетический шторм» => «шквал Силы»"        ]
-    },    "9": {
-        "text": "шквал Силы",
-        "rarity": 4,
-        "description": "Вы получаете 1500 единиц энергии.",
-        "combiners": [
-                    ]
-    },    "10": {
+        "10": {
         "text": "горсть монет",
         "rarity": 0,
         "description": "Герой получает 1000 монет.",
@@ -252,7 +222,7 @@ pgf.game.constants.CARD_TYPE = {
         "rarity": 0,
         "description": "Мгновенно убивает монстра, с которым сражается герой.",
         "combiners": [
-                    ]
+                        "2 x «длань Смерти» => 1 x «передышка»"        ]
     },    "53": {
         "text": "неразменная монета",
         "rarity": 0,
@@ -310,25 +280,25 @@ pgf.game.constants.CARD_TYPE = {
     },    "78": {
         "text": "новые обстоятельства",
         "rarity": 0,
-        "description": "Увеличивает влияние текущего задания, на 48.0 базовых единиц. Итоговый бонус зависит от влиятельности героя. Можно использовать только одну карту на задание.",
+        "description": "Увеличивает влияние текущего задания, на 48 базовых единиц. Итоговый бонус зависит от влиятельности героя. Можно использовать только одну карту на задание.",
         "combiners": [
                         "3 x «новые обстоятельства» => «специальная операция»"        ]
     },    "79": {
         "text": "специальная операция",
         "rarity": 1,
-        "description": "Увеличивает влияние текущего задания, на 171.42857142857142 базовых единиц. Итоговый бонус зависит от влиятельности героя. Можно использовать только одну карту на задание.",
+        "description": "Увеличивает влияние текущего задания, на 172 базовых единиц. Итоговый бонус зависит от влиятельности героя. Можно использовать только одну карту на задание.",
         "combiners": [
                         "3 x «специальная операция» => «слово Дабнглана»"        ]
     },    "80": {
         "text": "слово Дабнглана",
         "rarity": 2,
-        "description": "Увеличивает влияние текущего задания, на 600.0 базовых единиц. Итоговый бонус зависит от влиятельности героя. Можно использовать только одну карту на задание.",
+        "description": "Увеличивает влияние текущего задания, на 600 базовых единиц. Итоговый бонус зависит от влиятельности героя. Можно использовать только одну карту на задание.",
         "combiners": [
                         "3 x «слово Дабнглана» => «благословение Дабнглана»"        ]
     },    "81": {
         "text": "благословение Дабнглана",
         "rarity": 3,
-        "description": "Увеличивает влияние текущего задания, на 2057.1428571428573 базовых единиц. Итоговый бонус зависит от влиятельности героя. Можно использовать только одну карту на задание.",
+        "description": "Увеличивает влияние текущего задания, на 2058 базовых единиц. Итоговый бонус зависит от влиятельности героя. Можно использовать только одну карту на задание.",
         "combiners": [
                         "3 x «благословение Дабнглана» => «туз в рукаве»"        ]
     },    "82": {
@@ -436,7 +406,7 @@ pgf.game.constants.CARD_TYPE = {
     },    "107": {
         "text": "туз в рукаве",
         "rarity": 4,
-        "description": "Увеличивает влияние текущего задания, на 7200.0 базовых единиц. Итоговый бонус зависит от влиятельности героя. Можно использовать только одну карту на задание.",
+        "description": "Увеличивает влияние текущего задания, на 7200 базовых единиц. Итоговый бонус зависит от влиятельности героя. Можно использовать только одну карту на задание.",
         "combiners": [
                     ]
     },    "116": {
@@ -510,7 +480,7 @@ pgf.game.constants.CARD_TYPE = {
         "rarity": 0,
         "description": "Увеличивает опыт спутника на 10 единиц.",
         "combiners": [
-                        "3 x «наставление» => «совместная тренировка»"        ]
+                        "2 x «наставление» => 1 x «передышка»",            "3 x «наставление» => «совместная тренировка»"        ]
     },    "140": {
         "text": "совместная тренировка",
         "rarity": 1,
@@ -631,6 +601,12 @@ pgf.game.constants.CARD_TYPE = {
         "description": "Моментально выдаёт герою задание на помощь или вред Мастеру. Эффект указан в названии карты. Влияние засчитывается так, как если бы герой имел Мастера в предпочтении. Если герой выполняет задания, все они отменяются. Если герой сражается с монстром, тот будет убит. Карту нельзя использовать, когда герой сражается на Арене. Величина влияния за задание рассчитывается по общим правилам. Если эффект задания противоречит предпочтениям героя, предпочтения будут проигнорированы.",
         "combiners": [
                         "2 x одинаковых «личные дела» => «личные дела» с другим эффектом",            "1 x «личные дела» => 3 x «общественные дела»"        ]
+    },    "160": {
+        "text": "регенерация",
+        "rarity": 0,
+        "description": "Полностью восстанавливает здоровье героя. Воскрешает героя, если тот мёртв.",
+        "combiners": [
+                    ]
     }};
 
 pgf.game.constants.NO_EFFECT_ID = 666;
@@ -701,10 +677,10 @@ pgf.game.constants.EFFECTS = {
         "description": "Увеличение цены продажи предметов"
     },    "1015": {
         "name": "душевное равновесие",
-        "description": "Хранитель иногда получает в два раза больше энергии от героя"
+        "description": "иногда увеличивает в два раза эффект ритуала в честь Хранителя"
     },    "6": {
         "name": "концентрация",
-        "description": "Хранитель в редких случаях получает в два раза больше энергии от героя"
+        "description": "в редких случаях увеличивает в два раза эффект ритуала в честь Хранителя"
     },    "1016": {
         "name": "особая аура",
         "description": "Физическая и магическая сила всех артефактов, получаемых героем, увеличивается на 1"
@@ -770,17 +746,6 @@ pgf.game.constants.EFFECTS = {
         "description": "Это потерянный подарок ребёнка. Помогите герою, когда артефакт лежит в рюкзаке, и подарок вернётся к ребёнку."
     }};
 
-pgf.game.constants.abilities = {
-
-    
-    "help": {
-        "type": "help",
-        "name": "Помочь",
-        "description": "Попытаться помочь герою, чем бы тот не занимался",
-        "cost": 4
-    }
-};
-
 pgf.game.constants.linguistics_formatters = {
 
     
@@ -815,6 +780,42 @@ pgf.game.constants.linguistics_formatters = {
     "540010": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span>",
     
     "600003": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span>",
+    
+    "160005": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160006": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160007": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160008": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160024": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160025": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160009": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160026": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160027": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160010": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160011": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160012": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160013": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160028": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160029": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160014": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160030": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
+    
+    "160031": "<span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
     
     "580004": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span>",
     
@@ -872,8 +873,6 @@ pgf.game.constants.linguistics_formatters = {
     
     "80010": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span>",
     
-    "80025": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
     "80027": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span>",
     
     "80029": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span>",
@@ -885,28 +884,6 @@ pgf.game.constants.linguistics_formatters = {
     "80035": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span> <span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span>",
     
     "80037": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span>",
-    
-    "240008": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
-    "240009": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
-    "240010": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!mob!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
-    "240011": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!mob!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
-    "240012": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
-    "240013": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
-    "240014": "<span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
-    "240015": "<span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
-    "240016": "<span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
-    "240020": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
-    "240021": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
     
     "560021": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
     
@@ -940,42 +917,6 @@ pgf.game.constants.linguistics_formatters = {
     
     "280018": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!attacker!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!attacker_damage!♥</span> <span class='log-short log-short-name' rel='tooltip' title='актёр'>!defender!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span>",
     
-    "160005": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160006": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160007": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160008": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160024": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160025": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160009": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160026": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160027": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160010": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160011": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160012": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160013": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160028": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160029": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160014": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160030": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
-    "160031": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
     "4": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
     
     "11": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!actor!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span>",
@@ -993,6 +934,20 @@ pgf.game.constants.linguistics_formatters = {
     "460008": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
     
     "220001": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
+    
+    "240008": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span>",
+    
+    "240010": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!mob!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span>",
+    
+    "240012": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
+    
+    "240014": "",
+    
+    "240015": "",
+    
+    "240016": "",
+    
+    "240020": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span>",
     
     "400020": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
     

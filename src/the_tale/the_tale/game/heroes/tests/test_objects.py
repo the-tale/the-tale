@@ -39,7 +39,7 @@ class HeroTest(personal_messages_helpers.Mixin,
         self.assertTrue(self.hero.preferences.risk_level.is_NORMAL)
 
         self.assertEqual(models.HeroPreferences.objects.count(), 1)
-        self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).energy_regeneration_type, self.hero.preferences.energy_regeneration_type)
+        self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).religion_type, self.hero.preferences.religion_type)
         self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).risk_level, self.hero.preferences.risk_level)
 
     def test_helps_number_restriction(self):

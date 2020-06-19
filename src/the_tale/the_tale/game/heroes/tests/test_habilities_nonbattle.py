@@ -45,11 +45,6 @@ class HabilitiesNonBattleTest(utils_testcase.TestCase):
             with self.check_increased(lambda: self.hero.epic_artifact_probability_multiplier):
                 self.hero.abilities.add(heroes_abilities_nonbattle.PICKY.get_id())
 
-    def test_ethereal_magnet(self):
-        old_crit_chance = self.hero.might_crit_chance
-        self.hero.abilities.add(heroes_abilities_nonbattle.ETHEREAL_MAGNET.get_id())
-        self.assertTrue(self.hero.might_crit_chance > old_crit_chance)
-
     def test_wanderer(self):
         old_speed = self.hero.move_speed
         self.hero.abilities.add(heroes_abilities_nonbattle.WANDERER.get_id())

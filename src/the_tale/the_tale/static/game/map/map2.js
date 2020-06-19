@@ -290,12 +290,6 @@ pgf.game.map.Map = function(selector, params) {
                                                             [jQuery('.pgf-cell-building-button', dialog), 'building'],
                                                             [jQuery('.pgf-cell-map-button', dialog), 'map']]);
                                    jQuery('[rel="tooltip"]', dialog).tooltip(pgf.base.tooltipsArgs);
-
-                                   if (widgets.abilities) {
-                                       widgets.abilities.UpdateButtons();
-                                       jQuery('.angel-ability', dialog).toggleClass('pgf-hidden', false);
-                                   }
-
                                },
                                OnClosed: function(dialog) {
                                    pgf.base.HideTooltips(dialog);

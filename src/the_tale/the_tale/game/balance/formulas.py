@@ -153,13 +153,6 @@ def gold_in_path(lvl: int, path_length: float) -> int:
 #   -  общее влияние равно сумме влияний за месяц с коофициентом давности, т.е. влияние, полученное месяц назад, применяется с коофициентом 0 (не влияет)
 
 
-# могущество
-def might_crit_chance(might: float) -> float:
-    if might < 1:
-        return 0
-    return math.log(might, 10) / 10.0
-
-
 def might_pvp_effectiveness_bonus(might: float) -> float:
     if might < 1:
         return 0

@@ -93,13 +93,13 @@ class ChangePreference(utils_testcase.TestCase, helpers.CardsTestMixin):
 
         self.assertEqual(self.hero.preferences.enemy, None)
 
-    def test_energy_regeneration_type(self):
-        self.hero.preferences.set(preferences_type=heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE,
-                                  value=heroes_relations.ENERGY_REGENERATION.PRAY)
+    def test_religion_type(self):
+        self.hero.preferences.set(preferences_type=heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE,
+                                  value=heroes_relations.RELIGION_TYPE.PRAY)
 
-        self.use_card(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.SACRIFICE)
+        self.use_card(heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE, heroes_relations.RELIGION_TYPE.SACRIFICE)
 
-        self.assertTrue(self.hero.preferences.energy_regeneration_type.is_SACRIFICE)
+        self.assertTrue(self.hero.preferences.religion_type.is_SACRIFICE)
 
     def test_equipment_slot(self):
         slot = heroes_relations.EQUIPMENT_SLOT.random()

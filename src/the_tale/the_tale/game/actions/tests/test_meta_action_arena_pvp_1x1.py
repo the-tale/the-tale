@@ -69,10 +69,6 @@ class ArenaPvP1x1Test(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
 
         self.assertFalse(self.battle_info.meta_action.is_valid())
 
-    def test_no_help_choices(self):
-        self.assertEqual(self.battle_info.hero_1.actions.current_action.HELP_CHOICES, ())
-        self.assertEqual(self.battle_info.hero_2.actions.current_action.HELP_CHOICES, ())
-
     def test_restore_health_restore(self):
         account_1 = self.accounts_factory.create_account()
         account_2 = self.accounts_factory.create_account()

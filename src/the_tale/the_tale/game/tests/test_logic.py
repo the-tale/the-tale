@@ -225,8 +225,6 @@ class FormGameInfoTests(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
         self.assertFalse('pvp__actual' in data['enemy']['hero']['action']['data']['pvp'])
         self.assertFalse('pvp__last_turn' in data['enemy']['hero']['action']['data']['pvp'])
 
-        self.assertEqual(data['enemy']['energy'], None)
-
 
 class HighlevelStepTests(utils_testcase.TestCase):
 

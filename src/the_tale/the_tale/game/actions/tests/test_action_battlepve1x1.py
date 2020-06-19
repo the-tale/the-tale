@@ -243,33 +243,6 @@ class BattlePvE1x1ActionTest(utils_testcase.TestCase):
 
         self.assertEqual(self.action_battle.state, self.action_battle.STATE.PROCESSED)
 
-    def test_fast_resurrect__not_processed(self):
-        self.action_battle.hero.kill()
-        self.assertFalse(self.action_battle.fast_resurrect())
-        self.assertFalse(self.action_battle.hero.is_alive)
-
-    def test_fast_resurrect__hero_is_alive(self):
-        self.action_battle.state = self.action_battle.STATE.PROCESSED
-        self.assertFalse(self.action_battle.fast_resurrect())
-        self.assertTrue(self.action_battle.hero.is_alive)
-
-    def test_fast_resurrect__success(self):
-        self.action_battle.hero.kill()
-        self.action_battle.state = self.action_battle.STATE.PROCESSED
-        self.assertTrue(self.action_battle.fast_resurrect())
-        self.assertTrue(self.action_battle.hero.is_alive)
-
-    def test_help_choices(self):
-        self.assertTrue(abilities_relations.HELP_CHOICES.LIGHTING in self.action_battle.HELP_CHOICES)
-
-        self.action_battle.mob.health = 0
-        self.assertFalse(abilities_relations.HELP_CHOICES.LIGHTING in self.action_battle.HELP_CHOICES)
-
-        self.action_battle.mob.health = 1
-        self.action_battle.hero.kill()
-
-        self.assertEqual(self.action_battle.HELP_CHOICES, set((abilities_relations.HELP_CHOICES.RESURRECT,)))
-
     @mock.patch('the_tale.game.balance.constants.KILL_BEFORE_BATTLE_PROBABILITY', 1.01)
     @mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.LEFT_3)
     def test_kill_before_start(self):

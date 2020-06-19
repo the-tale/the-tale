@@ -44,13 +44,6 @@ class MoveSimpleTests(clans_helpers.ClansTestsMixin,
         self.assertEqual(self.action_move.break_at, None)
         self.assertEqual(self.action_move.percents, 0)
 
-    def test_help_choices__teleport(self):
-        self.action_move.state = self.action_move.STATE.BATTLE
-        self.assertNotIn(abilities_relations.HELP_CHOICES.TELEPORT, self.action_move.HELP_CHOICES)
-
-        self.action_move.state = self.action_move.STATE.MOVING
-        self.assertIn(abilities_relations.HELP_CHOICES.TELEPORT, self.action_move.HELP_CHOICES)
-
     def test_full_move(self):
         self.assertEqual(self.hero.position.place_id, self.place_1.id)
 
@@ -564,39 +557,39 @@ class MoveSimpleTests(clans_helpers.ClansTestsMixin,
 
         self.storage._test_save()
 
-    def test_regenerate_energy_on_move(self):
-        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.PRAY)
-        self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
+    def test_religion_ceremony_on_move(self):
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE, heroes_relations.RELIGION_TYPE.PRAY)
+        self.hero.last_religion_action_at_turn -= max(next(zip(*heroes_relations.RELIGION_TYPE.select('period'))))
 
         self.action_move.state = self.action_move.STATE.MOVING
 
         self.storage.process_turn(continue_steps_if_needed=False)
 
-        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionRegenerateEnergyPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionReligionCeremonyPrototype.TYPE)
 
         self.storage._test_save()
 
-    def test_not_regenerate_energy_on_move_for_sacrifice(self):
-        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.SACRIFICE)
-        self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
+    def test_not_religion_ceremony_on_move_for_sacrifice(self):
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE, heroes_relations.RELIGION_TYPE.SACRIFICE)
+        self.hero.last_religion_action_at_turn -= max(next(zip(*heroes_relations.RELIGION_TYPE.select('period'))))
 
         self.action_move.state = self.action_move.STATE.MOVING
 
         self.storage.process_turn(continue_steps_if_needed=False)
 
-        self.assertNotEqual(self.hero.actions.current_action.TYPE, prototypes.ActionRegenerateEnergyPrototype.TYPE)
+        self.assertNotEqual(self.hero.actions.current_action.TYPE, prototypes.ActionReligionCeremonyPrototype.TYPE)
 
         self.storage._test_save()
 
-    def test_regenerate_energy_after_battle_for_sacrifice(self):
-        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.SACRIFICE)
-        self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
+    def test_religion_ceremony_after_battle_for_sacrifice(self):
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE, heroes_relations.RELIGION_TYPE.SACRIFICE)
+        self.hero.last_religion_action_at_turn -= max(next(zip(*heroes_relations.RELIGION_TYPE.select('period'))))
 
         self.action_move.state = self.action_move.STATE.BATTLE
 
         self.storage.process_turn(continue_steps_if_needed=False)
 
-        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionRegenerateEnergyPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionReligionCeremonyPrototype.TYPE)
 
         self.storage._test_save()
 
@@ -759,7 +752,7 @@ class MoveSimpleNoDestinationTests(clans_helpers.ClansTestsMixin,
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_fly_probability', 1.0)
-    @mock.patch('the_tale.game.balance.constants.ANGEL_HELP_TELEPORT_DISTANCE', 0.5)
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_FLY_DISTANCE', 0.5)
     def test_teleport_by_flying_companion(self):
         companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))

@@ -8,7 +8,7 @@ class RatingValuesPrototype(utils_prototypes.BasePrototype):
     _model_class = models.RatingValues
     _readonly = ('id', 'account_id', 'might', 'bills_count', 'magic_power', 'physic_power', 'level',
                  'phrases_count', 'pvp_battles_1x1_number', 'pvp_battles_1x1_victories', 'referrals_number',
-                 'achievements_points', 'help_count', 'politics_power')
+                 'achievements_points', 'politics_power')
     _bidirectional = ()
     _get_by = ('account_id', )
 
@@ -24,7 +24,7 @@ class RatingValuesPrototype(utils_prototypes.BasePrototype):
         cursor = django_db.connection.cursor()
 
         sql_request = '''
-INSERT INTO %(ratings)s (account_id, might, bills_count, magic_power, physic_power, level, phrases_count, pvp_battles_1x1_number, pvp_battles_1x1_victories, referrals_number, achievements_points, help_count, politics_power)
+INSERT INTO %(ratings)s (account_id, might, bills_count, magic_power, physic_power, level, phrases_count, pvp_battles_1x1_number, pvp_battles_1x1_victories, referrals_number, achievements_points, politics_power)
 SELECT %(accounts)s.id AS account_id,
        %(heroes)s.might AS might,
        CASE WHEN raw_bills_count IS NULL THEN 0 ELSE raw_bills_count END AS bills_count,
@@ -36,7 +36,6 @@ SELECT %(accounts)s.id AS account_id,
        CASE WHEN %(heroes)s.stat_pvp_battles_1x1_number < %(min_pvp_battles)s THEN 0 ELSE CAST(%(heroes)s.stat_pvp_battles_1x1_victories AS FLOAT) / %(heroes)s.stat_pvp_battles_1x1_number END AS pvp_battles_1x1_victories,
        %(accounts)s.referrals_number as referrals_number,
        %(achievements)s.points as achievements_points,
-       %(heroes)s.stat_help_count as help_count,
        %(heroes)s.stat_politics_multiplier as politics_power
 FROM %(accounts)s
 JOIN %(heroes)s ON %(accounts)s.id=%(heroes)s.account_id
@@ -70,7 +69,7 @@ class RatingPlacesPrototype(utils_prototypes.BasePrototype):
     _model_class = models.RatingPlaces
     _readonly = ('id', 'account_id', 'might_place', 'bills_count_place', 'magic_power_place', 'physic_power_place', 'level_place',
                  'phrases_count_place', 'pvp_battles_1x1_number_place', 'pvp_battles_1x1_victories_place', 'referrals_number_place',
-                 'achievements_points_place', 'help_count_place', 'politics_power_place')
+                 'achievements_points_place', 'politics_power_place')
     _bidirectional = ()
     _get_by = ('account_id', )
 
@@ -86,7 +85,7 @@ class RatingPlacesPrototype(utils_prototypes.BasePrototype):
         cursor = django_db.connection.cursor()
 
         sql_request = '''
-INSERT INTO %(places)s (account_id, might_place, bills_count_place, magic_power_place, physic_power_place, level_place, phrases_count_place, pvp_battles_1x1_number_place, pvp_battles_1x1_victories_place, referrals_number_place, achievements_points_place, help_count_place, politics_power_place)
+INSERT INTO %(places)s (account_id, might_place, bills_count_place, magic_power_place, physic_power_place, level_place, phrases_count_place, pvp_battles_1x1_number_place, pvp_battles_1x1_victories_place, referrals_number_place, achievements_points_place, politics_power_place)
 SELECT might_table.account_id AS account_id,
        might_table.might_place AS might_place,
        bills_count_table.bills_count_place AS bills_count_place,
@@ -98,7 +97,6 @@ SELECT might_table.account_id AS account_id,
        pvp_battles_1x1_victories_table.pvp_battles_1x1_victories_place AS pvp_battles_1x1_victories_place,
        referrals_number_table.referrals_number_place AS referrals_number_place,
        achievements_points_place_table.achievements_points_place AS achievements_points_place,
-       help_count_table.help_count_place AS help_count_place,
        politics_power_table.politics_power_place AS politics_power_place
 FROM (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.might DESC, %(ratings)s.account_id) AS might_place FROM %(ratings)s) as might_table
 JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.bills_count DESC, %(ratings)s.account_id) AS bills_count_place FROM %(ratings)s) as bills_count_table
@@ -119,8 +117,6 @@ JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %
     ON might_table.account_id=referrals_number_table.account_id
 JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.achievements_points DESC, %(ratings)s.account_id) AS achievements_points_place FROM %(ratings)s) as achievements_points_place_table
     ON might_table.account_id=achievements_points_place_table.account_id
-JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.help_count DESC, %(ratings)s.account_id) AS help_count_place FROM %(ratings)s) as help_count_table
-    ON might_table.account_id=help_count_table.account_id
 JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.politics_power DESC, %(ratings)s.account_id) AS politics_power_place FROM %(ratings)s) as politics_power_table
     ON might_table.account_id=politics_power_table.account_id
 '''

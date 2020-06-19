@@ -137,7 +137,6 @@ def cell_info(context):
                                      'terrain_points': terrain_points,
                                      'hero': hero,
                                      'resource': context.resource,
-                                     'ABILITY_TYPE': abilities_relations.ABILITY_TYPE,
                                      'cells': storage.cells,
                                      'path_modifier': path_modifier,
                                      'path_modifier_effects': path_modifier_effects,

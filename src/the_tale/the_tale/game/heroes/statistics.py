@@ -31,8 +31,6 @@ class Statistics(object):
                  'artifacts_had',
                  'loot_had',
 
-                 'help_count',
-
                  'quests_done',
 
                  'companions_count',
@@ -68,8 +66,6 @@ class Statistics(object):
 
                  artifacts_had,
                  loot_had,
-
-                 help_count,
 
                  quests_done,
 
@@ -108,8 +104,6 @@ class Statistics(object):
         self.artifacts_had = artifacts_had
         self.loot_had = loot_had
 
-        self.help_count = help_count
-
         self.quests_done = quests_done
 
         self.companions_count = companions_count
@@ -146,8 +140,6 @@ class Statistics(object):
 
                    artifacts_had=0,
                    loot_had=0,
-
-                   help_count=0,
 
                    quests_done=0,
 
@@ -246,10 +238,6 @@ class Statistics(object):
 
     def change_loot_had(self, value): self.loot_had += value
 
-    def change_help_count(self, value):
-        with achievements_storage.achievements.verify(type=achievements_relations.ACHIEVEMENT_TYPE.KEEPER_HELP_COUNT, object=self.hero):
-            self.help_count += value
-
     def change_companions_count(self, value):
         self.companions_count += value
 
@@ -308,5 +296,4 @@ class Statistics(object):
                 self.artifacts_had == other.artifacts_had and
                 self.loot_had == other.loot_had and
                 self.quests_done == other.quests_done and
-                self.help_count == other.help_count and
                 self.companions_count == other.companions_count)

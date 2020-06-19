@@ -144,7 +144,7 @@ class VARIABLE_TYPE(rels_django.DjangoEnum):
                                                                                                                  linguistics_restrictions.GROUP.COMPANION_ABILITY,
 
                                                                                                                  linguistics_restrictions.GROUP.ARCHETYPE,
-                                                                                                                 linguistics_restrictions.GROUP.HERO_PREFERENCE_ENERGY_REGENERATION_TYPE,
+                                                                                                                 linguistics_restrictions.GROUP.HERO_PREFERENCE_RELIGION_TYPE,
                                                                                                                  linguistics_restrictions.GROUP.HERO_PREFERENCE_RISK_LEVEL,
                                                                                                                  linguistics_restrictions.GROUP.HERO_PREFERENCE_COMPANION_DEDICATION,
                                                                                                                  linguistics_restrictions.GROUP.HERO_PREFERENCE_COMPANION_EMPATHY,

@@ -1195,7 +1195,7 @@ class AddEmissariesExperienceTests(utils_testcase.TestCase,
 class ExpectedPowerPerDayTests(BaseEmissaryTests):
 
     def test(self):
-        self.assertEqual(logic.expected_power_per_day(), 1004)
+        self.assertEqual(logic.expected_power_per_day(), 1022)
 
 
 class RenameEmissaryTests(BaseEmissaryTests):

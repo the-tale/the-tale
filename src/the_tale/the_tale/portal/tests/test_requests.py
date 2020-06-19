@@ -43,25 +43,23 @@ class TestRequests(utils_testcase.TestCase):
         self.check_html_ok(self.request_html(utils_urls.url('portal:')), texts=[forum.thread_1.caption, forum.thread_2.caption, (forum.thread_3.caption, 0)])
 
     def test_info(self):
-        self.check_ajax_ok(self.request_json(utils_urls.url('portal:api-info', api_version='1.0', api_client=django_settings.API_CLIENT)),
+        self.check_ajax_ok(self.request_json(utils_urls.url('portal:api-info', api_version='1.1', api_client=django_settings.API_CLIENT)),
                            data={'static_content': django_settings.STATIC_URL,
                                  'game_version': django_settings.META_CONFIG.version,
                                  'turn_delta': c.TURN_DELTA,
                                  'account_id': None,
-                                 'account_name': None,
-                                 'abilities_cost': {ability_type.value: ability_type.cost for ability_type in abilities_relations.ABILITY_TYPE.records}})
+                                 'account_name': None})
 
     def test_info__logined(self):
         account = self.accounts_factory.create_account()
         self.request_login(account.email)
 
-        self.check_ajax_ok(self.request_json(utils_urls.url('portal:api-info', api_version='1.0', api_client=django_settings.API_CLIENT)),
+        self.check_ajax_ok(self.request_json(utils_urls.url('portal:api-info', api_version='1.1', api_client=django_settings.API_CLIENT)),
                            data={'static_content': django_settings.STATIC_URL,
                                  'game_version': django_settings.META_CONFIG.version,
                                  'turn_delta': c.TURN_DELTA,
                                  'account_id': account.id,
-                                 'account_name': account.nick,
-                                 'abilities_cost': {ability_type.value: ability_type.cost for ability_type in abilities_relations.ABILITY_TYPE.records}})
+                                 'account_name': account.nick})
 
 
 class IndexRequestTests(utils_testcase.TestCase):

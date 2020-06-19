@@ -4,8 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class RestActionTest(abilities_helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
-    PROCESSOR = abilities_deck.help.Help
+class RestActionTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(RestActionTest, self).setUp()
@@ -40,34 +39,6 @@ class RestActionTest(abilities_helpers.UseAbilityTaskMixin, utils_testcase.TestC
         self.assertEqual(self.hero.actions.current_action, self.action_rest)
         self.assertTrue(self.hero.health > 1)
         self.storage._test_save()
-
-    def test_ability_heal(self):
-
-        self.hero.health = 1
-
-        old_percents = self.action_rest.percents
-
-        ability = self.PROCESSOR()
-
-        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: abilities_relations.HELP_CHOICES.HEAL):
-            self.assertTrue(ability.use(**self.use_attributes(hero=self.hero, storage=self.storage)))
-
-        self.assertTrue(self.hero.health > 1)
-        self.assertTrue(old_percents < self.action_rest.percents)
-        self.assertEqual(self.hero.actions.current_action.percents, self.action_rest.percents)
-
-    def test_ability_heal__healed(self):
-
-        self.hero.health = self.hero.max_health - 1
-
-        ability = self.PROCESSOR()
-
-        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: abilities_relations.HELP_CHOICES.HEAL):
-            self.assertTrue(ability.use(**self.use_attributes(hero=self.hero, storage=self.storage)))
-
-        self.assertEqual(self.hero.health, self.hero.max_health)
-        self.assertTrue(self.action_rest.percents, 1)
-        self.assertEqual(self.action_rest.state, self.action_rest.STATE.PROCESSED)
 
     def test_full(self):
         self.hero.health = 1

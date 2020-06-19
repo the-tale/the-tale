@@ -140,8 +140,6 @@
                              {"prefix": "pvp_workers_", "module": "the_tale.game.pvp.workers"},
                              {"prefix": "pvp_", "module": "the_tale.game.pvp"},
                              {"prefix": "politic_power_", "module": "the_tale.game.politic_power"},
-                             {"prefix": "abilities_", "module": "the_tale.game.abilities"},
-                             {"prefix": "abilities_deck_", "module": "the_tale.game.abilities.deck"},
                              {"prefix": "lexicon_groups_", "module": "the_tale.linguistics.lexicon.groups"},
                              {"prefix": "lexicon_", "module": "the_tale.linguistics.lexicon"},
                              {"prefix": "forum_", "module": "the_tale.forum"},
@@ -183,7 +181,6 @@
 
                {"type": "rule_local_modules_from_namespace",
                 "map": {"the_tale.game.bills.bills": ["the_tale.game.bills"],
-                        "the_tale.game.abilities.deck": ["the_tale.game.abilities"],
                         "the_tale.game.map.generator": ["the_tale.game.map"],
                         "the_tale.statistics.metrics": ["the_tale.statistics"]}},
 

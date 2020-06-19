@@ -141,14 +141,18 @@ def preview(context):
     return utils_views.String(bbcode_renderers.default.render(context.django_request.POST.get('text', '')))
 
 
-@utils_api.Processor(versions=('1.0',))
+@utils_api.Processor(versions=('1.1', '1.0'))
 @resource('api', 'info', name='api-info')
 def api_info(context):
     cdn_paths = logic.cdn_paths()
 
-    return utils_views.AjaxOk(content={'static_content': cdn_paths['STATIC_CONTENT'],
-                                       'game_version': django_settings.META_CONFIG.version,
-                                       'turn_delta': c.TURN_DELTA,
-                                       'account_id': context.account.id if context.account.is_authenticated else None,
-                                       'account_name': context.account.nick if context.account.is_authenticated else None,
-                                       'abilities_cost': {ability_type.value: ability_type.cost for ability_type in abilities_relations.ABILITY_TYPE.records}})
+    data = {'static_content': cdn_paths['STATIC_CONTENT'],
+            'game_version': django_settings.META_CONFIG.version,
+            'turn_delta': c.TURN_DELTA,
+            'account_id': context.account.id if context.account.is_authenticated else None,
+            'account_name': context.account.nick if context.account.is_authenticated else None}
+
+    if context.api_version == '1.0':
+        data['abilities_cost'] = {}
+
+    return utils_views.AjaxOk(content=data)

@@ -9,8 +9,8 @@ class Simple3Tests(utils_testcase.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.own_card_type = types.CARD.ADD_BONUS_ENERGY_RARE
-        self.next_card_type = types.CARD.ADD_BONUS_ENERGY_EPIC
+        self.own_card_type = types.CARD.GET_ARTIFACT_RARE
+        self.next_card_type = types.CARD.GET_ARTIFACT_EPIC
 
         self.reactor = self.own_card_type.combiners[0]
 
@@ -21,7 +21,7 @@ class Simple3Tests(utils_testcase.TestCase):
         self.assertEqual(self.reactor.next_card_type, self.next_card_type)
 
     def test_description(self):
-        self.assertEqual(self.reactor.descrption(), '3 x «магический вихрь» => «энергетический шторм»')
+        self.assertEqual(self.reactor.descrption(), '3 x «редкое приобретение» => «дар Хранителя»')
 
     def test_combine__not_3(self):
         new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),

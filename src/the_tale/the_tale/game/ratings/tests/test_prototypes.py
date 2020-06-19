@@ -47,7 +47,7 @@ class RatingPrototypeTests(PrototypeTestsBase):
                          [self.account_1.id, self.account_2.id, self.account_3.id, self.account_4.id, ])
 
     def set_values(self, account, might=0, level=0, magic_power=0, physic_power=0,
-                   pvp_battles_1x1_number=0, pvp_battles_1x1_victories=0, help_count=0, politics_power=0):
+                   pvp_battles_1x1_number=0, pvp_battles_1x1_victories=0, politics_power=0):
         hero = heroes_models.Hero.objects.get(account_id=account.id)
         hero.might = might
         hero.level = level
@@ -55,7 +55,6 @@ class RatingPrototypeTests(PrototypeTestsBase):
         hero.raw_power_magic = magic_power
         hero.stat_pvp_battles_1x1_number = pvp_battles_1x1_number
         hero.stat_pvp_battles_1x1_victories = pvp_battles_1x1_victories
-        hero.stat_help_count = help_count
         hero.stat_politics_multiplier = politics_power
         hero.save()
 
@@ -68,16 +67,6 @@ class RatingPrototypeTests(PrototypeTestsBase):
         prototypes.RatingValuesPrototype.recalculate()
         self.assertEqual([rv.might for rv in models.RatingValues.objects.all().order_by('account__id')],
                          [10.0, 1.0, 17.0, 5.0])
-
-    def test_help_count(self):
-        self.set_values(self.account_1, help_count=10)
-        self.set_values(self.account_2, help_count=1)
-        self.set_values(self.account_3, help_count=17)
-        self.set_values(self.account_4, help_count=5)
-
-        prototypes.RatingValuesPrototype.recalculate()
-        self.assertEqual([rv.help_count for rv in models.RatingValues.objects.all().order_by('account__id')],
-                         [10, 1, 17, 5])
 
     def create_bill(self, index, owner, state):
         bill_data = bills_bills.place_renaming.PlaceRenaming(place_id=self.place1.id, name_forms=game_names.generator().get_test_name('new_name_%d' % index))

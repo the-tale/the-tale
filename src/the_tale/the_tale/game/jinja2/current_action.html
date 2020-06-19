@@ -9,8 +9,6 @@ jQuery(document).ready(function(e) {
 
     widgets.actions = new pgf.game.widgets.Action('#current-action-block', updater, widgets);
 
-    widgets.abilities = new pgf.game.widgets.Abilities();
-
     widgets.cards = new pgf.game.widgets.Cards({getItems: "{{get_cards_url()}}",
                                                 getCard: "{{receive_cards_url()}}",
                                                 transformItems: "{{transform_cards_url()}}",
@@ -78,7 +76,7 @@ jQuery(document).ready(function(e) {
 
     <div class="dropdown" style="display: inline-block;  width: 30%; font-size: 11pt;">
       <i class="icon-gift pgf-new-card-icon pgf-hidden" style="margin-top: 1px;" rel="tooltip" title="Вы можете получить новую карту!"></i>
-      <a href="#" class="dropdown-toggle pgf-cards-for-use-dropdown" data-toggle="dropdown">
+      <a href="#" class="dropdown-toggle pgf-cards-for-use-dropdown" style="font-size: 14pt;" data-toggle="dropdown">
         карты<b class="caret"></b>
       </a>
       <ul class="pgf-scrollable dropdown-menu pgf-cards-choices"
@@ -165,27 +163,6 @@ jQuery(document).ready(function(e) {
           </li>
       </ul>
     </div>
-
-    <a href="#" class="angel-ability pgf-ability-help pgf-hidden" style="display: inline-block; width: 30%;">
-      <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
-      <i class="icon-ban-circle" rel="tooltip" title="необходимо завершить регистрацию"></i>
-      <span rel="tooltip"
-            title="Помочь герою. В зависимости от ситуации и везения может:
-                   <ul style='text-align: left;'>
-                     <li>Вылечить героя</li>
-                     <li>Воскресить героя</li>
-                     <li>Дать герою деньги</li>
-                     <li>Подлечить спутника</li>
-                     <li>Телепортировать героя</li>
-                     <li>Нанести урон противнику</li>
-                   </ul>
-                   Помощь во время боя уменьшает миролюбие героя.<br/>
-                   Помощь в любое другое время — увеличивает.
-                   <hr/>
-                   <i>{{ABILITY_TYPE.HELP.cost}} энергии без учёта бонусов</i>">
-        помочь
-      </span>
-    </a>
 
     <div class="dropdown" style="display: inline-block;  width: 30%; font-size: 11pt;">
       <i class=" icon icon-search pgf-arena-call-active pgf-hidden"

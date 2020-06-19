@@ -48,8 +48,6 @@ settings = utils_app_settings.app_settings('PORTAL',
 
                                            PREMIUM_DAYS_FOR_HERO_OF_THE_DAY=30,
 
-                                           ENABLE_WORKER_LONG_COMMANDS=True,
-
                                            SETTINGS_CDN_INFO_KEY='cdn info',
 
                                            TT_DISCORD_ENTRY_POINT='http://localhost:10022/',

@@ -44,7 +44,6 @@ class ActionBase(object):
     SINGLE = True  # is action work with only one hero
     TEXTGEN_TYPE = NotImplemented
     CONTEXT_MANAGER = None
-    HELP_CHOICES = set()
     APPROVED_FOR_STEPS_CHAIN = True
     HABIT_MODE = relations.ACTION_HABIT_MODE.PEACEFUL
 
@@ -114,7 +113,7 @@ class ActionBase(object):
         self.break_at = break_at
         self.percents_barier = percents_barier
         self.extra_probability = extra_probability
-        self.textgen_id = textgen_id
+        self.textgen_id = textgen_id.replace('regenerate_energy', 'religion') if textgen_id else None
 
         if meta_action is None or isinstance(meta_action, meta_actions.MetaAction):
             self.saved_meta_action = meta_action
@@ -225,28 +224,6 @@ class ActionBase(object):
         return self.storage.meta_actions.get(self.saved_meta_action.uid)
 
     @property
-    def help_choices(self):
-        choices = copy.copy(self.HELP_CHOICES)
-
-        if abilities_relations.HELP_CHOICES.HEAL in choices:
-            if not self.hero.can_be_healed():
-                choices.remove(abilities_relations.HELP_CHOICES.HEAL)
-
-        if abilities_relations.HELP_CHOICES.HEAL_COMPANION in choices:
-            if (self.hero.companion is None or
-                self.hero.companion_heal_disabled() or
-                    self.hero.companion.health == self.hero.companion.max_health):
-                choices.remove(abilities_relations.HELP_CHOICES.HEAL_COMPANION)
-
-        return choices
-
-    def get_help_choice(self):
-
-        choices = [(choice, choice.priority) for choice in self.help_choices]
-
-        return utils_logic.random_value_by_priority(choices)
-
-    @property
     def description_text_name(self):
         return '%s_description' % self.TEXTGEN_TYPE
 
@@ -258,12 +235,6 @@ class ActionBase(object):
 
     def get_description_arguments(self):
         return {'hero': self.hero}
-
-    def on_heal(self):
-        pass
-
-    def on_heal_companion(self):
-        pass
 
     #####################################
     # management
@@ -391,17 +362,13 @@ class ActionIdlenessPrototype(ActionBase):
     TYPE = relations.ACTION_TYPE.IDLENESS
     TEXTGEN_TYPE = 'action_idleness'
 
-    HELP_CHOICES = {abilities_relations.HELP_CHOICES.HEAL,
-                    abilities_relations.HELP_CHOICES.MONEY,
-                    abilities_relations.HELP_CHOICES.HEAL_COMPANION}
-
     class STATE(ActionBase.STATE):
         BEFORE_FIRST_STEPS = 'BEFORE_FIRST_STEPS'
         FIRST_STEPS = 'FIRST_STEPS'
         QUEST = 'QUEST'
         IN_PLACE = 'IN_PLACE'
         WAITING = 'WAITING'
-        REGENERATE_ENERGY = 'regenerate_energy'
+        RELIGION_CEREMONY = 'religion_ceremony'
         RETURN = 'RETURN'
         RESURRECT = 'RESURRECT'
 
@@ -498,7 +465,7 @@ class ActionIdlenessPrototype(ActionBase):
         if self.state == self.STATE.IN_PLACE:
             self.state = self.STATE.WAITING
 
-        if self.state == self.STATE.REGENERATE_ENERGY:
+        if self.state == self.STATE.RELIGION_CEREMONY:
             self.state = self.STATE.WAITING
 
         if self.state == self.STATE.QUEST:
@@ -528,9 +495,9 @@ class ActionIdlenessPrototype(ActionBase):
             if self.percents >= 1.0:
                 self.force_quest_action(quest_kwargs={})
 
-            elif self.hero.need_regenerate_energy and not self.hero.preferences.energy_regeneration_type.is_SACRIFICE:
-                ActionRegenerateEnergyPrototype.create(hero=self.hero)
-                self.state = self.STATE.REGENERATE_ENERGY
+            elif self.hero.need_religion_ceremony and not self.hero.preferences.religion_type.is_SACRIFICE:
+                ActionReligionCeremonyPrototype.create(hero=self.hero)
+                self.state = self.STATE.RELIGION_CEREMONY
 
             else:
                 if random.uniform(0, 1) < 1.0 / c.TURNS_TO_IDLE / 2:  # 1 фраза на два уровня героя
@@ -547,9 +514,6 @@ class ActionQuestPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.QUEST
     TEXTGEN_TYPE = 'action_quest'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
-                        abilities_relations.HELP_CHOICES.MONEY,
-                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
     APPROVED_FOR_STEPS_CHAIN = False  # all quest actions MUST be done on separated turns
 
     class STATE(ActionBase.STATE):
@@ -654,21 +618,6 @@ class ActionBattlePvE1x1Prototype(ActionBase):
     CONTEXT_MANAGER = contexts.BattleContext
     HABIT_MODE = relations.ACTION_HABIT_MODE.AGGRESSIVE
 
-    @property
-    def HELP_CHOICES(self):  # pylint: disable=C0103
-        if not self.hero.is_alive:
-            return set((abilities_relations.HELP_CHOICES.RESURRECT,))
-
-        if self.mob.health <= 0:
-            return set((abilities_relations.HELP_CHOICES.MONEY,
-                        abilities_relations.HELP_CHOICES.HEAL,
-                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
-
-        return set((abilities_relations.HELP_CHOICES.MONEY,
-                    abilities_relations.HELP_CHOICES.LIGHTING,
-                    abilities_relations.HELP_CHOICES.HEAL,
-                    abilities_relations.HELP_CHOICES.HEAL_COMPANION))
-
     class STATE(ActionBase.STATE):
         BATTLE_RUNNING = 'battle_running'
 
@@ -748,17 +697,6 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
         if self.mob.health <= 0:
             self.on_mob_killed()
-
-        return True
-
-    def fast_resurrect(self):
-        if self.state != self.STATE.PROCESSED:  # hero can be dead only if action already processed
-            return False
-
-        if self.hero.is_alive:
-            return False
-
-        self.hero.resurrect()
 
         return True
 
@@ -877,7 +815,6 @@ class ActionResurrectPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.RESURRECT
     TEXTGEN_TYPE = 'action_resurrect'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.RESURRECT,))
 
     class STATE(ActionBase.STATE):
         RESURRECT = 'resurrect'
@@ -890,20 +827,14 @@ class ActionResurrectPrototype(ActionBase):
                    bundle_id=bundle_id,
                    state=cls.STATE.RESURRECT)
 
-    def fast_resurrect(self):
-        if self.state != self.STATE.RESURRECT:
-            return False
-
-        self.hero.actions.current_action.percents = self.percents
-
-        self.hero.resurrect()
-        self.state = self.STATE.PROCESSED
-
-        return True
-
     def process(self):
 
         if self.state == self.STATE.RESURRECT:
+
+            if self.hero.is_alive:
+                self.percents = 1.0
+                self.state = self.STATE.PROCESSED
+                return
 
             self.percents += 1.0 / self.hero.resurrect_length
 
@@ -920,7 +851,6 @@ class ActionFirstStepsPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.FIRST_STEPS
     TEXTGEN_TYPE = 'action_first_steps'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY,))
 
     class STATE(ActionBase.STATE):
         THINK_ABOUT_INITIATION = 'THINK_ABOUT_INITIATION'
@@ -961,13 +891,10 @@ class ActionInPlacePrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.IN_PLACE
     TEXTGEN_TYPE = 'action_inplace'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
-                        abilities_relations.HELP_CHOICES.MONEY,
-                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         SPEND_MONEY = 'spend_money'
-        REGENERATE_ENERGY = 'regenerate_energy'
+        RELIGION_CEREMONY = 'religion_ceremony'
         CHOOSING = 'choosing'
         TRADING = 'trading'
         RESTING = 'resting'
@@ -1024,19 +951,8 @@ class ActionInPlacePrototype(ActionBase):
 
         hero.add_message('action_inplace_enter', hero=hero, place=hero.position.place)
 
-        if (hero.can_regenerate_energy and
-                random.random() < hero.position.place.attrs.energy_regen_chance):
-
-            game_tt_services.energy.cmd_change_balance(account_id=hero.account_id,
-                                                       type='inplace_regen',
-                                                       amount=c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE,
-                                                       asynchronous=True,
-                                                       autocommit=True)
-
-            hero.add_message('action_inplace_instant_energy_regen',
-                             hero=hero,
-                             place=hero.position.place,
-                             energy=c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE)
+        if random.random() < hero.position.place.attrs.reset_religion_ceremony_timeout_chance:
+            hero.reset_religion_action_timeout()
 
         if hero.position.place.attrs.tax > 0:
 
@@ -1228,7 +1144,7 @@ class ActionInPlacePrototype(ActionBase):
             self.state = self.STATE.CHOOSING
             self.spend_money()
 
-        if self.state in [self.STATE.RESTING, self.STATE.HEALING_COMPANION, self.STATE.EQUIPPING, self.STATE.TRADING, self.STATE.REGENERATE_ENERGY]:
+        if self.state in [self.STATE.RESTING, self.STATE.HEALING_COMPANION, self.STATE.EQUIPPING, self.STATE.TRADING, self.STATE.RELIGION_CEREMONY]:
             self.state = self.STATE.CHOOSING
 
         if self.state == self.STATE.CHOOSING:
@@ -1236,9 +1152,9 @@ class ActionInPlacePrototype(ActionBase):
             if random.uniform(0, 1) < c.HABIT_IN_PLACE_EVENTS_IN_TURN:
                 self.do_events()
 
-            if self.hero.need_regenerate_energy and not self.hero.preferences.energy_regeneration_type.is_SACRIFICE:
-                self.state = self.STATE.REGENERATE_ENERGY
-                ActionRegenerateEnergyPrototype.create(hero=self.hero)
+            if self.hero.need_religion_ceremony and not self.hero.preferences.religion_type.is_SACRIFICE:
+                self.state = self.STATE.RELIGION_CEREMONY
+                ActionReligionCeremonyPrototype.create(hero=self.hero)
 
             elif self.hero.need_rest_in_settlement:
                 self.state = self.STATE.RESTING
@@ -1268,9 +1184,6 @@ class ActionRestPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.REST
     TEXTGEN_TYPE = 'action_rest'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
-                        abilities_relations.HELP_CHOICES.MONEY,
-                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         RESTING = 'resting'
@@ -1286,13 +1199,6 @@ class ActionRestPrototype(ActionBase):
                         state=cls.STATE.RESTING)
         hero.add_message('action_rest_start', hero=hero)
         return prototype
-
-    def on_heal(self):
-        self.percents = float(self.hero.health) / self.hero.max_health
-        self.hero.actions.current_action.percents = self.percents
-
-        if self.hero.health >= self.hero.max_health:
-            self.state = self.STATE.PROCESSED
 
     def process(self):
 
@@ -1321,9 +1227,6 @@ class ActionEquippingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.EQUIPPING
     TEXTGEN_TYPE = 'action_equipping'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
-                        abilities_relations.HELP_CHOICES.MONEY,
-                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         EQUIPPING = 'equipping'
@@ -1362,9 +1265,6 @@ class ActionTradingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.TRADING
     TEXTGEN_TYPE = 'action_trading'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
-                        abilities_relations.HELP_CHOICES.MONEY,
-                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         TRADING = 'trading'
@@ -1403,13 +1303,10 @@ class ActionTradingPrototype(ActionBase):
                 self.state = self.STATE.PROCESSED
 
 
-class ActionRegenerateEnergyPrototype(ActionBase):
+class ActionReligionCeremonyPrototype(ActionBase):
 
-    TYPE = relations.ACTION_TYPE.REGENERATE_ENERGY
-    TEXTGEN_TYPE = 'action_regenerate_energy'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY,
-                        abilities_relations.HELP_CHOICES.HEAL,
-                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    TYPE = relations.ACTION_TYPE.RELIGION_CEREMONY
+    TEXTGEN_TYPE = 'action_religion'
 
     class STATE(ActionBase.STATE):
         REGENERATE = 'REGENERATE'
@@ -1420,7 +1317,7 @@ class ActionRegenerateEnergyPrototype(ActionBase):
 
     @classmethod
     def _create(cls, hero, bundle_id):
-        textgen_id = 'action_regenerate_energy_%s' % random.choice(hero.preferences.energy_regeneration_type.linguistics_slugs)
+        textgen_id = 'action_religion_%s' % random.choice(hero.preferences.religion_type.linguistics_slugs)
 
         prototype = cls(hero=hero,
                         bundle_id=bundle_id,
@@ -1437,7 +1334,7 @@ class ActionRegenerateEnergyPrototype(ActionBase):
 
     @property
     def regeneration_type(self):
-        return self.hero.preferences.energy_regeneration_type
+        return self.hero.preferences.religion_type
 
     def step_percents(self):
         return 1.0 / self.regeneration_type.length
@@ -1449,22 +1346,18 @@ class ActionRegenerateEnergyPrototype(ActionBase):
             self.percents += self.step_percents()
 
             if self.percents >= 1:
-                self.hero.last_energy_regeneration_at_turn = game_turn.number()
+                self.hero.last_religion_action_at_turn = game_turn.number()
 
-                if self.hero.can_regenerate_energy:
-                    multiplier = 2 if self.hero.can_regenerate_double_energy else 1
+                if self.hero.can_religion_ceremony:
+                    multiplier = 2 if self.hero.can_receive_double_religiion_profit else 1
 
-                    energy_delta = self.regeneration_type.amount * multiplier
+                    experience = self.regeneration_type.amount * multiplier
 
-                    game_tt_services.energy.cmd_change_balance(account_id=self.hero.account_id,
-                                                               type='energy_regeneration',
-                                                               amount=energy_delta,
-                                                               asynchronous=True,
-                                                               autocommit=True)
+                    self.hero.add_experience(experience, without_modifications=True)
 
-                    self.hero.add_message('%s_energy_received' % self.textgen_id, hero=self.hero, energy=energy_delta)
+                    self.hero.add_message('%s_profit_received' % self.textgen_id, hero=self.hero, experience=experience)
                 else:
-                    self.hero.add_message('%s_no_energy_received' % self.textgen_id, hero=self.hero, energy=0)
+                    self.hero.add_message('%s_no_profit_received' % self.textgen_id, hero=self.hero, experience=0)
 
                 self.state = self.STATE.PROCESSED
 
@@ -1473,9 +1366,6 @@ class ActionDoNothingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.DO_NOTHING
     TEXTGEN_TYPE = 'no texgen type'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
-                        abilities_relations.HELP_CHOICES.MONEY,
-                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         DO_NOTHING = 'DO_NOTHING'
@@ -1518,10 +1408,6 @@ class ActionMetaProxyPrototype(ActionBase):
     TYPE = relations.ACTION_TYPE.META_PROXY
     TEXTGEN_TYPE = 'no texgen type'
     APPROVED_FOR_STEPS_CHAIN = False
-
-    @property
-    def HELP_CHOICES(self):
-        return self.meta_action.help_choices()
 
     @property
     def description_text_name(self):
@@ -1574,7 +1460,6 @@ class ActionHealCompanionPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.HEAL_COMPANION
     TEXTGEN_TYPE = 'action_heal_companion'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL_COMPANION, ))
 
     HABIT_MODE = relations.ACTION_HABIT_MODE.COMPANION
 
@@ -1623,22 +1508,6 @@ class ActionHealCompanionPrototype(ActionBase):
             health = self.hero.companion.heal(utils_logic.randint_from_1(c.COMPANIONS_REGEN_BY_HERO))
             self.hero.add_message('hero_ability_companion_healing', actor=self.hero, companion=self.hero.companion, health=health)
 
-    def on_heal_companion(self):
-        if self.hero.companion is None:
-            self.state = self.STATE.PROCESSED
-            return
-
-        if self.hero.companion.health >= self.hero.companion.max_health:
-            self.state = self.STATE.PROCESSED
-
-        heal_length = f.companions_heal_length(self.hero.companion.health, self.hero.companion.max_health)
-
-        self.percents += 1.0 / heal_length
-
-        if self.percents >= 1.0 or self.hero.companion.health == self.hero.companion.max_health:
-            self.percents = 1
-            self.state = self.STATE.PROCESSED
-
     def process(self):
 
         if self.hero.companion is None:
@@ -1670,21 +1539,10 @@ class ActionMoveSimplePrototype(ActionBase):
     TYPE = relations.ACTION_TYPE.MOVE_SIMPLE
     TEXTGEN_TYPE = 'no texgen type'
 
-    @property
-    def HELP_CHOICES(self):
-        choices = set((abilities_relations.HELP_CHOICES.HEAL,
-                       abilities_relations.HELP_CHOICES.MONEY,
-                       abilities_relations.HELP_CHOICES.HEAL_COMPANION))
-
-        if self.state == self.STATE.MOVING:
-            choices.add(abilities_relations.HELP_CHOICES.TELEPORT)
-
-        return choices
-
     class STATE(ActionBase.STATE):
         MOVING = 'MOVING'
         BATTLE = 'BATTLE'
-        REGENERATE_ENERGY = 'REGENERATE_ENERGY'
+        RELIGION_CEREMONY = 'RELIGION_CEREMONY'
         RESTING = 'RESTING'
         RESURRECT = 'RESURRECT'
         IN_CITY = 'IN_CITY'
@@ -1841,7 +1699,7 @@ class ActionMoveSimplePrototype(ActionBase):
         return False
 
     def fly_with_companion(self):
-        if self.teleport(c.ANGEL_HELP_TELEPORT_DISTANCE, create_inplace_action=True):
+        if self.teleport(c.COMPANIONS_FLY_DISTANCE, create_inplace_action=True):
             self.hero.add_message('companions_fly',
                                   companion_owner=self.hero,
                                   companion=self.hero.companion)
@@ -1926,9 +1784,9 @@ class ActionMoveSimplePrototype(ActionBase):
 
     def process_battle(self):
 
-        if self.hero.need_regenerate_energy:
-            ActionRegenerateEnergyPrototype.create(hero=self.hero)
-            self.state = self.STATE.REGENERATE_ENERGY
+        if self.hero.need_religion_ceremony:
+            ActionReligionCeremonyPrototype.create(hero=self.hero)
+            self.state = self.STATE.RELIGION_CEREMONY
             return
 
         if self.hero.need_rest_in_move:
@@ -1943,9 +1801,9 @@ class ActionMoveSimplePrototype(ActionBase):
 
     def process_moving(self):
 
-        if self.hero.need_regenerate_energy and not self.hero.preferences.energy_regeneration_type.is_SACRIFICE:
-            ActionRegenerateEnergyPrototype.create(hero=self.hero)
-            self.state = self.STATE.REGENERATE_ENERGY
+        if self.hero.need_religion_ceremony and not self.hero.preferences.religion_type.is_SACRIFICE:
+            ActionReligionCeremonyPrototype.create(hero=self.hero)
+            self.state = self.STATE.RELIGION_CEREMONY
             return
 
         if self.hero.is_battle_start_needed():
@@ -2047,7 +1905,7 @@ class ActionMoveSimplePrototype(ActionBase):
 
         if self.state in (self.STATE.RESTING,
                           self.STATE.RESURRECT,
-                          self.STATE.REGENERATE_ENERGY,
+                          self.STATE.RELIGION_CEREMONY,
                           self.STATE.HEALING_COMPANION):
             self.state = self.STATE.MOVING
 
