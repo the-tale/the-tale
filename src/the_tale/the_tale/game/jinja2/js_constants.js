@@ -131,6 +131,14 @@ pgf.game.constants.tilesets = {
         sprites: jQuery.extend(true, {}, pgf.game.constants.sprites)
     },
 
+    alternative_3: {
+        TILE_SIZE: {{CELL_SIZE}},
+        W: {{CELL_SIZE}},
+        H: {{CELL_SIZE}},
+        SRC: "/game/images/map_alternative_3.png",
+        sprites: jQuery.extend(true, {}, pgf.game.constants.sprites)
+    },
+
     winter: {
         TILE_SIZE: {{CELL_SIZE}},
         W: {{CELL_SIZE}},
