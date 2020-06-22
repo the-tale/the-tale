@@ -213,6 +213,6 @@ class TAG(rels.Relation):
                tag('center', postmarkup.CenterTag, 'отобразить текст по центру'),
                tag('size', postmarkup.SizeTag, '[size=10]размер текста[/size]'),
                tag('color', postmarkup.ColorTag, '[color=#004455]цвет текста[/color]'),
-               tag('pre', postmarkup.SimpleTag, '[pre]без форматирования[/pre]', args=['pre']),
+               tag('pre', postmarkup.SimpleTag, '[pre]<pre>   сохранить <br/>форматирование</pre>[/pre]', args=['pre']),
                tag('entity', MetaRelationTag, '[entity=111#222] — ссылка на игровую сущность, текст ссылки меняется вместе с сущностью (см. магнитики на страницах игровых сущностей)', single=True),
                tag('entity_url', MetaRelationUrlTag, '[entity_url=111#222]текст[/entity_url] — ссылка на игровую сущность, текст ссылки зафиксирован (см. магнитики на страницах игровых сущностей)'))
