@@ -235,12 +235,6 @@ class GuideResource(utils_resources.Resource):
         return self.template('guide/hero-habit-info.html', {'habit': habit,
                                                             'HABIT_TYPE': game_relations.HABIT_TYPE})
 
-    @old_views.handler('press-kit', name='press-kit')
-    def press_kit(self):
-        return self.template('guide/press_kit.html',
-                             {'section': 'press-kit',
-                              'mob': random.choice(mobs_storage.mobs.get_all_mobs_for_level(level=666))})
-
     @old_views.handler('world')
     def world(self):
         return self.template('guide/world.html', {'section': 'world'})
