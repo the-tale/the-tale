@@ -6,7 +6,7 @@ smart_imports.all()
 
 class BillPrototype(utils_prototypes.BasePrototype):
     _model_class = models.Bill
-    _readonly = ('id', 'type', 'created_at', 'updated_at', 'caption', 'votes_for',
+    _readonly = ('id', 'type', 'created_at', 'updated_at', 'caption', 'votes_for', 'owner_id',
                  'votes_against', 'votes_refrained', 'forum_thread_id', 'min_votes_percents_required',
                  'voting_end_at', 'ended_at', 'chronicle_on_accepted')
     _bidirectional = ('approved_by_moderator', 'state', 'is_declined', 'applyed_at_turn')
@@ -304,12 +304,15 @@ class BillPrototype(utils_prototypes.BasePrototype):
         self.post_to_forum(self.bill_info_text(text))
 
     @django_transaction.atomic
-    def update_by_moderator(self, form):
+    def update_by_moderator(self, form, moderator):
         self._initialize_with_form(form, is_updated=False)
         self._model.approved_by_moderator = form.c.approved
         self.save()
 
         ActorPrototype.update_actors(self, self.actors)
+
+        models.Moderation.objects.create(bill=self._model,
+                                         moderator=moderator._model)
 
         text = '[url="%s%s"]Запись[/url] была отредактирована модератором.' % (django_settings.SITE_URL,
                                                                                django_reverse('game:bills:show', args=[self.id]))
@@ -367,6 +370,10 @@ class BillPrototype(utils_prototypes.BasePrototype):
         self.save()
 
         self.sync_forum_thread_caption()
+
+        if self.owner_id != initiator.id:
+            models.Moderation.objects.create(bill=self._model,
+                                             moderator=initiator._model)
 
         self.post_to_forum(f'Запись удалена Хранителем: [entity={initiator.meta_object().uid}]')
 

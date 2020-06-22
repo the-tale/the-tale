@@ -76,7 +76,8 @@ class MIGHT_AMOUNT(rels_django.DjangoEnum):
                ('FOR_EDITED_WORD_FOR_PLAYER', 19, 'за отредактированное слово в лингвистике для игрока', 5, None),
                ('FOR_EDITED_WORD_FOR_MODERATOR', 20, 'за отредактированное слово в лингвистике для модератора', 5, None),
                ('FOR_EDITED_TEMPLATE_FOR_PLAYER', 21, 'за отредактированную фразу в лингвистике для игрока', 15, None),
-               ('FOR_EDITED_TEMPLATE_FOR_MODERATOR', 22, 'за отредактированную фразу в лингвистике для модератора', 15, None))
+               ('FOR_EDITED_TEMPLATE_FOR_MODERATOR', 22, 'за отредактированную фразу в лингвистике для модератора', 15, None),
+               ('FOR_BILL_MODERATION', 23, 'за отмодерированную запись в Книге Судеб', 15, None),)
 
 
 class PLAYER_TIMERS_TYPES(rels_django.DjangoEnum):

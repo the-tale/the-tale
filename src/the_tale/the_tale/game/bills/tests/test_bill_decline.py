@@ -28,7 +28,7 @@ class BillDeclineResourceExchangeTests(helpers.BaseTestPrototypes):
         declined_form = self.declined_bill.data.get_moderator_form_update(data)
 
         self.assertTrue(declined_form.is_valid())
-        self.declined_bill.update_by_moderator(declined_form)
+        self.declined_bill.update_by_moderator(declined_form, self.account1)
         self.declined_bill.apply()
 
         self.bill_data = bills.bill_decline.BillDecline(declined_bill_id=self.declined_bill.id)
@@ -56,7 +56,7 @@ class BillDeclineResourceExchangeTests(helpers.BaseTestPrototypes):
         declined_form = declined_bill_2.data.get_moderator_form_update(data)
 
         self.assertTrue(declined_form.is_valid())
-        declined_bill_2.update_by_moderator(declined_form)
+        declined_bill_2.update_by_moderator(declined_form, self.account1)
         declined_bill_2.apply()
 
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
@@ -87,7 +87,7 @@ class BillDeclineResourceExchangeTests(helpers.BaseTestPrototypes):
         form = bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        bill.update_by_moderator(form)
+        bill.update_by_moderator(form, self.account1)
         self.assertTrue(bill.apply())
 
         form = self.bill.data.get_user_form_update(post={'caption': 'caption',
@@ -110,7 +110,7 @@ class BillDeclineResourceExchangeTests(helpers.BaseTestPrototypes):
         form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account1)
 
         self.assertTrue(self.bill.apply())
 
@@ -134,7 +134,7 @@ class BillDeclineResourceExchangeTests(helpers.BaseTestPrototypes):
         form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account1)
 
         self.assertTrue(self.bill.has_meaning())
 
@@ -158,7 +158,7 @@ class BillDeclineResourceExchangeTests(helpers.BaseTestPrototypes):
         form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account1)
 
         self.assertTrue(self.bill.apply())
 

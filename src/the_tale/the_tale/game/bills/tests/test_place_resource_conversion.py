@@ -84,7 +84,7 @@ class PlaceResourceConversionTests(helpers.BaseTestPrototypes):
                                                                                       'conversion': self.conversion_1,
                                                                                       'approved': True})
         self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account1)
 
         self.assertEqual(len(places_storage.resource_exchanges.all()), 0)
 

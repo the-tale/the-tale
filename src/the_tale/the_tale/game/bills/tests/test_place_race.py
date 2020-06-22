@@ -73,7 +73,7 @@ class PlaceRaceTests(helpers.BaseTestPrototypes):
         form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account1)
 
         self.assertTrue(self.bill.apply())
 
@@ -94,7 +94,7 @@ class PlaceRaceTests(helpers.BaseTestPrototypes):
         form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account1)
 
         self.bill.data.place.race = self.bill.data.new_race
 
@@ -114,7 +114,7 @@ class PlaceRaceTests(helpers.BaseTestPrototypes):
             form = self.bill.data.get_moderator_form_update(data)
 
             self.assertTrue(form.is_valid())
-            self.bill.update_by_moderator(form)
+            self.bill.update_by_moderator(form, self.account1)
 
         self.bill.data.place.race = self.bill.data.new_race
 

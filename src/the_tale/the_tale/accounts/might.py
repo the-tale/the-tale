@@ -78,7 +78,10 @@ def calculate_might(account):  # pylint: disable=R0914
     might += forum_threads_query.count() * relations.MIGHT_AMOUNT.FOR_FORUM_THREAD.amount
 
     might += bills_models.Vote.objects.filter(owner_id=account.id).exclude(type=bills_relations.VOTE_TYPE.REFRAINED).count() * relations.MIGHT_AMOUNT.FOR_BILL_VOTE.amount
+
     might += bills_models.Bill.objects.filter(owner_id=account.id, state=bills_relations.BILL_STATE.ACCEPTED).count() * relations.MIGHT_AMOUNT.FOR_BILL_ACCEPTED.amount
+
+    might += bills_models.Moderation.objects.filter(moderator_id=account.id).order_by('bill_id').distinct('bill_id').count() * relations.MIGHT_AMOUNT.FOR_BILL_MODERATION.amount
 
     might += calculate_linguistics_migth(account.id,
                                          contribution_type=linguistics_relations.CONTRIBUTION_TYPE.WORD,

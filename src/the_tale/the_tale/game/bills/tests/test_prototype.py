@@ -188,11 +188,7 @@ class TestPrototypeApply(helpers.BaseTestPrototypes):
 
         self.assertEqual(total_records, 0)
 
-    def prepair_data_to_approve(self):
-        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
-        prototypes.VotePrototype.create(self.account4, self.bill, relations.VOTE_TYPE.REFRAINED)
-
+    def update_and_approve(self):
         ##################################
         # set name forms
 
@@ -202,8 +198,34 @@ class TestPrototypeApply(helpers.BaseTestPrototypes):
         form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account1)
         ##################################
+
+    def prepair_data_to_approve(self):
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account4, self.bill, relations.VOTE_TYPE.REFRAINED)
+
+        self.update_and_approve()
+
+    def test_update_by_moderator(self):
+        with self.check_increased(models.Moderation.objects.filter(bill_id=self.bill.id, moderator_id=self.account1.id).count):
+            self.update_and_approve()
+
+        with self.check_increased(models.Moderation.objects.filter(bill_id=self.bill.id, moderator_id=self.account1.id).count):
+            self.update_and_approve()
+
+    def test_remove_by_moderator(self):
+        self.assertNotEqual(self.bill.owner_id, self.account2.id)
+
+        with self.check_increased(models.Moderation.objects.filter(bill_id=self.bill.id, moderator_id=self.account2.id).count):
+            self.bill.remove(self.account2)
+
+    def test_remove_by_owner(self):
+        self.assertEqual(self.bill.owner_id, self.account1.id)
+
+        with self.check_not_changed(models.Moderation.objects.all().count):
+            self.bill.remove(self.account1)
 
     @mock.patch('the_tale.game.bills.conf.settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))

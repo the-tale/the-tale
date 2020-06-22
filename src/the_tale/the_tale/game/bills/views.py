@@ -282,7 +282,7 @@ class BillResource(utils_resources.Resource):
                                                                   original_bill_id=self.bill.id)
 
         if moderator_form.is_valid():
-            self.bill.update_by_moderator(moderator_form)
+            self.bill.update_by_moderator(moderator_form, self.account)
             return self.json_ok()
 
         return self.json_error('bills.moderate.form_errors', moderator_form.errors)

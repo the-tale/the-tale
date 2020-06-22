@@ -97,6 +97,32 @@ class CalculateMightTests(utils_testcase.TestCase):
         self.assertEqual(might.calculate_might(self.account), old_might)
         self.assertEqual(might.calculate_might(self.account_2), 0)
 
+    def _moderate_bill(self):
+        bill_data = bills_bills.place_renaming.PlaceRenaming(place_id=self.place_1.id,
+                                                             name_forms=game_names.generator().get_test_name('bill_place'))
+        bill = bills_prototypes.BillPrototype.create(self.account, 'caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+
+        data = bill.user_form_initials
+        data.update(linguistics_helpers.get_word_post_data(bill.data.name_forms, prefix='name'))
+
+        form = bill.data.get_moderator_form_update(data)
+
+        self.assertTrue(form.is_valid())
+
+        bill.update_by_moderator(form, self.account)
+        bill.update_by_moderator(form, self.account)
+
+    def test_moderated_bill_might(self):
+
+        with self.check_delta(lambda: might.calculate_might(self.account), relations.MIGHT_AMOUNT.FOR_BILL_MODERATION.amount * 2):
+            with self.check_not_changed(lambda: might.calculate_might(self.account_2)):
+                self._moderate_bill()
+                self._moderate_bill()
+
+                forum_models.Post.objects.all().delete()
+                forum_models.Thread.objects.all().delete()
+                bills_models.Vote.objects.all().delete()
+
     def test_rejected_bill_might(self):
         old_might = might.calculate_might(self.account)
         bill_data = bills_bills.place_renaming.PlaceRenaming(place_id=self.place_1.id, name_forms=game_names.generator().get_test_name('bill_place'))
