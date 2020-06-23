@@ -37,8 +37,8 @@ class AbilitiesPrototype(object):
     @classmethod
     def deserialize(cls, data):
         # can be removed after 0.4.2
-        if data is None:
-            data = {'abilities': {}}
+        if not data:
+            return cls.create()
 
         abilities = cls()
 
