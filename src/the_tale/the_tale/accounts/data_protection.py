@@ -156,7 +156,7 @@ def verbose(name):
             'referer': 'страница, с которой пришёл в игру',
             'referral_of': 'реферал игрока',
             'referrals_number': 'привёл рефералов',
-            'action_id': 'маркетиноговая акция, по которой пришёл в игру',
+            'action_id': 'маркетинговая акция, по которой пришёл в игру',
             'mights': 'могущество',
             'type': 'тип',
             'reset_password': 'сброс пароля',
@@ -197,7 +197,7 @@ def verbose(name):
             'property:last_premium_by_emissary': 'последнее время плучения подписки от эмиссара',
 
             'tt_personal_messages': 'личные сообщения',
-            'message': 'соообщение',
+            'message': 'сообщение',
             'sender': 'отправитель',
             'removed': 'удалено',
             'recipients': 'получатели',
