@@ -704,7 +704,7 @@ class QuestPrototype(object):
                                                      uid=start.uid,
                                                      knowledge_base=self.machine.knowledge_base,
                                                      experience=self.get_expirience_for_quest(start.uid, hero),
-                                                     power=tt_politic_power_formulas.base_quest_power(quest_rung=hero.level),
+                                                     power=tt_politic_power_formulas.base_quest_power(quest_rung=hero.quest_rung()),
                                                      hero=hero))
 
     def quest_participants(self, quest_uid):

@@ -582,6 +582,14 @@ class LogicAccessorsMixin(object):
             return tt_beings_relations.COMMUNICATION_GESTURES.CAN
         return tt_beings_relations.COMMUNICATION_GESTURES.CAN_NOT
 
+    def quest_rung(self):
+        rung = self.level * (1.0 + self.preferences.risk_level.rung_bonus)
+
+        if rung < 1.0:
+            rung = 1.0
+
+        return int(math.ceil(rung))
+
     ##########################
     # linguistics restrictions
     ##########################

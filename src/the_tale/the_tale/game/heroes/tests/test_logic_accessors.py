@@ -232,6 +232,22 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         self.hero.position.cell().transport = 2.0
         self.assertEqual(self.hero.modify_move_speed(10), 20.0)
 
+    def test_quest_rung(self):
+        self.hero.level = 66
+
+        self.assertEqual(self.hero.quest_rung(), 66)
+
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_HIGH)
+        self.assertEqual(self.hero.quest_rung(), 66 * (1 + relations.RISK_LEVEL.VERY_HIGH.rung_bonus))
+
+    def test_quest_rung__minimum(self):
+        self.hero.level = 1
+
+        self.assertEqual(self.hero.quest_rung(), 1)
+
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_LOW)
+        self.assertEqual(self.hero.quest_rung(), 1)
+
 
 class PoliticPowerBonusTests(HeroLogicAccessorsTestBase):
 
