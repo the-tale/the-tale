@@ -106,6 +106,9 @@ def render_text(lexicon_key, externals, quiet=False, restrictions=frozenset(), w
 
     try:
         return _render_utg_text(lexicon_key, restrictions, externals, with_nearest_distance=with_nearest_distance)
+    except utg_exceptions.UnknownLexiconKeyError:
+        logger.warn('no ingame templates for key: %s %s', lexicon_key.__class__, lexicon_key)
+        return fake_text(lexicon_key, externals)
     except utg_exceptions.UtgError as e:
         if not quiet and not django_settings.TESTS_RUNNING:
             logger.error('Exception in linguistics; key=%s, args=%r, message: "%s"' % (lexicon_key, externals, e),
