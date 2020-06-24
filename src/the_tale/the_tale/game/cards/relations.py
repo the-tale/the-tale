@@ -16,8 +16,8 @@ class RARITY(rels_django.DjangoEnum):
 
 
 class AVAILABILITY(rels_django.DjangoEnum):
-    records = (('FOR_ALL', 0, 'для всех'),
-               ('FOR_PREMIUMS', 1, 'только для подписчиков'))
+    records = (('FOR_ALL', 0, 'стандартный набор'),
+               ('FOR_PREMIUMS', 1, 'только расширенный набор'))
 
 
 class COMBINED_CARD_RESULT(rels_django.DjangoEnum):
