@@ -62,22 +62,23 @@ def cards_for_new_account(account):
                                                                            type=cards_types.CARD.CHANGE_ABILITIES_CHOICES),
               cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
                                                                     type=cards_types.CARD.CHANGE_PREFERENCE,
-                                                                    preference=heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
-              cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
-                                                                    type=cards_types.CARD.CHANGE_PREFERENCE,
-                                                                    preference=heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
-              cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
-                                                                    type=cards_types.CARD.CHANGE_PREFERENCE,
                                                                     preference=heroes_relations.PREFERENCE_TYPE.PLACE),
               cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
                                                                     type=cards_types.CARD.CHANGE_PREFERENCE,
-                                                                    preference=heroes_relations.PREFERENCE_TYPE.FRIEND),
-              cards_types.CARD.ADD_BONUS_ENERGY_RARE.effect.create_card(available_for_auction=False,
-                                                                        type=cards_types.CARD.ADD_BONUS_ENERGY_RARE)]
+                                                                    preference=heroes_relations.PREFERENCE_TYPE.FRIEND)]
+
+    for _ in range(2):
+        to_add.append(cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                            type=cards_types.CARD.CHANGE_PREFERENCE,
+                                                                            preference=heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE))
 
     for _ in range(5):
         to_add.append(cards_types.CARD.STOP_IDLENESS.effect.create_card(available_for_auction=False,
                                                                         type=cards_types.CARD.STOP_IDLENESS))
+
+    for _ in range(10):
+        to_add.append(cards_types.CARD.STOP_IDLENESS.effect.create_card(available_for_auction=False,
+                                                                        type=cards_types.CARD.REGENERATION))
 
     cards_logic.change_cards(owner_id=account.id,
                              operation_type='new-hero-gift',
@@ -139,12 +140,6 @@ def register_user(nick,
     hero = heroes_logic.create_hero(account_id=account.id, attributes=hero_attributes)
 
     if full_create:
-        game_tt_services.energy.cmd_change_balance(account_id=account.id,
-                                                   type='initial_contribution',
-                                                   amount=c.INITIAL_ENERGY_AMOUNT,
-                                                   asynchronous=False,
-                                                   autocommit=True)
-
         create_cards_timer(account.id)
 
         cards_for_new_account(hero)

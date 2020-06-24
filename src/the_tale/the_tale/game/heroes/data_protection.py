@@ -20,7 +20,7 @@ def request_hero_release(account_id):
     amqp_environment.environment.workers.supervisor.cmd_account_release_required(account_id)
 
 
-def remove_data(account_id):
+def before_remove_data(account_id):
     account = accounts_prototypes.AccountPrototype.get_by_id(account_id)
 
     now = datetime.datetime.now()
@@ -38,21 +38,20 @@ def remove_data(account_id):
         request_hero_release(account_id)
         return False
 
+    return True
+
+
+def remove_data(account_id):
+
+    hero = logic.load_hero(account_id)
+
     hero.set_utg_name(game_names.generator().get_name(hero.race, hero.gender))
 
     for preference in relations.PREFERENCE_TYPE.records:
         if preference.nullable:
             hero.preferences.set(preference, None)
 
-    zero = datetime.datetime.fromtimestamp(0)
-
-    hero.update_with_account_data(is_fast=hero.is_fast,
-                                  premium_end_at=zero,
-                                  active_end_at=zero,
-                                  ban_end_at=zero,
-                                  might=0,
-                                  actual_bills=[],
-                                  clan_id=None)
+    logic.sync_hero_external_data(hero)
 
     logic.save_hero(hero)
 

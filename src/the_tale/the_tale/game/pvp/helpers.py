@@ -39,8 +39,8 @@ class PvPTestsMixin(object):
         supervisor_task.process(bundle_id=100500)
 
         storage = game_logic_storage.LogicStorage()
-        storage.load_account_data(account_1)
-        storage.load_account_data(account_2)
+        storage.load_account_data(account_1.id)
+        storage.load_account_data(account_2.id)
 
         meta_action = storage.accounts_to_heroes[account_1.id].actions.current_action.meta_action
 

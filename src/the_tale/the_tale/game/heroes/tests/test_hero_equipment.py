@@ -14,7 +14,7 @@ class _HeroEquipmentTestsBase(utils_testcase.TestCase):
         account = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
+        self.storage.load_account_data(account.id)
 
         self.hero = self.storage.accounts_to_heroes[account.id]
         self.hero.level = 100  # увеличиваем уровень героя, чтобы сдвинуть лимиты на силу артефактов
@@ -24,9 +24,27 @@ class _HeroEquipmentTestsBase(utils_testcase.TestCase):
 
 class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
-    def test_put_loot(self):
+    def test_put_loot__artifact(self):
+
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts,
+                                                                           self.hero.level,
+                                                                           rarity=artifacts_relations.RARITY.NORMAL)
+
         with self.check_delta(lambda: self.hero.bag.occupation, 1):
-            self.hero.put_loot(artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL))
+            with self.check_delta(lambda: self.hero.statistics.artifacts_had, 1):
+                with self.check_not_changed(lambda: self.hero.statistics.loot_had):
+                    self.hero.put_loot(artifact)
+
+    def test_put_loot__loot(self):
+
+        loot = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot,
+                                                                       self.hero.level,
+                                                                       rarity=artifacts_relations.RARITY.NORMAL)
+
+        with self.check_delta(lambda: self.hero.bag.occupation, 1):
+            with self.check_delta(lambda: self.hero.statistics.loot_had, 1):
+                with self.check_not_changed(lambda: self.hero.statistics.artifacts_had):
+                    self.hero.put_loot(loot)
 
     def test_put_loot__bag_is_full(self):
         with self.check_delta(lambda: self.hero.bag.occupation, self.hero.max_bag_size):
@@ -232,77 +250,6 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
             artifact = self.hero.equipment.get(slot)
             if artifact:
                 self.assertEqual(artifact.type.equipment_slot, slot)
-
-    def test_compare_drop__none(self):
-        distribution = self.hero.preferences.archetype.power_distribution
-
-        loot = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 666, rarity=artifacts_relations.RARITY.NORMAL)
-        self.assertTrue(self.hero.bag._compare_drop(distribution, None, loot))
-        self.assertFalse(self.hero.bag._compare_drop(distribution, loot, None))
-
-    def test_compare_drop__useless_and_useless(self):
-        distribution = self.hero.preferences.archetype.power_distribution
-
-        loot_1 = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 2, rarity=artifacts_relations.RARITY.NORMAL)
-        loot_2 = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 1, rarity=artifacts_relations.RARITY.NORMAL)
-        self.assertTrue(self.hero.bag._compare_drop(distribution, loot_1, loot_2))
-
-    def test_compare_drop__artifact_and_useless(self):
-        distribution = self.hero.preferences.archetype.power_distribution
-
-        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1, rarity=artifacts_relations.RARITY.NORMAL)
-        loot = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 666, rarity=artifacts_relations.RARITY.NORMAL)
-        self.assertTrue(self.hero.bag._compare_drop(distribution, artifact, loot))
-
-    def test_compare_drop__useless_and_artifact(self):
-        distribution = self.hero.preferences.archetype.power_distribution
-
-        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1, rarity=artifacts_relations.RARITY.NORMAL)
-        loot = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 666, rarity=artifacts_relations.RARITY.NORMAL)
-        self.assertFalse(self.hero.bag._compare_drop(distribution, loot, artifact))
-
-    def test_compare_drop__artifact_and_artifact(self):
-        artifact_1 = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1, rarity=artifacts_relations.RARITY.NORMAL)
-        artifact_2 = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1, rarity=artifacts_relations.RARITY.NORMAL)
-
-        artifact_2.power = power.Power(1, 1)
-        artifact_1.power = power.Power(2, 2)
-
-        distribution = self.hero.preferences.archetype.power_distribution
-
-        self.assertTrue(self.hero.bag._compare_drop(distribution, artifact_1, artifact_2))
-        self.assertFalse(self.hero.bag._compare_drop(distribution, artifact_2, artifact_1))
-
-    def test_drop_cheapest_item__no_items(self):
-        self.assertEqual(self.hero.bag.occupation, 0)
-
-        distribution = self.hero.preferences.archetype.power_distribution
-
-        dropped_item = self.hero.bag.drop_cheapest_item(distribution)
-
-        self.assertEqual(dropped_item, None)
-
-    def test_drop_cheapest_item(self):
-        artifact_1 = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
-        artifact_2 = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
-
-        artifact_1.power = power.Power(200, 200)
-        artifact_2.power = power.Power(1, 1)
-
-        self.hero.bag.put_artifact(artifact_1)
-        self.hero.bag.put_artifact(artifact_2)
-
-        distribution = self.hero.preferences.archetype.power_distribution
-
-        self.assertEqual(self.hero.bag.occupation, 2)
-
-        dropped_item = self.hero.bag.drop_cheapest_item(distribution)
-
-        self.assertEqual(self.hero.bag.occupation, 1)
-
-        self.assertEqual(dropped_item.id, artifact_2.id)
-
-        self.assertEqual(list(self.hero.bag.values())[0].id, artifact_1.id)
 
     def test_repair_artifact(self):
         for artifact in list(self.hero.equipment.values()):
@@ -758,3 +705,66 @@ class ReceiveArtifactsTests(_HeroEquipmentTestsBase):
 
             self.assertEqual(len([artifact for artifact in list(self.hero.equipment.values()) if artifact.rarity == rarity]), len(list(self.hero.equipment.values())) - 1)
             self.assertEqual(len([artifact for artifact in list(self.hero.equipment.values()) if artifact.rarity == artifacts_relations.RARITY(rarity.value + 1)]), 1)
+
+
+class CompareArtifactsTests(_HeroEquipmentTestsBase):
+
+    def test_useless_and_useless(self):
+        loot_1 = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 2,
+                                                                         rarity=artifacts_relations.RARITY.NORMAL)
+        loot_2 = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 1,
+                                                                         rarity=artifacts_relations.RARITY.NORMAL)
+        self.assertTrue(self.hero.compare_artifacts(loot_1, loot_2))
+
+    def test_artifact_and_useless(self):
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1,
+                                                                           rarity=artifacts_relations.RARITY.NORMAL)
+        loot = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 666,
+                                                                       rarity=artifacts_relations.RARITY.NORMAL)
+        self.assertTrue(self.hero.compare_artifacts(artifact, loot))
+
+    def test_useless_and_artifact(self):
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1,
+                                                                           rarity=artifacts_relations.RARITY.NORMAL)
+        loot = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 666,
+                                                                       rarity=artifacts_relations.RARITY.NORMAL)
+        self.assertFalse(self.hero.compare_artifacts(loot, artifact))
+
+    def test_artifact_and_artifact(self):
+        artifact_1 = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1,
+                                                                             rarity=artifacts_relations.RARITY.NORMAL)
+        artifact_2 = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1,
+                                                                             rarity=artifacts_relations.RARITY.NORMAL)
+
+        artifact_2.power = power.Power(1, 1)
+        artifact_1.power = power.Power(2, 2)
+
+        self.assertTrue(self.hero.compare_artifacts(artifact_1, artifact_2))
+        self.assertFalse(self.hero.compare_artifacts(artifact_2, artifact_1))
+
+
+class GetWorstItemInBag(_HeroEquipmentTestsBase):
+
+    def test_no_items(self):
+        self.assertTrue(self.hero.bag.is_empty)
+        self.assertEqual(self.hero.get_worst_item_in_bag(), None)
+
+    def test_has_items(self):
+        artifact_1 = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts,
+                                                                             self.hero.level,
+                                                                             rarity=artifacts_relations.RARITY.NORMAL)
+        artifact_2 = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts,
+                                                                             self.hero.level,
+                                                                             rarity=artifacts_relations.RARITY.NORMAL)
+
+        artifact_1.power = power.Power(200, 200)
+        artifact_2.power = power.Power(1, 1)
+
+        self.hero.put_loot(artifact_1, force=True)
+        self.hero.put_loot(artifact_2, force=True)
+
+        with self.check_not_changed(lambda: self.hero.bag.occupation):
+            worst_item = self.hero.get_worst_item_in_bag()
+
+        self.assertEqual(list(self.hero.bag.values())[0].id, artifact_1.id)
+        self.assertEqual(worst_item.id, artifact_2.id)

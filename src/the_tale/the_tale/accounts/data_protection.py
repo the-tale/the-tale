@@ -156,7 +156,7 @@ def verbose(name):
             'referer': 'страница, с которой пришёл в игру',
             'referral_of': 'реферал игрока',
             'referrals_number': 'привёл рефералов',
-            'action_id': 'маркетиноговая акция, по которой пришёл в игру',
+            'action_id': 'маркетинговая акция, по которой пришёл в игру',
             'mights': 'могущество',
             'type': 'тип',
             'reset_password': 'сброс пароля',
@@ -197,7 +197,7 @@ def verbose(name):
             'property:last_premium_by_emissary': 'последнее время плучения подписки от эмиссара',
 
             'tt_personal_messages': 'личные сообщения',
-            'message': 'соообщение',
+            'message': 'сообщение',
             'sender': 'отправитель',
             'removed': 'удалено',
             'recipients': 'получатели',
@@ -261,7 +261,7 @@ def remove_account_data(account_id):
 def remove_data(account_id):
 
     # must be first
-    if not heroes_data_protection.remove_data(account_id):
+    if not heroes_data_protection.before_remove_data(account_id):
         return False
 
     shop_data_protection.remove_data(account_id)
@@ -270,6 +270,8 @@ def remove_data(account_id):
     clans_data_protection.remove_account_data(account_id)
 
     remove_account_data(account_id)
+
+    heroes_data_protection.remove_data(account_id)
 
     remove_might_data(account_id)
     remove_reset_password_data(account_id)
@@ -286,7 +288,8 @@ def remove_data(account_id):
 
 
 def first_step_removing(account):
-    tt_services.data_protector.cmd_request_deletion(ids=ids_list(account))
+    tt_services.data_protector.cmd_request_deletion(core_id=account.id,
+                                                    ids=ids_list(account))
 
     new_password = utils_password.generate_password(len_=conf.settings.RESET_PASSWORD_LENGTH)
     new_password = django_auth_hashers.make_password(new_password)

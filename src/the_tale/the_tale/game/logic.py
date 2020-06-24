@@ -87,11 +87,6 @@ def _form_game_account_info(turn_number, account, is_own, client_turns=None):
 
     data['is_old'] = (data['hero']['actual_on_turn'] < turn_number)
 
-    if is_own:
-        data['energy'] = game_tt_services.energy.cmd_balance(account.id)
-    else:
-        data['energy'] = None
-
     return data
 
 
@@ -321,6 +316,16 @@ def game_info_from_1_9_to_1_8(data):
     return data
 
 
+def game_info_from_1_10_to_1_9(data):
+    if data['account'] is not None:
+        data['account']['energy'] = 0
+
+    if data['enemy'] is not None:
+        data['enemy']['energy'] = None
+
+    return data
+
+
 def accounts_info(accounts_ids):
     accounts = {account.id: account for account in accounts_prototypes.AccountPrototype.get_list_by_id(list(accounts_ids))}
     heroes = {hero.account_id: hero for hero in heroes_logic.load_heroes_by_account_ids(list(accounts_ids))}
@@ -435,9 +440,11 @@ def highlevel_step(logger):
 
         places_logic.update_effects()
 
+        areas = map_storage.cells.get_places_areas()
+
         for place in places_storage.places.all():
             place.attrs.sync_size(c.MAP_SYNC_TIME_HOURS)
-            place.attrs.set_area(map_storage.cells.place_area(place.id))
+            place.attrs.set_area(areas[place.id])
 
             place.sync_race()
             place.sync_habits()

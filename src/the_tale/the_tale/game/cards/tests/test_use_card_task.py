@@ -13,7 +13,7 @@ class UseCardTaskTests(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.building_1 = places_logic.create_building(person=self.place_1.persons[0], utg_name=game_names.generator().get_test_name('building-1-name'))

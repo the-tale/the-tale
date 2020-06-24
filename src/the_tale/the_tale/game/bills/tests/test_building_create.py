@@ -90,7 +90,7 @@ class BuildingCreateTests(helpers.BaseTestPrototypes):
         form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account1)
 
         self.assertTrue(self.bill.apply())
 
@@ -123,7 +123,7 @@ class BuildingCreateTests(helpers.BaseTestPrototypes):
         form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account1)
 
         dup_noun = game_names.generator().get_test_name('dup-building-name')
 
@@ -137,7 +137,7 @@ class BuildingCreateTests(helpers.BaseTestPrototypes):
         form = bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        bill.update_by_moderator(form)
+        bill.update_by_moderator(form, self.account1)
 
         # apply first bill
         self.assertTrue(self.bill.apply())
@@ -168,7 +168,7 @@ class BuildingCreateTests(helpers.BaseTestPrototypes):
         form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account1)
         self.assertTrue(self.bill.apply())
 
         form = bills.building_create.BuildingCreate.ModeratorForm(data)

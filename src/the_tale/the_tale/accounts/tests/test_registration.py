@@ -16,7 +16,6 @@ class TestRegistration(utils_testcase.TestCase):
         tt_services.players_timers.cmd_debug_clear_service()
 
     def test_successfull_result(self):
-        game_tt_services.energy.cmd_debug_clear_service()
 
         self.assertEqual(achievements_prototypes.AccountAchievementsPrototype._db_count(), 0)
         self.assertEqual(collections_prototypes.AccountItemsPrototype._db_count(), 0)
@@ -52,8 +51,8 @@ class TestRegistration(utils_testcase.TestCase):
         self.assertTrue(hero.equipment.get(heroes_relations.EQUIPMENT_SLOT.RING) is None)
 
         self.assertEqual(heroes_models.HeroPreferences.objects.all().count(), 1)
-        self.assertEqual(heroes_models.HeroPreferences.objects.get(hero_id=hero.id).energy_regeneration_type,
-                         hero.preferences.energy_regeneration_type)
+        self.assertEqual(heroes_models.HeroPreferences.objects.get(hero_id=hero.id).religion_type,
+                         hero.preferences.religion_type)
 
         self.assertEqual(account.referer, None)
         self.assertEqual(account.referer_domain, None)
@@ -64,10 +63,6 @@ class TestRegistration(utils_testcase.TestCase):
 
         self.assertEqual(achievements_prototypes.AccountAchievementsPrototype._db_count(), 1)
         self.assertEqual(collections_prototypes.AccountItemsPrototype._db_count(), 1)
-
-        self.assertEqual(game_tt_services.energy.cmd_balance(account.id), c.INITIAL_ENERGY_AMOUNT)
-
-        self.assertEqual(game_tt_services.energy.cmd_balance(account.id), c.INITIAL_ENERGY_AMOUNT)
 
         timers = tt_services.players_timers.cmd_get_owner_timers(owner_id=account.id)
 

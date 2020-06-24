@@ -48,9 +48,6 @@ def get_api_types():
             TypeReference('actor_types', 'Задания: типы актёров', quests_relations.ACTOR_TYPE),
             TypeReference('buildings_types', 'Здания: типы', places_relations.BUILDING_TYPE),
 
-            TypeReference('ability_type', 'Игрок: тип способности', abilities_relations.ABILITY_TYPE,
-                          fields=(('значение', 'value'), ('описание', 'text'), ('атрибуты запроса', 'request_attributes'))),
-
             TypeReference('gender', 'Общее: пол', game_relations.GENDER),
             TypeReference('race', 'Общее: раса', game_relations.RACE),
             TypeReference('habits', 'Общее: черты', game_relations.HABIT_TYPE,
@@ -237,12 +234,6 @@ class GuideResource(utils_resources.Resource):
     def habit_info(self, habit=game_relations.HABIT_TYPE.HONOR):
         return self.template('guide/hero-habit-info.html', {'habit': habit,
                                                             'HABIT_TYPE': game_relations.HABIT_TYPE})
-
-    @old_views.handler('press-kit', name='press-kit')
-    def press_kit(self):
-        return self.template('guide/press_kit.html',
-                             {'section': 'press-kit',
-                              'mob': random.choice(mobs_storage.mobs.get_all_mobs_for_level(level=666))})
 
     @old_views.handler('world')
     def world(self):

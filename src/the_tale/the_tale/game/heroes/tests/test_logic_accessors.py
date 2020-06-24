@@ -14,7 +14,7 @@ class HeroLogicAccessorsTestBase(utils_testcase.TestCase):
         account = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
+        self.storage.load_account_data(account.id)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
 
@@ -158,7 +158,7 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         self.assertFalse(self.hero.companion.is_dead)
 
         with mock.patch('the_tale.game.companions.objects.Companion.modify_attribute') as modify_attribute:
-            self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_ENEMY, 1)
+            self.hero.modify_attribute(relations.MODIFIERS.POWER, 1)
 
         self.assertTrue(modify_attribute.call_count >= 1)
 
@@ -170,7 +170,7 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         self.assertFalse(self.hero.companion.is_dead)
 
         with mock.patch('the_tale.game.companions.objects.Companion.check_attribute') as check_attribute:
-            self.hero.check_attribute(relations.MODIFIERS.POWER_TO_ENEMY)
+            self.hero.check_attribute(relations.MODIFIERS.POWER)
 
         self.assertTrue(check_attribute.call_count >= 1)
 
@@ -232,112 +232,52 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         self.hero.position.cell().transport = 2.0
         self.assertEqual(self.hero.modify_move_speed(10), 20.0)
 
+    def test_quest_rung(self):
+        self.hero.level = 66
 
-class PoliticalPowerTests(HeroLogicAccessorsTestBase):
-
-    def test_power_modifier__risk_level(self):
-        normal_power_modifier = self.hero.politics_power_multiplier()
+        self.assertEqual(self.hero.quest_rung(), 66)
 
         self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_HIGH)
-        self.assertTrue(self.hero.politics_power_multiplier() > normal_power_modifier)
+        self.assertEqual(self.hero.quest_rung(), 66 * (1 + relations.RISK_LEVEL.VERY_HIGH.rung_bonus))
+
+    def test_quest_rung__minimum(self):
+        self.hero.level = 1
+
+        self.assertEqual(self.hero.quest_rung(), 1)
+
         self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_LOW)
-        self.assertTrue(self.hero.politics_power_multiplier() < normal_power_modifier)
+        self.assertEqual(self.hero.quest_rung(), 1)
 
-    def test_modify_power(self):
-        friend = self.place_1.persons[0]
-        enemy = self.place_2.persons[0]
 
-        self.hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.place_1)
-        self.hero.preferences.set(relations.PREFERENCE_TYPE.FRIEND, friend)
-        self.hero.preferences.set(relations.PREFERENCE_TYPE.ENEMY, enemy)
+class PoliticPowerBonusTests(HeroLogicAccessorsTestBase):
 
-        self.assertEqual(self.hero.modify_politics_power(person=self.place_3.persons[0], power=100), 100)
-        self.assertEqual(self.hero.modify_politics_power(person=self.place_3.persons[0], power=-100), -100)
+    def test_banned(self):
+        self.hero.might = 1000
 
-        self.assertEqual(self.hero.modify_politics_power(person=self.place_1.persons[1], power=100), 100)
-        self.assertEqual(self.hero.modify_politics_power(person=self.place_1.persons[1], power=-100), -100)
+        self.assertGreater(self.hero.politic_power_bonus(), 0)
 
-        self.assertEqual(self.hero.modify_politics_power(person=enemy, power=100), 100)
-        self.assertEqual(self.hero.modify_politics_power(person=enemy, power=-100), -100)
+        with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
+            self.assertEqual(self.hero.politic_power_bonus(), 0)
 
-        self.assertEqual(self.hero.modify_politics_power(person=friend, power=100), 100)
-        self.assertEqual(self.hero.modify_politics_power(person=friend, power=-100), -100)
-
-        self.assertEqual(self.hero.modify_politics_power(place=self.place_2, power=100), 100)
-        self.assertEqual(self.hero.modify_politics_power(place=self.place_2, power=-100), -100)
-
-        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=100), 100)
-        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=-100), -100)
-
-    def test_modify_power__enemy(self):
-        friend = self.place_1.persons[0]
-        enemy = self.place_2.persons[0]
-
-        self.hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.place_1)
-        self.hero.preferences.set(relations.PREFERENCE_TYPE.FRIEND, friend)
-        self.hero.preferences.set(relations.PREFERENCE_TYPE.ENEMY, enemy)
-
-        place_power = self.hero.modify_politics_power(place=self.place_1, power=100)
-        enemy_power = self.hero.modify_politics_power(person=enemy, power=100)
-        friend_power = self.hero.modify_politics_power(person=friend, power=100)
-
-        with mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.LEFT_3):
-            self.assertEqual(place_power, self.hero.modify_politics_power(place=self.place_1, power=100))
-            self.assertTrue(enemy_power < self.hero.modify_politics_power(person=enemy, power=100))
-            self.assertEqual(friend_power, self.hero.modify_politics_power(person=friend, power=100))
-
-    def test_modify_power__friend(self):
-        friend = self.place_1.persons[0]
-        enemy = self.place_2.persons[0]
-
-        self.hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.place_1)
-        self.hero.preferences.set(relations.PREFERENCE_TYPE.FRIEND, friend)
-        self.hero.preferences.set(relations.PREFERENCE_TYPE.ENEMY, enemy)
-
-        place_power = self.hero.modify_politics_power(place=self.place_1, power=100)
-        enemy_power = self.hero.modify_politics_power(person=enemy, power=100)
-        friend_power = self.hero.modify_politics_power(person=friend, power=100)
-
-        with mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.RIGHT_3):
-            self.assertEqual(place_power, self.hero.modify_politics_power(place=self.place_1, power=100))
-            self.assertEqual(enemy_power, self.hero.modify_politics_power(person=enemy, power=100))
-            self.assertTrue(friend_power < self.hero.modify_politics_power(person=friend, power=100))
-
-    def test_modify_place_power(self):
-        self.hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.place_1)
-
-        self.assertEqual(self.hero.modify_politics_power(place=self.place_2, power=100), 100)
-        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=100), 100)
-        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=-100), -100)
-
-    def test_politics_power_multiplier_below_zero(self):
-        self.assertTrue(self.hero.politics_power_multiplier() > 0)
+    def test_bonus_below_zero(self):
+        self.assertEqual(self.hero.politic_power_bonus(), 0)
         with mock.patch('the_tale.game.heroes.objects.Hero.politics_power_modifier', -666666666):
-            self.assertEqual(self.hero.politics_power_multiplier(), 0)
+            self.assertEqual(self.hero.politic_power_bonus(), 0)
 
-    def test_politics_power_multiplier__all_effects(self):
-        with self.check_increased(self.hero.politics_power_multiplier):
+    def test_all_effects(self):
+        with self.check_increased(self.hero.politic_power_bonus):
             self.hero.might = 1000
 
-        with self.check_increased(self.hero.politics_power_multiplier):
-            self.hero.level = 100
-
-        with self.check_increased(self.hero.politics_power_multiplier):
-            self.hero.actual_bills.append(time.time())
-            self.hero.actual_bills.append(time.time())
-
-        with self.check_increased(self.hero.politics_power_multiplier):
-            self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_HIGH)
-
-        with self.check_increased(self.hero.politics_power_multiplier):
+        with self.check_increased(self.hero.politic_power_bonus):
             self.hero.equipment.get(relations.EQUIPMENT_SLOT.PLATE).record.special_effect = artifacts_relations.ARTIFACT_EFFECT.GREAT_POWER
 
-        with self.check_increased(self.hero.politics_power_multiplier):
+        with self.check_increased(self.hero.politic_power_bonus):
+            abilities = companions_abilities_container.Container(start=(companions_abilities_effects.ABILITIES.KNOWN,))
             companion_record = companions_logic.create_random_companion_record(name='test-companion',
                                                                                state=companions_relations.STATE.ENABLED,
-                                                                               abilities=companions_abilities_container.Container(start=(companions_abilities_effects.ABILITIES.KNOWN,)))
+                                                                               abilities=abilities)
             companion = companions_logic.create_companion(companion_record)
             self.hero.set_companion(companion)
 
-        with self.check_increased(self.hero.politics_power_multiplier):
+        with self.check_increased(self.hero.politic_power_bonus):
             self.hero.abilities.add(heroes_abilities_nonbattle.DIPLOMATIC.get_id(), level=5)

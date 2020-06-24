@@ -68,10 +68,12 @@ class LogicAccessorsMixin(object):
         priority = quest.priority
 
         if quest.is_HELP_FRIEND:
-            priority *= self.attribute_modifier(relations.MODIFIERS.FRIEND_QUEST_PRIORITY) + self.preferences.friend.attrs.friends_quests_priority_bonus
+            priority *= (self.attribute_modifier(relations.MODIFIERS.FRIEND_QUEST_PRIORITY) +
+                                                 self.preferences.friend.attrs.friends_quests_priority_bonus)
 
         if quest.is_INTERFERE_ENEMY:
-            priority *= self.attribute_modifier(relations.MODIFIERS.ENEMY_QUEST_PRIORITY) + self.preferences.enemy.attrs.enemies_quests_priority_bonus
+            priority *= (self.attribute_modifier(relations.MODIFIERS.ENEMY_QUEST_PRIORITY) +
+                                                 self.preferences.enemy.attrs.enemies_quests_priority_bonus)
 
         if quest.quest_type.is_CHARACTER:
             priority *= self.attribute_modifier(relations.MODIFIERS.CHARACTER_QUEST_PRIORITY)
@@ -112,24 +114,24 @@ class LogicAccessorsMixin(object):
         slot, unequipped, equipped = self.get_equip_candidates()  # pylint: disable=W0612
         return equipped is not None
 
-    @property
-    def need_regenerate_energy(self):
-        return game_turn.number() > self.last_energy_regeneration_at_turn + self.preferences.energy_regeneration_type.period
+    def reset_religion_action_timeout(self):
+        self.last_religion_action_at_turn = 0
 
     @property
-    def can_regenerate_energy(self):
+    def need_religion_ceremony(self):
+        return game_turn.number() > self.last_religion_action_at_turn + self.preferences.religion_type.period
+
+    @property
+    def can_religion_ceremony(self):
         return tt_logic_checkers.is_player_participate_in_game(is_banned=self.is_banned,
                                                                active_end_at=self.active_state_end_at,
                                                                is_premium=self.is_premium)
 
-    def can_change_all_powers(self):
+    def participate_in_power_rating(self):
         if self.is_banned:
             return False
 
         return self.is_premium
-
-    def can_change_person_power(self, person):
-        return self.can_change_place_power(person.place)
 
     def can_change_place_power(self, place):
         if self.is_banned:
@@ -232,16 +234,12 @@ class LogicAccessorsMixin(object):
         return self.statistics.quests_done == 0
 
     @property
-    def bag_is_full(self):
-        return self.bag.occupation >= self.max_bag_size
-
-    @property
     def can_upgrade_prefered_slot(self):
         return random.uniform(0, 1) < c.ARTIFACT_FROM_PREFERED_SLOT_PROBABILITY
 
     @property
-    def can_regenerate_double_energy(self):
-        return random.uniform(0, 1) < self.regenerate_double_energy_probability
+    def can_receive_double_religiion_profit(self):
+        return random.uniform(0, 1) < self.double_religion_profit_probability
 
     def can_leave_battle_in_fear(self):
         return random.uniform(0, 1) < self.attribute_modifier(relations.MODIFIERS.FEAR)
@@ -249,14 +247,6 @@ class LogicAccessorsMixin(object):
     ################################
     # attributes
     ################################
-
-    @property
-    def actual_bills_number(self):
-        time_border = time.time() - bills_conf.settings.BILL_ACTUAL_LIVE_TIME * 24 * 60 * 60
-        return min(len([bill_voted_time
-                        for bill_voted_time in self.actual_bills
-                        if bill_voted_time > time_border]),
-                   conf.settings.ACTIVE_BILLS_MAXIMUM)
 
     @property
     def power(self):
@@ -301,12 +291,6 @@ class LogicAccessorsMixin(object):
             price += self.position.place.attrs.buy_price
 
         return price
-
-    def buy_artifact_power_bonus(self):
-        if self.position.place:
-            return self.position.place.attrs.buy_artifact_power
-
-        return 0
 
     @property
     def battles_per_turn_summand(self):
@@ -353,8 +337,8 @@ class LogicAccessorsMixin(object):
         return self.attribute_modifier(relations.MODIFIERS.BONUS_ARTIFACT_POWER)
 
     @property
-    def regenerate_double_energy_probability(self):
-        return self.attribute_modifier(relations.MODIFIERS.DOUBLE_ENERGY_REGENERATION)
+    def double_religion_profit_probability(self):
+        return self.attribute_modifier(relations.MODIFIERS.DOUBLE_RELIGION_PROFIT)
 
     @property
     def rest_length(self):
@@ -376,10 +360,8 @@ class LogicAccessorsMixin(object):
     def might_pvp_effectiveness_bonus(self): return f.might_pvp_effectiveness_bonus(self.might)
 
     @property
-    def might_crit_chance(self): return min(1, f.might_crit_chance(self.might) + self.attribute_modifier(relations.MODIFIERS.MIGHT_CRIT_CHANCE))
-
-    @property
-    def politics_power_might(self): return f.politics_power_might(self.might)
+    def politics_power_might(self) -> int:
+        return tt_politic_power_formulas.might_to_power(self.might)
 
     @property
     def damage_modifier(self): return self.attribute_modifier(relations.MODIFIERS.DAMAGE)
@@ -569,58 +551,19 @@ class LogicAccessorsMixin(object):
         return (turn_number % conf.settings.INACTIVE_HERO_DELAY) == (self.id % conf.settings.INACTIVE_HERO_DELAY)
 
     @property
-    def politics_power_level(self):
-        return f.politics_power_for_level(self.level)
-
-    @property
-    def politics_power_bills(self):
-        return self.actual_bills_number * conf.settings.POWER_PER_ACTIVE_BILL
-
-    @property
     def politics_power_modifier(self):
         return self.attribute_modifier(relations.MODIFIERS.POWER)
 
-    @property
-    def friend_power_modifier(self):
-        return self.attribute_modifier(relations.MODIFIERS.POWER_TO_FRIEND)
+    def politic_power_bonus(self) -> float:
 
-    @property
-    def enemy_power_modifier(self):
-        return self.attribute_modifier(relations.MODIFIERS.POWER_TO_ENEMY)
+        if self.is_banned:
+            return 0.0
 
-    @property
-    def place_power_modifier(self):
-        return 0
-
-    def politics_power_multiplier(self, friend=False, enemy=False, hometown=False):
-        modifier = 1.0
-
-        if friend:
-            modifier += self.friend_power_modifier
-
-        if enemy:
-            modifier += self.enemy_power_modifier
-
-        if hometown:
-            modifier += self.place_power_modifier
-
+        modifier = 0.0
         modifier += self.politics_power_modifier
-        modifier += self.politics_power_bills
-        modifier += self.politics_power_level
         modifier += self.politics_power_might
-        modifier += self.preferences.risk_level.power_modifier
 
-        return max(0, modifier)
-
-    def modify_politics_power(self, power, person=None, place=None, emissary=None):
-
-        is_friend = person and self.preferences.friend and person.id == self.preferences.friend.id
-        is_enemy = person and self.preferences.enemy and person.id == self.preferences.enemy.id
-        is_hometown = place and self.preferences.place and place.id == self.preferences.place.id
-
-        multiplier = self.politics_power_multiplier(friend=is_friend, enemy=is_enemy, hometown=is_hometown)
-
-        return int(power * multiplier)
+        return max(0.0, modifier)
 
     mob_type = tt_beings_relations.TYPE.CIVILIZED
     intellect_level = tt_beings_relations.INTELLECT_LEVEL.NORMAL
@@ -638,6 +581,14 @@ class LogicAccessorsMixin(object):
         if self.power.physic < self.power.magic:
             return tt_beings_relations.COMMUNICATION_GESTURES.CAN
         return tt_beings_relations.COMMUNICATION_GESTURES.CAN_NOT
+
+    def quest_rung(self):
+        rung = self.level * (1.0 + self.preferences.risk_level.rung_bonus)
+
+        if rung < 1.0:
+            rung = 1.0
+
+        return int(math.ceil(rung))
 
     ##########################
     # linguistics restrictions
@@ -657,7 +608,12 @@ class LogicAccessorsMixin(object):
                         linguistics_restrictions.get(self.race),
                         linguistics_restrictions.get(self.habit_honor.interval),
                         linguistics_restrictions.get(self.habit_peacefulness.interval),
+
                         linguistics_restrictions.get(self.preferences.archetype),
+                        linguistics_restrictions.get(self.preferences.religion_type),
+                        linguistics_restrictions.get(self.preferences.companion_dedication),
+                        linguistics_restrictions.get(self.preferences.companion_empathy),
+
                         linguistics_restrictions.get(self.communication_verbal),
                         linguistics_restrictions.get(self.communication_gestures),
                         linguistics_restrictions.get(self.communication_telepathic),
@@ -675,7 +631,8 @@ class LogicAccessorsMixin(object):
                         linguistics_restrictions.get(self.first_death),
                         linguistics_restrictions.get(self.death_age),
 
-                        linguistics_restrictions.get(self.clan_membership()),)
+                        linguistics_restrictions.get(self.clan_membership()),
+                        linguistics_restrictions.get(self.protectorat_ownership()),)
 
         self._cached_modifiers['#linguistics_restrictions'] = restrictions
 

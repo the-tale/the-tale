@@ -27,14 +27,6 @@ KEYS = [('ACTION_INPLACE_DESCRIPTION', 80000, 'Описание', relations.LEXI
          'Герой тратит деньги, чтобы немного подучиться',
          [V.DATE, V.TIME, V.COINS, V.HERO, V.EXPERIENCE], 'hero#N -coins#G +experience#EXP'),
 
-        ('ACTION_INPLACE_DIARY_IMPACT_BAD', 80005, 'Дневник: Траты на вредительство жителю', relations.LEXICON_GROUP.ACTION_INPLACE,
-         'Герой тратит деньги, чтобы навредить жителю города',
-         [V.DATE, V.TIME, V.PERSON, V.COINS, V.HERO], 'hero#N -coins#G'),
-
-        ('ACTION_INPLACE_DIARY_IMPACT_GOOD', 80006, 'Дневник: Траты на помощь жителю', relations.LEXICON_GROUP.ACTION_INPLACE,
-         'Герой тратит деньги на помощь жителю города.',
-         [V.DATE, V.TIME, V.PERSON, V.COINS, V.HERO], 'hero#N -coins#G'),
-
         ('ACTION_INPLACE_DIARY_INSTANT_HEAL_FOR_MONEY', 80007, 'Дневник: Траты на лечение', relations.LEXICON_GROUP.ACTION_INPLACE,
          'Герой тратит деньги на лечение.',
          [V.DATE, V.TIME, V.COINS, V.HERO, V.HEALTH], 'hero#N +health#HP -coins#G'),
@@ -106,10 +98,6 @@ KEYS = [('ACTION_INPLACE_DESCRIPTION', 80000, 'Описание', relations.LEXI
         ('ACTION_INPLACE_HABIT_EVENT_PEACEFULNESS_RIGHT_3', 80024, 'Дневник: запись о характере города (Миролюбие: уровень 3)', relations.LEXICON_GROUP.ACTION_INPLACE,
          'запись о характере города (Миролюбие: уровень 3)',
          [V.DATE, V.TIME, V.HERO, V.PLACE], None),
-
-        ('ACTION_INPLACE_INSTANT_ENERGY_REGEN', 80025, 'Журнал: Восстановление энергии в святом городе', relations.LEXICON_GROUP.ACTION_INPLACE,
-         'Игрок восстанавливает немного энергии, когда герой посещает город.',
-         [V.DATE, V.TIME, V.HERO, V.PLACE, V.ENERGY], 'hero#N +energy#EN'),
 
         ('ACTION_INPLACE_INSTANT_HEAL', 80026, 'Журнал: Лечение в курорте', relations.LEXICON_GROUP.ACTION_INPLACE,
          'Герой моментально излечивается благодаря типу города «Курорт».',

@@ -143,30 +143,7 @@
 
         <table class="table table-condensed">
           <tbody>
-            <tr>
-              <th>оценка пути через город</th>
-              <td>
-                {% if path_modifier is not none %}
-                {{ path_modifier|percents(2) }}
-                {% else %}
-                0%
-                {% endif %}
-              </td>
-              <td>
-                {% set path_description = "Модификатор оценки «сложности» отрезка пути, проходящего через этот город. Отрезок пути — кусок пути героя между двумя городами, на оценку его сложности влияют оба города. Чем меньше, тем легче герой воспринимает путь.<br/><strong>Этот модификатор действует только для ВАШЕГО героя.</strong>" %}
-                {% if path_modifier_effects is not none %}
-                <a href="javascript:void(0)"
-                   class="info-link"
-                   rel="tooltip"
-                   title="{{map_macros.power_incoming_tooltip(path_description, path_modifier_effects, percents=true, reverse=true)}}">подробнее</a>
-                {% else %}
-                <a href="javascript:void(0)"
-                   class="info-link"
-                   rel="tooltip"
-                   title="{{path_description}}">подробнее</a>
-                {% endif %}
-              </td>
-            </tr>
+            {{places_macros.place_path_modifiers(path_modifier, path_modifier_effects)}}
 
             <tr>
               <th>герои (всего)</th>
@@ -180,6 +157,7 @@
             </tr>
 
             {{game_macros.attribute_record(place, 'size')}}
+            {{game_macros.attribute_record(place, 'politic_power_bonus')}}
             {{game_macros.attribute_record(place, 'tax_size_border')}}
             {{game_macros.attribute_record(place, 'power_economic')}}
             {{game_macros.attribute_record(place, 'money_economic')}}

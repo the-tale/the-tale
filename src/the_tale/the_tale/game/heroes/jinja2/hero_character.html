@@ -71,7 +71,7 @@ jQuery(document).ready(function(e){
   <h3>Предпочтения</h3>
 
   <ul class="unstyled">
-    {% set pref_religion = resource.hero.preferences.energy_regeneration_type.text %}
+    {% set pref_religion = resource.hero.preferences.religion_type.text %}
     {% set pref_mob = resource.hero.preferences.mob and resource.hero.preferences.mob.name %}
     {% set pref_place = resource.hero.preferences.place and resource.hero.preferences.place.name_from() %}
     {% set pref_friend = resource.hero.preferences.friend and resource.hero.preferences.friend.name_from()|safe %}
@@ -100,7 +100,7 @@ jQuery(document).ready(function(e){
 
     {{ preferences_record(PREFERENCE_TYPE.ARCHETYPE, pref_archetype) }}
     {{ preferences_record(PREFERENCE_TYPE.RISK_LEVEL, pref_risk_level) }}
-    {{ preferences_record(PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE,  pref_religion) }}
+    {{ preferences_record(PREFERENCE_TYPE.RELIGION_TYPE,  pref_religion) }}
     {{ preferences_record(PREFERENCE_TYPE.EQUIPMENT_SLOT, pref_equipment_slot) }}
     {{ preferences_record(PREFERENCE_TYPE.FAVORITE_ITEM, pref_favorite_item) }}
     {{ preferences_record(PREFERENCE_TYPE.COMPANION_EMPATHY, pref_companion_empathy) }}

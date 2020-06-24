@@ -21,7 +21,15 @@ class ViewError(TheTaleError):
 
     @property
     def http_status(self):
-        return self.arguments.get('http_status', relations.HTTP_STATUS.OK)
+        http_status = self.arguments.get('http_status')
+
+        if http_status is None:
+            return relations.HTTP_STATUS.OK
+
+        if isinstance(http_status, numbers.Integral):
+            return relations.HTTP_STATUS(http_status)
+
+        return http_status
 
     @property
     def message(self):

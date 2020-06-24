@@ -6,25 +6,23 @@ smart_imports.all()
 SUBSCRIPTION_INFINIT_UID = 'subscription-infinit'
 
 
-PREMIUM_DAYS_DESCRIPTION = '''
+PREMIUM_DAYS_DESCRIPTION = f'''
 <p>
 Подписка даёт следующие преимущества:
 </p>
 
 <ul>
   <li>герой оказывает влияние на мир;</li>
-  <li>можно голосовать;</li>
+  <li>карты судьбы получаются в {tt_cards_constants.PREMIUM_PLAYER_SPEED} раза быстрее;</li>
   <li>получаемые карты судьбы можно продавать на рынке;</li>
+  <li>становятся доступны карты судьбы, влияющие на мир;</li>
+  <li>можно голосовать за записи в Книге Судеб;</li>
   <li>на 50% увеличивается получаемый героем опыт;</li>
   <li>на 50% увеличивается скорость изменения черт;</li>
-  <li>на 200% увеличивается максимум энергии (до 72 единиц);</li>
-  <li>размер дневника героя увеличен до {DIARY_LOG_LENGTH_PREMIUM} сообщений;</li>
   <li>жизнь героя не замедляется при длительном отсутствии игрока в игре;</li>
   <li>спутник героя не покидает его, когда здоровье спутника опускается до нуля;</li>
-  <li>игрок может одновременно создать до {PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS} записей в Книге Судеб.</li>
 </ul>
-'''.format(DIARY_LOG_LENGTH_PREMIUM=heroes_conf.settings.DIARY_LOG_LENGTH_PREMIUM,
-           PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS=c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS)
+'''
 
 
 def permanent_purchase(uid, purchase_type, cost, transaction_description):

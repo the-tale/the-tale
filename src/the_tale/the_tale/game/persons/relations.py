@@ -48,6 +48,33 @@ def quest_result_deserialize(data):
     return {k: heroes_relations.HABIT_CHANGE_SOURCE(v) for k, v in data.items()}
 
 
+def quest_result_formatter(value):
+    if not value:
+        return '—'
+
+    changes = []
+
+    for change, direction in value.items():
+        if change == questgen_quests_base_quest.RESULTS.SUCCESSED:
+            changes.append(('усех', direction.text))
+            continue
+
+        if change == questgen_quests_base_quest.RESULTS.FAILED:
+            changes.append(('неудача', direction.text))
+            continue
+
+    changes.sort()
+
+    template = ['<ul>']
+
+    for name, direction in changes:
+        template.append(f'<li>{name} — {direction}</li>')
+
+    template.append('</ul>')
+
+    return ''.join(template)
+
+
 def job_group_priority_serialize(data):
     return {k.value: v for k, v in data.items()}
 
@@ -56,26 +83,71 @@ def job_group_priority_deserialize(data):
     return {jobs_effects.EFFECT_GROUP(int(k)): v for k, v in data.items()}
 
 
+def job_group_priority_formatter(value):
+    if not value:
+        return '—'
+
+    changes = []
+
+    for type, delta in value.items():
+        changes.append((type.text, delta))
+
+    changes.sort()
+
+    template = ['<ul>']
+
+    for name, delta in changes:
+        template.append(f'<li>{name} — {round(delta*100)}%</li>')
+
+    template.append('</ul>')
+
+    return ''.join(template)
+
+
 class ATTRIBUTE(game_attributes.ATTRIBUTE):
 
-    records = (game_attributes.attr('ON_QUEST_HABITS', 0, 'изменения черт, если Мастер получает выгоду от задания', default=dict, apply=lambda a, b: (a.update(b) or a), serializer=quest_result_serialize, deserializer=quest_result_deserialize),
-               game_attributes.attr('TERRAIN_POWER', 1, 'сила влияния на ланшафт', default=lambda: 0.1),
+    records = (game_attributes.attr('ON_QUEST_HABITS', 0, 'изменения черт, если Мастер получает выгоду от задания',
+                                    default=dict,
+                                    apply=lambda a, b: (a.update(b) or a),
+                                    formatter=quest_result_formatter,
+                                    serializer=quest_result_serialize, deserializer=quest_result_deserialize),
+               game_attributes.attr('TERRAIN_POWER', 1, 'сила влияния на ланшафт',
+                                    verbose_units='%', formatter=game_attributes.percents_formatter),
                game_attributes.attr('TERRAIN_RADIUS_BONUS', 2, 'бонус к радиусу влияния города на ландшафт'),
-               game_attributes.attr('PLACES_HELP_AMOUNT', 3, 'бонус к начисляемым «влияниям» за задания', default=lambda: 1),
-               game_attributes.attr('POLITIC_POWER_BONUS', 4, 'бонус к влиянию за задания с участием Мастера'),
-               game_attributes.attr('EXPERIENCE_BONUS', 5, 'бонус к опыту за задания с участием Мастера'),
-               game_attributes.attr('ON_PROFITE_REWARD_BONUS', 6, 'бонус к наградами за задания, если Мастер получает выгоду'),
-               game_attributes.attr('FRIENDS_QUESTS_PRIORITY_BONUS', 7, 'бонус к вероятности соратникам получить задание, связанное с Мастером'),
-               game_attributes.attr('ENEMIES_QUESTS_PRIORITY_BONUS', 8, 'бонус к вероятности противников получить задание, связанное с Мастером'),
+               game_attributes.attr('PLACES_HELP_AMOUNT', 3, 'известность за задания',
+                                    verbose_units='%', formatter=game_attributes.percents_formatter),
+               game_attributes.attr('POLITIC_POWER_BONUS', 4, 'бонус к влиянию',
+                                    verbose_units='%', formatter=game_attributes.percents_formatter,
+                                    description='дополнительное влияние, если герой выполнил задание в пользу Мастера. Все бонусы к влиянию суммируются и применяются как модификатор к влиянию от задания.'),
+               game_attributes.attr('EXPERIENCE_BONUS', 5, 'бонус к опыту',
+                                    verbose_units='%', formatter=game_attributes.percents_formatter),
+               game_attributes.attr('ON_PROFITE_REWARD_BONUS', 6, 'бонус к наградами за задания',
+                                    verbose_units='%', formatter=game_attributes.percents_formatter,
+                                    description='Бонус к наградами за задания, если Мастер получает выгоду.'),
+               game_attributes.attr('FRIENDS_QUESTS_PRIORITY_BONUS', 7,
+                                    'бонус к вероятности соратникам получить задание, связанное с Мастером',
+                                     verbose_units='%', formatter=game_attributes.percents_formatter),
+               game_attributes.attr('ENEMIES_QUESTS_PRIORITY_BONUS', 8,
+                                    'бонус к вероятности противников получить задание, связанное с Мастером',
+                                    verbose_units='%', formatter=game_attributes.percents_formatter),
                game_attributes.attr('POLITIC_RADIUS_BONUS', 9, 'бонус к радиусу влияния города'),
-               game_attributes.attr('STABILITY_RENEWING_BONUS', 10, 'бонус к скорости восстановления стабильности в городе'),
-               game_attributes.attr('BUILDING_SUPPORT_COST', 11, 'стоимость поддержи здания Мастера городом', default=lambda: c.PLACE_GOODS_FOR_BUILDING_SUPPORT),
-               game_attributes.attr('ON_PROFITE_ENERGY', 12, 'прибавка энергии Хранителя за задание, если Мастер получает выгоду'),
-               game_attributes.attr('JOB_POWER_BONUS', 13, 'бонус к эффекту проектов Мастера'),
-               game_attributes.attr('JOB_GROUP_PRIORITY', 14, 'бонус к приоритету типов проектов Мастера', default=dict, apply=lambda a, b: (a.update(b) or a), serializer=job_group_priority_serialize, deserializer=job_group_priority_deserialize),
-               game_attributes.attr('SOCIAL_RELATIONS_PARTNERS_POWER_MODIFIER', 15, 'бонус к влияния для партнёров', default=lambda: 0.1),
-               game_attributes.attr('SOCIAL_RELATIONS_CONCURRENTS_POWER_MODIFIER', 16, 'бонус к влияюнию для конкурентов', default=lambda: 0.1),
-               game_attributes.attr('DEMOGRAPHICS_PRESSURE', 17, 'демографическое давление', default=lambda: 1))
+               game_attributes.attr('STABILITY_BONUS', 10, 'бонус к стабильности в городе',
+                                    verbose_units='%', formatter=game_attributes.percents_formatter),
+               game_attributes.attr('BUILDING_SUPPORT_COST', 11, 'стоимость поддержи здания Мастера городом'),
+               game_attributes.attr('RESET_RELIGION_CEREMONY_TIMEOUT_ON_REWARD', 12, 'обряд в честь Хранителя',
+                                    description='Вероятность провести обряд в честь Хранителя, если Мастер получает выгоду'),
+               game_attributes.attr('JOB_POWER_BONUS', 13, 'бонус к эффекту проектов Мастера',
+                                    verbose_units='%', formatter=game_attributes.percents_formatter),
+               game_attributes.attr('JOB_GROUP_PRIORITY', 14, 'бонус к приоритету типов проектов Мастера',
+                                    default=dict, apply=lambda a, b: (a.update(b) or a),
+                                    formatter=job_group_priority_formatter,
+                                    serializer=job_group_priority_serialize, deserializer=job_group_priority_deserialize),
+               game_attributes.attr('SOCIAL_RELATIONS_PARTNERS_POWER_MODIFIER', 15, 'бонус к влияния для партнёров',
+                                    verbose_units='%', formatter=game_attributes.percents_formatter),
+               game_attributes.attr('SOCIAL_RELATIONS_CONCURRENTS_POWER_MODIFIER', 16, 'бонус к влияюнию для конкурентов',
+                                    verbose_units='%', formatter=game_attributes.percents_formatter),
+               game_attributes.attr('DEMOGRAPHICS_PRESSURE', 17, 'демографическое давление',
+                                    verbose_units='%', formatter=game_attributes.percents_formatter))
 
 
 ATTRIBUTE.EFFECTS_ORDER = sorted(set(record.order for record in ATTRIBUTE.records))
@@ -134,8 +206,8 @@ class PERSONALITY_PRACTICAL(PERSONALITY):
     records = (personality('MULTIWISE', 1, 'многомудрый', 'EXPERIENCE_BONUS', 0.25,
                            'многомудрый', 'многомудрая', 'Выполняя задания, связанные с Мастером, герои получают больше опыта.'),
 
-               personality('INFLUENTIAL', 2, 'влиятельный', 'POLITIC_POWER_BONUS', 0.25,
-                           'влиятельный', 'влиятельная', 'Выполняя задания, связанные с Мастером, герои приносят больше влияния.'),
+               personality('INFLUENTIAL', 2, 'влиятельный', 'POLITIC_POWER_BONUS', tt_politic_power_constants.MODIFIER_PERSON_CHARACTER,
+                           'влиятельный', 'влиятельная', 'Мастер получает больше влияния, когда герой выполняет задание в пользу Мастера.'),
 
                personality('GENEROUS', 3, 'щедрый', 'ON_PROFITE_REWARD_BONUS', 2.0,
                            'щедрый', 'щедрая', 'Герои получают больше денег за задания, если Мастер получает от него выгоду.'),
@@ -149,14 +221,14 @@ class PERSONALITY_PRACTICAL(PERSONALITY):
                personality('ACTIVE', 6, 'деятельный', 'POLITIC_RADIUS_BONUS', 1,
                            'деятельный', 'деятельная', 'Увеличивает радиус влияния города.'),
 
-               personality('RELIABLE', 7, 'надёжный', 'STABILITY_RENEWING_BONUS', c.PLACE_STABILITY_RECOVER_SPEED * 0.25,
-                           'надёжный', 'надёжная', 'Увеличивает скорость восстановления стабильности.'),
+               personality('RELIABLE', 7, 'надёжный', 'STABILITY_BONUS', c.PLACE_STABILITY_UNIT,
+                           'надёжный', 'надёжная', 'Увеличивает стабильность города.'),
 
                personality('ORDERLY', 8, 'аккуратный', 'BUILDING_SUPPORT_COST', -int(c.PLACE_GOODS_FOR_BUILDING_SUPPORT / 2),
                            'аккуратный', 'аккуратная', 'Бережливо относится к своему имуществу — уменьшает стоимость поддержки городом своего здания.'),
 
-               personality('DEVOUT', 9, 'набожный', 'ON_PROFITE_ENERGY', 4,
-                           'набожный', 'набожная', 'За каждое задание, в котором Мастер получил выгоду, возносит хвалу Хранителям героев, и те получают немного энергии.'),
+               personality('DEVOUT', 9, 'набожный', 'RESET_RELIGION_CEREMONY_TIMEOUT_ON_REWARD', 1.0,
+                           'набожный', 'набожная', 'Каждое задание, в котором Мастер получил выгоду, сподвигает героя скорее провести обряд в честь Хранителя.'),
 
                personality('HARDWORKING', 10, 'трудолюбивый', 'JOB_POWER_BONUS', 0.5,
                            'трудолюбивый', 'трудолюбивая', 'У проектов Мастера более сильный эффект.'),

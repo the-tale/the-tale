@@ -14,7 +14,7 @@ class HeroStatisticsTest(utils_testcase.TestCase):
         account = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
+        self.storage.load_account_data(account.id)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
         self.hero.statistics.change_money(relations.MONEY_SOURCE.EARNED_FROM_LOOT, 10)
@@ -24,11 +24,8 @@ class HeroStatisticsTest(utils_testcase.TestCase):
         self.hero.statistics.change_pve_deaths(14)
 
         self.hero.statistics.change_pvp_battles_1x1_victories(16)
-        self.hero.statistics.change_help_count(17)
         self.hero.statistics.change_cards_used(18)
         self.hero.statistics.change_cards_combined(19)
-
-        self.hero.statistics.change_gifts_returned(20)
 
         self.hero.statistics.change_companions_count(21)
 
@@ -142,16 +139,6 @@ class HeroStatisticsTest(utils_testcase.TestCase):
                                                                         old_value=16,
                                                                         new_value=16 + 1)])
 
-    def test_change_help_count__achievements(self):
-
-        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
-            self.hero.statistics.change_help_count(666)
-
-        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
-                                                                        type=achievements_relations.ACHIEVEMENT_TYPE.KEEPER_HELP_COUNT,
-                                                                        old_value=17,
-                                                                        new_value=17 + 666)])
-
     def test_change_cards_used__achievements(self):
 
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
@@ -171,13 +158,6 @@ class HeroStatisticsTest(utils_testcase.TestCase):
                                                                         type=achievements_relations.ACHIEVEMENT_TYPE.KEEPER_CARDS_COMBINED,
                                                                         old_value=19,
                                                                         new_value=19 + 666)])
-
-    def test_change_giftst_used__achievements(self):
-
-        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
-            self.hero.statistics.change_gifts_returned(666)
-
-        self.assertEqual(verify_achievements.call_args_list, [])
 
     @mock.patch('the_tale.game.heroes.conf.settings.MIN_PVP_BATTLES', 1000)
     def test_change_pvp_battles_1x1_victories__multiple_victories_achievements(self):

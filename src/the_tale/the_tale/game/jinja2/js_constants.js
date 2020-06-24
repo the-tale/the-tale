@@ -78,21 +78,6 @@ pgf.game.constants.EFFECTS = {
     {% endfor %}
 };
 
-pgf.game.constants.abilities = {
-
-    {% for ability_type in ABILITY_TYPE.records %}
-
-    "{{ ability_type.value }}": {
-        "type": "{{ ability_type.value }}",
-        "name": "{{ ability_type.text }}",
-        "description": "{{ ability_type.description }}",
-        "cost": {{ ability_type.cost }}
-    }{%- if not loop.last -%},{%- endif -%}
-
-    {% endfor %}
-
-};
-
 pgf.game.constants.linguistics_formatters = {
 
     {% for key, text in LINGUISTICS_FORMATTERS.items() %}
@@ -143,6 +128,14 @@ pgf.game.constants.tilesets = {
         W: {{CELL_SIZE}},
         H: {{CELL_SIZE}},
         SRC: "/game/images/map_alternative_2.png",
+        sprites: jQuery.extend(true, {}, pgf.game.constants.sprites)
+    },
+
+    alternative_3: {
+        TILE_SIZE: {{CELL_SIZE}},
+        W: {{CELL_SIZE}},
+        H: {{CELL_SIZE}},
+        SRC: "/game/images/map_alternative_3.png",
         sprites: jQuery.extend(true, {}, pgf.game.constants.sprites)
     },
 

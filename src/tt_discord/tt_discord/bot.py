@@ -1,6 +1,8 @@
 
+import re
 import uuid
 import logging
+import dataclasses
 
 from discord.ext import commands as discord_commands
 
@@ -14,6 +16,26 @@ REQUIRED_PERMISSIONS = {'manage_nicknames',
                         'manage_roles'}
 
 
+@dataclasses.dataclass
+class PrefixExtractor:
+    prefix: str
+    prefix_re: re.Pattern
+    fake_prefix: str
+
+    def __init__(self, prefix: str):
+        self.prefix = prefix
+        self.prefix_re = re.compile(prefix)
+        self.fake_prefix = uuid.uuid4().hex
+
+    def __call__(self, bot, message):
+        match = self.prefix_re.match(message.content)
+
+        if match is None:
+            return self.fake_prefix
+
+        return match.group(0)
+
+
 class Bot(discord_commands.Bot):
 
     async def on_ready(self):
@@ -25,6 +47,11 @@ class Bot(discord_commands.Bot):
             await self.check_permissions(guild)
 
         await self.reset_not_binded_user_properties(logger=logger)
+
+        # not best solution, but it work and fast in implementation
+        # TODO: rewrite to exclude records changing in database
+        logger.info('request all users resync')
+        await operations.force_all_game_data_update()
 
     async def on_member_join(self, member):
         logging.info("user %s joind guild %s, try to update it's properties", member.id, member.guild.id)
@@ -103,7 +130,7 @@ DESCRIPTION = '''
 
 def construct(config):
 
-    bot = Bot(command_prefix=config['command_prefix'],
+    bot = Bot(command_prefix=PrefixExtractor(prefix=config['command_prefix']),
               description=DESCRIPTION.strip(),
               help_command=HelpCommand(),
               command_not_found='Команда "{}" не найдена.')
@@ -176,12 +203,22 @@ async def sync_nickname(bot, account_info, data, logger):
             logger.info('discord user %s not found in guild %s', account_info.discord_id, guild.id)
             continue
 
+        if member.nick == nickname:
+            logger.info('discord user %s already has nick %s', account_info.discord_id, nickname)
+            continue
+
         if guild.owner.id == member.id:
             await member.send('Я не могу изменить ваш ник, так как вы являетесь владельцем сервера.')
             continue
 
         await member.edit(nick=nickname, reason='Синхронизация с ником в игре.')
         await member.send('Я изменил ваш ник, чтобы он соответствовал нику в игре.')
+
+
+def compare_roles(roles_1, roles_2):
+    roles_1 = {role.id for role in roles_1 if role.name != '@everyone'}
+    roles_2 = {role.id for role in roles_2 if role.name != '@everyone'}
+    return roles_1 == roles_2
 
 
 async def sync_roles(bot, account_info, data, config, logger):
@@ -203,6 +240,10 @@ async def sync_roles(bot, account_info, data, config, logger):
                 continue
 
             discord_roles.append(guild.get_role(int(config['roles'][name])))
+
+        if compare_roles(member.roles, discord_roles):
+            logger.info('discord user %s already has roles %s', account_info.discord_id, discord_roles)
+            continue
 
         await member.edit(roles=discord_roles, reason='Синхронизация с ролями в игре.')
         await member.send('Я изменил ваши роли, чтобы они соответствовали статусу в игре.')

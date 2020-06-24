@@ -13,7 +13,8 @@ class InfosStorage(utils_storage.Storage):
                                 name=model.name,
                                 linguistics_name=utg_words.Word.deserialize(model.data['linguistics_name']),
                                 abbr=model.abbr,
-                                motto=model.motto)
+                                motto=model.motto,
+                                state=model.state)
 
     def _save_object(self, info):
         raise NotImplementedError

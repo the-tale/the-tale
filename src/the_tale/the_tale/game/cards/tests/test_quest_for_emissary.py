@@ -26,7 +26,7 @@ class QuestsForEmissaryTest(helpers.CardsTestMixin,
         self.clan = self.create_clan(self.account, 0)
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
 
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -184,7 +184,7 @@ class QuestsForEmissaryTest(helpers.CardsTestMixin,
         with self.check_not_changed(lambda: self.emissary_power()):
             self.complete_quest(self.hero)
 
-    def test_emissary_hero_in_pvp(self):
+    def test_hero_in_pvp(self):
         pvp_tt_services.matchmaker.cmd_debug_clear_service()
 
         battle_info = self.create_pvp_battle(self.account)
@@ -200,6 +200,16 @@ class QuestsForEmissaryTest(helpers.CardsTestMixin,
 
         self.assertTrue(self.hero.actions.has_proxy_actions())
         self.assertTrue(self.hero.actions.current_action.TYPE.is_META_PROXY)
+
+        with self.check_not_changed(lambda: self.emissary_power()):
+            self.complete_quest(self.hero)
+
+    def test_hero_is_dead(self):
+
+        self.hero.kill()
+
+        with self.check_free_quests_change(0):
+            self.use_card(success=False, available_for_auction=False)
 
         with self.check_not_changed(lambda: self.emissary_power()):
             self.complete_quest(self.hero)

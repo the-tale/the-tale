@@ -270,12 +270,8 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-magic-power', widget).text(data.secondary.power[1]);
         jQuery('.pgf-money', widget).text(parseInt(data.base.money));
         jQuery('.pgf-might', widget).text(Math.round(data.might.value*100)/100);
-        jQuery('.pgf-might-crit-chance', widget).text(Math.round(data.might.crit_chance*10000)/100.0);
         jQuery('.pgf-might-pvp-effectiveness-bonus', widget).text(Math.round(data.might.pvp_effectiveness_bonus*10000)/100.0);
         jQuery('.pgf-might-politics-power-bonus', widget).text(Math.round(data.might.politics_power*10000)/100.0);
-
-        jQuery('.pgf-energy', content).text(account.energy);
-        jQuery('.pgf-diary-block-energy').text(account.energy);
 
         // companion data
         jQuery('.pgf-companion', widget).toggleClass('pgf-hidden', !!(data.companion == null));
@@ -516,15 +512,17 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
     var data = {};
 
     function RenderQuests() {
-        pgf.base.HideTooltips(widget, 'pgf-actor-tooltip');
+        pgf.base.HideTooltips();
 
         if (data.quests.length == 0) {
             pgf.game.widgets._RenderQuest(0, [], currentQuest);
-            return;
+        }
+        else {
+            var quest = data.quests.quests[data.quests.quests.length - 1];
+            pgf.game.widgets._RenderQuest(0, quest.line[quest.line.length-1], currentQuest);
         }
 
-        var quest = data.quests.quests[data.quests.quests.length - 1];
-        pgf.game.widgets._RenderQuest(0, quest.line[quest.line.length-1], currentQuest);
+        jQuery('[rel="tooltip"]', widget).tooltip(pgf.base.tooltipsArgs);
     }
 
     function RenderChoiceVariant(index, variant, element) {
@@ -635,6 +633,7 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
     function RenderQuests() {
         pgf.base.HideTooltips(widget, 'pgf-actor-tooltip');
         pgf.base.RenderTemplateList(questsContainer, data.quests.quests, RenderQuestsLine, {});
+        jQuery('[rel="tooltip"]', questsContainer).tooltip(pgf.base.tooltipsArgs);
     }
 
     this.Refresh = function(game_data) {
@@ -1436,170 +1435,4 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
             instance.Render();
         }
     });
-};
-
-pgf.game.widgets.Abilities = function() {
-    var instance = this;
-
-    var abilities = pgf.game.constants.abilities;
-
-    var MINIMUM_LOCK_DELAY = 750;
-    var abilitiesWaitingStartTimes = {};
-
-    var angelEnergy = 0;
-
-    var canRestoreEnergy = false;
-
-    var itemsInBag = false;
-
-    var turn = {};
-
-    var allowAbilityUnlock = {};
-
-    function ChangeAbilityEnergyState(abilityType, energy) {
-        jQuery('.pgf-ability-'+abilityType).toggleClass('no-energy', energy);
-    }
-
-    function ChangeAbilityWaitingState(abilityType, wait) {
-        var ability = jQuery('.pgf-ability-'+abilityType);
-
-        if (wait) {
-            var date = new Date();
-            abilitiesWaitingStartTimes[abilityType] = date.getTime();
-
-            pgf.base.ToggleWait(ability, true);
-        }
-        else {
-            var date = new Date();
-            var curTime = date.getTime();
-            var minCloseTime =  abilitiesWaitingStartTimes[abilityType] + MINIMUM_LOCK_DELAY;
-
-            if ( minCloseTime <= curTime) {
-                pgf.base.ToggleWait(ability, false);
-            }
-            else {
-                window.setTimeout(function() { pgf.base.ToggleWait(ability, false); }, minCloseTime - curTime);
-            }
-        }
-    }
-
-    function IsProcessingAbility(abilityType) {
-        return jQuery('.pgf-ability-'+abilityType).hasClass('pgf-wait');
-    }
-
-    function IsDisablingAbility(abilityType) {
-        return jQuery('.pgf-ability-'+abilityType).hasClass('pgf-disable');
-    }
-
-    function ActivateAbility(element, ability) {
-
-        var abilityInfo = abilities[ability.type];
-
-        if (abilityInfo.cost > angelEnergy) {
-            return;
-        }
-
-        if (IsProcessingAbility(ability.type)) {
-            return;
-        }
-
-        if (IsDisablingAbility(ability.type)) {
-            return;
-        }
-
-        ChangeAbilityWaitingState(ability.type, true);
-
-        var battleId = element.data('battle-id');
-        var redirectOnSuccess = element.data('redirect-on-success');
-
-        var url = '/game/abilities/'+ability.type+'/api/use?api_version=1.0&api_client='+API_CLIENT;
-
-        if (battleId != undefined) {
-            url = url + '&battle=' + battleId;
-        }
-
-        pgf.forms.Post({action: url,
-                        wait: false,
-                        OnError: function() {
-                            ChangeAbilityWaitingState(ability.type, false);
-                        },
-                        OnSuccess: function(data) {
-                            allowAbilityUnlock[ability.type] = true;
-                            ability.available_at = data.data.available_at;
-
-                            if (redirectOnSuccess != undefined) {
-                                setTimeout(function(){location.href = redirectOnSuccess;}, 0);
-                            }
-                            else {
-                                jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
-                            }
-                        }
-                       });
-    }
-
-    function RenderAbility(ability) {
-
-        var abilityInfo = abilities[ability.type];
-        var element = jQuery('.pgf-ability-'+abilityInfo.type.toLowerCase());
-
-        ChangeAbilityEnergyState(ability.type, abilityInfo.cost > angelEnergy);
-
-        element.unbind('click');
-
-        element.click(function(e){
-            e.preventDefault();
-            ActivateAbility(jQuery(e.currentTarget), ability);
-        });
-    }
-
-    function UpdateButtons() {
-        jQuery('.pgf-ability-help').toggleClass('pgf-hidden', false);
-
-        jQuery('.pgf-ability-drop_item')
-            .toggleClass('pgf-hidden', false)
-            .toggleClass('no-items', !itemsInBag)
-            .toggleClass('pgf-disable', !itemsInBag);
-    }
-
-    function RenderDeck() {
-        for (var i in abilities) {
-            RenderAbility(abilities[i]);
-        }
-        UpdateButtons();
-    };
-
-    function Refresh(game_data) {
-        turn = game_data.turn;
-
-        var account = game_data.account;
-        var hero = game_data.account.hero;
-
-        angelEnergy = account.energy;
-
-        itemsInBag = false;
-        for (var uuid in hero.bag) {
-            itemsInBag = true;
-            break;
-        }
-    };
-
-    function Render() {
-        RenderDeck();
-    };
-
-    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
-        Refresh(game_data);
-        Render();
-
-        for (abilityType in allowAbilityUnlock) {
-            if (allowAbilityUnlock[abilityType]) {
-                allowAbilityUnlock[abilityType] = false;
-                ChangeAbilityWaitingState(abilityType, false);
-            }
-        }
-
-    });
-
-    this.RenderAbility = RenderAbility;
-    this.UpdateButtons = UpdateButtons;
 };

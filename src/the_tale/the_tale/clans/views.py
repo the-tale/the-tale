@@ -302,10 +302,10 @@ def show(context):
     heroes = {hero.account_id: hero
               for hero in heroes_logic.load_heroes_by_account_ids(list(memberships.keys()))}
 
-    total_frontier_politic_power_multiplier = sum(hero.politics_power_multiplier()
+    total_frontier_politic_power_multiplier = sum(hero.politic_power_bonus()
                                                   for hero in heroes.values())
 
-    total_core_politic_power_multiplier = sum(hero.politics_power_multiplier()
+    total_core_politic_power_multiplier = sum(hero.politic_power_bonus()
                                               for hero in heroes.values()
                                               if hero.is_premium and not hero.is_banned)
 

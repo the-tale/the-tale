@@ -134,11 +134,11 @@ class EffectsTests(utils_testcase.TestCase):
             self._set_effect(relations.ARTIFACT_EFFECT.CHARM)
 
     def test_peace_of_mind(self):
-        with self.check_increased(lambda: self.hero.regenerate_double_energy_probability):
+        with self.check_increased(lambda: self.hero.double_religion_profit_probability):
             self._set_effect(relations.ARTIFACT_EFFECT.PEACE_OF_MIND)
 
     def test_Concentration(self):
-        with self.check_increased(lambda: self.hero.regenerate_double_energy_probability):
+        with self.check_increased(lambda: self.hero.double_religion_profit_probability):
             self._set_effect(relations.ARTIFACT_EFFECT.CONCENTRATION)
 
     def test_special_aura(self):

@@ -14,7 +14,8 @@ BEST_PERSON_BONUSES = {places_relations.ATTRIBUTE.PRODUCTION: c.PLACE_GOODS_FROM
 MAXIMUM_RAW_ECONOMIC_ATTRIBUTE = 3.0
 
 
-class Person(game_names.ManageNameMixin2):
+class Person(game_names.ManageNameMixin2,
+             game_attributes.AttributesMixin):
     __slots__ = ('id',
                  'created_at_turn',
                  'updated_at_turn',
@@ -161,19 +162,37 @@ class Person(game_names.ManageNameMixin2):
                 'place': self.place.id}
 
     def _effects_generator(self):
+        yield tt_api_effects.Effect(name='Мастер',
+                                    attribute=relations.ATTRIBUTE.TERRAIN_POWER,
+                                    value=0.1)
+
+        yield tt_api_effects.Effect(name='Мастер',
+                                    attribute=relations.ATTRIBUTE.PLACES_HELP_AMOUNT,
+                                    value=1.0)
+
+        yield tt_api_effects.Effect(name='Мастер',
+                                    attribute=relations.ATTRIBUTE.BUILDING_SUPPORT_COST,
+                                    value=c.PLACE_GOODS_FOR_BUILDING_SUPPORT)
+
+        yield tt_api_effects.Effect(name='Мастер',
+                                    attribute=relations.ATTRIBUTE.SOCIAL_RELATIONS_PARTNERS_POWER_MODIFIER,
+                                    value=0.1)
+
+        yield tt_api_effects.Effect(name='Мастер',
+                                    attribute=relations.ATTRIBUTE.SOCIAL_RELATIONS_CONCURRENTS_POWER_MODIFIER,
+                                    value=0.1)
+
+        yield tt_api_effects.Effect(name='Мастер',
+                                    attribute=relations.ATTRIBUTE.DEMOGRAPHICS_PRESSURE,
+                                    value=1.0)
+
         yield self.personality_cosmetic.effect
         yield self.personality_practical.effect
 
-    def effects_generator(self, order):
-        for effect in self._effects_generator():
-            if effect.attribute.order != order:
-                continue
-            yield effect
-
-    def all_effects(self):
-        for order in relations.ATTRIBUTE.EFFECTS_ORDER:
-            for effect in self.effects_generator(order):
-                yield effect
+        if self.has_building:
+            yield tt_api_effects.Effect(name=self.building.type.text,
+                                        attribute=relations.ATTRIBUTE.POLITIC_POWER_BONUS,
+                                        value=tt_politic_power_constants.MODIFIER_PERSON_BUILDING)
 
     def modify_specialization_points(self, points):
         return f.place_specialization_from_person(person_points=points,
@@ -220,10 +239,10 @@ class Person(game_names.ManageNameMixin2):
                                         attribute=places_relations.ATTRIBUTE.POLITIC_RADIUS,
                                         value=self.attrs.politic_radius_bonus)
 
-        if self.attrs.stability_renewing_bonus != 0:
+        if self.attrs.stability_bonus != 0:
             yield tt_api_effects.Effect(name=effect_name,
-                                        attribute=places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED,
-                                        value=self.attrs.stability_renewing_bonus)
+                                        attribute=places_relations.ATTRIBUTE.STABILITY,
+                                        value=self.attrs.stability_bonus)
 
         if self.has_building:
             yield tt_api_effects.Effect(name='стабилизация {} ({})'.format(self.building.name, effect_name),
@@ -233,12 +252,6 @@ class Person(game_names.ManageNameMixin2):
             yield tt_api_effects.Effect(name='ремонт {} ({})'.format(self.building.name, effect_name),
                                         attribute=places_relations.ATTRIBUTE.PRODUCTION,
                                         value=-self.attrs.building_support_cost)
-
-    def refresh_attributes(self):
-        self.attrs.reset()
-
-        for effect in self.all_effects():
-            effect.apply_to(self.attrs)
 
     def meta_object(self):
         return meta_relations.Person.create_from_object(self)

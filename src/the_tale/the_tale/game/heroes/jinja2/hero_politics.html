@@ -7,7 +7,7 @@
 
   <h3>Влиятельность</h3>
 
-  <p>Величина влияния героя на политику определяется суммой нескольких факторов.</p>
+  <p>Бонус к приносимому героем влиянию.</p>
 
   <table class="table table-condensed table-striped table-bordered">
     <tbody>
@@ -15,36 +15,9 @@
         <th>параметр</th>
         <th>влияние</th>
       </tr>
-      <tr><td>базовое</td><td>{{100}}%</td></tr>
-      <tr><td>от уровня</td><td>{{resource.hero.politics_power_level|percents(2)}}</td></tr>
       <tr><td>от могущества Хранителя</td><td>{{resource.hero.politics_power_might|percents(2)}}</td></tr>
-      <tr><td>от принятых записей в Книге Судеб</td><td>{{resource.hero.politics_power_bills|percents(2)}}</td></tr>
-      <tr><td>от риска</td><td>{{resource.hero.preferences.risk_level.power_modifier|percents(2)}}</td></tr>
       <tr><td>от остального (способностей, предпочтений, спутников, артефактов)</td><td>{{resource.hero.politics_power_modifier|percents(2)}}</td></tr>
-      <tr><td>итого</td><td>{{resource.hero.politics_power_multiplier()|percents(2)}}</td></tr>
-  </table>
-
-  <p>Когда герой помогает соратнику, вредит противнику или посещает родной город, он оказывает на них дополнительное влияние.</p>
-
-  <table class="table table-condensed table-striped table-bordered">
-    <tbody>
-      <tr>
-        <th>действие</th>
-        <th>влияние</th>
-      </tr>
-      <tr>
-        <td>помощь соратнику</td>
-        <td>+{{resource.hero.friend_power_modifier|percents(2)}}</td>
-      </tr>
-      <tr>
-        <td>вред противнику</td>
-        <td>-{{resource.hero.enemy_power_modifier|percents(2)}}</td>
-      </tr>
-      <tr>
-        <td>помощь родному городу</td>
-        <td>+{{resource.hero.place_power_modifier|percents(2)}}</td>
-      </tr>
-    </tbody>
+      <tr><td>итого</td><td>{{resource.hero.politic_power_bonus()|percents(2)}}</td></tr>
   </table>
 
   <h3>Известность</h3>

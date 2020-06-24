@@ -62,8 +62,9 @@ class Client(client.Client):
                       state=REPORT_STATE(answer.report.state),
                       data=s11n.from_json(answer.report.data))
 
-    def cmd_request_deletion(self, ids):
-        request = tt_protocol_data_protector_pb2.RequestDeletionRequest(ids=self.ids_to_protobuf(ids))
+    def cmd_request_deletion(self, core_id, ids):
+        request = tt_protocol_data_protector_pb2.RequestDeletionRequest(core_id=str(core_id),
+                                                                        ids=self.ids_to_protobuf(ids))
 
         operations.sync_request(url=self.url('request-deletion'),
                                 data=request,

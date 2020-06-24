@@ -34,7 +34,7 @@ def get_word_restrictions(external, word_form):
     return ((external, restrictions.get(relations.WORD_HAS_PLURAL_FORM.HAS)), )
 
 
-def _process_arguments(args):
+def _process_arguments(args, lexicon_key=None):
     externals = {}
     restrictions = set()
 
@@ -54,7 +54,7 @@ def _process_arguments(args):
 
     for k, v in variables:
         if v is None:
-            logger.warn('unknown variable %s, for variables %s', k, args)
+            logger.warn('unknown variable %s, for key %s, for variables %s', k, lexicon_key, args)
             word_form = lexicon_dictionary.noun(['потерянная переменная'] * 12, 'од,ср')
             variable_restrictions = set()
         else:
@@ -73,7 +73,7 @@ def prepair_get_text(key, args, quiet=False):
     if lexicon_key is None and not quiet:
         raise exceptions.NoLexiconKeyError(key=key)
 
-    externals, restrictions = _process_arguments(args)
+    externals, restrictions = _process_arguments(args, lexicon_key=lexicon_key)
 
     if (not storage.lexicon.item.has_key(lexicon_key) and
         not quiet and
@@ -245,8 +245,6 @@ RE_GOLD_UP = re.compile(r'\+(\w+)#G')
 RE_GOLD_DOWN = re.compile(r'\-(\w+)#G')
 RE_EXP_UP = re.compile(r'\+(\w+)#EXP')
 RE_EXP_DOWN = re.compile(r'\-(\w+)#EXP')
-RE_ENERGY_UP = re.compile(r'\+(\w+)#EN')
-RE_ENERGY_DOWN = re.compile(r'\-(\w+)#EN')
 RE_EFFECTIVENESS_UP = re.compile(r'\+(\w+)#EF')
 RE_EFFECTIVENESS_DOWN = re.compile(r'\-(\w+)#EF')
 
@@ -267,9 +265,6 @@ def ui_format(text):
     text = RE_GOLD_UP.sub('<span class="log-short log-short-gold-up" rel="tooltip" title="полученные монеты">+!\\1!☉</span>', text)
     text = RE_GOLD_DOWN.sub('<span class="log-short log-short-gold-down" rel="tooltip" title="потерянные монеты">-!\\1!☉</span>', text)
     text = RE_EXP_UP.sub('<span class="log-short log-short-exp-up" rel="tooltip" title="полученный опыт">+!\\1!★</span>', text)
-    # text = RE_EXP_DOWN.sub(u'<span class="log-short log-short-exp-down" rel="tooltip" title="полученный урон">-!\\1!★</span>', text)
-    text = RE_ENERGY_UP.sub('<span class="log-short log-short-energy-up" rel="tooltip" title="полученная энергия">+!\\1!⚡</span>', text)
-    text = RE_ENERGY_DOWN.sub('<span class="log-short log-short-energy-down" rel="tooltip" title="потерянная энергия">-!\\1!⚡</span>', text)
     text = RE_EFFECTIVENESS_UP.sub('<span class="log-short log-short-effectiveness-up" rel="tooltip" title="полученная эффективность">+!\\1!👁</span>', text)
     # text = RE_EFFECTIVENESS_DOWN(u'<span class="log-short log-short-effectiveness-down" rel="tooltip" title="полученный урон">-!\\1!⚡</span>', text)
 

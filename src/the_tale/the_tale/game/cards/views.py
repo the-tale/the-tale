@@ -110,7 +110,7 @@ def use_dialog(context):
                                      'RISK_LEVEL': heroes_relations.RISK_LEVEL,
                                      'COMPANION_DEDICATION': heroes_relations.COMPANION_DEDICATION,
                                      'COMPANION_EMPATHY': heroes_relations.COMPANION_EMPATHY,
-                                     'ENERGY_REGENERATION': heroes_relations.ENERGY_REGENERATION,
+                                     'RELIGION_TYPE': heroes_relations.RELIGION_TYPE,
                                      'ARCHETYPE': game_relations.ARCHETYPE,
                                      'favorite_items': favorite_items})
 

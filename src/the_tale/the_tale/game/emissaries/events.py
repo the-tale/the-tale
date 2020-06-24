@@ -89,7 +89,8 @@ class EventBase:
         return cost
 
     @classmethod
-    def power_for_day_cost(cls, emissary):
+    def power_for_day_cost(cls, emissary) -> int:
+
         return int(math.ceil(logic.expected_power_per_day() *
                              cls.TYPE.power_cost_modifier *
                              tt_emissaries_constants.EVENT_POWER_FRACTION *
@@ -106,8 +107,8 @@ class EventBase:
         return cost
 
     @classmethod
-    def power_cost(cls, emissary, days):
-        return int(math.ceil(cls.power_for_day_cost(emissary) * days))
+    def power_cost(cls, emissary, days: int) -> int:
+        return cls.power_for_day_cost(emissary) * days
 
     @contextlib.contextmanager
     def on_create(self, emissary):
@@ -163,18 +164,17 @@ class Rest(EventBase):
     __slots__ = ()
 
     TYPE = relations.EVENT_TYPE.REST
-    HAS_PROTECTORAT_BONUS = True
+    HAS_PROTECTORAT_BONUS = False
 
     @classmethod
-    def health_per_step(cls, raw_ability_power, bonus):
+    def health_per_step(cls, raw_ability_power):
         return cls.actual_value(raw_ability_power,
                                 tt_emissaries_constants.HEALTH_REGENERATION_MIN,
                                 tt_emissaries_constants.HEALTH_REGENERATION_MAX,
-                                bonus=bonus)
+                                bonus=0)
 
     def on_step(self, event):
-        health_to_regenerate = self.health_per_step(self.raw_ability_power,
-                                                    bonus=event.emissary.protectorat_event_bonus())
+        health_to_regenerate = self.health_per_step(self.raw_ability_power)
 
         event.emissary.health = min(event.emissary.health + health_to_regenerate, event.emissary.attrs.max_health)
 
@@ -184,8 +184,7 @@ class Rest(EventBase):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        health = cls.health_per_step(raw_ability_power,
-                                     bonus=emissary.protectorat_event_bonus() if emissary else 0)
+        health = cls.health_per_step(raw_ability_power)
         return f'Восстанавливает эмиссару {health} здоровья каждый час.'
 
 
@@ -987,14 +986,6 @@ class Revolution(EventBase):
 
         return emissary.can_participate_in_pvp()
 
-    @contextlib.contextmanager
-    def on_create(self, emissary):
-
-        if emissary.place.attrs.clan_protector == emissary.clan_id:
-            raise exceptions.OnEventCreateError(message='already protector')
-
-        yield
-
     def message(self, template, emissary):
         clan_info = clans_storage.infos[emissary.clan_id]
         place = emissary.place
@@ -1082,7 +1073,7 @@ class Revolution(EventBase):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = f'Делает гильдию эмиссара протектором города, в котором тот находится. Проваливается, если в момент завершения мероприятия эмиссар не находится в числе лидеров города, либо имеет не более {cls.POWER_BARRIER} влияния, либо имеет меньше влияния, чем эмиссар текущей гильдии-протектора. При начале и завершении мероприятия будет отправлено соответствующее сообщение всем членам гильдий (с эмиссарами в городе) с правом «{clans_relations.PERMISSION.RECEIVE_MESSAGES.text}». Начать мероприятие может только эмиссар с суммой способностей больше {tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP}.'
+        text = f'Делает гильдию эмиссара протектором города, в котором тот находится. Проваливается, если в момент завершения мероприятия эмиссар не находится в числе лидеров города, либо имеет не более {cls.POWER_BARRIER} влияния, либо имеет меньше влияния, чем эмиссар текущей гильдии-протектора. При начале и завершении мероприятия будет отправлено соответствующее сообщение всем членам гильдий (с эмиссарами в городе) с правом «{clans_relations.PERMISSION.RECEIVE_MESSAGES.text}». Начать мероприятие может только эмиссар с суммой способностей больше {tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP}. Может быть начато даже, если гильдия уже является протектором города.'
         return text
 
 

@@ -1,7 +1,7 @@
 
 from typing import List
 
-NORMAL_RECEIVE_TIME: int = 12                      # период в часах через который обычному игроку даётся новая карта
+NORMAL_RECEIVE_TIME: int = 6                       # период в часах через который обычному игроку даётся новая карта
 RECEIVE_TIME: int = NORMAL_RECEIVE_TIME * 60 * 60  # период в секундах через который обычному игроку даётся новая карта
 
 LEVEL_MULTIPLIERS: List[float] = [1,    # 3.5**0

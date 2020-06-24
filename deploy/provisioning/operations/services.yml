@@ -60,17 +60,6 @@
     collect_static: false
 
 
-- name: install TT soft currency
-  import_playbook: ../tasks/tt_service.yml
-  vars:
-    name: TT soft currency
-    user: tt_soft_currency
-    packages: "{{tt_services['tt_soft_currency']['packages']}}"
-    django_settings: tt_bank.settings
-    port: 10005
-    collect_static: false
-
-
 - name: install TT players timers
   import_playbook: ../tasks/tt_service.yml
   vars:

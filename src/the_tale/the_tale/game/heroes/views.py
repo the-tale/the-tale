@@ -123,7 +123,7 @@ class HeroResource(utils_resources.Resource):
                               'RISK_LEVEL': relations.RISK_LEVEL,
                               'COMPANION_DEDICATION': relations.COMPANION_DEDICATION,
                               'COMPANION_EMPATHY': relations.COMPANION_EMPATHY,
-                              'ENERGY_REGENERATION': relations.ENERGY_REGENERATION,
+                              'RELIGION_TYPE': relations.RELIGION_TYPE,
                               'ARCHETYPE': game_relations.ARCHETYPE,
                               'favorite_items': favorite_items,
                               'change_preferences_card': cards_types.CARD.CHANGE_PREFERENCE})

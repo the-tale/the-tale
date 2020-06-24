@@ -15,7 +15,7 @@ class StopIdlenessTests(helpers.CardsTestMixin, utils_testcase.TestCase):
         self.account_1 = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account_1)
+        self.storage.load_account_data(self.account_1.id)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
@@ -47,7 +47,7 @@ class StopIdlenessTests(helpers.CardsTestMixin, utils_testcase.TestCase):
         self.assertFalse(self.hero.quests.has_quests)
 
     def test_idleness__has_subaction(self):
-        actions_prototypes.ActionRegenerateEnergyPrototype.create(hero=self.hero)
+        actions_prototypes.ActionReligionCeremonyPrototype.create(hero=self.hero)
 
         result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
 
@@ -56,5 +56,5 @@ class StopIdlenessTests(helpers.CardsTestMixin, utils_testcase.TestCase):
                           game_postponed_tasks.ComplexChangeTask.STEP.ERROR,
                           ()))
 
-        self.assertTrue(self.hero.actions.current_action.TYPE.is_REGENERATE_ENERGY)
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_RELIGION_CEREMONY)
         self.assertFalse(self.hero.quests.has_quests)

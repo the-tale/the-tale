@@ -186,11 +186,11 @@ class TRAIT(rels_django.DjangoEnum):
                [trait(ATTRIBUTE.DAMAGE_TO_HEALTH, 34, 'толстокожий', -tt_emissaries_constants.DAMAGE_TO_HEALTH_DELTA, True),
                 trait(ATTRIBUTE.DAMAGE_TO_HEALTH, 35, 'хрупкий', tt_emissaries_constants.DAMAGE_TO_HEALTH_DELTA, False),
 
-                trait(ATTRIBUTE.POSITIVE_POWER, 36, 'располагающий', tt_emissaries_constants.QUEST_POWER_BONUS, True),
-                trait(ATTRIBUTE.POSITIVE_POWER, 37, 'отвратный', -tt_emissaries_constants.QUEST_POWER_BONUS, False),
+                trait(ATTRIBUTE.POSITIVE_POWER, 36, 'располагающий', tt_politic_power_constants.MODIFIER_EMISSARY, True),
+                trait(ATTRIBUTE.POSITIVE_POWER, 37, 'отвратный', -tt_politic_power_constants.MODIFIER_EMISSARY, False),
 
-                trait(ATTRIBUTE.NEGATIVE_POWER, 38, 'осторожный', -tt_emissaries_constants.QUEST_POWER_BONUS, True),
-                trait(ATTRIBUTE.NEGATIVE_POWER, 39, 'доверчивый', tt_emissaries_constants.QUEST_POWER_BONUS, False),
+                trait(ATTRIBUTE.NEGATIVE_POWER, 38, 'осторожный', -tt_politic_power_constants.MODIFIER_EMISSARY, True),
+                trait(ATTRIBUTE.NEGATIVE_POWER, 39, 'доверчивый', tt_politic_power_constants.MODIFIER_EMISSARY, False),
 
                 trait(ATTRIBUTE.EXPERIENCE_BONUS, 40, 'хитроумный', tt_emissaries_constants.QUEST_EXPERIENCE_BUFF, True),
                 trait(ATTRIBUTE.EXPERIENCE_BONUS, 41, 'простоватый', -tt_emissaries_constants.QUEST_EXPERIENCE_DEBUFF, False)] +

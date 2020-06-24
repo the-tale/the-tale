@@ -4,8 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount, fame):
-    amount = round(amount * place.attrs.freedom)
+def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount: int, fame: int):
 
     impact_types = [game_tt_services.IMPACT_TYPE.OUTER_CIRCLE]
 
@@ -33,18 +32,18 @@ def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount, fame):
 
 
 def impacts_from_hero(hero, place, power, inner_circle_places, impacts_generator=tt_power_impacts):
-    place_power = 0
-
     can_change_power = hero.can_change_place_power(place)
 
-    place_power = hero.modify_politics_power(power, place=place)
+    place_power = politic_power_logic.final_politic_power(power=power,
+                                                          place=place,
+                                                          hero=hero)
 
     yield from impacts_generator(inner_circle=hero.preferences.place_is_hometown(place) or (place.id in inner_circle_places),
                                  actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                  actor_id=hero.id,
                                  place=place,
                                  amount=place_power if can_change_power else 0,
-                                 fame=c.HERO_FAME_PER_HELP if 0 < place_power else 0)
+                                 fame=c.HERO_FAME_PER_HELP if 0 < power else 0)
 
 
 def load_place(place_id=None, place_model=None):
@@ -355,7 +354,7 @@ def get_start_place_for_race(race):
     return choices[0]
 
 
-def choose_place_cell_by_terrain(place_id, terrains, exclude_place_if_can=False):
+def choose_place_cell_by_terrain(place_id, terrains, exclude_place_if_can=False, limit=conf.settings.CHOOSE_BY_TERRAIN_LIMIT):
     cell_choices = ()
 
     if terrains:
@@ -365,14 +364,24 @@ def choose_place_cell_by_terrain(place_id, terrains, exclude_place_if_can=False)
     if not cell_choices:
         cell_choices = map_storage.cells.place_cells(place_id)
 
+    place = storage.places[place_id]
+
     if exclude_place_if_can and len(cell_choices) > 1:
-        place = storage.places[place_id]
         coordinates = (place.x, place.y)
 
         if coordinates in cell_choices:
             cell_choices.remove(coordinates)
 
-    return random.choice(cell_choices)
+    choices = [(navigation_logic.manhattan_distance(*cell, place.x, place.y), cell)
+               for cell in cell_choices]
+    choices.sort()
+
+    if limit:
+        # фунция используется для выбора клеток для посещения в рамках заданий с механикой «побродить вокруг»
+        # ограничивает радиус выбора, чтобы герой не уходил далеко от города (актуально для городов фронтира)
+        choices = list(choices[:limit])
+
+    return random.choice(choices)[1]
 
 
 def register_money_transaction(hero_id, place_id, amount):

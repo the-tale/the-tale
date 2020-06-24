@@ -13,7 +13,7 @@ class CollectDataTests(utils_testcase.TestCase):
         self.account = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
     def test(self):
@@ -24,15 +24,7 @@ class CollectDataTests(utils_testcase.TestCase):
                                        ('hero:description', logic.get_hero_description(self.hero.id))])
 
 
-class RemoveDataTests(clans_helpers.ClansTestsMixin,
-                      utils_testcase.TestCase):
-
-    def setUp(self):
-        super().setUp()
-        self.places = game_logic.create_test_map()
-
-        self.accounts = [self.accounts_factory.create_account(),
-                         self.accounts_factory.create_account()]
+class RemoveDataMixin:
 
     @contextlib.contextmanager
     def check_heroes_not_changed(self):
@@ -47,10 +39,22 @@ class RemoveDataTests(clans_helpers.ClansTestsMixin,
         if sync_save_time:
             heroes_models.Hero.objects.filter(id=self.accounts[0].id).update(saved_at=removed_at)
 
+
+class BeforeRemoveDataTests(clans_helpers.ClansTestsMixin,
+                            RemoveDataMixin,
+                            utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.places = game_logic.create_test_map()
+
+        self.accounts = [self.accounts_factory.create_account(),
+                         self.accounts_factory.create_account()]
+
     def test_account_not_removed(self):
         with self.check_heroes_not_changed():
             with self.assertRaises(NotImplementedError):
-                data_protection.remove_data(self.accounts[0].id)
+                data_protection.before_remove_data(self.accounts[0].id)
 
     def test_require_hero_release__due_removed_time(self):
 
@@ -58,7 +62,7 @@ class RemoveDataTests(clans_helpers.ClansTestsMixin,
 
         with self.check_heroes_not_changed():
             with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_account_release_required') as cmd_account_release_required:
-                self.assertFalse(data_protection.remove_data(self.accounts[0].id))
+                self.assertFalse(data_protection.before_remove_data(self.accounts[0].id))
 
         self.assertEqual(cmd_account_release_required.call_args_list,
                          [mock.call(self.accounts[0].id)])
@@ -69,15 +73,29 @@ class RemoveDataTests(clans_helpers.ClansTestsMixin,
 
         with self.check_heroes_not_changed():
             with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_account_release_required') as cmd_account_release_required:
-                self.assertFalse(data_protection.remove_data(self.accounts[0].id))
+                self.assertFalse(data_protection.before_remove_data(self.accounts[0].id))
 
         self.assertEqual(cmd_account_release_required.call_args_list,
                          [mock.call(self.accounts[0].id)])
+
+
+class RemoveDataTests(clans_helpers.ClansTestsMixin,
+                      RemoveDataMixin,
+                      utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.places = game_logic.create_test_map()
+
+        self.accounts = [self.accounts_factory.create_account(),
+                         self.accounts_factory.create_account()]
 
     def test_success(self):
         self.prepair_forum_for_clans()
 
         clan = self.create_clan(self.accounts[0], 1)
+
+        self.accounts[0].reload()
 
         logic.set_hero_description(hero_id=self.accounts[0].id, text='description')
 
@@ -87,13 +105,15 @@ class RemoveDataTests(clans_helpers.ClansTestsMixin,
 
         hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.places[0])
 
-        hero.update_with_account_data(is_fast=False,
-                                      premium_end_at=datetime.datetime.now(),
-                                      active_end_at=datetime.datetime.now(),
-                                      ban_end_at=datetime.datetime.now(),
-                                      might=100500,
-                                      actual_bills=[10034, 1231231],
-                                      clan_id=clan.id)
+        self.accounts[0].is_fast = False
+        self.accounts[0]._model.premium_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.accounts[0]._model.active_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.accounts[0]._model.ban_game_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.accounts[0]._model.might = 100500
+
+        self.accounts[0].save()
+
+        logic.sync_hero_external_data(hero)
 
         logic.save_hero(hero)
 
@@ -101,6 +121,9 @@ class RemoveDataTests(clans_helpers.ClansTestsMixin,
         #######################
 
         self.mark_removed(delta=-conf.settings.REMOVE_HERO_DELAY, sync_save_time=False)
+
+        clans_data_protection.remove_account_data(self.accounts[0].id)
+        accounts_data_protection.remove_account_data(self.accounts[0].id)
 
         with self.check_changed(lambda: logic.load_hero(self.accounts[0].id).utg_name):
             with self.check_increased(lambda: logic.load_hero(self.accounts[0].id).saved_at):
@@ -123,5 +146,4 @@ class RemoveDataTests(clans_helpers.ClansTestsMixin,
         self.assertEqual(hero.active_state_end_at, zero)
         self.assertEqual(hero.ban_state_end_at, zero)
         self.assertEqual(hero.might, 0)
-        self.assertEqual(hero.actual_bills, [])
         self.assertEqual(hero.clan_id, None)

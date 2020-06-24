@@ -107,22 +107,29 @@ class CardsForNewAccountTests(utils_testcase.TestCase):
                                                                          type=cards_types.CARD.CHANGE_ABILITIES_CHOICES),
             cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
                                                                   type=cards_types.CARD.CHANGE_PREFERENCE,
-                                                                  preference=heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
+                                                                  preference=heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE),
             cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
                                                                   type=cards_types.CARD.CHANGE_PREFERENCE,
-                                                                  preference=heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
+                                                                  preference=heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE),
             cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
                                                                   type=cards_types.CARD.CHANGE_PREFERENCE,
                                                                   preference=heroes_relations.PREFERENCE_TYPE.PLACE),
             cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
                                                                   type=cards_types.CARD.CHANGE_PREFERENCE,
-                                                                  preference=heroes_relations.PREFERENCE_TYPE.FRIEND),
-            cards_types.CARD.ADD_BONUS_ENERGY_RARE.effect.create_card(available_for_auction=False,
-                                                                      type=cards_types.CARD.ADD_BONUS_ENERGY_RARE)]
+                                                                  preference=heroes_relations.PREFERENCE_TYPE.FRIEND)]
+
+        for _ in range(2):
+            self.expected_cards.append(cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                                             type=cards_types.CARD.CHANGE_PREFERENCE,
+                                                                                             preference=heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE))
 
         for _ in range(5):
             self.expected_cards.append(cards_types.CARD.STOP_IDLENESS.effect.create_card(available_for_auction=False,
                                                                                          type=cards_types.CARD.STOP_IDLENESS))
+
+        for _ in range(10):
+            self.expected_cards.append(cards_types.CARD.STOP_IDLENESS.effect.create_card(available_for_auction=False,
+                                                                                         type=cards_types.CARD.REGENERATION))
 
     def test_change_and_load(self):
         cards = cards_tt_services.storage.cmd_get_items(self.account.id)
@@ -152,7 +159,7 @@ class ChangeCredentialsTests(personal_messages_helpers.Mixin,
 
         with self.check_delta(lambda: len(cards_tt_services.storage.cmd_get_items(self.fast_account.id)),
                               conf.settings.FREE_CARDS_FOR_REGISTRATION), \
-             mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd, \
+             mock.patch('the_tale.game.workers.supervisor.Worker.cmd_sync_hero_required') as fake_cmd, \
              mock.patch('the_tale.accounts.logic.update_referrals_number') as update_referrals_number:
                 logic.change_credentials(account=self.fast_account,
                                          new_email='fast_user@test.ru',
@@ -164,7 +171,6 @@ class ChangeCredentialsTests(personal_messages_helpers.Mixin,
         self.assertEqual(django_auth.authenticate(nick='test_nick', password='222222').id, self.fast_account.id)
         self.assertFalse(prototypes.AccountPrototype.get_by_id(self.fast_account.id).is_fast)
         self.assertEqual(fake_cmd.call_count, 1)
-        self.assertFalse(fake_cmd.call_args[1]['is_fast'])
 
         cards = list(cards_tt_services.storage.cmd_get_items(self.fast_account.id).values())
 
@@ -177,7 +183,7 @@ class ChangeCredentialsTests(personal_messages_helpers.Mixin,
         cards_tt_services.storage.cmd_debug_clear_service()
 
         with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id))), \
-             mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd:
+             mock.patch('the_tale.game.workers.supervisor.Worker.cmd_sync_hero_required') as fake_cmd:
                 logic.change_credentials(account=self.account,
                                          new_email='x_user@test.ru',
                                          new_password=django_auth_hashers.make_password('222222'),
@@ -193,7 +199,7 @@ class ChangeCredentialsTests(personal_messages_helpers.Mixin,
 
         self.assertTrue(prototypes.AccountPrototype.get_by_id(self.fast_account.id).is_fast)
 
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_sync_hero_required') as fake_cmd:
             with self.check_delta(lambda: prototypes.AccountPrototype.get_by_id(self.account.id).referrals_number, 1):
                 logic.change_credentials(account=self.fast_account,
                                          new_email='fast_user@test.ru',
@@ -203,7 +209,6 @@ class ChangeCredentialsTests(personal_messages_helpers.Mixin,
         self.assertEqual(django_auth.authenticate(nick='test_nick', password='222222').id, self.fast_account.id)
         self.assertFalse(prototypes.AccountPrototype.get_by_id(self.fast_account.id).is_fast)
         self.assertEqual(fake_cmd.call_count, 1)
-        self.assertFalse(fake_cmd.call_args[1]['is_fast'])
 
     def test_change_credentials_password(self):
         nick = self.account.nick
@@ -220,7 +225,7 @@ class ChangeCredentialsTests(personal_messages_helpers.Mixin,
 
     def test_change_credentials_nick(self):
 
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_sync_hero_required') as fake_cmd:
             logic.change_credentials(account=self.account,
                                      new_nick='test_nick')
 

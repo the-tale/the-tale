@@ -14,7 +14,7 @@ class CompanionTests(utils_testcase.TestCase):
         self.account = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.companion_record = logic.create_companion_record(utg_name=game_names.generator().get_test_name(),
@@ -170,6 +170,27 @@ class CompanionTests(utils_testcase.TestCase):
         with self.check_delta(lambda: max_coherence, 40):
             with mock.patch('the_tale.game.heroes.objects.Hero.companion_max_coherence', 60):
                 max_coherence = self.companion.max_coherence
+
+    def test_has_full_experience(self):
+
+        self.assertFalse(self.companion.has_full_experience())
+
+        self.companion.coherence = 1
+
+        with mock.patch('the_tale.game.companions.objects.Companion.max_coherence', c.COMPANIONS_MAX_COHERENCE / 2):
+            self.companion.add_experience(66666666666)
+            self.assertFalse(self.companion.has_full_experience())
+
+        self.assertEqual(self.companion.coherence, c.COMPANIONS_MAX_COHERENCE / 2)
+        self.assertEqual(self.companion.experience, self.companion.experience_to_next_level - 1)
+
+        self.assertFalse(self.companion.has_full_experience())
+
+        with mock.patch('the_tale.game.companions.objects.Companion.max_coherence', c.COMPANIONS_MAX_COHERENCE):
+            self.companion.add_experience(66666666666)
+            self.assertTrue(self.companion.has_full_experience())
+
+        self.assertTrue(self.companion.has_full_experience())
 
     def test_coherence_greater_then_maximum(self):
 

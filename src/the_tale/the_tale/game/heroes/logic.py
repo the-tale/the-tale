@@ -53,8 +53,6 @@ def hero_statistics_from_model(hero_model):
                                  artifacts_had=hero_model.stat_artifacts_had,
                                  loot_had=hero_model.stat_loot_had,
 
-                                 help_count=hero_model.stat_help_count,
-
                                  quests_done=hero_model.stat_quests_done,
 
                                  companions_count=hero_model.stat_companions_count,
@@ -64,9 +62,7 @@ def hero_statistics_from_model(hero_model):
                                  pvp_battles_1x1_draws=hero_model.stat_pvp_battles_1x1_draws,
 
                                  cards_used=hero_model.stat_cards_used,
-                                 cards_combined=hero_model.stat_cards_combined,
-
-                                 gifts_returned=hero_model.stat_gifts_returned)
+                                 cards_combined=hero_model.stat_cards_combined)
 
 
 def load_heroes_by_account_ids(account_ids):
@@ -91,7 +87,7 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
     companion_data = data.get('companion')
     companion = companions_objects.Companion.deserialize(companion_data) if companion_data else None
 
-    return objects.Hero(id=hero_model.id,
+    hero = objects.Hero(id=hero_model.id,
                         account_id=hero_model.account_id,
                         clan_id=hero_model.clan_id,
                         health=hero_model.health,
@@ -108,7 +104,7 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         companion=companion,
                         journal=messages.JournalContainer(),  # we are not storing journal in database, since messages in it replaced very fast
                         quests=quests_container.QuestsContainer.deserialize(data.get('quests', {})),
-                        abilities=abilities.AbilitiesPrototype.deserialize(s11n.from_json(hero_model.abilities)),
+                        abilities=abilities.AbilitiesPrototype.deserialize(data.get('abilities')),
                         bag=bag.Bag.deserialize(data['bag']),
                         equipment=bag.Equipment.deserialize(data['equipment']),
                         created_at_turn=hero_model.created_at_turn,
@@ -119,18 +115,21 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         is_fast=hero_model.is_fast,
                         gender=hero_model.gender,
                         race=hero_model.race,
-                        last_energy_regeneration_at_turn=hero_model.last_energy_regeneration_at_turn,
+                        last_religion_action_at_turn=data.get('last_religion_action_at_turn', 0),
                         might=hero_model.might,
                         ui_caching_started_at=hero_model.ui_caching_started_at,
                         active_state_end_at=hero_model.active_state_end_at,
                         premium_state_end_at=hero_model.premium_state_end_at,
                         ban_state_end_at=hero_model.ban_state_end_at,
                         last_rare_operation_at_turn=hero_model.last_rare_operation_at_turn,
-                        actual_bills=data['actual_bills'],
                         upbringing=tt_beings_relations.UPBRINGING(data.get('upbringing', tt_beings_relations.UPBRINGING.PHILISTINE.value)),
                         death_age=tt_beings_relations.AGE(data.get('death_age', tt_beings_relations.AGE.MATURE.value)),
                         first_death=tt_beings_relations.FIRST_DEATH(data.get('first_death', tt_beings_relations.FIRST_DEATH.FROM_THE_MONSTER_FANGS.value)),
                         utg_name=utg_words.Word.deserialize(data['name']))
+
+    sync_hero_external_data(hero)
+
+    return hero
 
 
 def save_hero(hero, new=False):
@@ -139,23 +138,23 @@ def save_hero(hero, new=False):
             'quests': hero.quests.serialize(),
             'equipment': hero.equipment.serialize(),
             'bag': hero.bag.serialize(),
-            'actual_bills': hero.actual_bills,
             'death_age': hero.death_age.value,
             'upbringing': hero.upbringing.value,
             'first_death': hero.first_death.value,
-            'position': hero.position.serialize()}
+            'position': hero.position.serialize(),
+            'abilities': hero.abilities.serialize(),
+            'last_religion_action_at_turn': hero.last_religion_action_at_turn}
 
     arguments = dict(saved_at_turn=game_turn.number(),
                      saved_at=datetime.datetime.now(),
                      clan_id=hero.clan_id,
                      data=data,
-                     abilities=s11n.to_json(hero.abilities.serialize()),
                      actions=s11n.to_json(hero.actions.serialize()),
                      raw_power_physic=hero.power.physic,
                      raw_power_magic=hero.power.magic,
                      quest_created_time=hero.quests.min_quest_created_time,
                      preferences=s11n.to_json(hero.preferences.serialize()),
-                     stat_politics_multiplier=hero.politics_power_multiplier() if hero.can_change_all_powers() else 0,
+                     stat_politics_multiplier=hero.politic_power_bonus() if hero.participate_in_power_rating() else 0,
 
                      stat_pve_deaths=hero.statistics.pve_deaths,
                      stat_pve_kills=hero.statistics.pve_kills,
@@ -181,8 +180,6 @@ def save_hero(hero, new=False):
                      stat_artifacts_had=hero.statistics.artifacts_had,
                      stat_loot_had=hero.statistics.loot_had,
 
-                     stat_help_count=hero.statistics.help_count,
-
                      stat_quests_done=hero.statistics.quests_done,
 
                      stat_companions_count=hero.statistics.companions_count,
@@ -193,8 +190,6 @@ def save_hero(hero, new=False):
 
                      stat_cards_used=hero.statistics.cards_used,
                      stat_cards_combined=hero.statistics.cards_combined,
-
-                     stat_gifts_returned=hero.statistics.gifts_returned,
 
                      health=hero.health,
                      level=hero.level,
@@ -209,7 +204,6 @@ def save_hero(hero, new=False):
                      is_fast=hero.is_fast,
                      gender=hero.gender,
                      race=hero.race,
-                     last_energy_regeneration_at_turn=hero.last_energy_regeneration_at_turn,
                      might=hero.might,
                      ui_caching_started_at=hero.ui_caching_started_at,
                      active_state_end_at=hero.active_state_end_at,
@@ -235,8 +229,8 @@ def dress_new_hero(hero):
 
 
 def preferences_for_new_hero(hero):
-    if hero.preferences.energy_regeneration_type is None:
-        hero.preferences.set(relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, hero.race.energy_regeneration)
+    if hero.preferences.religion_type is None:
+        hero.preferences.set(relations.PREFERENCE_TYPE.RELIGION_TYPE, hero.race.religion_type)
     if hero.preferences.risk_level is None:
         hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.NORMAL)
     if hero.preferences.archetype is None:
@@ -326,14 +320,13 @@ def create_hero(account_id, attributes):
                         is_alive=True,
                         gender=attributes['gender'],
                         race=attributes['race'],
-                        last_energy_regeneration_at_turn=game_turn.number(),
+                        last_religion_action_at_turn=game_turn.number(),
                         might=attributes['might'],
                         ui_caching_started_at=datetime.datetime.now(),
                         active_state_end_at=attributes['active_state_end_at'],
                         premium_state_end_at=attributes['premium_state_end_at'],
                         ban_state_end_at=attributes['ban_state_end_at'],
                         last_rare_operation_at_turn=game_turn.number(),
-                        actual_bills=[],
                         upbringing=attributes['upbringing'],
                         death_age=attributes['death_age'],
                         first_death=attributes['first_death'],
@@ -347,7 +340,7 @@ def create_hero(account_id, attributes):
     save_hero(hero, new=True)
 
     models.HeroPreferences.create(hero,
-                                  energy_regeneration_type=hero.preferences.energy_regeneration_type,
+                                  religion_type=hero.preferences.religion_type,
                                   risk_level=relations.RISK_LEVEL.NORMAL,
                                   archetype=attributes['archetype'],
                                   companion_dedication=relations.COMPANION_DEDICATION.NORMAL,
@@ -429,7 +422,7 @@ def get_places_path_modifiers_effects(hero, place):
         yield tt_api_effects.Effect(name='живёт противник', attribute=None, value=+c.PATH_MODIFIER_NORMAL_DELTA)
 
     if place.attrs.tax > 0:
-        yield tt_api_effects.Effect(name='пошлина', attribute=None, value=+c.PATH_MODIFIER_NORMAL_DELTA)
+        yield tt_api_effects.Effect(name='пошлина', attribute=None, value=+c.PATH_MODIFIER_MAJOR_DELTA)
 
     if (not place.habit_honor.interval.is_NEUTRAL and not hero.habit_honor.interval.is_NEUTRAL):
         modifier = (place.habit_honor.interval.direction *
@@ -454,3 +447,23 @@ def get_places_path_modifiers(hero):
                                   for effect in get_places_path_modifiers_effects(hero, place))
 
     return modifiers
+
+
+def get_place_path_modifiers_info(hero, place):
+    path_modifier_effects = [(effect.name, effect.value)
+                             for effect in get_places_path_modifiers_effects(hero, place)]
+    path_modifier_effects.sort(key=lambda effect: effect[1])
+    path_modifier = sum(value for name, value in path_modifier_effects)
+
+    return path_modifier, path_modifier_effects
+
+
+def sync_hero_external_data(hero):
+    account = accounts_prototypes.AccountPrototype.get_by_id(hero.id)
+
+    hero.is_fast = account.is_fast
+    hero.active_state_end_at = account.active_end_at
+    hero.premium_state_end_at = account.premium_end_at
+    hero.ban_state_end_at = account.ban_game_end_at
+    hero.might = account.might
+    hero.clan_id = account.clan_id

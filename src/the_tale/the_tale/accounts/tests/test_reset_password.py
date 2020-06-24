@@ -27,7 +27,9 @@ class ResetPasswordTaskTests(utils_testcase.TestCase):
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
         self.assertEqual(prototypes.ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 0)
 
-        new_password = self.task.process()
+        with self.check_not_changed(lambda: models.Account.objects.get(id=self.account.id).email):
+            new_password = self.task.process()
+
         self.assertTrue(self.task.is_processed)
 
         self.assertEqual(django_auth.authenticate(nick=self.account.nick, password='111111'), None)

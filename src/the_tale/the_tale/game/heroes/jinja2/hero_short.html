@@ -56,31 +56,14 @@ jQuery(document).ready(function(e) {
 
   <div>
 
-    <div class="attribute-record" rel="tooltip" title="собранное золото" data-tooltip-placement="bottom">
-      <i class="game-ui-icon gold"></i>
-      <span class="pgf-money"></span>
-    </div>
-
-    {% if is_owner %}
-    <div class="attribute-record"
-         rel="tooltip"
-         title="запас энергии (примерно +{{ (c.ANGEL_ENERGY_REGENERATION_AMAUNT/c.ANGEL_ENERGY_REGENERATION_TIME)|int}} в час)<hr/>получить дополнительную энергию можно с помощью карты судьбы"
-         data-tooltip-placement="bottom">
-      <i class="game-ui-icon energy"></i>
-      <span class="pgf-energy"></span>
-    </div>
-    {% endif %}
-
-    <br/>
-
     <div class="attribute-record" rel="tooltip" title="физическая сила" data-tooltip-placement="bottom">
       <i class="game-ui-icon physic-power"></i>
       <span class="pgf-physic-power value"></span>
     </div>
 
-    <div class="attribute-record pgf-might-record" data-tooltip-placement="bottom">
-      <i class="game-ui-icon might"></i>
-      <span class="pgf-might value attribute-record"></span>
+    <div class="attribute-record" rel="tooltip" title="собранное золото" data-tooltip-placement="bottom">
+      <i class="game-ui-icon gold"></i>
+      <span class="pgf-money"></span>
     </div>
 
     <br/>
@@ -90,7 +73,9 @@ jQuery(document).ready(function(e) {
       <span class="pgf-magic-power value"></span>
     </div>
 
-    <div class="attribute-record pgf-might-record">
+    <div class="attribute-record pgf-might-record" data-tooltip-placement="bottom">
+      <i class="game-ui-icon might"></i>
+      <span class="pgf-might value attribute-record"></span>
     </div>
 
   </div>
@@ -146,7 +131,6 @@ jQuery(document).ready(function(e) {
   <div class="pgf-hidden pgf-might-tooltip">
     <strong>могущество</strong>
     <ul class="unstyled" style="text-align: left;">
-      <li>критический эффект помощи: <span class="pgf-might-crit-chance"></span>%</li>
       <li>бонус к эффективности в pvp: <span class="pgf-might-pvp-effectiveness-bonus"></span>%</li>
       <li>бонус к политическому влиянию: <span class="pgf-might-politics-power-bonus"></span>%</li>
     </ul>

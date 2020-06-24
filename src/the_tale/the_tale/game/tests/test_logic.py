@@ -225,8 +225,6 @@ class FormGameInfoTests(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
         self.assertFalse('pvp__actual' in data['enemy']['hero']['action']['data']['pvp'])
         self.assertFalse('pvp__last_turn' in data['enemy']['hero']['action']['data']['pvp'])
 
-        self.assertEqual(data['enemy']['energy'], None)
-
 
 class HighlevelStepTests(utils_testcase.TestCase):
 
@@ -288,9 +286,9 @@ class HighlevelStepTests(utils_testcase.TestCase):
                                                 fame=fame)
         politic_power_logic.add_power_impacts(impacts)
 
+    @mock.patch('tt_logic.politic_power.constants.POWER_REDUCE_FRACTION', 0.9)
     @mock.patch('the_tale.game.persons.attributes.Attributes.places_help_amount', 1)
     @mock.patch('the_tale.game.places.attributes.Attributes.freedom', 1)
-    @mock.patch('the_tale.game.balance.constants.PLACE_POWER_REDUCE_FRACTION', 0.9)
     @mock.patch('the_tale.game.places.objects.Place.refresh_attributes', mock.Mock())
     def test_sync_data(self):
         game_tt_services.debug_clear_service()

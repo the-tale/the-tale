@@ -16,18 +16,16 @@ class OBJECT_TYPE(rels_django.DjangoEnum):
                ('EMISSARY', 9, 'эмиссар'))
 
 
+@dataclasses.dataclass
 class Impact:
-    __slots__ = ('transaction', 'actor_type', 'actor_id', 'target_type', 'target_id', 'amount', 'turn', 'time')
-
-    def __init__(self, actor_type, actor_id, target_type, target_id, amount, turn=None, time=None, transaction=None):
-        self.transaction = transaction
-        self.actor_type = actor_type
-        self.actor_id = actor_id
-        self.target_type = target_type
-        self.target_id = target_id
-        self.amount = amount
-        self.turn = turn
-        self.time = time
+    actor_type: Any
+    actor_id: int
+    target_type: Any
+    target_id: int
+    amount: int
+    turn: int = None
+    time: float = None
+    transaction: int = None
 
     def tt_object(self):
         return tt_protocol_impacts_pb2.Impact(actor=tt_protocol_impacts_pb2.Object(type=self.actor_type.value, id=self.actor_id),
@@ -40,20 +38,6 @@ class Impact:
     @classmethod
     def from_tt_object(cls, type, tt_impact):
         raise NotImplementedError
-
-    def __eq__(self, other):
-        return (self.__class__ == other.__class__ and
-                self.transaction == other.transaction and
-                self.actor_type == other.actor_type and
-                self.actor_id == other.actor_id and
-                self.target_type == other.target_type and
-                self.target_id == other.target_id and
-                self.amount == other.amount and
-                self.turn == other.turn and
-                self.time == other.time)
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
 
 
 class Client(client.Client):

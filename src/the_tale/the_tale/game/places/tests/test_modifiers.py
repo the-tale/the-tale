@@ -23,9 +23,8 @@ class ModifiersTests(utils_testcase.TestCase):
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_craft_center(self):
-        with self.check_increased(lambda: self.place_1.attrs.buy_artifact_power):
-            with self.check_increased(lambda: self.place_1.attrs.production):
-                self.place_1.set_modifier(modifiers.CITY_MODIFIERS.CRAFT_CENTER)
+        with self.check_increased(lambda: self.place_1.attrs.production):
+            self.place_1.set_modifier(modifiers.CITY_MODIFIERS.CRAFT_CENTER)
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_SPECIALIZATION', -100500)
     @mock.patch('the_tale.game.balance.constants.PLACE_TYPE_ENOUGH_BORDER', 100)
@@ -41,9 +40,16 @@ class ModifiersTests(utils_testcase.TestCase):
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_political_center(self):
+        logic.register_effect(place_id=self.place_1.id,
+                              attribute=relations.ATTRIBUTE.STABILITY,
+                              value=-1,
+                              name='test',
+                              refresh_effects=True,
+                              refresh_places=True)
+
         with self.check_increased(lambda: self.place_1.attrs.freedom):
             with self.check_increased(lambda: self.place_1.attrs.politic_radius):
-                with self.check_increased(lambda: self.place_1.attrs.stability_renewing_speed):
+                with self.check_increased(lambda: self.place_1.attrs.stability):
                     self.place_1.set_modifier(modifiers.CITY_MODIFIERS.POLITICAL_CENTER)
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
@@ -83,7 +89,7 @@ class ModifiersTests(utils_testcase.TestCase):
         self.place_1.attrs.size = 10
         self.place_1.refresh_attributes()
 
-        with self.check_increased(lambda: self.place_1.attrs.energy_regen_chance):
+        with self.check_increased(lambda: self.place_1.attrs.reset_religion_ceremony_timeout_chance):
             with self.check_decreased(lambda: self.place_1.attrs.production):
                 with self.check_increased(lambda: self.place_1.attrs.transport):
                     with self.check_decreased(lambda: self.place_1.attrs.freedom):

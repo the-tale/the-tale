@@ -11,7 +11,6 @@ settings = utils_app_settings.app_settings('GAME',
                                            TURN_DELAY=c.TURN_DELTA,
 
                                            ENABLE_WORKER_TURNS_LOOP=True,
-                                           ENABLE_WORKER_LONG_COMMANDS=True,
                                            ENABLE_PVP=True,
 
                                            ENABLE_DATA_REFRESH=True,
@@ -30,7 +29,7 @@ settings = utils_app_settings.app_settings('GAME',
 
                                            GAME_STATE_KEY='game state',
 
-                                           INFO_API_VERSION='1.9',
+                                           INFO_API_VERSION='1.10',
                                            DIARY_API_VERSION='1.0',
                                            NAMES_API_VERSION='1.0',
                                            HERO_HISTORY_API_VERSION='1.0',

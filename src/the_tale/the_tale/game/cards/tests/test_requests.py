@@ -13,7 +13,7 @@ class CardsRequestsTestsBase(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         tt_services.storage.cmd_debug_clear_service()
@@ -51,7 +51,7 @@ class UseDialogRequestTests(CardsRequestsTestsBase):
             card = card_type.effect.create_card(available_for_auction=True, type=card_type)
             logic.change_cards(self.hero.account_id, operation_type='#test', to_add=[card])
 
-            self.check_html_ok(self.request_ajax_html(utils_urls.url('game:cards:use-dialog', card=self.card.uid)))
+            self.check_html_ok(self.request_ajax_html(utils_urls.url('game:cards:use-dialog', card=card.uid)))
 
 
 class UseRequestTests(CardsRequestsTestsBase):

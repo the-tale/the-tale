@@ -14,7 +14,7 @@ class ChooseRequestsTests(utils_testcase.TestCase, helpers.QuestTestsMixin):
         self.account = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.choice_uid = '[ns-0]choice_1'

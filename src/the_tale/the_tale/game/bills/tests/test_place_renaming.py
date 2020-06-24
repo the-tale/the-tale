@@ -89,7 +89,7 @@ class PlaceRenamingTests(helpers.BaseTestPrototypes):
 
         self.assertTrue(form.is_valid())
 
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account1)
 
         self.bill = prototypes.BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(self.bill.state.is_VOTING)
@@ -126,7 +126,7 @@ class PlaceRenamingTests(helpers.BaseTestPrototypes):
         form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account1)
 
         self.assertTrue(self.bill.apply())
 
@@ -150,6 +150,6 @@ class PlaceRenamingTests(helpers.BaseTestPrototypes):
         form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account1)
 
         self.assertFalse(self.bill.has_meaning())

@@ -132,7 +132,8 @@ class DataProtectionRequestDeletionTests(utils_testcase.TestCase):
         with mock.patch('the_tale.common.tt_api.data_protector.Client.cmd_request_deletion') as cmd_request_deletion:
             self.check_ajax_ok(self.post_ajax_json(utils_urls.url('accounts:profile:data-protection-request-deletion')))
 
-        self.assertEqual(cmd_request_deletion.call_args_list, [mock.call(ids=[('the_tale', self.account.id),
+        self.assertEqual(cmd_request_deletion.call_args_list, [mock.call(core_id=self.account.id,
+                                                                         ids=[('the_tale', self.account.id),
                                                                               ('tt_players_properties', self.account.id),
                                                                               ('tt_personal_messages', self.account.id),
                                                                               ('tt_discord', self.account.id)])])
@@ -170,7 +171,7 @@ class DataProtectionDeleteDataTests(tt_api_testcase.TestCaseMixin,
     def test_first_call(self):
         data = self.create_data(secret=django_settings.TT_SECRET)
 
-        with mock.patch('the_tale.game.heroes.data_protection.remove_data', mock.Mock(return_value=False)):
+        with mock.patch('the_tale.game.heroes.data_protection.before_remove_data', mock.Mock(return_value=False)):
             with self.check_not_changed(lambda: models.Account.objects.get(id=self.account.id).email):
                 url = utils_urls.url('accounts:profile:tt-data-protection-delete-data')
                 answer = self.check_protobuf_ok(self.post_ajax_binary(url, data),
@@ -181,7 +182,7 @@ class DataProtectionDeleteDataTests(tt_api_testcase.TestCaseMixin,
     def test_second_call(self):
         data = self.create_data(secret=django_settings.TT_SECRET)
 
-        with mock.patch('the_tale.game.heroes.data_protection.remove_data', mock.Mock(return_value=True)):
+        with mock.patch('the_tale.game.heroes.data_protection.before_remove_data', mock.Mock(return_value=True)):
             with self.check_changed(lambda: models.Account.objects.get(id=self.account.id).email):
                 url = utils_urls.url('accounts:profile:tt-data-protection-delete-data')
                 answer = self.check_protobuf_ok(self.post_ajax_binary(url, data),

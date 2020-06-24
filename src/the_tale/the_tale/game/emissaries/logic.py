@@ -107,11 +107,7 @@ def load_emissary(emissary_id=None, emissary_model=None):
     except models.Emissary.DoesNotExist:
         return None
 
-    if isinstance(emissary_model.data, str):
-        # TODO: remove after 0.3.30
-        data = s11n.from_json(emissary_model.data)
-    else:
-        data = emissary_model.data
+    data = emissary_model.data
 
     return objects.Emissary(id=emissary_model.id,
                             created_at_turn=data['created_at_turn'],
@@ -319,44 +315,40 @@ def rename_emissary(emissary_id, new_name):
                                               message=message)
 
 
-def tt_power_impacts(place_inner_circle, can_change_place_power, actor_type, actor_id, emissary, amount, fame):
+def tt_power_impacts(place_inner_circle, can_change_place_power, actor_type, actor_id, emissary, amount: int, fame: int):
 
-    place_power = amount
-
-    if 0 < amount:
-        place_power *= emissary.attrs.positive_power
-    else:
-        place_power *= emissary.attrs.negative_power
-
-    # this power, only to emissary
     if emissary.state.is_IN_GAME:
-        emissary_power = round(place_power * emissary.place.attrs.freedom)
-
         yield game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.EMISSARY_POWER,
                                            actor_type=actor_type,
                                            actor_id=actor_id,
                                            target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
                                            target_id=emissary.id,
-                                           amount=emissary_power)
+                                           amount=amount)
 
     yield from places_logic.tt_power_impacts(inner_circle=place_inner_circle,
                                              actor_type=actor_type,
                                              actor_id=actor_id,
                                              place=emissary.place,
-                                             amount=place_power if can_change_place_power else 0,
+                                             amount=amount if can_change_place_power else 0,
                                              fame=fame)
 
 
 def impacts_from_hero(hero, emissary, power, impacts_generator=tt_power_impacts):
 
-    emissary_power = hero.modify_politics_power(power, emissary=emissary)
+    if 0 < power:
+        bonus = emissary.attrs.positive_power
+    elif power < 0:
+        bonus = emissary.attrs.negative_power
+    else:
+        bonus = 0
 
-    place_is_hometown = hero.preferences.place_is_hometown(emissary.place)
+    emissary_power = politic_power_logic.final_politic_power(power=power,
+                                                             place=emissary.place,
+                                                             hero=hero,
+                                                             bonus=bonus)
 
-    can_change_power = hero.can_change_place_power(emissary.place)
-
-    yield from impacts_generator(place_inner_circle=place_is_hometown,
-                                 can_change_place_power=can_change_power,
+    yield from impacts_generator(place_inner_circle=hero.preferences.place_is_hometown(emissary.place),
+                                 can_change_place_power=hero.can_change_place_power(emissary.place),
                                  actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                  actor_id=hero.id,
                                  emissary=emissary,
@@ -509,11 +501,7 @@ def load_event(event_id=None, event_model=None):
     except models.Event.DoesNotExist:
         return None
 
-    if isinstance(event_model.data, str):
-        # TODO: remove after 0.3.30
-        data = s11n.from_json(event_model.data)
-    else:
-        data = event_model.data
+    data = event_model.data
 
     return objects.Event(id=event_model.id,
                          created_at_turn=data['created_at_turn'],
@@ -652,6 +640,12 @@ def process_events_monitoring():
             save_event(event)
 
 
+def emissaries_monitoring():
+    for emissary in storage.emissaries.all():
+        if clans_storage.infos[emissary.clan_id].state.is_REMOVED:
+            dismiss_emissary(emissary.id)
+
+
 def add_clan_experience():
     for event in storage.events.all():
         experience = int(math.ceil(tt_clans_constants.EXPERIENCE_PER_EVENT * event.emissary.attrs.clan_experience))
@@ -676,11 +670,8 @@ def expected_power_per_day():
 
     quests_in_day = tt_cards_constants.PREMIUM_PLAYER_SPEED * quest_card_probability
 
-    # TODO: get from statistics
-    power_for_quest = f.person_power_for_quest__real(places_storage.places.expected_minimum_quest_distance()) * c.EXPECTED_HERO_QUEST_POWER_MODIFIER
-
     return int(math.ceil(quests_in_day *
-                         power_for_quest *
+                         tt_politic_power_constants.MEDIUM_QUEST_POWER *
                          tt_clans_constants.FIGHTERS_TO_EMISSARY))
 
 
@@ -791,3 +782,42 @@ def send_event_success_message(event, account, suffix):
     personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
                                          recipients_ids=[account.id],
                                          body=message)
+
+
+def remove_orphan_event_effects(logger=None):
+    for effect in places_storage.effects.all():
+
+        if effect.attribute.type.is_REWRITABLE:
+            continue
+
+        if effect.info is None:
+            continue
+
+        if 'event' not in effect.info:
+            continue
+
+        event = storage.events.get_or_load(effect.info['event'])
+
+        if event is None:
+            places_logic.remove_effect(effect.id, place_id=None)
+
+            if logger:
+                logger.info(f'effect {effect.id} orphan due event not exists')
+
+            continue
+
+        if event.state.is_STOPPED:
+            places_logic.remove_effect(effect.id, place_id=None)
+
+            if logger:
+                logger.info(f'effect {effect.id} orphan due event is stopped')
+
+            continue
+
+        if event.concrete_event.effect_id != effect.id:
+            places_logic.remove_effect(effect.id, place_id=None)
+
+            if logger:
+                logger.info(f'effect {effect.id} orphan due event has other effect')
+
+            continue

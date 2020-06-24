@@ -484,21 +484,12 @@ class TTPowerImpactsTests(BaseEmissaryTests):
                                              initiator=self.account,
                                              place_id=random.choice(self.places).id)
 
-        self.emissary.attrs.positive_power = 1.0
-        self.emissary.attrs.negative_power = 1.0
-
         self.actor_type = tt_api_impacts.OBJECT_TYPE.HERO
         self.actor_id = 666
         self.amount = 100500
         self.fame = 1000
 
-        self.expected_power = self.emissary.place.attrs.freedom * self.amount
-
     def test_place_inner_circle(self):
-
-        multiplier = 1.5
-
-        self.emissary.attrs.positive_power = multiplier
 
         impacts = list(logic.tt_power_impacts(place_inner_circle=True,
                                               can_change_place_power=True,
@@ -514,19 +505,19 @@ class TTPowerImpactsTests(BaseEmissaryTests):
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
                                                             target_id=self.emissary.id,
-                                                            amount=round(multiplier * self.expected_power)),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.emissary.place.id,
-                                                            amount=round(multiplier * self.expected_power)),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.emissary.place.id,
-                                                            amount=round(multiplier * self.expected_power)),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.FAME,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
@@ -549,7 +540,7 @@ class TTPowerImpactsTests(BaseEmissaryTests):
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
                                                             target_id=self.emissary.id,
-                                                            amount=round(self.expected_power)),
+                                                            amount=self.amount),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
@@ -570,10 +561,6 @@ class TTPowerImpactsTests(BaseEmissaryTests):
                                                             amount=self.fame)])
 
     def test_amount_below_zero(self):
-        multiplier = 0.75
-
-        self.emissary.attrs.negative_power = multiplier
-
         impacts = list(logic.tt_power_impacts(place_inner_circle=False,
                                               can_change_place_power=True,
                                               actor_type=self.actor_type,
@@ -588,13 +575,13 @@ class TTPowerImpactsTests(BaseEmissaryTests):
                                                        actor_id=self.actor_id,
                                                        target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
                                                        target_id=self.emissary.id,
-                                                       amount=round(-multiplier * self.expected_power)),
+                                                       amount=-self.amount),
                           game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
                                                        actor_type=self.actor_type,
                                                        actor_id=self.actor_id,
                                                        target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                        target_id=self.emissary.place.id,
-                                                       amount=round(-multiplier * self.expected_power))])
+                                                       amount=-self.amount)])
 
     def test_emissary_removed(self):
         self.emissary.state = relations.STATE.OUT_GAME
@@ -613,15 +600,10 @@ class TTPowerImpactsTests(BaseEmissaryTests):
                                                        actor_id=self.actor_id,
                                                        target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                        target_id=self.emissary.place.id,
-                                                       amount=round(-self.expected_power))])
-
-
-def fake_tt_power_impacts(**kwargs):
-    yield kwargs
+                                                       amount=-self.amount)])
 
 
 class ImpactsFromHeroTests(BaseEmissaryTests):
-
     def setUp(self):
         super().setUp()
 
@@ -634,12 +616,49 @@ class ImpactsFromHeroTests(BaseEmissaryTests):
 
         self.expected_power = round(self.emissary.place.attrs.freedom * self.amount)
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: False)
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=True)
+    def test_final_politic_power_calculation(self):
+        with mock.patch('the_tale.game.politic_power.logic.final_politic_power') as final_politic_power:
+            list(logic.impacts_from_hero(hero=self.hero,
+                                         emissary=self.emissary,
+                                         power=1000,
+                                         impacts_generator=politic_power_helpers.fake_tt_power_impacts))
+
+        self.assertEqual(final_politic_power.call_args_list, [mock.call(power=1000,
+                                                                        place=self.emissary.place,
+                                                                        hero=self.hero,
+                                                                        bonus=0.0)])
+
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=True, emissary_positive_power=1.5, emissary_negative_power=1.5)
+    def test_final_politic_power_calculation__bonus(self):
+        with mock.patch('the_tale.game.politic_power.logic.final_politic_power') as final_politic_power:
+            list(logic.impacts_from_hero(hero=self.hero,
+                                         emissary=self.emissary,
+                                         power=1000,
+                                         impacts_generator=politic_power_helpers.fake_tt_power_impacts))
+
+        self.assertEqual(final_politic_power.call_args_list, [mock.call(power=1000,
+                                                                        place=self.emissary.place,
+                                                                        hero=self.hero,
+                                                                        bonus=1.5)])
+
+        with mock.patch('the_tale.game.politic_power.logic.final_politic_power') as final_politic_power:
+            list(logic.impacts_from_hero(hero=self.hero,
+                                         emissary=self.emissary,
+                                         power=-1000,
+                                         impacts_generator=politic_power_helpers.fake_tt_power_impacts))
+
+        self.assertEqual(final_politic_power.call_args_list, [mock.call(power=-1000,
+                                                                        place=self.emissary.place,
+                                                                        hero=self.hero,
+                                                                        bonus=1.5)])
+
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=False)
     def test_can_not_change_power(self):
         impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
                                                         emissary=self.emissary,
                                                         power=1000,
-                                                        impacts_generator=fake_tt_power_impacts))
+                                                        impacts_generator=politic_power_helpers.fake_tt_power_impacts))
         self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
                                              'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
                                              'amount': 1000,
@@ -648,16 +667,15 @@ class ImpactsFromHeroTests(BaseEmissaryTests):
                                              'place_inner_circle': False,
                                              'can_change_place_power': False}])
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
-    @mock.patch('the_tale.game.heroes.objects.Hero.modify_politics_power', lambda self, power, emissary: power * 0.75)
+    @politic_power_helpers.impacts_from_hero_mock(can_change_place=True)
     def test_can_change_power(self):
         impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
                                                         emissary=self.emissary,
                                                         power=1000,
-                                                        impacts_generator=fake_tt_power_impacts))
+                                                        impacts_generator=politic_power_helpers.fake_tt_power_impacts))
         self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
                                              'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
-                                             'amount': 750,
+                                             'amount': 1000,
                                              'fame': c.HERO_FAME_PER_HELP,
                                              'emissary': self.emissary,
                                              'place_inner_circle': False,
@@ -1177,9 +1195,7 @@ class AddEmissariesExperienceTests(utils_testcase.TestCase,
 class ExpectedPowerPerDayTests(BaseEmissaryTests):
 
     def test(self):
-        # на текущий момент значение зависит от количества и рассположения городов
-        # поэтому в тестах оно меньше
-        self.assertEqual(logic.expected_power_per_day(), 17)
+        self.assertEqual(logic.expected_power_per_day(), 1022)
 
 
 class RenameEmissaryTests(BaseEmissaryTests):
@@ -1390,3 +1406,29 @@ class ProcessEventsMonitoring(BaseEmissaryTests):
 
         self.assertLess(updated_at[0], storage.events[emissary_events[0].id].updated_at)
         self.assertEqual(updated_at[1], storage.events[emissary_events[1].id].updated_at)
+
+
+class EmissariessMonitoring(BaseEmissaryTests):
+
+    def test_save_event_on_change(self):
+        account_2 = self.accounts_factory.create_account()
+        clan_2 = self.create_clan(owner=account_2, uid=2)
+
+        emissary_1 = self.create_emissary(clan=self.clan,
+                                          initiator=self.account,
+                                          place_id=self.places[0].id)
+
+        emissary_2 = self.create_emissary(clan=clan_2,
+                                          initiator=account_2,
+                                          place_id=self.places[0].id)
+
+        clans_logic.remove_clan(self.clan)
+
+        with self.check_changed(lambda: storage.emissaries.version):
+            logic.emissaries_monitoring()
+
+        emissary_1 = logic.load_emissary(emissary_1.id)
+        self.assertTrue(emissary_1.state.is_OUT_GAME)
+
+        emissary_2 = logic.load_emissary(emissary_2.id)
+        self.assertTrue(emissary_2.state.is_IN_GAME)

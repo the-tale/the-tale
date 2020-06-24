@@ -23,18 +23,7 @@ class CARD(rels.Relation):
     effect = rels.Column(unique=False, primary=False, single_type=False)
     combiners = rels.Column(unique=False, primary=False, single_type=False)
 
-    records = (('ADD_BONUS_ENERGY_COMMON', 5, 'капля энергии', FOR_ALL, COMMON,
-                effects.AddBonusEnergy(base=10, level=1), [reactors.Simple3()]),
-               ('ADD_BONUS_ENERGY_UNCOMMON', 6, 'чаша Силы', FOR_ALL, UNCOMMON,
-                effects.AddBonusEnergy(base=10, level=2), [reactors.Simple3()]),
-               ('ADD_BONUS_ENERGY_RARE', 7, 'магический вихрь', FOR_ALL, RARE,
-                effects.AddBonusEnergy(base=10, level=3), [reactors.Simple3()]),
-               ('ADD_BONUS_ENERGY_EPIC', 8, 'энергетический шторм', FOR_ALL, EPIC,
-                effects.AddBonusEnergy(base=10, level=4), [reactors.Simple3()]),
-               ('ADD_BONUS_ENERGY_LEGENDARY', 9, 'шквал Силы', FOR_ALL, LEGENDARY,
-                effects.AddBonusEnergy(base=10, level=5), []),
-
-               ('ADD_GOLD_COMMON', 10, 'горсть монет', FOR_PREMIUMS, COMMON,
+    records = (('ADD_GOLD_COMMON', 10, 'горсть монет', FOR_PREMIUMS, COMMON,
                 effects.AddGold(base=1000, level=1), [reactors.Simple3()]),
                ('ADD_GOLD_UNCOMMON', 11, 'увесистый кошель', FOR_PREMIUMS, UNCOMMON,
                 effects.AddGold(base=1000, level=2), [reactors.Simple3()]),
@@ -49,8 +38,8 @@ class CARD(rels.Relation):
                ('REPAIR_ALL_ARTIFACTS', 46, 'благословение Великого Творца', FOR_ALL, RARE,
                 effects.RepairAllArtifacts(), []),
 
-               ('CANCEL_QUEST', 47, 'другие заботы', FOR_ALL, UNCOMMON,
-                effects.CancelQuest(), []),
+               ('CANCEL_QUEST', 47, 'другие заботы', FOR_ALL, COMMON,
+                effects.CancelQuest(), [reactors.Special(2, 'STOP_IDLENESS', new_cards_number=1),]),
 
                ('GET_ARTIFACT_COMMON', 48, 'внезапная находка', FOR_ALL, COMMON,
                 effects.GetArtifact(type=0), [reactors.Simple3()]),
@@ -62,7 +51,7 @@ class CARD(rels.Relation):
                 effects.GetArtifact(type=3), []),
 
                ('INSTANT_MONSTER_KILL', 52, 'длань Смерти', FOR_ALL, COMMON,
-                effects.InstantMonsterKill(), []),
+                effects.InstantMonsterKill(), [reactors.Special(2, 'HEAL_COMPANION_COMMON', new_cards_number=1)]),
 
                ('KEEPERS_GOODS_COMMON', 53, 'неразменная монета', FOR_PREMIUMS, COMMON,
                 effects.KeepersGoods(base=1, level=1), [reactors.Simple3()]),
@@ -85,13 +74,13 @@ class CARD(rels.Relation):
                 effects.AddExperience(base=50, level=4), [reactors.Simple3()]),
 
                ('ADD_POWER_COMMON', 78, 'новые обстоятельства', FOR_PREMIUMS, COMMON,
-                effects.AddPoliticPower(base=c.CARD_BONUS_FOR_QUEST, level=1), [reactors.Simple3()]),
+                effects.AddPoliticPower(base=tt_politic_power_constants.CARD_MAX_POWER, level=5), [reactors.Simple3()]),
                ('ADD_POWER_UNCOMMON', 79, 'специальная операция', FOR_PREMIUMS, UNCOMMON,
-                effects.AddPoliticPower(base=c.CARD_BONUS_FOR_QUEST, level=2), [reactors.Simple3()]),
+                effects.AddPoliticPower(base=tt_politic_power_constants.CARD_MAX_POWER, level=4), [reactors.Simple3()]),
                ('ADD_POWER_RARE', 80, 'слово Дабнглана', FOR_PREMIUMS, RARE,
-                effects.AddPoliticPower(base=c.CARD_BONUS_FOR_QUEST, level=3), [reactors.Simple3()]),
+                effects.AddPoliticPower(base=tt_politic_power_constants.CARD_MAX_POWER, level=3), [reactors.Simple3()]),
                ('ADD_POWER_EPIC', 81, 'благословение Дабнглана', FOR_PREMIUMS, EPIC,
-                effects.AddPoliticPower(base=c.CARD_BONUS_FOR_QUEST, level=4), [reactors.Simple3()]),
+                effects.AddPoliticPower(base=tt_politic_power_constants.CARD_MAX_POWER, level=2), [reactors.Simple3()]),
 
                ('SHORT_TELEPORT', 82, 'телепорт', FOR_ALL, COMMON,
                 effects.ShortTeleport(), [reactors.Special(3, 'LONG_TELEPORT')]),
@@ -136,7 +125,7 @@ class CARD(rels.Relation):
                 effects.UpgradeArtifact(), []),
 
                ('ADD_POWER_LEGENDARY', 107, 'туз в рукаве', FOR_PREMIUMS, LEGENDARY,
-                effects.AddPoliticPower(base=c.CARD_BONUS_FOR_QUEST, level=5), []),
+                effects.AddPoliticPower(base=tt_politic_power_constants.CARD_MAX_POWER, level=1), []),
 
                ('CHANGE_HERO_SPENDINGS', 116, 'новая цель', FOR_ALL, COMMON,
                 effects.ChangeItemOfExpenditure(), [reactors.Same2()]),
@@ -167,7 +156,8 @@ class CARD(rels.Relation):
                 effects.FreezeCompanion(), []),
 
                ('ADD_COMPANION_EXPERIENCE_COMMON', 139, 'наставление', FOR_ALL, COMMON,
-                effects.AddCompanionExpirence(base=10, level=1), [reactors.Simple3()]),
+                effects.AddCompanionExpirence(base=10, level=1), [reactors.Special(2, 'HEAL_COMPANION_COMMON', new_cards_number=1),
+                                                                  reactors.Simple3()]),
                ('ADD_COMPANION_EXPERIENCE_UNCOMMON', 140, 'совместная тренировка', FOR_ALL, UNCOMMON,
                 effects.AddCompanionExpirence(base=10, level=2), [reactors.Simple3()]),
                ('ADD_COMPANION_EXPERIENCE_RARE', 141, 'товарищество', FOR_ALL, RARE,
@@ -221,6 +211,9 @@ class CARD(rels.Relation):
                ('QUEST_FOR_PERSON', 159, 'личные дела', FOR_PREMIUMS, EPIC,
                 effects.QuestForPerson(), [reactors.SameEqual2(),
                                            reactors.Special(1, 'QUEST_FOR_PLACE', new_cards_number=3)]),
+
+               ('REGENERATION', 160, 'регенерация', FOR_ALL, COMMON,
+                effects.Regeneration(), []),
                )
 
 

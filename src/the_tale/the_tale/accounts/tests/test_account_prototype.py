@@ -28,7 +28,7 @@ class AccountPrototypeTests(utils_testcase.TestCase, personal_messages_helpers.M
     @mock.patch('the_tale.accounts.conf.settings.ACTIVE_STATE_REFRESH_PERIOD', 0)
     def test_update_active_state__expired(self):
         self.assertTrue(self.account.is_update_active_state_needed)
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as cmd_mark_hero_as_active:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_sync_hero_required') as cmd_mark_hero_as_active:
             self.account.update_active_state()
         self.assertEqual(cmd_mark_hero_as_active.call_count, 1)
 
@@ -142,21 +142,19 @@ class AccountPrototypeTests(utils_testcase.TestCase, personal_messages_helpers.M
                                        motto='zzz',
                                        description='qqq')
 
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as cmd_update_hero_with_account_data:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_sync_hero_required') as cmd_sync_hero_required:
             self.account.set_clan_id(clan.id)
 
         self.assertEqual(self.account.clan_id, clan.id)
         self.assertEqual(models.Account.objects.get(id=self.account.id).clan_id, clan.id)
 
-        self.assertEqual(cmd_update_hero_with_account_data.call_count, 1)
-        self.assertEqual(cmd_update_hero_with_account_data.call_args[1]['clan_id'], clan.id)
+        self.assertEqual(cmd_sync_hero_required.call_count, 1)
 
     def test_ban_game(self):
         self.assertFalse(self.account.is_ban_game)
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as cmd_update_hero_with_account_data:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_sync_hero_required') as cmd_sync_hero_required:
             self.account.ban_game(days=1)
-        self.assertEqual(cmd_update_hero_with_account_data.call_count, 1)
-        self.assertEqual(cmd_update_hero_with_account_data.call_args[1]['ban_end_at'], self.account.ban_game_end_at)
+        self.assertEqual(cmd_sync_hero_required.call_count, 1)
         self.assertTrue(self.account.is_ban_game)
         self.account._model.ban_game_end_at = datetime.datetime.now()
         self.assertFalse(self.account.is_ban_game)
@@ -190,38 +188,6 @@ class AccountPrototypeTests(utils_testcase.TestCase, personal_messages_helpers.M
                                                                         type=achievements_relations.ACHIEVEMENT_TYPE.KEEPER_MIGHT,
                                                                         old_value=0,
                                                                         new_value=666)])
-
-    @mock.patch('the_tale.game.bills.conf.settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
-    # fixt segmentation fault when testing with sqlite
-    def test_1_update_actual_bills(self):
-        forum_category = forum_models.Category.objects.create(caption='category-1', slug='category-1')
-        forum_models.SubCategory.objects.create(caption=bills_conf.settings.FORUM_CATEGORY_UID + '-caption',
-                                                uid=bills_conf.settings.FORUM_CATEGORY_UID,
-                                                category=forum_category)
-
-        self.account.update_actual_bills()
-        self.assertEqual(self.account.actual_bills, [])
-
-        bill_data = bills_bills.place_change_modifier.PlaceModifier(place_id=self.place_1.id,
-                                                                    modifier_id=places_modifiers.CITY_MODIFIERS.TRADE_CENTER,
-                                                                    modifier_name=places_modifiers.CITY_MODIFIERS.TRADE_CENTER.text,
-                                                                    old_modifier_name=None)
-        bill = bills_prototypes.BillPrototype.create(self.account, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
-
-        self.account.update_actual_bills()
-        self.assertEqual(self.account.actual_bills, [])
-
-        data = bill.user_form_initials
-        data['approved'] = True
-        form = bills_bills.place_change_modifier.PlaceModifier.ModeratorForm(data)
-        self.assertTrue(form.is_valid())
-        bill.update_by_moderator(form)
-
-        bill.apply()
-
-        self.account.update_actual_bills()
-        self.assertEqual(self.account.actual_bills, [utils_logic.to_timestamp(bill.voting_end_at)])
 
 
 class AccountPrototypeBanTests(utils_testcase.TestCase):

@@ -31,8 +31,6 @@ class Statistics(object):
                  'artifacts_had',
                  'loot_had',
 
-                 'help_count',
-
                  'quests_done',
 
                  'companions_count',
@@ -42,9 +40,7 @@ class Statistics(object):
                  'pvp_battles_1x1_draws',
 
                  'cards_used',
-                 'cards_combined',
-
-                 'gifts_returned')
+                 'cards_combined')
 
     def __init__(self,
                  pve_deaths,
@@ -71,8 +67,6 @@ class Statistics(object):
                  artifacts_had,
                  loot_had,
 
-                 help_count,
-
                  quests_done,
 
                  companions_count,
@@ -82,9 +76,7 @@ class Statistics(object):
                  pvp_battles_1x1_draws,
 
                  cards_used,
-                 cards_combined,
-
-                 gifts_returned):
+                 cards_combined):
 
         self.hero = None
 
@@ -112,8 +104,6 @@ class Statistics(object):
         self.artifacts_had = artifacts_had
         self.loot_had = loot_had
 
-        self.help_count = help_count
-
         self.quests_done = quests_done
 
         self.companions_count = companions_count
@@ -124,8 +114,6 @@ class Statistics(object):
 
         self.cards_used = cards_used
         self.cards_combined = cards_combined
-
-        self.gifts_returned = gifts_returned
 
     @classmethod
     def create(cls):
@@ -153,8 +141,6 @@ class Statistics(object):
                    artifacts_had=0,
                    loot_had=0,
 
-                   help_count=0,
-
                    quests_done=0,
 
                    companions_count=0,
@@ -164,9 +150,7 @@ class Statistics(object):
                    pvp_battles_1x1_draws=0,
 
                    cards_used=0,
-                   cards_combined=0,
-
-                   gifts_returned=0)
+                   cards_combined=0)
 
     #########################################
     # kills
@@ -254,10 +238,6 @@ class Statistics(object):
 
     def change_loot_had(self, value): self.loot_had += value
 
-    def change_help_count(self, value):
-        with achievements_storage.achievements.verify(type=achievements_relations.ACHIEVEMENT_TYPE.KEEPER_HELP_COUNT, object=self.hero):
-            self.help_count += value
-
     def change_companions_count(self, value):
         self.companions_count += value
 
@@ -272,9 +252,6 @@ class Statistics(object):
     def change_quests_done(self, value):
         with achievements_storage.achievements.verify(type=achievements_relations.ACHIEVEMENT_TYPE.QUESTS, object=self.hero):
             self.quests_done += value
-
-    def change_gifts_returned(self, value):
-        self.gifts_returned += value
 
     #########################################
     # pvp
@@ -319,5 +296,4 @@ class Statistics(object):
                 self.artifacts_had == other.artifacts_had and
                 self.loot_had == other.loot_had and
                 self.quests_done == other.quests_done and
-                self.help_count == other.help_count and
                 self.companions_count == other.companions_count)

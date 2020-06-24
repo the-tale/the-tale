@@ -18,8 +18,8 @@ class KeepersGoodsMixin(helpers.CardsTestMixin):
         self.account_2 = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account_1)
-        self.storage.load_account_data(self.account_2)
+        self.storage.load_account_data(self.account_1.id)
+        self.storage.load_account_data(self.account_2.id)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 

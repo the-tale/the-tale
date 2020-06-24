@@ -18,6 +18,11 @@ class VoteAdmin(django_admin.ModelAdmin):
     list_filter = ('type',)
 
 
+class ModerationAdmin(django_admin.ModelAdmin):
+    list_display = ('id', 'bill', 'moderator', 'created_at')
+
+
 django_admin.site.register(models.Bill, BillAdmin)
 django_admin.site.register(models.Vote, VoteAdmin)
 django_admin.site.register(models.Actor, ActorAdmin)
+django_admin.site.register(models.Moderation, ModerationAdmin)

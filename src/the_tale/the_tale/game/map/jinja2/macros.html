@@ -11,6 +11,10 @@
   <li>
     {{name}}
 
+    {% if power is not number %}
+    {% continue %}
+    {% endif %}
+
     {% if -0.0000001 < power < 0.000001 %}
       {% set power = 0 %}
     {% endif %}

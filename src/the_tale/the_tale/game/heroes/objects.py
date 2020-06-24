@@ -20,7 +20,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  'is_fast',
                  'gender',
                  'race',
-                 'last_energy_regeneration_at_turn',
+                 'last_religion_action_at_turn',
                  'might',
                  'ui_caching_started_at',
                  'active_state_end_at',
@@ -48,7 +48,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  'abilities',
                  'bag',
                  'equipment',
-                 'actual_bills',
 
                  'upbringing',
                  'death_age',
@@ -93,14 +92,13 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  is_fast,
                  gender,
                  race,
-                 last_energy_regeneration_at_turn,
+                 last_religion_action_at_turn,
                  might,
                  ui_caching_started_at,
                  active_state_end_at,
                  premium_state_end_at,
                  ban_state_end_at,
                  last_rare_operation_at_turn,
-                 actual_bills,
                  utg_name,
                  upbringing,
                  death_age,
@@ -157,8 +155,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         self.equipment = equipment
         self.equipment.hero = self
 
-        self.actual_bills = actual_bills
-
         self.created_at_turn = created_at_turn
         self.saved_at_turn = saved_at_turn
         self.saved_at = saved_at
@@ -167,7 +163,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         self.is_fast = is_fast
         self.gender = gender
         self.race = race
-        self.last_energy_regeneration_at_turn = last_energy_regeneration_at_turn
+        self.last_religion_action_at_turn = last_religion_action_at_turn
         self.might = might
         self.ui_caching_started_at = ui_caching_started_at
         self.active_state_end_at = active_state_end_at
@@ -186,6 +182,20 @@ class Hero(logic_accessors.LogicAccessorsMixin,
             return relations.CLAN_MEMBERSHIP.NOT_IN_CLAN
 
         return relations.CLAN_MEMBERSHIP.IN_CLAN
+
+    def protectorat_ownership(self):
+        if self.clan_id is None:
+            return relations.PROTECTORAT_OWNERSHIP.NO_PROTECTORAT
+
+        dominant_place = self.position.cell().dominant_place()
+
+        if dominant_place is None:
+            return relations.PROTECTORAT_OWNERSHIP.NO_PROTECTORAT
+
+        if dominant_place.attrs.clan_protector == self.clan_id:
+            return relations.PROTECTORAT_OWNERSHIP.HAS_PROTECTORAT
+
+        return relations.PROTECTORAT_OWNERSHIP.NO_PROTECTORAT
 
     ##########################
     # experience
@@ -370,9 +380,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                 message = message.clone()
 
         if diary:
-            size = conf.settings.DIARY_LOG_LENGTH_PREMIUM if self.is_premium else conf.settings.DIARY_LOG_LENGTH
-
-            tt_services.diary.cmd_push_message(self.id, message, size=size)
+            tt_services.diary.cmd_push_message(self.id, message, size=conf.settings.DIARY_LOG_LENGTH)
 
     def add_message(self, type_, diary=False, journal=True, turn_delta=0, **kwargs):
         if not diary and not self.is_active and not self.is_premium:
@@ -412,15 +420,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
     # service
     ##########################
 
-    def update_with_account_data(self, is_fast, premium_end_at, active_end_at, ban_end_at, might, actual_bills, clan_id):
-        self.is_fast = is_fast
-        self.active_state_end_at = active_end_at
-        self.premium_state_end_at = premium_end_at
-        self.ban_state_end_at = ban_end_at
-        self.might = might
-        self.actual_bills = actual_bills
-        self.clan_id = clan_id
-
     def get_achievement_account_id(self):
         return self.account_id
 
@@ -444,8 +443,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
             if self.statistics.pvp_battles_1x1_number >= conf.settings.MIN_PVP_BATTLES:
                 return int(float(self.statistics.pvp_battles_1x1_victories) / self.statistics.pvp_battles_1x1_number * 100)
             return 0
-        elif achievement_type.is_KEEPER_HELP_COUNT:
-            return self.statistics.help_count
         elif achievement_type.is_HABITS_HONOR:
             return self.habit_honor.raw_value
         elif achievement_type.is_HABITS_PEACEFULNESS:
@@ -514,7 +511,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                     'bag': self.bag.ui_info(self),
                     'equipment': self.equipment.ui_info(self),
                     'might': {'value': self.might,
-                              'crit_chance': self.might_crit_chance,
                               'pvp_effectiveness_bonus': self.might_pvp_effectiveness_bonus,
                               'politics_power': self.politics_power_might},
                     'permissions': {'can_participate_in_pvp': self.can_participate_in_pvp,
@@ -594,7 +590,9 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         cls.modify_ui_info_with_turn(data, for_last_turn=for_last_turn)
 
-        if recache_if_required and cls.is_ui_continue_caching_required(data['ui_caching_started_at']) and game_prototypes.GameState.is_working():
+        if (recache_if_required and
+            cls.is_ui_continue_caching_required(data['ui_caching_started_at']) and
+            game_prototypes.GameState.is_working()):
             amqp_environment.environment.workers.supervisor.cmd_start_hero_caching(account_id)
 
         if patch_turns is not None and data['patch_turn'] in patch_turns:

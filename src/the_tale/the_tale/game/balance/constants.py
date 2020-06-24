@@ -50,10 +50,6 @@ COMPANIONS_BONUS_EXP_FRACTION: float = 0.2  # доля бонусного опы
 EXP_FOR_PREMIUM_ACCOUNT: float = 1.0  # модификатор опыта для премиум аккаунтов
 EXP_FOR_NORMAL_ACCOUNT: float = 0.66  # модификатор опыта для обычных акканутов
 
-# TODO: привести EXP_FOR_PREMIUM_ACCOUNT к 1.0 (разница с нормальным аккаунтом должна быть 50%)
-#       сейчас это сделать нельзя т.к. паливо
-
-
 HERO_MOVE_SPEED: float = 0.1  # базовая скорость героя расстояние в ход
 
 BATTLE_LENGTH: int = 16  # ходов - средняя длительность одного боя (количество действий в бой)
@@ -182,43 +178,6 @@ DAMAGE_CRIT_MULTIPLIER: float = 2.0  # во сколько раз увеличи
 DESTINY_POINT_IN_LEVELS: int = 5  # раз в сколько уровней давать очко абилок
 SPEND_MONEY_FOR_HEAL_HEALTH_FRACTION: float = 0.75  # герой будет тратить деньги на лечение, когда его здоровье будет меньше этого параметра
 
-##########################
-# параметры ангелов
-##########################
-
-ANGEL_ENERGY_REGENERATION_TIME: float = 0.5  # раз в сколько часов регенерируем
-ANGEL_ENERGY_REGENERATION_AMAUNT: int = 1  # сколько восстанавливаем
-ANGEL_ENERGY_REGENERATION_PERIOD: int = int(ANGEL_ENERGY_REGENERATION_TIME * TURNS_IN_HOUR)  # раз в сколько ходов
-ANGEL_ENERGY_IN_DAY: int = int(24.0 / ANGEL_ENERGY_REGENERATION_TIME * ANGEL_ENERGY_REGENERATION_AMAUNT)
-
-ANGEL_ENERGY_REGENERATION_LENGTH: int = 3  # сколько ходов будет идти ренерация единицы энергии
-
-# энергия должна полностью регенериться за сутки, раз в 2 часа должна появляться новая мажка
-
-##########################
-# абилки ангела
-##########################
-
-ANGEL_HELP_COST: int = 4
-ANGEL_ARENA_COST: int = 1
-ANGEL_ARENA_QUIT_COST: int = 0
-ANGEL_DROP_ITEM_COST: int = 1
-
-ANGEL_HELP_HEAL_FRACTION: Tuple[float, float] = (0.25, 0.5)  # (min, max) процент хелсов, которые будут вылечины
-ANGEL_HELP_TELEPORT_DISTANCE: float = 1.0  # расстяние на которое происходит телепорт
-ANGEL_HELP_LIGHTING_FRACTION: Tuple[float, float] = (0.25, 0.5)  # (min, max) процент урона, который будет нанесён
-
-ANGEL_HELP_CRIT_HEAL_FRACTION: Tuple[float, float]  = (0.5, 0.75)  # (min, max) процент хелсов, которые будут вылечины
-ANGEL_HELP_CRIT_TELEPORT_DISTANCE: float = 3.0  # расстяние на которое происходит телепорт
-ANGEL_HELP_CRIT_LIGHTING_FRACTION: Tuple[float, float] = (0.5, 0.75)  # (min, max) процент урона, который будет нанесён
-ANGEL_HELP_CRIT_MONEY_MULTIPLIER: int = 10
-ANGEL_HELP_CRIT_MONEY_FRACTION: Tuple[float, float] = (0.75, 1.25)
-
-ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE: int = ANGEL_HELP_COST
-
-INITIAL_ENERGY_AMOUNT: int = 25 * ANGEL_HELP_COST  # стартовое количество энергии у игрока (так, чтобы хватило на много помощей, но не чрезмерно)
-
-
 ######################################
 # зависимость изменения скорости от изменения безопасности
 # при фиксированном количестве боёв за цикл движения, изменение скорости эквивалентное изменению вероятности боя
@@ -271,40 +230,17 @@ CELL_TRANSPORT_HAS_OFF_ROAD: float = CELL_TRANSPORT_HAS_MAIN_ROAD / 2
 # дорога по клетке без штрафов и модификаторов должна давать 100% скорость
 CELL_TRANSPORT_BASE: float = 1.0 - CELL_TRANSPORT_HAS_MAIN_ROAD
 
-PATH_MODIFIER_MINOR_DELTA: float = 0.025
-PATH_MODIFIER_NORMAL_DELTA: float = 0.075
-PATH_MODIFIER_MINIMUM_MULTIPLIER: float = 0.1
+PATH_MODIFIER_MINOR_DELTA: float = 0.05
+PATH_MODIFIER_NORMAL_DELTA: float = 0.15
+PATH_MODIFIER_MAJOR_DELTA: float = 0.3
+
+PATH_MINIMUM_COST_MULTIPLIER: float = 0.25
 
 ##########################
 # Задания
 ##########################
 
 QUESTS_PILGRIMAGE_FRACTION: float = 0.025  # вероятность отправить героя в паломничество
-
-##########################
-# Влияние
-##########################
-
-HERO_FAME_PER_HELP: int = 1000  # стандартное количество известности, которое получает герой за помощь городу
-HERO_POWER_PER_DAY: int = 100  # базовое количество влияния, которое герой 1-ого уровня производит в день на одного жителя задействованного в заданиях
-PERSON_POWER_PER_QUEST_FRACTION: float = 0.33  # разброс влияния за задание
-PERSON_POWER_FOR_RANDOM_SPEND: int = 200
-
-MINIMUM_CARD_POWER: int = HERO_POWER_PER_DAY
-
-EXPECTED_HERO_QUEST_POWER_MODIFIER: float = 5
-
-# в 2 раза больше, так как карту надо применять к конкретному квесту, а не сразу к мастеру
-# в EXPECTED_HERO_QUEST_POWER_MODIFIER раз меньше, так как на эффект квеста действует политический бонус героя, считаем его в среднем равным EXPECTED_HERO_QUEST_POWER_MODIFIER
-
-CARD_BONUS_FOR_QUEST: int = int(2 * MINIMUM_CARD_POWER / EXPECTED_HERO_QUEST_POWER_MODIFIER)
-
-NORMAL_JOB_LENGTH: int = 4  # минимальная длительность занятия мастера в днях
-
-JOB_MIN_POWER: float = 0.5
-JOB_MAX_POWER: float = 2.0
-
-JOB_NEGATIVE_POWER_MULTIPLIER: float = 2.0  # множитель награды для противников: ломать — не строить
 
 ##########################
 # споособности
@@ -328,69 +264,33 @@ HABITS_NEW_HERO_POINTS: int = 200
 
 HABITS_BORDER: int = 1000  # модуль максимального значения черты
 HABITS_RIGHT_BORDERS: List[int] = [-700, -300, -100, 100, 300, 700, 1001]  # правые границы черт
-HABITS_QUEST_ACTIVE_DELTA: float = 20.0  # за выбор в задании игроком
-HABITS_QUEST_PASSIVE_DELTA: float = 0.05 * HABITS_QUEST_ACTIVE_DELTA  # за неверный выбор героем
-HABITS_HELP_ABILITY_DELTA: float = HABITS_BORDER / (60 * ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)  # за использование способности
-HABITS_ARENA_ABILITY_DELTA: float = HABITS_BORDER / (60 * ANGEL_ENERGY_IN_DAY / ANGEL_ARENA_COST)  # за использование способности
+HABITS_ACTIVE_DELTA: float = 20.0  # за выбор в задании игроком
+HABITS_PASSIVE_DELTA: float = 0.05 * HABITS_ACTIVE_DELTA  # за неверный выбор героем
 
 HABITS_QUEST_ACTIVE_PREMIUM_MULTIPLIER: float = 1.5  # бонус к начисляемому влиянию за выбор игрока для подписчиков
 
-
 KILL_BEFORE_BATTLE_PROBABILITY: float = 0.05  # вероятность убить мобы в начале боя
-PICKED_UP_IN_ROAD_TELEPORT_LENGTH: float = ANGEL_HELP_TELEPORT_DISTANCE
+PICKED_UP_IN_ROAD_TELEPORT_LENGTH: float = 1.0
 # бонус к скорости передвижения, эквивалентный вероятности убить моба
 PICKED_UP_IN_ROAD_SPEED_BONUS: float = BATTLES_PER_TURN * KILL_BEFORE_BATTLE_PROBABILITY * _SAFETY_TO_TRANSPORT
 PICKED_UP_IN_ROAD_PROBABILITY: float = PICKED_UP_IN_ROAD_SPEED_BONUS / PICKED_UP_IN_ROAD_TELEPORT_LENGTH
 
 HABIT_QUEST_PRIORITY_MODIFIER: float = 1.0  # модификатор приоритета выбора заданий от предпочтений
 
-HONOR_POWER_BONUS_FRACTION: float = 1.5  # бонус к влиянию для чести
 MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE: float = 0.02  # вероятность крита по типу монстра, если все монстры этого типа
 
 HABIT_QUEST_REWARD_MAX_BONUS: float = 1.0  # максимальный бонус к награде за задание при выборе, совпадающем с чертой
 HABIT_LOOT_PROBABILITY_MODIFIER: float = 1.2  # бонус к вероятности получить любой лут
 
-PEACEFULL_BATTLE_PROBABILITY: float = 0.01  # вероятность мирно разойтись с монстром, если все можно расходиться со всеми типами монстров
+PEACEFULL_BATTLE_PROBABILITY: float = 0.05  # вероятность мирно разойтись с монстром, если все можно расходиться со всеми типами монстров
 
-# вероятность получить опыт расчитывается исходя из:
-# - средней величины получаемого опыта
-# - ускорения прокачки от первого удара (вычитается)
-# - проигрыша агрессивного использования способностей (молния) перед мирными (телепортом) (плюсуется)
-# - лечение не учитываем, т.к. оно может быть применено и в бою и не в бою
-
-# процент сохранённых ходов от первого удара
-_FIRST_STRIKE_TURNS_BONUS: float = (0.5 * BATTLES_BEFORE_HEAL) / ACTIONS_CYCLE_LENGTH  # выигрываем полхода в каждой битве
-
-_HELPS_IN_TURN = (float(ANGEL_ENERGY_IN_DAY) / ANGEL_HELP_COST) / 24 / TURNS_IN_HOUR
-
-# процент сохранённых ходов сражения, если только бьём молнией
-_BATTLE_TURNS_BONUS_FROM_ON_USE: float = (float(BATTLE_LENGTH) * (sum(ANGEL_HELP_LIGHTING_FRACTION) / 2) + HEAL_LENGTH * (sum(ANGEL_HELP_HEAL_FRACTION) / 2)) / 2
-_BATTLE_TURNS_BONUS: float = _BATTLE_TURNS_BONUS_FROM_ON_USE * _HELPS_IN_TURN
-
-# процент сохранённых ходов движения, если только телепортируем
-_TELEPORT_MOVE_TURNS: float = ANGEL_HELP_TELEPORT_DISTANCE / HERO_MOVE_SPEED
-_TELEPORT_SAVED_BATTLES: float = _TELEPORT_MOVE_TURNS / INTERVAL_BETWEEN_BATTLES
-_TELEPORT_SAVED_TURNS: float = _TELEPORT_MOVE_TURNS + _TELEPORT_SAVED_BATTLES * BATTLE_LENGTH + HEAL_LENGTH * _TELEPORT_SAVED_BATTLES / BATTLES_BEFORE_HEAL
-_TELEPORT_TURNS_BONUS: float = _TELEPORT_SAVED_TURNS * _HELPS_IN_TURN
-
-# процент сохранённых ходов от мирного расхождения с монстрами
-_PEACEFULL_TURNS_BONUS: float = (PEACEFULL_BATTLE_PROBABILITY * float(BATTLES_BEFORE_HEAL) * BATTLE_LENGTH) / ACTIONS_CYCLE_LENGTH
-
-# print 'battles in day', TURNS_IN_HOUR * 24 / ACTIONS_CYCLE_LENGTH * BATTLES_BEFORE_HEAL
-# print 'inverted', 1.0 / (TURNS_IN_HOUR * 24 / ACTIONS_CYCLE_LENGTH * BATTLES_BEFORE_HEAL)
-# print 'strike', _FIRST_STRIKE_TURNS_BONUS
-# print 'battle', _BATTLE_TURNS_BONUS
-# print 'teleport', _TELEPORT_TURNS_BONUS
-
-EXP_FOR_KILL: int = 2 * EXP_PER_HOUR  # средний опыт за убийство монстра
+EXP_FOR_KILL: int = 10  # средний опыт за убийство монстра
 EXP_FOR_KILL_DELTA: float = 0.3  # разброс опыта за убийство
 
-
 _KILLS_IN_HOUR: float = TURNS_IN_HOUR / ACTIONS_CYCLE_LENGTH * BATTLES_BEFORE_HEAL
-_REQUIRED_EXP_BONUS = _TELEPORT_TURNS_BONUS + _PEACEFULL_TURNS_BONUS - _BATTLE_TURNS_BONUS - _FIRST_STRIKE_TURNS_BONUS
 
 # вероятность получить опыт за убийство моба
-EXP_FOR_KILL_PROBABILITY: float = EXP_PER_HOUR * _REQUIRED_EXP_BONUS / _KILLS_IN_HOUR / EXP_FOR_KILL
+EXP_FOR_KILL_PROBABILITY: float = (0.1 * EXP_PER_HOUR) / (EXP_FOR_KILL * _KILLS_IN_HOUR)
 
 ###########################
 # события для черт
@@ -440,7 +340,6 @@ PLACE_ABSOLUTE_MAX_PERSONS: int = PLACE_MAX_PERSONS[-1]
 
 PLACE_MIN_STABILITY: float = 0.0
 PLACE_MIN_CULTURE: float = 0.2
-PLACE_MIN_FREEDOM: float = 0.1
 
 PLACE_BASE_STABILITY: float = 1.0
 
@@ -450,14 +349,10 @@ PLACE_MAX_FRONTIER_ECONOMIC: int = 5
 
 PLACE_NEW_PLACE_LIVETIME: int = 2 * 7 * 24 * 60 * 60
 
-PLACE_POWER_HISTORY_WEEKS: int = 6  # количество недель, которое хранится влияние города
-PLACE_POWER_HISTORY_LENGTH: int = int(PLACE_POWER_HISTORY_WEEKS * 7 * 24 * TURNS_IN_HOUR)  # в ходах
-
-PLACE_POWER_RECALCULATE_STEPS: float = PLACE_POWER_HISTORY_LENGTH / MAP_SYNC_TIME
-PLACE_POWER_REDUCE_FRACTION: float = math.pow(0.01, 1.0 / PLACE_POWER_RECALCULATE_STEPS)
-
-PLACE_FAME_REDUCE_FRACTION: float = PLACE_POWER_REDUCE_FRACTION
-PLACE_MONEY_REDUCE_FRACTION: float = PLACE_POWER_REDUCE_FRACTION
+PLACE_MONEY_HISTORY_WEEKS: int = 6  # количество недель, которое хранится влияние города
+PLACE_MONEY_HISTORY_LENGTH: int = int(PLACE_MONEY_HISTORY_WEEKS * 7 * 24 * TURNS_IN_HOUR)  # в ходах
+PLACE_MONEY_RECALCULATE_STEPS: float = PLACE_MONEY_HISTORY_LENGTH / MAP_SYNC_TIME
+PLACE_MONEY_REDUCE_FRACTION: float = math.pow(0.01, 1.0 / PLACE_MONEY_RECALCULATE_STEPS)
 
 PLACE_TYPE_NECESSARY_BORDER: int = 75
 PLACE_TYPE_ENOUGH_BORDER: int = 50
@@ -478,6 +373,10 @@ PLACE_GOODS_FOR_BUILDING_SUPPORT: int = PLACE_GOODS_FROM_BEST_PERSON * 3 // 5
 # округлим до 15
 PLACE_AVERAGE_TOTAL_ROADS_PRICE: int = int(1.5 * PLACE_GOODS_BONUS)  # средняя стоимость поддержки дорог для города
 CELL_STABILIZATION_PRICE: int = PLACE_AVERAGE_TOTAL_ROADS_PRICE // 15
+
+ROAD_LENGTH_PRICE_MULTIPLIER: List[Tuple[int, float]] = [(10, 1.0),
+                                                         (20, 1.5),
+                                                         (10**9, 2.0)]
 
 # если размер города равен 1 (минимальный) и производство отрицательное
 # то в городе вводят пошлину в размере "недостающее производство" * PLACE_TAX_PER_ONE_GOODS
@@ -531,13 +430,6 @@ PLACE_HABITS_CHANGE_SPEED_MAXIMUM: float = 10
 PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY: float = 10
 PLACE_HABITS_EVENT_PROBABILITY: float = 0.025
 
-JOB_PRODUCTION_BONUS: int = PLACE_GOODS_BONUS
-JOB_SAFETY_BONUS: float = PLACE_SAFETY_FROM_BEST_PERSON
-JOB_TRANSPORT_BONUS: float = PLACE_TRANSPORT_FROM_BEST_PERSON
-JOB_FREEDOM_BONUS: float = PLACE_FREEDOM_FROM_BEST_PERSON
-JOB_STABILITY_BONUS: float = PLACE_STABILITY_UNIT
-JOB_CULTURE_BONUS: float = PLACE_CULTURE_FROM_BEST_PERSON
-
 
 RESOURCE_EXCHANGE_COST_PER_CELL: int = int(math.floor(PLACE_GOODS_BONUS / 40))
 
@@ -545,8 +437,6 @@ RESOURCE_EXCHANGE_COST_PER_CELL: int = int(math.floor(PLACE_GOODS_BONUS / 40))
 # - с одной стороны, обеспечить значимость эффекта для города
 # - с другой, предотвратить скопление одинаковых эффектов (от проектов Мастеров, например)
 PLACE_STANDARD_EFFECT_LENGTH: int = 15  # в днях
-
-PLACE_STABILITY_RECOVER_SPEED: float = PLACE_STABILITY_UNIT / (PLACE_STANDARD_EFFECT_LENGTH * 24)  # стабильности в час
 
 
 ###########################
@@ -561,15 +451,12 @@ PERSON_SOCIAL_CONNECTIONS_LIMIT: int = 3
 PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME_IN_WEEKS: int = 2
 PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME: int = int(TURNS_IN_HOUR * 24 * 7 * PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME_IN_WEEKS)
 
-PERSON_SOCIAL_CONNECTIONS_POWER_BONUS: float = 0.1
-
 ###########################
 # здания
 ###########################
 
 BUILDING_POSITION_RADIUS: int = 2
 
-BUILDING_PERSON_POWER_BONUS: float = 0.5
 BUILDING_TERRAIN_POWER_MULTIPLIER: float = 0.5  # building terrain power is percent from city power
 
 ###########################
@@ -599,7 +486,10 @@ COMPANIONS_MAX_HEALTH: int = 700  # максимальное максималь�
 
 COMPANIONS_MEDIUM_HEALTH: float = (COMPANIONS_MIN_HEALTH + COMPANIONS_MAX_HEALTH) / 2
 
-_COMPANIONS_MEDIUM_LIFETYME: int = 9  # ожидаемое время жизни среднего спутника со средним здоровьем без лечения в днях
+# TODO: при удалении кнопки помощи, этот параметр увеличили (прошлое значение было 9),
+#       чтобы сгладить возможные проблемы с падежом спутников из-за изменений подхода к их лечению
+#       в будущем надо надо сделать это значение более соответствующим балансу (скорее всего вернуть 9)
+_COMPANIONS_MEDIUM_LIFETYME: int = 12  # ожидаемое время жизни среднего спутника со средним здоровьем без лечения в днях
 
 # дельты мультипликатора вероятности блока для
 COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA: float = 0.2  # слаженность (от среднего)
@@ -623,9 +513,7 @@ COMPANIONS_WOUNDS_IN_HOUR: float = COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS + COMPA
 
 COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_WOUNDS: float = COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS / (BATTLES_PER_HOUR * COMPANIONS_DEFENDS_IN_BATTLE)
 
-# величины лечения здоровья спутника за одну помощь
 COMPANIONS_HEAL_AMOUNT: int = 20
-COMPANIONS_HEAL_CRIT_AMOUNT: int = COMPANIONS_HEAL_AMOUNT * 2
 
 # вероятность того, что спутник использует способность во время боя
 # на столько же должны увеличивать инициативу особенности спутника с боевыми способностями
@@ -661,6 +549,8 @@ COMPANIONS_LEAVE_IN_PLACE: float = 1.0 / 20  # вероятность того, 
 
 COMPANIONS_BONUS_DAMAGE_PROBABILITY: float = 0.25  # вероятность спутника получить дополнительный урон
 
+COMPANIONS_FLY_DISTANCE: float = 1.0
+
 
 ##############################
 # Bills
@@ -668,7 +558,45 @@ COMPANIONS_BONUS_DAMAGE_PROBABILITY: float = 0.25  # вероятность сп
 
 PLACE_MAX_BILLS_NUMBER: int = 3
 
-FREE_ACCOUNT_MAX_ACTIVE_BILLS: int = 1
-PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS: int = 4
+ACCOUNT_MAX_ACTIVE_BILLS: int = 4
+
+
+#################################
+# Fame
+#################################
+
+HERO_FAME_PER_HELP: int = 1000  # стандартное количество известности, которое получает герой за помощь городу
+
+PLACE_FAME_HISTORY_WEEKS: int = 6  # количество недель, которое хранится влияние города
+PLACE_FAME_HISTORY_LENGTH: int = int(PLACE_FAME_HISTORY_WEEKS * 7 * 24 * TURNS_IN_HOUR)  # в ходах
+PLACE_FAME_RECALCULATE_STEPS: float = PLACE_FAME_HISTORY_LENGTH / MAP_SYNC_TIME
+PLACE_FAME_REDUCE_FRACTION: float = math.pow(0.01, 1.0 / PLACE_FAME_RECALCULATE_STEPS)
 
 BILLS_FAME_BORDER: int = HERO_FAME_PER_HELP
+
+##################
+# проекты Мастеров
+##################
+
+JOB_MIN_LENGTH: int = 4  # минимальная длительность занятия мастера в днях
+
+JOB_MIN_POWER: float = 0.5
+JOB_MAX_POWER: float = 2.0
+
+JOB_NEGATIVE_POWER_MULTIPLIER: float = 2.0  # множитель награды для противников: ломать — не строить
+
+JOB_PRODUCTION_BONUS: int = PLACE_GOODS_BONUS
+JOB_SAFETY_BONUS: float = PLACE_SAFETY_FROM_BEST_PERSON
+JOB_TRANSPORT_BONUS: float = PLACE_TRANSPORT_FROM_BEST_PERSON
+JOB_FREEDOM_BONUS: float = PLACE_FREEDOM_FROM_BEST_PERSON
+JOB_STABILITY_BONUS: float = PLACE_STABILITY_UNIT
+JOB_CULTURE_BONUS: float = PLACE_CULTURE_FROM_BEST_PERSON
+
+
+##############################
+# действие «религиозный обряд»
+##############################
+
+ACTION_RELIGION_EXPERIENCE: int = 1  # сколько опыта за раз даём
+ACTION_RELIGION_PERIOD: int = int(0.5 * TURNS_IN_HOUR)  # раз в сколько ходов
+ACTION_RELIGION_TIME: int = 3  # сколько ходов будет идти генерация единицы опыта

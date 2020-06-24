@@ -15,8 +15,8 @@ class AbilitiesTests(utils_testcase.TestCase):
         account_2 = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account_1)
-        self.storage.load_account_data(account_2)
+        self.storage.load_account_data(account_1.id)
+        self.storage.load_account_data(account_2.id)
 
         self.hero = self.storage.accounts_to_heroes[account_1.id]
         self.enemy = self.storage.accounts_to_heroes[account_2.id]

@@ -101,12 +101,6 @@ class Artifact(object):
             value = effect.modify_attribute(type_, value)
         return value
 
-    def must_be_removed_on_help(self):
-        return any(effect.REMOVE_ON_HELP for effect in self.all_effects())
-
-    def is_child_gift(self):
-        return any(effect.TYPE.is_CHILD_GIFT for effect in self.all_effects())
-
     def serialize(self):
         return {'id': self.id,
                 'power': self.power.serialize(),

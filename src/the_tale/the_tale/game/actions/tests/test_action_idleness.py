@@ -14,7 +14,7 @@ class IdlenessActionTest(clans_helpers.ClansTestsMixin,
 
         self.account = self.accounts_factory.create_account(is_fast=True)
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
 
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -69,24 +69,24 @@ class IdlenessActionTest(clans_helpers.ClansTestsMixin,
         self.assertEqual(self.action_idl.state, prototypes.ActionIdlenessPrototype.STATE.WAITING)
         self.storage._test_save()
 
-    def test_regenerate_energy_action_create(self):
-        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.PRAY)
-        self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
+    def test_religion_ceremony_action_create(self):
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE, heroes_relations.RELIGION_TYPE.PRAY)
+        self.hero.last_religion_action_at_turn -= max(next(zip(*heroes_relations.RELIGION_TYPE.select('period'))))
 
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.WAITING
         self.action_idl.percents = 0.0
 
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionRegenerateEnergyPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionReligionCeremonyPrototype.TYPE)
         self.storage._test_save()
 
-    def test_regenerate_energy_action_not_create_for_sacrifice(self):
+    def test_religion_ceremony_action_not_create_for_sacrifice(self):
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.WAITING
         self.action_idl.percents = 0
 
-        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.SACRIFICE)
-        self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE, heroes_relations.RELIGION_TYPE.SACRIFICE)
+        self.hero.last_religion_action_at_turn -= max(next(zip(*heroes_relations.RELIGION_TYPE.select('period'))))
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)

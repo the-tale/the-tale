@@ -46,15 +46,11 @@ class Hero(django_models.Model):
 
     data = django_postgres_fields.JSONField()
 
-    abilities = django_models.TextField(null=False, default='', blank=True)
-
     actions = django_models.TextField()
 
     quest_created_time = django_models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
 
     next_spending = rels_django.RelationIntegerField(relation=relations.ITEMS_OF_EXPENDITURE, relation_column='value')
-
-    last_energy_regeneration_at_turn = django_models.IntegerField(null=False, default=0)
 
     might = django_models.FloatField(null=False, default=0.0)
 
@@ -88,8 +84,6 @@ class Hero(django_models.Model):
     stat_artifacts_had = django_models.BigIntegerField(default=0, null=False)
     stat_loot_had = django_models.BigIntegerField(default=0, null=False)
 
-    stat_help_count = django_models.BigIntegerField(default=0, null=False)
-
     stat_quests_done = django_models.BigIntegerField(default=0, null=False)
 
     stat_companions_count = django_models.BigIntegerField(default=0, null=False)
@@ -100,8 +94,6 @@ class Hero(django_models.Model):
 
     stat_cards_used = django_models.BigIntegerField(default=0, null=False)
     stat_cards_combined = django_models.BigIntegerField(default=0, null=False)
-
-    stat_gifts_returned = django_models.BigIntegerField(default=0, null=False)
 
     stat_politics_multiplier = django_models.FloatField(default=0, null=False)  # for ratings
 
@@ -114,7 +106,7 @@ class HeroPreferences(django_models.Model):
 
     hero = django_models.ForeignKey(Hero, on_delete=django_models.CASCADE)
 
-    energy_regeneration_type = rels_django.RelationIntegerField(null=False, relation=relations.ENERGY_REGENERATION)
+    religion_type = rels_django.RelationIntegerField(null=False, relation=relations.RELIGION_TYPE)
     mob = django_models.ForeignKey('mobs.MobRecord', null=True, default=None, blank=True, on_delete=django_models.PROTECT)
     place = django_models.ForeignKey('places.Place', null=True, default=None, related_name='+', blank=True, on_delete=django_models.PROTECT)
     friend = django_models.ForeignKey('persons.Person', null=True, default=None, related_name='+', blank=True, on_delete=django_models.PROTECT)
@@ -129,9 +121,9 @@ class HeroPreferences(django_models.Model):
     quests_region_size = django_models.IntegerField(default=c.DEFAULT_QUESTS_REGION_SIZE)
 
     @classmethod
-    def create(cls, hero, energy_regeneration_type, risk_level, archetype, companion_dedication, companion_empathy):
+    def create(cls, hero, religion_type, risk_level, archetype, companion_dedication, companion_empathy):
         return cls.objects.create(hero_id=hero.id,
-                                  energy_regeneration_type=energy_regeneration_type,
+                                  religion_type=religion_type,
                                   risk_level=risk_level,
                                   archetype=archetype,
                                   companion_dedication=companion_dedication,

@@ -171,7 +171,6 @@ class CellsStorage(utils_storage.DependentStorage):
     __slots__ = ('_map',
 
                  '_places_terrains',
-                 '_places_area',
                  '_places_cells',
 
                  '_navigators')
@@ -179,7 +178,6 @@ class CellsStorage(utils_storage.DependentStorage):
     def __init__(self):
         self._map = []
         self._places_terrains = {}
-        self._places_area = {}
         self._places_cells = {}
 
         self._navigators = {risk_level: navigation_navigator.Navigator()
@@ -213,10 +211,6 @@ class CellsStorage(utils_storage.DependentStorage):
         self.sync()
         return self._places_terrains[place_id]
 
-    def place_area(self, place_id):
-        self.sync()
-        return self._places_area[place_id]
-
     def place_cells(self, place_id):
         self.sync()
         return self._places_cells[place_id]
@@ -244,7 +238,6 @@ class CellsStorage(utils_storage.DependentStorage):
             cell.reset()
 
         self._places_terrains = {place.id: set() for place in places_storage.places.all()}
-        self._places_area = {place.id: 0 for place in places_storage.places.all()}
         self._places_cells = {place.id: [] for place in places_storage.places.all()}
 
     def sync_terrain(self):
@@ -253,12 +246,8 @@ class CellsStorage(utils_storage.DependentStorage):
 
     def sync_places_caches(self):
         for x, y, cell in self._cells_iterator():
-            if cell.dominant_place_id is None:
-                continue
-
-            self._places_terrains[cell.dominant_place_id].add(cell.terrain)
-            self._places_area[cell.dominant_place_id] += 1
-            self._places_cells[cell.dominant_place_id].append((x, y))
+            self._places_terrains[cell.nearest_place_id].add(cell.terrain)
+            self._places_cells[cell.nearest_place_id].append((x, y))
 
     def sync_transport(self):
         for x, y, cell in self._cells_iterator():
@@ -267,6 +256,19 @@ class CellsStorage(utils_storage.DependentStorage):
     def sync_safety(self):
         for x, y, cell in self._cells_iterator():
             cell.safety = sum(value for name, value in cell.safety_effects())
+
+    def get_places_areas(self):
+        self.sync()
+
+        areas = {place.id: 0 for place in places_storage.places.all()}
+
+        for x, y, cell in self._cells_iterator():
+            if cell.dominant_place_id is None:
+                continue
+
+            areas[cell.dominant_place_id] += 1
+
+        return areas
 
     def find_path_to_place(self, from_x, from_y, to_place_id, cost_modifiers, risk_level):
         self.sync()

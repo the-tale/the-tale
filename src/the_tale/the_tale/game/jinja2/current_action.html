@@ -9,8 +9,6 @@ jQuery(document).ready(function(e) {
 
     widgets.actions = new pgf.game.widgets.Action('#current-action-block', updater, widgets);
 
-    widgets.abilities = new pgf.game.widgets.Abilities();
-
     widgets.cards = new pgf.game.widgets.Cards({getItems: "{{get_cards_url()}}",
                                                 getCard: "{{receive_cards_url()}}",
                                                 transformItems: "{{transform_cards_url()}}",
@@ -32,6 +30,16 @@ jQuery(document).ready(function(e) {
     {% endif %}
 });
 </script>
+
+<style>
+  .cards-button {
+      margin: 0.25em;
+      /* height: 32px !important; */
+      line-height: 32px !important;
+      font-size: 11pt !important;
+      text-align: center;
+  }
+</style>
 
 {% if not resource.account.is_premium %}
 
@@ -68,7 +76,7 @@ jQuery(document).ready(function(e) {
 
     <div class="dropdown" style="display: inline-block;  width: 30%; font-size: 11pt;">
       <i class="icon-gift pgf-new-card-icon pgf-hidden" style="margin-top: 1px;" rel="tooltip" title="Вы можете получить новую карту!"></i>
-      <a href="#" class="dropdown-toggle pgf-cards-for-use-dropdown" data-toggle="dropdown">
+      <a href="#" class="dropdown-toggle pgf-cards-for-use-dropdown" style="font-size: 14pt;" data-toggle="dropdown">
         карты<b class="caret"></b>
       </a>
       <ul class="pgf-scrollable dropdown-menu pgf-cards-choices"
@@ -99,9 +107,8 @@ jQuery(document).ready(function(e) {
         <li class="pgf-change-cards-receive-mode">
           {% set current_cards_receive_mode = resource.account.cards_receive_mode() %}
           {% set CARDS_RECEIVE_MODE = value('the_tale.game.cards.relations').RECEIVE_MODE %}
-            <a style="margin: 0.25em; height: 18px; font-weight: bold;"
-
-               class="pgf-forms-post-simple"
+            <a style="font-weight: bold;"
+               class="pgf-forms-post-simple cards-button"
                data-action-type="reload"
                {% if current_cards_receive_mode.is_PERSONAL_ONLY %}
                href="{{ value('the_tale.game.cards.logic').change_receive_mode_url(CARDS_RECEIVE_MODE.ALL) }}"
@@ -124,15 +131,15 @@ jQuery(document).ready(function(e) {
         </li>
 
           <li class="pgf-get-card-button pgf-hidden">
-            <a href="#" style="margin: 0.25em; height: 18px;">Взять карту! x <span class="pgf-new-cards-number"></span></a>
+            <a href="#" class="cards-button">Взять карту! x <span class="pgf-new-cards-number"></span></a>
           </li>
 
           <li class="pgf-storage-card-button">
-            <a href="#" style="margin: 0.25em; height: 18px;">Хранилище</a>
+            <a href="#" class="cards-button">Хранилище</a>
           </li>
 
           <li class="pgf-transformator-card-button">
-            <a href="#" style="margin: 0.25em; height: 18px;">Превращение</a>
+            <a href="#" class="cards-button">Превращение</a>
           </li>
 
           <li class="divider"></li>
@@ -156,27 +163,6 @@ jQuery(document).ready(function(e) {
           </li>
       </ul>
     </div>
-
-    <a href="#" class="angel-ability pgf-ability-help pgf-hidden" style="display: inline-block; width: 30%;">
-      <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
-      <i class="icon-ban-circle" rel="tooltip" title="необходимо завершить регистрацию"></i>
-      <span rel="tooltip"
-            title="Помочь герою. В зависимости от ситуации и везения может:
-                   <ul style='text-align: left;'>
-                     <li>Вылечить героя</li>
-                     <li>Воскресить героя</li>
-                     <li>Дать герою деньги</li>
-                     <li>Подлечить спутника</li>
-                     <li>Телепортировать героя</li>
-                     <li>Нанести урон противнику</li>
-                   </ul>
-                   Помощь во время боя уменьшает миролюбие героя.<br/>
-                   Помощь в любое другое время — увеличивает.
-                   <hr/>
-                   <i>{{ABILITY_TYPE.HELP.cost}} энергии без учёта бонусов</i>">
-        помочь
-      </span>
-    </a>
 
     <div class="dropdown" style="display: inline-block;  width: 30%; font-size: 11pt;">
       <i class=" icon icon-search pgf-arena-call-active pgf-hidden"

@@ -89,9 +89,6 @@ class TestRequests(utils_testcase.TestCase):
     def test_hero_habits(self):
         self.check_html_ok(self.client.get(utils_urls.url('guide:hero-habits')))
 
-    def test_press_kit(self):
-        self.check_html_ok(self.client.get(utils_urls.url('guide:press-kit')))
-
     def test_hero_habit_info(self):
         for habit in game_relations.HABIT_TYPE.records:
             self.check_html_ok(self.client.get(utils_urls.url('guide:hero-habit-info', habit=habit.value)))

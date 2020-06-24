@@ -42,12 +42,12 @@ class QuestInfo(object):
                 'actors': self.actors,
                 'used_markers': self.used_markers}
 
-    def ui_info(self, hero):
+    def ui_info(self):
         # show experience modified by hero level and abilities
-        experience = int(self.experience * hero.experience_modifier) if hero is not None else self.experience
+        experience = int(self.experience)
 
         # show power modified by hero level and abilities
-        power = int((self.power + self.power_bonus) * hero.politics_power_multiplier()) if hero is not None else self.power
+        power = int(self.power + self.power_bonus)
 
         return {'type': self.type,
                 'uid': self.uid,
@@ -372,8 +372,8 @@ class QuestPrototype(object):
                                                             destination=destination,
                                                             break_at=None)
 
-    def _move_hero_near(self, destination, terrains=None):
-        to_x, to_y = places_logic.choose_place_cell_by_terrain(destination.id, terrains, exclude_place_if_can=True)
+    def _move_hero_near(self, place, terrains=None):
+        to_x, to_y = places_logic.choose_place_cell_by_terrain(place.id, terrains, exclude_place_if_can=True)
 
         path = navigation_path.simple_path(from_x=self.hero.position.cell_x,
                                            from_y=self.hero.position.cell_y,
@@ -383,7 +383,7 @@ class QuestPrototype(object):
 
         actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
                                                             path=path,
-                                                            destination=destination,
+                                                            destination=None,
                                                             break_at=None)
 
     def _get_fixed_path(self, place_from, place_to):
@@ -415,25 +415,10 @@ class QuestPrototype(object):
         else:
             real_break_at = (percents - nearest_percents) / (1 - nearest_percents)
 
-        # log_data = {'hero_id': self.hero.id,
-        #             'percents': percents,
-        #             'nearest_percents': nearest_percents,
-        #             'hero_coordinates': (self.hero.position.x, self.hero.position.y),
-        #             'path_coordinates': (x, y),
-        #             'place_from': place_from.id,
-        #             'place_to': place_to.id,
-        #             'path_to': path_to.serialize(),
-        #             'real_break_at': real_break_at}
-
-        # logger.info('_move_hero_on_road for hero %s, properties: %s', self.hero.id, log_data)
-
         actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
                                                             path=path_to,
                                                             destination=place_to,
                                                             break_at=real_break_at)
-
-    def get_current_power(self, power):
-        return power * self.current_info.power
 
     def modify_person_power(self, power, person):
         power += (1 if power > 0 else -1) * self.current_info.power_bonus
@@ -468,7 +453,7 @@ class QuestPrototype(object):
         if person_habits_change_source:
             hero.update_habits(person_habits_change_source)
 
-        power = self.finish_quest_person_power(result, object_fact.uid)
+        power = self.finish_quest_power(result)
 
         return persons_logic.impacts_from_hero(hero,
                                                person=persons_storage.persons[person_id],
@@ -481,12 +466,12 @@ class QuestPrototype(object):
 
         emissary = emissaries_storage.emissaries.get_or_load(emissary_id)
 
-        power = self.finish_quest_emissary_power(result, object_fact.uid)
+        power = self.finish_quest_power(result)
 
         return emissaries_logic.impacts_from_hero(hero, emissary, power)
 
     def give_power_to_place(self, hero, object_fact, result):
-        power = self.finish_quest_place_power(result, object_fact.uid)
+        power = self.finish_quest_power(result)
 
         return places_logic.impacts_from_hero(hero,
                                               place=places_storage.places[object_fact.externals['id']],
@@ -542,40 +527,13 @@ class QuestPrototype(object):
 
     def finish_quest_power(self, result):
         if result == questgen_quests_base_quest.RESULTS.SUCCESSED:
-            object_politic_power = 1
+            power_direction = 1
         elif result == questgen_quests_base_quest.RESULTS.FAILED:
-            object_politic_power = -1
+            power_direction = -1
         else:
-            object_politic_power = 0
+            power_direction = 0
 
-        object_politic_power = self.get_current_power(object_politic_power)
-
-        power_bonus = 0
-
-        if result != questgen_quests_base_quest.RESULTS.NEUTRAL:
-            power_bonus = (1 if object_politic_power > 0 else -1) * self.current_info.power_bonus
-
-        return object_politic_power, power_bonus
-
-    def finish_quest_person_power(self, result, object_uid):
-        object_politic_power, power_bonus = self.finish_quest_power(result)
-
-        has_profession_marker = [marker
-                                 for marker in self.knowledge_base.filter(questgen_facts.ProfessionMarker)
-                                 if marker.person == object_uid]
-
-        if has_profession_marker:
-            object_politic_power /= len(persons_relations.PERSON_TYPE.records)
-
-        return object_politic_power + power_bonus
-
-    def finish_quest_emissary_power(self, result, object_uid):
-        object_politic_power, power_bonus = self.finish_quest_power(result)
-        return object_politic_power + power_bonus
-
-    def finish_quest_place_power(self, result, object_uid):
-        object_politic_power, power_bonus = self.finish_quest_power(result)
-        return object_politic_power + power_bonus
+        return power_direction * (self.current_info.power + self.current_info.power_bonus)
 
     def get_state_by_jump_pointer(self):
         return self.knowledge_base[self.knowledge_base[self.machine.pointer.jump].state_to]
@@ -607,21 +565,10 @@ class QuestPrototype(object):
 
         return scale
 
-    def give_energy_on_reward(self):
-        if not self.hero.can_regenerate_energy:
-            return
-
-        energy = sum(person.attrs.on_profite_energy
-                     for person in self.positive_results_masters())
-
-        if energy == 0:
-            return
-
-        game_tt_services.energy.cmd_change_balance(account_id=self.hero.account_id,
-                                                   type='for_quest',
-                                                   amount=energy,
-                                                   asynchronous=True,
-                                                   autocommit=True)
+    def reset_religion_ceremony_timeout_on_reward(self):
+        if random.random() < sum(person.attrs.reset_religion_ceremony_timeout_on_reward
+                                 for person in self.positive_results_masters()):
+            self.hero.reset_religion_action_timeout()
 
     def _give_reward(self, hero, reward_type, scale):
 
@@ -630,9 +577,8 @@ class QuestPrototype(object):
         scale = quest_info.get_real_reward_scale(hero, scale)
         scale = self.modify_reward_scale(scale)
 
-        self.give_energy_on_reward()
+        self.reset_religion_ceremony_timeout_on_reward()
 
-        # hero receive artifact
         if hero.can_get_artifact_for_quest():
 
             level_delta = int(math.ceil(abs(scale)))
@@ -700,7 +646,11 @@ class QuestPrototype(object):
         upgrade_choice = cls._get_upgrdade_choice(hero)
 
         if upgrade_choice.is_BUY:
-            artifact, unequipped, sell_price = hero.receive_artifact(equip=True, better=True, prefered_slot=True, prefered_item=True, archetype=True)
+            artifact, unequipped, sell_price = hero.receive_artifact(equip=True,
+                                                                     better=True,
+                                                                     prefered_slot=True,
+                                                                     prefered_item=True,
+                                                                     archetype=True)
 
             if cost is not None:
                 hero.change_money(heroes_relations.MONEY_SOURCE.SPEND_FOR_ARTIFACTS, -cost)
@@ -749,11 +699,12 @@ class QuestPrototype(object):
 
     def _start_quest(self, start, hero):
         hero.quests.update_history(start.type, game_turn.number())
+
         self.quests_stack.append(QuestInfo.construct(type=start.type,
                                                      uid=start.uid,
                                                      knowledge_base=self.machine.knowledge_base,
                                                      experience=self.get_expirience_for_quest(start.uid, hero),
-                                                     power=self.get_politic_power_for_quest(start.uid, hero),
+                                                     power=tt_politic_power_formulas.base_quest_power(quest_rung=hero.quest_rung()),
                                                      hero=hero))
 
     def quest_participants(self, quest_uid):
@@ -806,32 +757,6 @@ class QuestPrototype(object):
                                     sum(emissaries_experience_bonuses.values()))
 
         return max(1, experience)
-
-    def get_politic_power_for_quest(self, quest_uid, hero):
-        base_politic_power = f.person_power_for_quest(places_storage.places.expected_minimum_quest_distance())
-
-        politic_power_modifier = 1.0
-
-        for participant in self.quest_participants(quest_uid):
-
-            fact = self.knowledge_base[participant.participant]
-
-            if not isinstance(fact, questgen_facts.Person):
-                continue
-
-            person_type = logic.extract_person_type(fact)
-
-            if person_type.is_PERSON:
-                person = persons_storage.persons.get(fact.externals['id'])
-                politic_power_modifier += person.attrs.politic_power_bonus
-
-            elif person_type.is_EMISSARY:
-                pass
-
-            else:
-                raise NotImplementedError
-
-        return int(base_politic_power * politic_power_modifier)
 
     ################################
     # general callbacks
@@ -894,12 +819,11 @@ class QuestPrototype(object):
 
     def do_move_near(self, action):
         if action.place:
-            destination = places_storage.places.get(self.knowledge_base[action.place].externals['id'])
-
+            place = places_storage.places.get(self.knowledge_base[action.place].externals['id'])
         else:
-            destination = self.hero.position.cell().nearest_place()
+            place = self.hero.position.cell().nearest_place()
 
-        self._move_hero_near(destination=destination, terrains=action.terrains)
+        self._move_hero_near(place=place, terrains=action.terrains)
 
     ################################
     # check requirements callbacks
@@ -945,9 +869,9 @@ class QuestPrototype(object):
         if self.hero.id != object_fact.externals['id']:
             return False
 
-        # если городу принадлежит только одна клетка, на которой он находится,
+        # если в окрестностях города только одна клетка (на которой он находится),
         # то прогулкой в его окрестностях считается и нахождение в нём самом
-        if self.hero.position.place and map_storage.cells.place_area(self.hero.position.place_id) > 1:
+        if self.hero.position.place and len(map_storage.cells.place_cells(self.hero.position.place_id)) > 1:
             return False
 
         hero_place = self.hero.position.cell().nearest_place()
@@ -1045,12 +969,12 @@ class QuestPrototype(object):
         if not isinstance(object_fact, questgen_facts.Hero) or self.hero.id != object_fact.externals['id']:
             raise exceptions.UnknownRequirementError(requirement=requirement)
 
-        destination = None
+        place = None
 
         if requirement.place is not None:
-            destination = places_storage.places.get(self.knowledge_base[requirement.place].externals['id'])
+            place = places_storage.places.get(self.knowledge_base[requirement.place].externals['id'])
 
-        self._move_hero_near(destination=destination, terrains=requirement.terrains)
+        self._move_hero_near(place=place, terrains=requirement.terrains)
 
     def satisfy_located_on_road(self, requirement):
         object_fact = self.knowledge_base[requirement.object]
@@ -1073,14 +997,14 @@ class QuestPrototype(object):
     ################################
 
     def ui_info(self):
-        return {'line': [info.ui_info(self.hero) for info in self.quests_stack]}
+        return {'line': [info.ui_info() for info in self.quests_stack]}
 
     @classmethod
     def no_quests_ui_info(cls, in_place):
         if in_place:
-            return {'line': [NO_QUEST_INFO__IN_PLACE.ui_info(None)]}
+            return {'line': [NO_QUEST_INFO__IN_PLACE.ui_info()]}
         else:
-            return {'line': [NO_QUEST_INFO__OUT_PLACE.ui_info(None)]}
+            return {'line': [NO_QUEST_INFO__OUT_PLACE.ui_info()]}
 
     @classmethod
     def next_spending_ui_info(cls, spending):
@@ -1096,4 +1020,4 @@ class QuestPrototype(object):
                                        power_bonus=0,
                                        actors={'goal': (spending, 'цель')},
                                        used_markers=set())
-        return {'line': [NEXT_SPENDING_INFO.ui_info(None)]}
+        return {'line': [NEXT_SPENDING_INFO.ui_info()]}

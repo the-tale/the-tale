@@ -47,11 +47,6 @@ tt_services:
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_market/"}
-  tt_soft_currency:
-    packages:
-      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
-      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
-      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_bank/"}
   tt_players_timers:
     packages:
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
@@ -183,7 +178,7 @@ tt_services:
         secret: "test.secret"
       discord:
         connect_to_server: false
-        command_prefix: 'tt '
+        command_prefix: 'tt\s+'
         token: null
         sync_users_chank_size: 100
         sleep_on_sync_users_error: 1

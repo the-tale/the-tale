@@ -7,12 +7,25 @@ smart_imports.all()
 class EquipmentMethodsMixin(object):
     __slots__ = ()
 
+    @property
+    def bag_is_full(self):
+        return self.bag.occupation >= self.max_bag_size
+
     def put_loot(self, artifact, force=False):
-        if force or not self.bag_is_full:
-            if not artifact.type.is_USELESS:
-                artifact.power += self.bonus_artifact_power
-            self.bag.put_artifact(artifact)
-            return artifact.bag_uuid
+        if self.bag_is_full and not force:
+            return None
+
+        if artifact.is_useless:
+            self.statistics.change_loot_had(1)
+        else:
+            self.statistics.change_artifacts_had(1)
+
+        if not artifact.is_useless:
+            artifact.power += self.bonus_artifact_power
+
+        self.bag.put_artifact(artifact)
+
+        return artifact.bag_uuid
 
     def pop_loot(self, artifact):
         self.bag.pop_artifact(artifact)
@@ -85,7 +98,7 @@ class EquipmentMethodsMixin(object):
 
         return artifacts_choices
 
-    def receive_artifact(self, equip, better, prefered_slot, prefered_item, archetype, rarity_type=None, power_bonus=0, level_delta=0):
+    def receive_artifact(self, equip, better, prefered_slot, prefered_item, archetype, rarity_type=None, level_delta=0):
 
         artifact_choices = self.receive_artifacts_choices(better=better,
                                                           prefered_slot=prefered_slot,
@@ -97,14 +110,10 @@ class EquipmentMethodsMixin(object):
 
         artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifact_choices, max(1, self.level + level_delta), rarity_type)
 
-        artifact.power += power.Power(int(artifact.power.physic * power_bonus),
-                                      int(artifact.power.magic * power_bonus))
-
         if artifact is None:
             return None, None, None
 
-        self.bag.put_artifact(artifact)
-        self.statistics.change_artifacts_had(1)
+        self.put_loot(artifact, force=True)
 
         slot = artifact.type.equipment_slot
         unequipped = self.equipment.get(slot)
@@ -287,11 +296,30 @@ class EquipmentMethodsMixin(object):
 
             self.equipment.equip(slot, artifact)
 
-    def process_removed_artifacts(self):
-        for artifact in list(self.bag.values()):
-            if artifact.must_be_removed_on_help():
-                self.bag.pop_artifact(artifact)
+    def compare_artifacts(self, a, b):
+        if a.type.is_USELESS:
+            if b.type.is_USELESS:
+                return a.absolute_sell_price() > b.absolute_sell_price()
+            else:
+                return False
 
-                if artifact.is_child_gift():
-                    self.statistics.change_gifts_returned(1)
-                    self.add_message('hero_common_journal_return_child_gift', hero=self, artifact=artifact)
+        else:
+            if b.type.is_USELESS:
+                return True
+            else:
+                distribution = self.preferences.archetype.power_distribution
+
+                return a.preference_rating(distribution) > b.preference_rating(distribution)
+
+    def get_worst_item_in_bag(self):
+        worst_item = None
+
+        for item in self.bag.values():
+            if worst_item is None:
+                worst_item = item
+                continue
+
+            if self.compare_artifacts(worst_item, item):
+                worst_item = item
+
+        return worst_item

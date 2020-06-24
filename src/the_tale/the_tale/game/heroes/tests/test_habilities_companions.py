@@ -12,7 +12,7 @@ class HabilitiesCompanionsTest(utils_testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
     def test_walker(self):
@@ -68,7 +68,8 @@ class HabilitiesCompanionsTest(utils_testcase.TestCase):
         self.assertEqual(self.hero.companion_max_coherence, 60)
 
     def test_healing(self):
-        self.assertEqual(heroes_abilities_companions.HEALING().modify_attribute(relations.MODIFIERS.COMPANION_LIVING_HEAL, 0), 0.11574074074074076)
+        self.assertEqual(heroes_abilities_companions.HEALING().modify_attribute(relations.MODIFIERS.COMPANION_LIVING_HEAL, 0),
+                         0.08680555555555557)
         self.assertEqual(heroes_abilities_companions.HEALING().modify_attribute(relations.MODIFIERS.random(exclude=(relations.MODIFIERS.COMPANION_LIVING_HEAL,)), 0), 0)
 
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -77,10 +78,11 @@ class HabilitiesCompanionsTest(utils_testcase.TestCase):
         with mock.patch('the_tale.game.companions.objects.CompanionRecord.type', tt_beings_relations.TYPE.ANIMAL):
             self.assertEqual(self.hero.companion_heal_probability, 0)
             self.hero.abilities.add(heroes_abilities_companions.HEALING.get_id(), 3)
-            self.assertEqual(self.hero.companion_heal_probability, 0.3472222222222222)
+            self.assertEqual(self.hero.companion_heal_probability, 0.2604166666666667)
 
     def test_mage_mechanincs(self):
-        self.assertEqual(heroes_abilities_companions.MAGE_MECHANICS().modify_attribute(relations.MODIFIERS.COMPANION_CONSTRUCT_HEAL, 0), 0.11574074074074076)
+        self.assertEqual(heroes_abilities_companions.MAGE_MECHANICS().modify_attribute(relations.MODIFIERS.COMPANION_CONSTRUCT_HEAL, 0),
+                         0.08680555555555557)
         self.assertEqual(heroes_abilities_companions.MAGE_MECHANICS().modify_attribute(relations.MODIFIERS.random(exclude=(relations.MODIFIERS.COMPANION_CONSTRUCT_HEAL,)), 0), 0)
 
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -89,10 +91,11 @@ class HabilitiesCompanionsTest(utils_testcase.TestCase):
         with mock.patch('the_tale.game.companions.objects.CompanionRecord.type', tt_beings_relations.TYPE.MECHANICAL):
             self.assertEqual(self.hero.companion_heal_probability, 0)
             self.hero.abilities.add(heroes_abilities_companions.MAGE_MECHANICS.get_id(), 3)
-            self.assertEqual(self.hero.companion_heal_probability, 0.3472222222222222)
+            self.assertEqual(self.hero.companion_heal_probability, 0.2604166666666667)
 
     def test_witchcraft(self):
-        self.assertEqual(heroes_abilities_companions.WITCHCRAFT().modify_attribute(relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, 0), 0.11574074074074076)
+        self.assertEqual(heroes_abilities_companions.WITCHCRAFT().modify_attribute(relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, 0),
+                         0.08680555555555557)
         self.assertEqual(heroes_abilities_companions.WITCHCRAFT().modify_attribute(relations.MODIFIERS.random(exclude=(relations.MODIFIERS.COMPANION_UNUSUAL_HEAL,)), 0), 0)
 
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -101,7 +104,7 @@ class HabilitiesCompanionsTest(utils_testcase.TestCase):
         with mock.patch('the_tale.game.companions.objects.CompanionRecord.type', tt_beings_relations.TYPE.SUPERNATURAL):
             self.assertEqual(self.hero.companion_heal_probability, 0)
             self.hero.abilities.add(heroes_abilities_companions.WITCHCRAFT.get_id(), 3)
-            self.assertEqual(self.hero.companion_heal_probability, 0.3472222222222222)
+            self.assertEqual(self.hero.companion_heal_probability, 0.2604166666666667)
 
     def test_sociability(self):
         self.assertEqual(heroes_abilities_companions.SOCIABILITY().modify_attribute(relations.MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED, 1), 1.2)

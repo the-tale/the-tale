@@ -14,7 +14,7 @@ class JobsMethodsTests(utils_testcase.TestCase):
         self.account = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.place = places_storage.places.all()[0]
@@ -54,7 +54,7 @@ class JobsMethodsTests(utils_testcase.TestCase):
                                            effect_value={artifacts_relations.RARITY.RARE.value: 1,
                                                          artifacts_relations.RARITY.EPIC.value: 0})
 
-        artifact = self.hero.bag.drop_cheapest_item(self.hero.preferences.archetype.power_distribution)
+        artifact = self.hero.bag.pop_random_artifact()
 
         self.assertTrue(artifact.rarity.is_RARE)
 
@@ -67,7 +67,7 @@ class JobsMethodsTests(utils_testcase.TestCase):
                                            effect_value={artifacts_relations.RARITY.RARE.value: 0,
                                                          artifacts_relations.RARITY.EPIC.value: 1})
 
-        artifact = self.hero.bag.drop_cheapest_item(self.hero.preferences.archetype.power_distribution)
+        artifact = self.hero.bag.pop_random_artifact()
 
         self.assertTrue(artifact.rarity.is_EPIC)
 
@@ -166,4 +166,4 @@ class JobsMethodsTests(utils_testcase.TestCase):
 
             self.hero.equip_from_bag()
 
-            self.hero.bag.drop_cheapest_item(self.hero.preferences.archetype.power_distribution)
+            self.hero.bag.pop_random_artifact()

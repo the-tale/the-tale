@@ -61,8 +61,6 @@ def path_length_modifier(length):
     if BEST_LENGTH <= length:
         return length / BEST_LENGTH - 1
 
-    # return length / BEST_LENGTH
-
     return 0
 
 
@@ -86,7 +84,11 @@ def prepair_data(cost_modifiers, paths, path_length_modifier=path_length_modifie
 
         length_delta = path_length_modifier(len(path))
 
-        cost *= (1 + cost_delta + length_delta)
+        cost_multiplier = (1 + cost_delta + length_delta)
+
+        cost_multiplier = max(cost_multiplier, c.PATH_MINIMUM_COST_MULTIPLIER)
+
+        cost *= cost_multiplier
 
         edges[id_to_index[from_id]][id_to_index[to_id]] = cost
         # do not reverse path, since its reversed version must be already in paths

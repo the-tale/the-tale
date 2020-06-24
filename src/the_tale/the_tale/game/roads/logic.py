@@ -50,8 +50,8 @@ def load_road(road_id=None, road_model=None):
         road_model = models.Road.objects.get(id=road_id)
 
     return objects.Road(id=road_model.id,
-                        place_1_id=road_model.point_1.id,
-                        place_2_id=road_model.point_2.id,
+                        place_1_id=road_model.point_1_id,
+                        place_2_id=road_model.point_2_id,
                         length=road_model.length,
                         path=road_model.path)
 

@@ -8,4 +8,5 @@ def balance(request):
     return {'c': constants,
             'f': formulas,
             'tt_emissaries_constants': tt_emissaries_constants,
+            'tt_politic_power_constants': tt_politic_power_constants,
             'tt_clans_constants': tt_clans_constants}

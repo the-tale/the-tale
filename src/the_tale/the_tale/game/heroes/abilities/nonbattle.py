@@ -137,24 +137,6 @@ class PICKY(prototypes.AbilityPrototype):
         return value
 
 
-class ETHEREAL_MAGNET(prototypes.AbilityPrototype):
-
-    TYPE = relations.ABILITY_TYPE.NONBATTLE
-    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.PASSIVE
-    AVAILABILITY = relations.ABILITY_AVAILABILITY.FOR_PLAYERS
-
-    NAME = 'Эфирный магнит'
-    normalized_name = NAME
-    DESCRIPTION = 'Герой притягивает к себе магию и увеличивает вероятность критического срабатывания помощи хранителя.'
-
-    CRIT_PROBABILITY = [0.04, 0.08, 0.12, 0.16, 0.20]
-
-    @property
-    def crit_probability(self): return self.CRIT_PROBABILITY[self.level - 1]
-
-    def modify_attribute(self, type_, value): return (value + self.crit_probability) if type_.is_MIGHT_CRIT_CHANCE else value
-
-
 class WANDERER(prototypes.AbilityPrototype):
 
     TYPE = relations.ABILITY_TYPE.NONBATTLE
@@ -199,7 +181,7 @@ class DIPLOMATIC(prototypes.AbilityPrototype):
     ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = relations.ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    MAXIMUM_MULTIPLIER = 2.0
+    MAXIMUM_MULTIPLIER = tt_politic_power_constants.MODIFIER_HERO_ABILITIES
 
     NAME = 'Дипломатичный'
     normalized_name = NAME
@@ -260,13 +242,13 @@ class SELFISH(prototypes.AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = 'Герой чаще выбирает задания связанные со своими предпочтениями.'
 
-    MULTIPLIER = [1.2, 1.4, 1.6, 1.8, 2.0]
+    MULTIPLIER = [0.2, 0.4, 0.6, 0.8, 0.0]
 
     @property
     def multiplier(self): return self.MULTIPLIER[self.level - 1]
 
     def modify_attribute(self, type_, value):
-        return value * self.multiplier if type_.is_CHARACTER_QUEST_PRIORITY else value
+        return value + self.multiplier if type_.is_CHARACTER_QUEST_PRIORITY else value
 
 
 ABILITIES = dict((ability.get_id(), ability)

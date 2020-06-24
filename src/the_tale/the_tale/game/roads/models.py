@@ -9,7 +9,7 @@ class Road(django_models.Model):
     point_1 = django_models.ForeignKey('places.Place', related_name='+', on_delete=django_models.CASCADE)
     point_2 = django_models.ForeignKey('places.Place', related_name='+', on_delete=django_models.CASCADE)
 
-    length = django_models.FloatField(blank=True, default=0.0)
+    length = django_models.IntegerField(blank=True, default=0)
 
     path = django_models.TextField(null=False, default='')
 

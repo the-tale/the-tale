@@ -6,7 +6,12 @@
 <h4>
   <span class="pgf-quest-description"></span>
   <small class="pgf-quest-rewards pgf-hidden" style="white-space: nowrap;">
-    (+<span class="pgf-experience">0</span> опыта, +<span class="pgf-power">0</span> влияния)
+    +<span class="pgf-experience">0</span> опыта,
+    +<span class="pgf-power">0</span> влияния
+
+    <i class="icon-info-sign"
+       rel="tooltip"
+       title="Базовые значения опыта и влияния за задание с учётом бонусов от использованых карт. Итоговые опыт и влияние будут зависеть от параметров героя и других участников задания (Мастеров, эмиссаров, городов)."></i>
   </small>
 </h4>
 <i class="quest-icon pgf-quest-icon"></i>
@@ -201,7 +206,7 @@ jQuery(document).ready(function(e){
   {% set attribute, value = entity.attribute_ui_info(attribute_name) %}
   <tr>
     <th>{{attribute.text}}</th>
-    <td>{{attribute.formatter(value)}}{{extra_text}}{{attribute.verbose_units}}</td>
+    <td>{{attribute.formatter(value)|safe}}{{extra_text}}{{attribute.verbose_units}}</td>
     <td>
       <a href="javascript:void(0);"
          class="info-link"

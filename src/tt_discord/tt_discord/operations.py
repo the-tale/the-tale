@@ -137,6 +137,12 @@ async def force_game_data_update(account_id):
         event.get(conf.SYNC_EVENT_NAME).set()
 
 
+async def force_all_game_data_update():
+    await db.sql('UPDATE game_data SET synced_at=NULL')
+
+    event.get(conf.SYNC_EVENT_NAME).set()
+
+
 def row_to_changes(row):
     return {'account_id': row['account'],
             'type': relations.GAME_DATA_TYPE(row['type']),

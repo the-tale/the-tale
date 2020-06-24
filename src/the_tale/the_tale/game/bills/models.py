@@ -79,3 +79,12 @@ class Vote(django_models.Model):
 
     class Meta:
         unique_together = (('owner', 'bill'),)
+
+
+class Moderation(django_models.Model):
+
+    bill = django_models.ForeignKey(Bill, null=True, on_delete=django_models.SET_NULL)
+
+    moderator = django_models.ForeignKey('accounts.Account', related_name='+', on_delete=django_models.PROTECT)
+
+    created_at = django_models.DateTimeField(auto_now_add=True, null=False)

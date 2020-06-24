@@ -68,7 +68,9 @@ class Companion(object):
                         linguistics_restrictions.get(self.record.movement),
                         linguistics_restrictions.get(self.record.body),
                         linguistics_restrictions.get(self.record.size),
-                        linguistics_restrictions.get(self.record.orientation)]
+                        linguistics_restrictions.get(self.record.orientation),
+                        linguistics_restrictions.get(heroes_relations.CLAN_MEMBERSHIP.NOT_IN_CLAN),
+                        linguistics_restrictions.get(heroes_relations.PROTECTORAT_OWNERSHIP.NO_PROTECTORAT)]
 
         for feature in self.record.features:
             restrictions.append(linguistics_restrictions.get(feature))
@@ -155,7 +157,8 @@ class Companion(object):
         return self.healed_at_turn + c.TURNS_IN_HOUR / c.COMPANIONS_HEALS_IN_HOUR <= game_turn.number()
 
     @property
-    def is_dead(self): return self.health <= 0
+    def is_dead(self):
+        return self.health <= 0
 
     def add_experience(self, value, force=False):
 
@@ -183,6 +186,10 @@ class Companion(object):
             self.coherence += 1
 
             self._hero.reset_accessors_cache()
+
+    def has_full_experience(self):
+        return (self.coherence == c.COMPANIONS_MAX_COHERENCE and
+                self.experience_to_next_level == self.experience)
 
     @property
     def actual_coherence(self):

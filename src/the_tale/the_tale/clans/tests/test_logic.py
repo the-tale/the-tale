@@ -397,7 +397,8 @@ class RemoveClanTests(BaseClanTests):
         logic._add_member(clan=self.clan, account=account_3, role=relations.MEMBER_ROLE.RECRUIT)
 
         with self.check_discord_synced({self.account.id, account_3.id}):
-            logic.remove_clan(self.clan)
+            with self.check_changed(lambda: storage.infos._version):
+                logic.remove_clan(self.clan)
 
         self.assertEqual(list(models.Clan.objects.filter(state=relations.STATE.ACTIVE).values_list('id', flat=True)), [clan_2.id])
         self.assertEqual(list(models.Clan.objects.filter(state=relations.STATE.REMOVED).values_list('id', flat=True)), [self.clan.id])

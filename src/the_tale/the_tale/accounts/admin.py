@@ -59,8 +59,7 @@ class AccountAdmin(django_auth_admin.UserAdmin):
                                                  'active_end_at', 'premium_end_at',
                                                  'ban_game_end_at', 'ban_forum_end_at',
                                                  'removed_at')}),
-                 ('Additional info', {'fields': ('might',
-                                                 'actual_bills')}),)
+                 ('Additional info', {'fields': ('might',)}),)
 
     readonly_fields = list(django_auth_admin.UserAdmin.readonly_fields) + ['referer', 'referer_domain', 'referral_of', 'referrals_number']
 

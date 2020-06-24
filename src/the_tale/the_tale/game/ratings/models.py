@@ -26,10 +26,6 @@ class RatingValues(django_models.Model):
 
     achievements_points = django_models.IntegerField(default=0, db_index=True)
 
-    help_count = django_models.IntegerField(default=0, db_index=True)
-
-    gifts_returned = django_models.IntegerField(default=0, db_index=True)
-
     politics_power = django_models.FloatField(default=0, db_index=True)
 
 
@@ -54,9 +50,5 @@ class RatingPlaces(django_models.Model):
     referrals_number_place = django_models.IntegerField(default=0, db_index=True)
 
     achievements_points_place = django_models.IntegerField(default=0, db_index=True)
-
-    help_count_place = django_models.IntegerField(default=0, db_index=True)
-
-    gifts_returned_place = django_models.IntegerField(default=0, db_index=True)
 
     politics_power_place = django_models.IntegerField(default=0, db_index=True)

@@ -65,7 +65,7 @@ class Job(object):
                 'power_required': int(self.power_required)}
 
     def can_be_completed_at_turn(self):
-        return int(self.created_at_turn + c.NORMAL_JOB_LENGTH * 24 * c.TURNS_IN_HOUR)
+        return int(self.created_at_turn + c.JOB_MIN_LENGTH * 24 * c.TURNS_IN_HOUR)
 
     def will_be_completed_after(self):
         return datetime.timedelta(seconds=((self.can_be_completed_at_turn() - game_turn.number()) * c.TURN_DELTA))

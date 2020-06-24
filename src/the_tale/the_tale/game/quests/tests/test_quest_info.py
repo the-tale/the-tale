@@ -14,7 +14,7 @@ class QuestInfoTests(utils_testcase.TestCase, helpers.QuestTestsMixin):
         account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
+        self.storage.load_account_data(account.id)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
         self.action_idl = self.hero.actions.current_action
@@ -124,38 +124,10 @@ class QuestInfoTests(utils_testcase.TestCase, helpers.QuestTestsMixin):
         self.quest_info.used_markers[questgen_relations.OPTION_MARKERS.UNAGGRESSIVE] = True
         self.assertAlmostEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), round(1.0 + 0.3 + 0.4 + 0.2 + 0.5, 2))
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.experience_modifier', 1)
-    def test_ui_info__experience(self):
-        experience = self.quest_info.ui_info(self.hero)['experience']
-
-        with mock.patch('the_tale.game.heroes.objects.Hero.experience_modifier', self.hero.experience_modifier * 2):
-            self.assertEqual(self.quest_info.ui_info(self.hero)['experience'], experience * 2)
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.experience_modifier', 1)
     def test_ui_info__experience__bonus(self):
-        experience = self.quest_info.ui_info(self.hero)['experience']
+        with self.check_delta(lambda: self.quest_info.ui_info()['experience'], 100):
+            self.quest_info.experience_bonus = 100
 
-        self.quest_info.experience_bonus = 100
-
-        self.assertEqual(self.quest_info.ui_info(self.hero)['experience'], experience + 100)
-
-        with mock.patch('the_tale.game.heroes.objects.Hero.experience_modifier', self.hero.experience_modifier * 2):
-            self.assertEqual(self.quest_info.ui_info(self.hero)['experience'], experience * 2 + 100)
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.politics_power_multiplier', lambda *argv, **kwargs: 1)
-    def test_ui_info__power(self):
-        power = self.quest_info.ui_info(self.hero)['power']
-
-        with mock.patch('the_tale.game.heroes.objects.Hero.politics_power_multiplier', lambda *argv, **kwargs: 2):
-            self.assertEqual(self.quest_info.ui_info(self.hero)['power'], power * 2)
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.politics_power_multiplier', lambda *argv, **kwargs: 1)
     def test_ui_info__power__bonus(self):
-        power = self.quest_info.ui_info(self.hero)['power']
-
-        self.quest_info.power_bonus = 100
-
-        self.assertEqual(self.quest_info.ui_info(self.hero)['power'], power + 100)
-
-        with mock.patch('the_tale.game.heroes.objects.Hero.politics_power_multiplier', lambda *argv, **kwargs: 2):
-            self.assertEqual(self.quest_info.ui_info(self.hero)['power'], (power + 100) * 2)
+        with self.check_delta(lambda: self.quest_info.ui_info()['power'], 100):
+            self.quest_info.power_bonus = 100

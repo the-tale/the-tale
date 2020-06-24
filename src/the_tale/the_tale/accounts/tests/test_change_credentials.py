@@ -136,7 +136,8 @@ class TestChangeCredentialsTask(utils_testcase.TestCase):
     def test_process_nick_change(self):
         task = prototypes.ChangeCredentialsTaskPrototype.create(self.test_account, new_nick='test_nick')
 
-        self.process_task(task)
+        with self.check_not_changed(lambda: models.Account.objects.get(id=self.test_account.id).email):
+            self.process_task(task)
 
         self.test_account.reload()
 

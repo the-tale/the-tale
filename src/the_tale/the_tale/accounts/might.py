@@ -78,7 +78,10 @@ def calculate_might(account):  # pylint: disable=R0914
     might += forum_threads_query.count() * relations.MIGHT_AMOUNT.FOR_FORUM_THREAD.amount
 
     might += bills_models.Vote.objects.filter(owner_id=account.id).exclude(type=bills_relations.VOTE_TYPE.REFRAINED).count() * relations.MIGHT_AMOUNT.FOR_BILL_VOTE.amount
+
     might += bills_models.Bill.objects.filter(owner_id=account.id, state=bills_relations.BILL_STATE.ACCEPTED).count() * relations.MIGHT_AMOUNT.FOR_BILL_ACCEPTED.amount
+
+    might += bills_models.Moderation.objects.filter(moderator_id=account.id).order_by('bill_id').distinct('bill_id').count() * relations.MIGHT_AMOUNT.FOR_BILL_MODERATION.amount
 
     might += calculate_linguistics_migth(account.id,
                                          contribution_type=linguistics_relations.CONTRIBUTION_TYPE.WORD,
@@ -118,16 +121,23 @@ def calculate_might(account):  # pylint: disable=R0914
     return might
 
 
+def recalculate_account_might(account):
+    new_might = calculate_might(account)
+
+    if account.might == new_might:
+        return
+
+    account.set_might(new_might)
+    account.cmd_update_hero()
+
+    portal_logic.sync_with_discord(account)
+
+
 def recalculate_accounts_might():
 
     for account_model in prototypes.AccountPrototype.live_query():
         account = prototypes.AccountPrototype(model=account_model)
-
-        new_might = calculate_might(account)
-
-        if account.might != new_might:
-            account.set_might(new_might)
-            account.cmd_update_hero()
+        recalculate_account_might(account)
 
     recalculate_folclor_rating()
 

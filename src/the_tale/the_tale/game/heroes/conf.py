@@ -10,8 +10,7 @@ NAME_REGEX = r'^[\-\ а-яА-Я«»\'ёЁ]+$' if not django_settings.TESTS_RUNNI
 settings = utils_app_settings.app_settings('HEROES',
                                            USE_ABILITY_CHANCE=0.1,
                                            MESSAGES_LOG_LENGTH=10,
-                                           DIARY_LOG_LENGTH=20,
-                                           DIARY_LOG_LENGTH_PREMIUM=50,
+                                           DIARY_LOG_LENGTH=50,
 
                                            MIN_PVP_BATTLES=25,
 
@@ -42,8 +41,6 @@ settings = utils_app_settings.app_settings('HEROES',
                                            UNLOAD_TIMEOUT=c.TURN_DELTA * 3,
                                            RARE_OPERATIONS_INTERVAL=1000,
                                            INACTIVE_HERO_DELAY=int(10),  # для неактивных героев замедлять время в N раз
-                                           POWER_PER_ACTIVE_BILL=1.5,
-                                           ACTIVE_BILLS_MAXIMUM=4,
 
                                            TT_DIARY_ENTRY_POINT='http://localhost:10001/',
 

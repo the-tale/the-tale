@@ -95,7 +95,7 @@ class ChangePlaceAttribute(BaseEffect):
         return self.base_value * job_power
 
     def negative_effect_value(self, job_power):
-        return -self.base_value * job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER
+        return -self.base_value * job_power
 
     def short_effect_description(self, value):
         return '{} от {}{} до 0{} на {} дней'.format(self.attribute.text,
@@ -199,7 +199,7 @@ class HeroMoney(HeroMethod):
     TARGET_LEVEL = f.lvl_after_time(3 * 365 * 24)
 
     def money(self, job_power):
-        return max(1, int(math.ceil(f.normal_action_price(self.TARGET_LEVEL) * job_power * c.NORMAL_JOB_LENGTH)))
+        return max(1, int(math.ceil(f.normal_action_price(self.TARGET_LEVEL) * job_power * c.JOB_MIN_LENGTH)))
 
     def positive_effect_value(self, job_power):
         return self.money(job_power)
@@ -222,7 +222,7 @@ class HeroExperience(HeroMethod):
 
         return max(1, int(math.ceil(f.experience_for_quest__real(places_storage.places.expected_minimum_quest_distance()) *
                                     job_power *
-                                    c.NORMAL_JOB_LENGTH)))
+                                    c.JOB_MIN_LENGTH)))
 
     def positive_effect_value(self, job_power):
         return self.experience(job_power)
@@ -264,7 +264,7 @@ class HeroCards(HeroMethod):
     METHOD_NAME = 'job_cards'
 
     def cards_number(self, job_power):
-        return max(1, int(math.ceil(24.0 / tt_cards_constants.NORMAL_RECEIVE_TIME * c.NORMAL_JOB_LENGTH * job_power)))
+        return max(1, int(math.ceil(24.0 / tt_cards_constants.NORMAL_RECEIVE_TIME * c.JOB_MIN_LENGTH * job_power)))
 
     def positive_effect_value(self, job_power):
         return self.cards_number(job_power)
@@ -284,7 +284,8 @@ def place_attribute(id, attribute_name, base_value, attribute_text, priority):
             ChangePlaceAttribute(attribute=attribute, base_value=base_value),
             EFFECT_GROUP.ON_PLACE,
             f'При удачном завершении проекта, временно улучшает {attribute_text} города, в случае неудачи — ухудшает.',
-            priority)
+            priority,
+            False)
 
 
 def hero_profit(id, EffectClass, text, priority, description):
@@ -294,7 +295,8 @@ def hero_profit(id, EffectClass, text, priority, description):
             EffectClass(),
             EFFECT_GROUP.ON_HEROES,
             description,
-            priority)
+            priority,
+            True)
 
 
 class EFFECT_GROUP(rels_django.DjangoEnum):
@@ -309,6 +311,7 @@ class EFFECT(rels_django.DjangoEnum):
     group = rels.Column(unique=False)
     description = rels.Column()
     priority = rels.Column(unique=False, single_type=False)
+    bonus_to_negative_effect = rels.Column(unique=False)
 
     records = (place_attribute(1, 'PRODUCTION', base_value=c.JOB_PRODUCTION_BONUS, attribute_text='производство', priority=1),
                place_attribute(2, 'SAFETY', base_value=c.JOB_SAFETY_BONUS, attribute_text='безопасность', priority=0.5),

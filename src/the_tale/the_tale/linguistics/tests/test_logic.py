@@ -523,8 +523,9 @@ class LogicTests(utils_testcase.TestCase):
         self.assertEqual(logic.get_text(key.name, args=args),
                          logic._fake_text(key.name, logic.prepair_get_text(key.name, args)[1]))
 
+    @mock.patch('the_tale.linguistics.logic.logger', mock.Mock())
     def test_process_arguments__no_argument(self):
-        externals, restrictions = logic._process_arguments({'hero': None})
+        externals, restrictions = logic._process_arguments({'hero': None}, lexicon_key=lexicon_keys.LEXICON_KEY.random())
         self.assertEqual(externals['hero'], lexicon_dictionary.noun(['потерянная переменная'] * 12, 'од,ср'))
 
     def test_get_word_restrictions(self):

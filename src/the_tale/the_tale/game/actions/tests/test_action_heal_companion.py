@@ -4,8 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class HealCompanionActionTest(abilities_helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
-    PROCESSOR = abilities_deck.help.Help
+class HealCompanionActionTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(HealCompanionActionTest, self).setUp()
@@ -15,7 +14,7 @@ class HealCompanionActionTest(abilities_helpers.UseAbilityTaskMixin, utils_testc
         self.account = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account.id)
 
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -61,60 +60,6 @@ class HealCompanionActionTest(abilities_helpers.UseAbilityTaskMixin, utils_testc
         self.assertTrue(self.hero.companion.health, 1)
         self.assertTrue(self.action_heal_companion.percents > 0)
         self.storage._test_save()
-
-    def test_ability_heal_companion(self):
-
-        self.hero.companion.health = 1
-
-        with self.check_increased(lambda: self.action_heal_companion.percents):
-            with self.check_increased(lambda: self.hero.companion.health):
-                ability = self.PROCESSOR()
-
-                with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: abilities_relations.HELP_CHOICES.HEAL_COMPANION):
-                    self.assertTrue(ability.use(**self.use_attributes(hero=self.hero, storage=self.storage)))
-
-    def test_ability_heal_companion__processed_when_healed(self):
-
-        self.hero.companion.health -= 1
-
-        with self.check_increased(lambda: self.action_heal_companion.percents):
-            with self.check_increased(lambda: self.hero.companion.health):
-                ability = self.PROCESSOR()
-
-                with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: abilities_relations.HELP_CHOICES.HEAL_COMPANION):
-                    self.assertTrue(ability.use(**self.use_attributes(hero=self.hero, storage=self.storage)))
-
-        self.assertTrue(self.action_heal_companion.percents, 1)
-        self.assertEqual(self.action_heal_companion.state, self.action_heal_companion.STATE.PROCESSED)
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_exp_per_heal', lambda hero: True)
-    def test_ability_heal_companion__processed_when_healed__exp_per_heal(self):
-
-        self.hero.companion.health -= 1
-
-        with self.check_delta(lambda: self.hero.experience, c.COMPANIONS_EXP_PER_HEAL):
-            with self.check_increased(lambda: self.hero.companion.health):
-                ability = self.PROCESSOR()
-
-                with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: abilities_relations.HELP_CHOICES.HEAL_COMPANION):
-                    self.assertTrue(ability.use(**self.use_attributes(hero=self.hero, storage=self.storage)))
-
-        self.assertTrue(self.action_heal_companion.percents, 1)
-        self.assertEqual(self.action_heal_companion.state, self.action_heal_companion.STATE.PROCESSED)
-
-    def test_ability_heal_companion__full_action(self):
-
-        self.hero.companion.health = 1
-
-        with self.check_increased(lambda: self.action_heal_companion.percents):
-            with self.check_increased(lambda: self.hero.companion.health):
-                while self.action_heal_companion.state != self.action_heal_companion.STATE.PROCESSED:
-                    game_turn.increment()
-
-                    ability = self.PROCESSOR()
-
-                    with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: abilities_relations.HELP_CHOICES.HEAL_COMPANION):
-                        self.assertTrue(ability.use(**self.use_attributes(hero=self.hero, storage=self.storage)))
 
     def test_full(self):
         self.hero.companion.health = 1

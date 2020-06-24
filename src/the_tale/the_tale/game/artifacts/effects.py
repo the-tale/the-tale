@@ -7,7 +7,6 @@ smart_imports.all()
 class BaseEffect(object):
     TYPE = NotImplemented
     DESCRIPTION = NotImplemented
-    REMOVE_ON_HELP = False
 
     @classmethod
     def modify_attribute(cls, type_, value):
@@ -67,7 +66,7 @@ class Experience(BaseEffect):
 class PersonPower(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.POWER
     DESCRIPTION = 'Немного увеличивает влияние героя (бонус к влиянию: 10%)'
-    MODIFIER = 0.1
+    MODIFIER = tt_politic_power_constants.MODIFIER_HERO_ARTIFACTS_RARE
 
     @classmethod
     def modify_attribute(cls, type_, value):
@@ -147,7 +146,7 @@ class GreatExperience(BaseEffect):
 class GreatPersonPower(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.GREAT_POWER
     DESCRIPTION = 'Сильно увеличивает влияние героя  (бонус к влиянию: 50%)'
-    MODIFIER = 0.5
+    MODIFIER = tt_politic_power_constants.MODIFIER_HERO_ARTIFACTS_EPIC
 
     @classmethod
     def modify_attribute(cls, type_, value):
@@ -229,18 +228,18 @@ class DoubleEnergy(BaseEffect):
 
     @classmethod
     def modify_attribute(cls, type_, value):
-        return value + cls.MULTIPLIER if type_.is_DOUBLE_ENERGY_REGENERATION else value
+        return value + cls.MULTIPLIER if type_.is_DOUBLE_RELIGION_PROFIT else value
 
 
 class PeaceOfMind(DoubleEnergy):
     TYPE = relations.ARTIFACT_EFFECT.PEACE_OF_MIND
-    DESCRIPTION = 'Хранитель иногда получает в два раза больше энергии от героя'
+    DESCRIPTION = 'иногда увеличивает в два раза эффект ритуала в честь Хранителя'
     MULTIPLIER = 0.2
 
 
 class Concentration(DoubleEnergy):
     TYPE = relations.ARTIFACT_EFFECT.CONCENTRATION
-    DESCRIPTION = 'Хранитель в редких случаях получает в два раза больше энергии от героя'
+    DESCRIPTION = 'в редких случаях увеличивает в два раза эффект ритуала в честь Хранителя'
     MULTIPLIER = 0.05
 
 
@@ -411,7 +410,6 @@ class NoEffect(BaseEffect):
 class ChildGift(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.CHILD_GIFT
     DESCRIPTION = 'Это потерянный подарок ребёнка. Помогите герою, когда артефакт лежит в рюкзаке, и подарок вернётся к ребёнку.'
-    REMOVE_ON_HELP = True
 
 
 EFFECTS = {effect.TYPE: effect

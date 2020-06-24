@@ -27,11 +27,11 @@ def calculate_power_fractions(all_powers):
 def sync_power():
     game_tt_services.personal_impacts.cmd_scale_impacts(target_types=[tt_api_impacts.OBJECT_TYPE.PERSON,
                                                                       tt_api_impacts.OBJECT_TYPE.PLACE],
-                                                        scale=c.PLACE_POWER_REDUCE_FRACTION)
+                                                        scale=tt_politic_power_constants.POWER_REDUCE_FRACTION)
 
     game_tt_services.crowd_impacts.cmd_scale_impacts(target_types=[tt_api_impacts.OBJECT_TYPE.PERSON,
                                                                    tt_api_impacts.OBJECT_TYPE.PLACE],
-                                                     scale=c.PLACE_POWER_REDUCE_FRACTION)
+                                                     scale=tt_politic_power_constants.POWER_REDUCE_FRACTION)
     storage.places.reset()
     storage.persons.reset()
 
@@ -161,3 +161,20 @@ def get_last_power_impacts(limit,
     impacts.sort(key=lambda impact: (impact.turn, impact.time), reverse=True)
 
     return impacts[:limit]
+
+
+def final_politic_power(power: int, place=None, person=None, hero=None, bonus: float=0.0) -> int:
+    multiplier = 1.0 + bonus
+
+    if place:
+        multiplier += place.attrs.politic_power_bonus
+
+    if person:
+        multiplier += person.attrs.politic_power_bonus
+
+    if hero:
+        multiplier += hero.politic_power_bonus()
+
+    multiplier = max(0, multiplier)
+
+    return int(math.ceil(power * multiplier))

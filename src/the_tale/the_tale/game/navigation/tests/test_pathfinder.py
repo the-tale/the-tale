@@ -100,7 +100,9 @@ class TravelCostCacheTests(utils_testcase.TestCase):
     @mock.patch('the_tale.game.map.storage.CellInfo.transport', 3)
     @mock.patch('the_tale.game.map.storage.CellInfo.safety', 4)
     def test_initialization(self):
-        cache = pathfinder.TravelCost(map=map_storage.cells.get_map(),
+        map = map_storage.cells.get_map()
+
+        cache = pathfinder.TravelCost(map=map,
                                       expected_battle_complexity=1.2)
 
         self.assertEqual(cache.expected_battle_complexity, 1.2)
@@ -108,19 +110,21 @@ class TravelCostCacheTests(utils_testcase.TestCase):
                          pathfinder.cell_travel_cost(transport=3,
                                                      safety=4,
                                                      expected_battle_complexity=1.2))
-        self.assertEqual(cache._cache, {})
+        self.assertEqual(cache._cache,
+                         [[{} for x in range(len(map[0]))]
+                          for y in range(len(map))])
 
     def test_get_cost(self):
         cost = self.cache.get_cost(0, 1, 1, 1)
 
-        self.assertEqual(self.cache._cache[(0, 1, 1, 1)], cost)
-        self.assertEqual(self.cache._cache[(1, 1, 0, 1)], cost)
+        self.assertEqual(self.cache._cache[1][0][(1, 1)], cost)
+        self.assertEqual(self.cache._cache[1][1][(0, 1)], cost)
 
-        self.cache._cache[(0, 1, 1, 1)] = cost + 1
-        self.cache._cache[(1, 1, 0, 1)] = cost + 1
+        self.cache._cache[1][0][(1, 1)] = cost + 1
+        self.cache._cache[1][1][(0, 1)] = cost + 1
 
-        self.assertEqual(self.cache._cache[(0, 1, 1, 1)], cost + 1)
-        self.assertEqual(self.cache._cache[(1, 1, 0, 1)], cost + 1)
+        self.assertEqual(self.cache.get_cost(0, 1, 1, 1), cost + 1)
+        self.assertEqual(self.cache.get_cost(1, 1, 0, 1), cost + 1)
 
 
 class RestorePathTests(utils_testcase.TestCase):

@@ -23,7 +23,7 @@ class PLAYER_PROPERTIES(tt_api_properties.PROPERTIES):
                 str, float, 0, tt_api_properties.TYPE.REPLACE),
                ('last_premium_by_emissary', 2, 'время последнего получения подписки по мероприятию эмиссара',
                 str, float, 0, tt_api_properties.TYPE.REPLACE),
-               ('ip_address', 3, 'IP адресс, с которого был осуществлён вход',
+               ('ip_address', 3, 'IP адрес, с которого был осуществлён вход',
                 str, str, list, tt_api_properties.TYPE.APPEND))
 
 

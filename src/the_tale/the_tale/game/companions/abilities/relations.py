@@ -35,7 +35,7 @@ class EFFECT(rels_django.DjangoEnum):
                ('COMPANION_STEAL_ITEM', 15, 'спутник крадёт предметы', METATYPE.MONEY),
                ('COMPANION_SPARE_PARTS', 16, 'спутник разваливается на дорогие запчасти', METATYPE.UNCHANGEBLE),
                ('COMPANION_EXPERIENCE', 17, 'спутник так или иначе приносит опыт', METATYPE.OTHER),
-               ('COMPANION_DOUBLE_ENERGY_REGENERATION', 18, 'герой может восстновить в 2 раза больше энергии', METATYPE.OTHER),
+               ('COMPANION_DOUBLE_RELIGION_PROFIT', 18, 'эффект ритуалов героя в честь Хранителя увеличен в 2 раза', METATYPE.OTHER),
                ('COMPANION_REGENERATION', 19, 'спутник как-либо восстанавливает своё здоровье', METATYPE.OTHER),
                ('COMPANION_EAT', 20, 'спутник требует покупки еды', METATYPE.MONEY),
                ('COMPANION_EAT_DISCOUNT', 21, 'у спутника есть скидка на покупку еды', METATYPE.MONEY),
@@ -45,7 +45,7 @@ class EFFECT(rels_django.DjangoEnum):
                ('IDLE_LENGTH', 25, 'изменение времени бездействия', METATYPE.TRAVEL),
                ('COMPANION_BLOCK_PROBABILITY', 26, 'вероятность блока спутника', METATYPE.BATTLE),
                ('HUCKSTER', 27, 'спутник даёт бонус к цене продажи и покупки', METATYPE.MONEY),
-               ('MIGHT_CRIT_CHANCE', 28, 'шанс критического срабатывания способности хранителя', METATYPE.OTHER),
+               ('CHARACTER_QUEST_PRIORITY', 28, 'приоритет заданий, связанных с предпочтениями', METATYPE.OTHER),
 
                ('BATTLE_ABILITY_HIT', 29, 'небольшое увеличение инициативы и способность удар', METATYPE.BATTLE),
                ('BATTLE_ABILITY_STRONG_HIT', 30, 'небольшое увеличение инициативы и способность сильный удар', METATYPE.BATTLE),

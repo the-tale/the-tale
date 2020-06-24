@@ -32,29 +32,7 @@ class AccountPrototype(utils_prototypes.BasePrototype):
         return self.removed_at is not None
 
     def cmd_update_hero(self):
-        amqp_environment.environment.workers.supervisor.cmd_update_hero_with_account_data(self.id,
-                                                                                          is_fast=self.is_fast,
-                                                                                          premium_end_at=self.premium_end_at,
-                                                                                          active_end_at=self.active_end_at,
-                                                                                          ban_end_at=self.ban_game_end_at,
-                                                                                          might=self.might,
-                                                                                          actual_bills=self.actual_bills,
-                                                                                          clan_id=self.clan_id)
-
-    def update_actual_bills(self):
-        actual_bills = s11n.to_json(bills_logic.actual_bills_accepted_timestamps(self.id))
-
-        models.Account.objects.filter(id=self.id).update(actual_bills=actual_bills)
-
-        self._model.actual_bills = actual_bills
-
-        del self.actual_bills
-
-        self.cmd_update_hero()
-
-    @utils_decorators.lazy_property
-    def actual_bills(self):
-        return s11n.from_json(self._model.actual_bills)
+        amqp_environment.environment.workers.supervisor.cmd_sync_hero_required(self.id)
 
     @property
     def account_id(self):
@@ -371,10 +349,18 @@ class ChangeCredentialsTaskPrototype(utils_prototypes.BasePrototype):
         return self._model.new_email is not None and (self._model.old_email != self._model.new_email)
 
     def change_credentials(self):
-        logic.change_credentials(account=self.account,
-                                 new_email=self.new_email,
-                                 new_password=self.new_password,
-                                 new_nick=self.new_nick)
+        arguments = {}
+
+        if self.new_password:
+            arguments['new_password'] = self.new_password
+
+        if self.new_email:
+            arguments['new_email'] = self.new_email
+
+        if self.new_nick:
+            arguments['new_nick'] = self.new_nick
+
+        logic.change_credentials(account=self.account, **arguments)
 
         self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
         self._model.save()

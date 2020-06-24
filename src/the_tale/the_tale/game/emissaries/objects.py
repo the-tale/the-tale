@@ -4,7 +4,8 @@ import smart_imports
 smart_imports.all()
 
 
-class Emissary(game_names.ManageNameMixin2):
+class Emissary(game_names.ManageNameMixin2,
+               game_attributes.AttributesMixin):
     __slots__ = ('id',
                  'updated_at',
                  'updated_at_turn',
@@ -87,7 +88,7 @@ class Emissary(game_names.ManageNameMixin2):
 
     @property
     def url(self):
-        return utils_urls.url('game:persons:show', self.id)
+        return utils_urls.url('game:emissaries:show', self.id)
 
     def meta_object(self):
         return meta_relations.Emissary.create_from_object(self)
@@ -135,37 +136,6 @@ class Emissary(game_names.ManageNameMixin2):
             yield tt_api_effects.Effect(name=trait.text,
                                         attribute=trait.attribute,
                                         value=trait.modification)
-
-    def effects_generator(self, order):
-        for effect in self._effects_generator():
-            if effect.attribute.order != order:
-                continue
-            yield effect
-
-    def all_effects(self):
-        for order in relations.ATTRIBUTE.EFFECTS_ORDER:
-            for effect in self.effects_generator(order):
-                yield effect
-
-    def refresh_attributes(self):
-        self.attrs.reset()
-
-        for effect in self.all_effects():
-            effect.apply_to(self.attrs)
-
-    def effects_for_attribute(self, attribute):
-        for effect in self.effects_generator(attribute.order):
-            if effect.attribute == attribute:
-                yield effect
-
-    def tooltip_effects_for_attribute(self, attribute):
-        effects = [(effect.name, effect.value) for effect in self.effects_for_attribute(attribute)]
-        effects.sort(key=lambda x: x[1], reverse=True)
-        return effects
-
-    def attribute_ui_info(self, attribute_name):
-        attribute = getattr(relations.ATTRIBUTE, attribute_name.upper())
-        return (attribute, getattr(self.attrs, attribute_name.lower()))
 
     def can_participate_in_pvp(self):
         return tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP <= self.abilities.total_level()

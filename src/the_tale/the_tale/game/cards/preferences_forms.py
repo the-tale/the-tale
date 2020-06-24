@@ -7,7 +7,6 @@ smart_imports.all()
 class Preference(utils_forms.Form):
 
     PREFERENCE = None
-    value = None
 
     def __init__(self, *args, **kwargs):
         self.hero = kwargs.pop('hero')
@@ -92,9 +91,9 @@ class RelationMixin:
 
 
 class EnergyRegenerationType(RelationMixin, Preference):
-    PREFERENCE = heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE
+    PREFERENCE = heroes_relations.PREFERENCE_TYPE.RELIGION_TYPE
 
-    value = utils_fields.RelationField(relation=heroes_relations.ENERGY_REGENERATION)
+    value = utils_fields.RelationField(relation=heroes_relations.RELIGION_TYPE)
 
 
 class EquipmentSlot(RelationMixin, Preference):

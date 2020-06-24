@@ -195,7 +195,12 @@ class PlaceEffectTests(EffectsTestsBase):
         self.assertEqual(applied_effect.name, self.actor_name)
         self.assertEqual(applied_effect.attribute, effect.logic.attribute)
 
-        self.assertEqual(applied_effect.value, -effect.logic.base_value * self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER)
+        multiplier = 1
+
+        if effect.bonus_to_negative_effect:
+            multiplier = c.JOB_NEGATIVE_POWER_MULTIPLIER
+
+        self.assertEqual(applied_effect.value, -effect.logic.base_value * self.job_power * multiplier)
 
     def test_production__positive(self):
         self.check_apply_positive(effects.EFFECT.PLACE_PRODUCTION)
@@ -298,13 +303,13 @@ class HeroEffectTests(EffectsTestsBase):
         self.check_apply_positive(effects.EFFECT.HERO_MONEY,
                                   expected_effect_value=int(math.ceil(f.normal_action_price(self.target_level) *
                                                                       self.job_power *
-                                                                      c.NORMAL_JOB_LENGTH)))
+                                                                      c.JOB_MIN_LENGTH)))
 
     def test_money__negative(self):
         self.check_apply_negative(effects.EFFECT.HERO_MONEY,
                                   expected_effect_value=int(math.ceil(f.normal_action_price(self.target_level) *
                                                                       self.job_power *
-                                                                      c.NORMAL_JOB_LENGTH *
+                                                                      c.JOB_MIN_LENGTH *
                                                                       c.JOB_NEGATIVE_POWER_MULTIPLIER)))
 
     def test_artifact__positive(self):
@@ -326,7 +331,7 @@ class HeroEffectTests(EffectsTestsBase):
         self.check_apply_positive(effects.EFFECT.HERO_EXPERIENCE,
                                   expected_effect_value=int(math.ceil(f.experience_for_quest__real(distance) *
                                                                       self.job_power *
-                                                                      c.NORMAL_JOB_LENGTH)))
+                                                                      c.JOB_MIN_LENGTH)))
 
     def test_experience__negative(self):
         distance = places_storage.places.expected_minimum_quest_distance()
@@ -334,18 +339,18 @@ class HeroEffectTests(EffectsTestsBase):
         self.check_apply_negative(effects.EFFECT.HERO_EXPERIENCE,
                                   expected_effect_value=int(math.ceil(f.experience_for_quest__real(distance) *
                                                                       self.job_power *
-                                                                      c.NORMAL_JOB_LENGTH *
+                                                                      c.JOB_MIN_LENGTH *
                                                                       c.JOB_NEGATIVE_POWER_MULTIPLIER)))
 
     def test_cards__positive(self):
         self.check_apply_positive(effects.EFFECT.HERO_CARDS,
                                   expected_effect_value=int(math.ceil(24.0 / tt_cards_constants.NORMAL_RECEIVE_TIME *
-                                                                      c.NORMAL_JOB_LENGTH *
+                                                                      c.JOB_MIN_LENGTH *
                                                                       self.job_power)))
 
     def test_cards__negative(self):
         self.check_apply_negative(effects.EFFECT.HERO_CARDS,
                                   expected_effect_value=int(math.ceil(24.0 / tt_cards_constants.NORMAL_RECEIVE_TIME *
-                                                                      c.NORMAL_JOB_LENGTH *
+                                                                      c.JOB_MIN_LENGTH *
                                                                       self.job_power *
                                                                       c.JOB_NEGATIVE_POWER_MULTIPLIER)))

@@ -23,7 +23,7 @@ class AddCompanionExperienceTestMixin(helpers.CardsTestMixin):
         self.account_1 = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account_1)
+        self.storage.load_account_data(self.account_1.id)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
@@ -35,20 +35,41 @@ class AddCompanionExperienceTestMixin(helpers.CardsTestMixin):
 
         with self.check_increased(lambda: companion_total_experience(self.hero.companion)):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-            self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+            self.assertEqual((result, step, postsave_actions),
+                             (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED,
+                              game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_use__coherence_restriction_does_not_work(self):
         companion_record = random.choice(companions_storage.companions.all())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         # test that coherence restriction does not work
+        self.hero.companion.coherence = self.hero.companion.max_coherence
         self.hero.companion.experience = self.hero.companion.experience_to_next_level
 
         self.assertFalse(self.hero.companion.is_dead)
 
         with self.check_increased(lambda: self.hero.companion.coherence):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-            self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+            self.assertEqual((result, step, postsave_actions),
+                             (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED,
+                              game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+
+    def test_use__restrict_use_on_full_experince(self):
+        companion_record = random.choice(companions_storage.companions.all())
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        # test that coherence restriction does not work
+        self.hero.companion.coherence = c.COMPANIONS_MAX_COHERENCE
+        self.hero.companion.experience = self.hero.companion.experience_to_next_level
+
+        self.assertFalse(self.hero.companion.is_dead)
+
+        with self.check_not_changed(lambda: self.hero.companion.coherence):
+            result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+            self.assertEqual((result, step, postsave_actions),
+                             (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED,
+                              game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
 
     def test_use__companion_is_dead(self):
         companion_record = random.choice(companions_storage.companions.all())
@@ -59,13 +80,17 @@ class AddCompanionExperienceTestMixin(helpers.CardsTestMixin):
 
         with self.check_increased(lambda: companion_total_experience(self.hero.companion)):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-            self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+            self.assertEqual((result, step, postsave_actions),
+                             (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED,
+                              game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_no_companion(self):
         self.assertEqual(self.hero.companion, None)
 
         result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
+        self.assertEqual((result, step, postsave_actions),
+                         (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED,
+                          game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
 
 
 class AddExperienceCommonTests(AddCompanionExperienceTestMixin, utils_testcase.TestCase):

@@ -26,18 +26,18 @@ class RACE(rels_django.DjangoEnum):
     female_text = rels.Column()
     utg_name_form = rels.Column()
     linguistics_restrictions = rels.Column()
-    energy_regeneration = rels.Column(related_name='base_race')
+    religion_type = rels.Column(related_name='base_race')
 
     records = (('HUMAN', 0, 'человек', 'люди', 'мужчина', 'женщина',
-                technical_words.RACE_HUMANS, _race_linguistics_restrictions('HUMAN'), heroes_relations.ENERGY_REGENERATION.PRAY),
+                technical_words.RACE_HUMANS, _race_linguistics_restrictions('HUMAN'), heroes_relations.RELIGION_TYPE.PRAY),
                ('ELF', 1, 'эльф', 'эльфы', 'эльф', 'эльфийка',
-                technical_words.RACE_ELFS, _race_linguistics_restrictions('ELF'), heroes_relations.ENERGY_REGENERATION.INCENSE),
+                technical_words.RACE_ELFS, _race_linguistics_restrictions('ELF'), heroes_relations.RELIGION_TYPE.INCENSE),
                ('ORC', 2, 'орк', 'орки', 'орк', 'оркесса',
-                technical_words.RACE_ORCS, _race_linguistics_restrictions('ORC'), heroes_relations.ENERGY_REGENERATION.SACRIFICE),
+                technical_words.RACE_ORCS, _race_linguistics_restrictions('ORC'), heroes_relations.RELIGION_TYPE.SACRIFICE),
                ('GOBLIN', 3, 'гоблин', 'гоблины', 'гоблин', 'гоблинша',
-                technical_words.RACE_GOBLINS, _race_linguistics_restrictions('GOBLIN'), heroes_relations.ENERGY_REGENERATION.MEDITATION),
+                technical_words.RACE_GOBLINS, _race_linguistics_restrictions('GOBLIN'), heroes_relations.RELIGION_TYPE.MEDITATION),
                ('DWARF', 4, 'дварф', 'дварфы', 'дварф', 'дварфийка',
-                technical_words.RACE_DWARFS, _race_linguistics_restrictions('DWARF'), heroes_relations.ENERGY_REGENERATION.SYMBOLS))
+                technical_words.RACE_DWARFS, _race_linguistics_restrictions('DWARF'), heroes_relations.RELIGION_TYPE.SYMBOLS))
 
 
 class GAME_STATE(rels_django.DjangoEnum):

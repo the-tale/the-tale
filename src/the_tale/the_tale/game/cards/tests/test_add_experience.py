@@ -14,7 +14,7 @@ class AddExperienceTestMixin(helpers.CardsTestMixin):
         self.account_1 = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account_1)
+        self.storage.load_account_data(self.account_1.id)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
@@ -25,7 +25,7 @@ class AddExperienceTestMixin(helpers.CardsTestMixin):
 
         self.assertTrue(self.hero.quests.has_quests)
 
-        old_ui_experience = self.hero.quests.current_quest.current_info.ui_info(self.hero)['experience']
+        old_ui_experience = self.hero.quests.current_quest.current_info.ui_info()['experience']
 
         with mock.patch('the_tale.game.quests.container.QuestsContainer.mark_updated') as mark_updated:
             with self.check_not_changed(lambda: self.hero.experience):
@@ -39,7 +39,7 @@ class AddExperienceTestMixin(helpers.CardsTestMixin):
 
         while self.hero.quests.has_quests:
             self.assertEqual(self.hero.quests.current_quest.quests_stack[0].experience_bonus, self.CARD.effect.modificator)
-            self.assertEqual(self.hero.quests.current_quest.quests_stack[0].ui_info(self.hero)['experience'], old_ui_experience + self.CARD.effect.modificator)
+            self.assertEqual(self.hero.quests.current_quest.quests_stack[0].ui_info()['experience'], old_ui_experience + self.CARD.effect.modificator)
             self.storage.process_turn()
 
     def test_no_quest(self):

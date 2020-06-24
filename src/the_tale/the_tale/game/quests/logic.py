@@ -122,7 +122,7 @@ def choose_quest_path_url():
 
 def fact_place(place):
     return questgen_facts.Place(uid=uids.place(place.id),
-                                terrains=[terrain.value for terrain in place.terrains],
+                                terrains=[terrain.value for terrain in map_storage.cells.place_terrains(place.id)],
                                 externals={'id': place.id},
                                 type=place.modifier_quest_type())
 
@@ -221,7 +221,9 @@ def setup_persons(kb, hero_info):
 
 
 def setup_social_connections(kb):
-    persons_in_kb = {f_person.externals['id']: f_person.uid for f_person in kb.filter(questgen_facts.Person)}
+    persons_in_kb = {f_person.externals['id']: f_person.uid
+                     for f_person in kb.filter(questgen_facts.Person)
+                     if f_person.externals['type'] == game_relations.ACTOR.PERSON.value}
 
     for person_id, person_uid in persons_in_kb.items():
         person = persons_storage.persons[person_id]

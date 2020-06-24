@@ -38,6 +38,9 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
     def deserialize(cls, data):
         obj = cls()
 
+        if 'energy_regeneration_type' in data:
+            data['religion_type'] = data['energy_regeneration_type']
+
         obj.data = data
 
         return obj
@@ -86,8 +89,8 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
     def _prepair_person(self, person_id):
         return persons_storage.persons.get(person_id)
 
-    def _prepair_energy_regeneration(self, energy_regeneration_id):
-        return relations.ENERGY_REGENERATION.index_value.get(int(energy_regeneration_id))
+    def _prepair_religion_type(self, religion_type_id):
+        return relations.RELIGION_TYPE.index_value.get(int(religion_type_id))
 
     def _prepair_equipment_slot(self, slot_id):
         if slot_id is None:

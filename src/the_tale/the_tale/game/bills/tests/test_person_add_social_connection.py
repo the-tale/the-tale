@@ -145,7 +145,7 @@ class PersonAddSocialConnectionTests(helpers.BaseTestPrototypes):
         form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account1)
 
         self.assertTrue(self.bill.apply())
 
@@ -165,7 +165,7 @@ class PersonAddSocialConnectionTests(helpers.BaseTestPrototypes):
         form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account)
         self.assertTrue(self.bill.has_meaning())
         self.assertTrue(self.bill.apply())
 
@@ -174,7 +174,7 @@ class PersonAddSocialConnectionTests(helpers.BaseTestPrototypes):
         bill.save()
 
         self.assertTrue(form.is_valid())
-        bill.update_by_moderator(form)
+        bill.update_by_moderator(form, self.account1)
 
         self.assertFalse(bill.has_meaning())
 

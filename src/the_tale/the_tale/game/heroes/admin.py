@@ -14,7 +14,7 @@ class HeroAdmin(django_admin.ModelAdmin):
 
 
 class HeroPreferencesAdmin(django_admin.ModelAdmin):
-    list_display = ('id', 'hero', 'energy_regeneration_type', 'mob', 'place', 'friend', 'enemy', 'equipment_slot')
+    list_display = ('id', 'hero', 'religion_type', 'mob', 'place', 'friend', 'enemy', 'equipment_slot')
 
 
 django_admin.site.register(models.Hero, HeroAdmin)

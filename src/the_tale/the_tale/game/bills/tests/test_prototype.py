@@ -38,18 +38,8 @@ class BillPrototypeTests(helpers.BaseTestPrototypes):
         self.assertEqual(prototypes.BillPrototype.accepted_bills_count(self.account2.id), 1)
         self.assertEqual(prototypes.BillPrototype.accepted_bills_count(self.account3.id), 0)
 
-    def test_is_active_bills_limit_reached__free_accounts(self):
-        for i in range(c.FREE_ACCOUNT_MAX_ACTIVE_BILLS):
-            self.assertFalse(prototypes.BillPrototype.is_active_bills_limit_reached(self.account1))
-            self.create_bill()
-
-        self.assertTrue(prototypes.BillPrototype.is_active_bills_limit_reached(self.account1))
-
-    def test_is_active_bills_limit_reached__premiun_accounts(self):
-        self.account1.prolong_premium(30)
-        self.account1.save()
-
-        for i in range(c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS):
+    def test_is_active_bills_limit_reached(self):
+        for i in range(c.ACCOUNT_MAX_ACTIVE_BILLS):
             self.assertFalse(prototypes.BillPrototype.is_active_bills_limit_reached(self.account1))
             self.create_bill()
 
@@ -177,9 +167,7 @@ class TestPrototypeApply(helpers.BaseTestPrototypes):
         self.assertEqual(forum_models.Post.objects.all().count(), 1)
 
         with self.check_not_changed(lambda: self.place1.attrs.stability):
-            with self.check_not_changed(lambda: accounts_prototypes.AccountPrototype.get_by_id(self.bill.owner.id).actual_bills):
-                with self.check_not_changed(lambda: self.bill.owner.actual_bills):
-                    self.assertFalse(self.bill.apply())
+            self.assertFalse(self.bill.apply())
 
             self.assertTrue(self.bill.state.is_REJECTED)
 
@@ -200,11 +188,7 @@ class TestPrototypeApply(helpers.BaseTestPrototypes):
 
         self.assertEqual(total_records, 0)
 
-    def prepair_data_to_approve(self):
-        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
-        prototypes.VotePrototype.create(self.account4, self.bill, relations.VOTE_TYPE.REFRAINED)
-
+    def update_and_approve(self):
         ##################################
         # set name forms
 
@@ -214,8 +198,34 @@ class TestPrototypeApply(helpers.BaseTestPrototypes):
         form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
+        self.bill.update_by_moderator(form, self.account1)
         ##################################
+
+    def prepair_data_to_approve(self):
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account4, self.bill, relations.VOTE_TYPE.REFRAINED)
+
+        self.update_and_approve()
+
+    def test_update_by_moderator(self):
+        with self.check_increased(models.Moderation.objects.filter(bill_id=self.bill.id, moderator_id=self.account1.id).count):
+            self.update_and_approve()
+
+        with self.check_increased(models.Moderation.objects.filter(bill_id=self.bill.id, moderator_id=self.account1.id).count):
+            self.update_and_approve()
+
+    def test_remove_by_moderator(self):
+        self.assertNotEqual(self.bill.owner_id, self.account2.id)
+
+        with self.check_increased(models.Moderation.objects.filter(bill_id=self.bill.id, moderator_id=self.account2.id).count):
+            self.bill.remove(self.account2)
+
+    def test_remove_by_owner(self):
+        self.assertEqual(self.bill.owner_id, self.account1.id)
+
+        with self.check_not_changed(models.Moderation.objects.all().count):
+            self.bill.remove(self.account1)
 
     @mock.patch('the_tale.game.bills.conf.settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
@@ -226,19 +236,10 @@ class TestPrototypeApply(helpers.BaseTestPrototypes):
 
         self.prepair_data_to_approve()
 
-        self.assertEqual(forum_models.Post.objects.all().count(), 1)
+        with self.check_delta(forum_models.Post.objects.all().count, 1):
+            self.assertTrue(self.bill.apply())
 
-        self.assertTrue(self.bill.apply())
-
-        self.assertEqual(accounts_prototypes.AccountPrototype.get_by_id(self.bill.owner.id).actual_bills,
-                         [utils_logic.to_timestamp(self.bill.voting_end_at)])
-
-        self.assertEqual(self.bill.owner.actual_bills,
-                         [utils_logic.to_timestamp(self.bill.voting_end_at)])
-
-        self.assertTrue(self.bill.state.is_ACCEPTED)
-
-        self.assertEqual(forum_models.Post.objects.all().count(), 2)
+            self.assertTrue(self.bill.state.is_ACCEPTED)
 
         bill = prototypes.BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state.is_ACCEPTED)

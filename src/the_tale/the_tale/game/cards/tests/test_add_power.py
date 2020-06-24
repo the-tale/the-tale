@@ -15,7 +15,7 @@ class AddPoliticPowerTestMixin(helpers.CardsTestMixin):
         self.account_1 = self.accounts_factory.create_account()
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account_1)
+        self.storage.load_account_data(self.account_1.id)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
@@ -29,7 +29,8 @@ class AddPoliticPowerTestMixin(helpers.CardsTestMixin):
             with self.check_not_changed(lambda: self.hero.power):
                 with self.check_not_changed(lambda: self.hero.level):
                     with self.check_not_changed(lambda: self.hero.quests.current_quest.current_info.power):
-                        with self.check_delta(lambda: self.hero.quests.current_quest.current_info.power_bonus, self.CARD.effect.modificator):
+                        with self.check_delta(lambda: self.hero.quests.current_quest.current_info.power_bonus,
+                                              self.CARD.effect.upper_modificator):
                             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
                             self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
@@ -46,7 +47,7 @@ class AddPoliticPowerTestMixin(helpers.CardsTestMixin):
                 with self.check_not_changed(lambda: self.hero.level):
                     with self.check_not_changed(lambda: self.hero.quests.current_quest.current_info.power):
                         with self.check_delta(lambda: self.hero.quests.current_quest.current_info.power_bonus,
-                                              self.CARD.effect.modificator):
+                                              self.CARD.effect.upper_modificator):
                             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage,
                                                                                                         hero=self.hero))
                             self.assertEqual((result, step, postsave_actions),

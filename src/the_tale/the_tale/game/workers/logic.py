@@ -98,10 +98,7 @@ class Worker(utils_workers.BaseWorker):
         return self.send_cmd('register_account', {'account_id': account_id})
 
     def process_register_account(self, account_id):
-        account = accounts_prototypes.AccountPrototype.get_by_id(account_id)
-        if account is None:
-            raise LogicException('can not get account with id "%d"' % (account_id,))
-        self.storage.load_account_data(account)
+        self.storage.load_account_data(account_id)
 
     def cmd_release_account(self, account_id):
         return self.send_cmd('release_account', {'account_id': account_id})
@@ -152,45 +149,17 @@ class Worker(utils_workers.BaseWorker):
         hero.ui_caching_started_at = datetime.datetime.now()
         self.storage.recache_bundle(hero.actions.current_action.bundle_id)
 
-    def cmd_update_hero_with_account_data(self,
-                                          account_id,
-                                          is_fast,
-                                          premium_end_at,
-                                          active_end_at,
-                                          ban_end_at,
-                                          might,
-                                          actual_bills,
-                                          clan_id):
-        self.send_cmd('update_hero_with_account_data', {'account_id': account_id,
-                                                        'is_fast': is_fast,
-                                                        'premium_end_at': premium_end_at,
-                                                        'active_end_at': active_end_at,
-                                                        'ban_end_at': ban_end_at,
-                                                        'might': might,
-                                                        'actual_bills': actual_bills,
-                                                        'clan_id': clan_id})
+    def cmd_sync_hero_required(self, account_id):
+        self.send_cmd('sync_hero_required', {'account_id': account_id})
 
-    def process_update_hero_with_account_data(self,
-                                              account_id,
-                                              is_fast,
-                                              premium_end_at,
-                                              active_end_at,
-                                              ban_end_at,
-                                              might,
-                                              actual_bills,
-                                              clan_id):
+    def process_sync_hero_required(self, account_id):
         hero = self.storage.accounts_to_heroes[account_id]
 
         if hero.actions.current_action.bundle_id in self.storage.ignored_bundles:
             return
 
-        hero.update_with_account_data(is_fast=is_fast,
-                                      premium_end_at=datetime.datetime.fromtimestamp(premium_end_at),
-                                      active_end_at=datetime.datetime.fromtimestamp(active_end_at),
-                                      ban_end_at=datetime.datetime.fromtimestamp(ban_end_at),
-                                      might=might,
-                                      actual_bills=actual_bills,
-                                      clan_id=clan_id)
+        heroes_logic.sync_hero_external_data(hero)
+
         self.storage.save_bundle_data(hero.actions.current_action.bundle_id)
 
     def cmd_setup_quest(self, account_id, knowledge_base):

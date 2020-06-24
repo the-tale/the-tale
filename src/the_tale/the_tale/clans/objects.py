@@ -258,14 +258,15 @@ class Attributes:
 
 
 class ClanInfo(MetaObjectMixin):
-    __slots__ = ('id', 'name', 'linguistics_name', 'abbr', 'motto', '_utg_name_form__lazy')
+    __slots__ = ('id', 'name', 'linguistics_name', 'abbr', 'motto', '_utg_name_form__lazy', 'state')
 
-    def __init__(self, id, name, linguistics_name, abbr, motto):
+    def __init__(self, id, name, linguistics_name, abbr, motto, state):
         self.id = id
         self.name = name
         self.linguistics_name = linguistics_name
         self.abbr = abbr
         self.motto = motto
+        self.state = state
 
     @utils_decorators.lazy_property
     def utg_name_form(self):
