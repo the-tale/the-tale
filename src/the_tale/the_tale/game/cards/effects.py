@@ -507,7 +507,14 @@ class InstantMonsterKill(BaseEffect):
         if not task.hero.actions.current_action.TYPE.is_BATTLE_PVE_1X1:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Герой ни с кем не сражается.')
 
-        task.hero.add_message('cards_lightning', hero=task.hero, damage=task.hero.actions.current_action.mob.health, energy=0)
+        if task.hero.actions.current_action.mob.health <= 0:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Противник уже убит.')
+
+        task.hero.add_message('cards_lightning',
+                              hero=task.hero,
+                              damage=task.hero.actions.current_action.mob.health,
+                              mob=task.hero.actions.current_action.mob,
+                              energy=0)
 
         task.hero.actions.current_action.bit_mob(task.hero.actions.current_action.mob.max_health)
 

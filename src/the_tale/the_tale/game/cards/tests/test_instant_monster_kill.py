@@ -38,3 +38,12 @@ class InstantMonsterKillTests(helpers.CardsTestMixin, utils_testcase.TestCase):
 
         self.assertTrue(self.hero.actions.current_action.mob.health <= 0)
         self.assertEqual(self.hero.actions.current_action.percents, 1)
+
+    def test_already_dead(self):
+        with mock.patch('the_tale.game.balance.constants.KILL_BEFORE_BATTLE_PROBABILITY', 0):
+            actions_prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.mobs.create_mob_for_hero(self.hero))
+
+        self.hero.actions.current_action.mob.health = 0
+
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
