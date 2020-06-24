@@ -27,7 +27,7 @@ def constructor(type, **kwargs):
 
 
 CONSTRUCTORS_MAP = {
-    '5': constructor(type=types.CARD.REGENERATE),
+    '5': constructor(type=types.CARD.REGENERATION),
     '6': constructor(type=types.CARD.LONG_TELEPORT),
     '7': constructor(type=types.CARD.HEAL_COMPANION_RARE),
     '8': constructor(type=types.CARD.HEAL_COMPANION_EPIC),
