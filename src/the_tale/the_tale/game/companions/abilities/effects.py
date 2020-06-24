@@ -444,10 +444,10 @@ class ABILITIES(rels_django.DjangoEnum):
         ('PARAPHERNALIA', 55, 'личные вещи', 'забирает 2 места в рюкзаке для своих вещей', MaxBagSize(-2), RARITY_LOW, False, True),
         ('SPARE_PARTS', 56, 'запчасти', 'забирает 4 места в рюкзаке для запчастей', MaxBagSize(-4), RARITY_LOWER, False, True),
 
-        ('KNOWN', 17, 'известный', 'находит политически важную работу, задания героя оказывают большее влияние на мир (максимальный бонус к влиянию: 100%)',
+        ('KNOWN', 17, 'известный', f'находит политически важную работу, задания героя оказывают большее влияние на мир (максимальный бонус к влиянию: {round(tt_politic_power_constants.MODIFIER_HERO_COMPANION*100)}%)',
          PoliticsPower(0.5 * tt_politic_power_constants.MODIFIER_HERO_COMPANION,
                        1.0 * tt_politic_power_constants.MODIFIER_HERO_COMPANION), RARITY_BIGER, False, True),
-        ('CAD', 18, 'хам', 'хамит горожанам, герою не доверяют политически важную работу, поэтому он оказывает меньшее влияние на мир (минимальный штраф к влиянию: -50%)',
+        ('CAD', 18, 'хам', f'хамит горожанам, герою не доверяют политически важную работу, поэтому он оказывает меньшее влияние на мир (минимальный штраф к влиянию: -{round(0.5*tt_politic_power_constants.MODIFIER_HERO_COMPANION*100)}%)',
          PoliticsPower(-1.0 * tt_politic_power_constants.MODIFIER_HERO_COMPANION,
                        -0.5 * tt_politic_power_constants.MODIFIER_HERO_COMPANION), RARITY_LOWER, False, True),
 
