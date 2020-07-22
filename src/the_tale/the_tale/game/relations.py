@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class GENDER(rels_django.DjangoEnum):
-    utg_id = rels.Column()
+    utg_id = rels.Column(no_index=False)
     pynames_id = rels.Column(unique=False)
 
     records = (('MALE', 0, 'мужчина', utg_relations.GENDER.MASCULINE, pynames_relations.GENDER.MALE),
