@@ -91,7 +91,7 @@ class Bot(discord_commands.Bot):
         for guild in self.guilds:
             for member in guild.members:
 
-                if guild.owner.id == member.id:
+                if guild.owner and guild.owner.id == member.id:
                     continue
 
                 account_info = await operations.get_account_info_by_discord_id(member.id)
@@ -207,7 +207,7 @@ async def sync_nickname(bot, account_info, data, logger):
             logger.info('discord user %s already has nick %s', account_info.discord_id, nickname)
             continue
 
-        if guild.owner.id == member.id:
+        if guild.owner and guild.owner.id == member.id:
             await member.send('Я не могу изменить ваш ник, так как вы являетесь владельцем сервера.')
             continue
 
@@ -265,7 +265,7 @@ async def sync_ban(bot, account_info, data, config, logger):
             logger.info('can not ban bot %s in guid %s', account_info.discord_id, guild.id)
             continue
 
-        if guild.owner.id == member.id:
+        if guild.owner and guild.owner.id == member.id:
             logger.info('can not ban owner of guid %s', account_info.discord_id, guild.id)
             continue
 
@@ -285,7 +285,7 @@ async def reset_discord_properties(bot, discord_id, logger):
 
         arguments = {}
 
-        if guild.owner.id != member.id:
+        if guild.owner and guild.owner.id != member.id:
             arguments['nick'] = None
 
         if not member.bot:
