@@ -61,6 +61,10 @@ class EmissaryChronicle(base_bill.BaseBill):
     def place_name_changed(self):
         return self.old_place_name_forms != self.origin_place.utg_name
 
+    @property
+    def old_place_name(self):
+        return self.old_place_name_forms.normal_form()
+
     def has_meaning(self):
         return (self.emissary and
                 self.emissary.state.is_IN_GAME and
