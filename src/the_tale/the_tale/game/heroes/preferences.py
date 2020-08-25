@@ -38,8 +38,14 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
     def deserialize(cls, data):
         obj = cls()
 
-        if 'energy_regeneration_type' in data:
+        #######################
+        # TODO: remove in 4.3
+        if 'energy_regeneration_type' in data and 'religion_type' not in data:
             data['religion_type'] = data['energy_regeneration_type']
+
+        if 'energy_regeneration_type' in data:
+            del data['energy_regeneration_type']
+        ########################
 
         obj.data = data
 
