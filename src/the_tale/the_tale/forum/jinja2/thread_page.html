@@ -298,9 +298,15 @@ jQuery(document).ready( function(e) {
 
             <br/>
             {{game_object.race_verbose}}
+            {% if game_object.name|length > 25 %}
+            <a href="{{url('game:heroes:show', game_object.id)}}" style="white-space: pre-line;">
+              {{game_object.name}}
+            </a>
+            {% else %}
             <a href="{{url('game:heroes:show', game_object.id)}}" style="white-space: nowrap;">
               {{game_object.name}}
             </a>
+            {% endif %}
             <br/>
             {{game_object.level}} уровня
           {% else %}
