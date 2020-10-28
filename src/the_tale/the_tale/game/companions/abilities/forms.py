@@ -114,7 +114,7 @@ class AbilitiesField(django_forms.MultiValueField):
         peacefulness = None
 
         for field, ability in zip(relations.FIELDS.records, data_list):
-            if ability is '':
+            if ability == '':
                 continue
 
             if field in (relations.FIELDS.START_1, relations.FIELDS.START_2, relations.FIELDS.START_3, relations.FIELDS.START_4, relations.FIELDS.START_5):

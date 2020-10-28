@@ -52,10 +52,10 @@ setuptools.setup(
                       'gunicorn==20.0.4',
                       'sentry-sdk==0.14.3',
 
-                      'pynames==0.2.2',
+                      'pynames==0.2.3',
                       'utg==0.3.1',
                       'rels==0.3.1',
-                      'smart_imports==0.2.4',
+                      'smart_imports==0.2.6',
 
                       'typeguard==2.9.1'],
 
