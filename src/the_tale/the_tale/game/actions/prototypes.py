@@ -957,7 +957,7 @@ class ActionInPlacePrototype(ActionBase):
         if hero.position.place.attrs.tax > 0:
 
             if hero.money > 0:
-                tax = int(hero.money * hero.position.place.attrs.tax)
+                tax = max(1, int(hero.money * hero.position.place.attrs.tax))
                 hero.change_money(heroes_relations.MONEY_SOURCE.SPEND_FOR_TAX, -tax)
                 hero.add_message('action_inplace_tax', hero=hero, place=hero.position.place, coins=tax, diary=True)
             else:

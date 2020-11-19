@@ -205,6 +205,24 @@ class InPlaceActionTest(helpers.ActionEventsTestsMixin,
 
         self.storage._test_save()
 
+    def test_tax__minimum_money(self):
+        for place in places_storage.places.all():
+            place.attrs.tax = 0.2
+
+        self.hero.money = 3
+
+        self.hero.position.previous_place_id = None
+
+        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
+
+        with self.check_delta(lambda: self.hero.statistics.money_spend, 1):
+            with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 1):
+                prototypes.ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertEqual(self.hero.money, 2)
+
+        self.storage._test_save()
+
     def test_tax__no_money(self):
         for place in places_storage.places.all():
             place.attrs.tax = 0.2
