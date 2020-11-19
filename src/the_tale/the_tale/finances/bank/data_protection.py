@@ -17,17 +17,25 @@ def collect_data(account_id):
     invoices = [prototypes.InvoicePrototype(model=model) for model in models.Invoice.objects.filter(condition)]
 
     for invoice in invoices:
-        data.append(('game_invoice', {'updated_at': invoice.updated_at,
-                                      'created_at': invoice._model.created_at,
-                                      'recipient_id': invoice.recipient_id,
-                                      'recipient_type': invoice.recipient_type,
-                                      'sender_id': invoice.sender_id,
-                                      'sender_type': invoice.sender_type,
-                                      'amount': invoice.amount,
-                                      'currency': invoice.currency,
-                                      'state': invoice.state,
-                                      'description_for_recipient': invoice.description_for_recipient,
-                                      'description_for_sender': invoice.description_for_sender}))
+        invoice_data = {'updated_at': invoice.updated_at,
+                        'created_at': invoice._model.created_at,
+                        'recipient_id': invoice.recipient_id,
+                        'recipient_type': invoice.recipient_type,
+                        'sender_id': invoice.sender_id,
+                        'sender_type': invoice.sender_type,
+                        'amount': invoice.amount,
+                        'currency': invoice.currency,
+                        'state': invoice.state,
+                        'description_for_recipient': invoice.description_for_recipient,
+                        'description_for_sender': invoice.description_for_sender}
+
+        # адресатов/получателей отображаем только если это прямой перевод
+        # в остальных случаях эта информация либо очевидна (покупка печенек), либо нарушает конфиденциальность других игроков (рынок)
+        if invoice.operation_uid != 'transfer-money-between-accounts-transfer':
+            del invoice_data['recipient_id']
+            del invoice_data['sender_id']
+
+        data.append(('game_invoice', invoice_data))
 
     return data
 

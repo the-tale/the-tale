@@ -17,10 +17,12 @@ class CollectDataTests(helpers.BankTestsMixin,
         self.other_account_1_id = self.accounts[1].id
         self.other_account_2_id = self.accounts[2].id
 
-    def create_invoice(self, uid, **kwargs):
+    def create_invoice(self, uid, operation_uid=None, **kwargs):
+        if operation_uid is None:
+            operation_uid = f'op-{uid}'
         return super().create_invoice(description_for_sender=f'ds-{uid}',
                                       description_for_recipient=f'dr-{uid}',
-                                      operation_uid=f'op-{uid}',
+                                      operation_uid=operation_uid,
                                       amount=10000 + uid,
                                       **kwargs)
 
@@ -48,7 +50,8 @@ class CollectDataTests(helpers.BankTestsMixin,
                                         recipient_id=self.target_account_id,
                                         sender_type=relations.ENTITY_TYPE.GAME_ACCOUNT,
                                         sender_id=self.other_account_1_id,
-                                        state=relations.INVOICE_STATE.random()),
+                                        state=relations.INVOICE_STATE.random(),
+                                        operation_uid='transfer-money-between-accounts-transfer'),
                     self.create_invoice(4,
                                         recipient_type=relations.ENTITY_TYPE.GAME_LOGIC,
                                         recipient_id=self.other_account_1_id,
@@ -69,9 +72,7 @@ class CollectDataTests(helpers.BankTestsMixin,
                                   'currency': relations.CURRENCY_TYPE.PREMIUM,
                                   'description_for_recipient': 'dr-1',
                                   'description_for_sender': 'ds-1',
-                                  'recipient_id': self.target_account_id,
                                   'recipient_type': relations.ENTITY_TYPE.GAME_ACCOUNT,
-                                  'sender_id': self.other_account_1_id,
                                   'sender_type': relations.ENTITY_TYPE.GAME_LOGIC,
                                   'state': relations.INVOICE_STATE.REQUESTED,
                                   'updated_at': invoices[0].updated_at}),
@@ -91,9 +92,7 @@ class CollectDataTests(helpers.BankTestsMixin,
                                   'currency': relations.CURRENCY_TYPE.PREMIUM,
                                   'description_for_recipient': 'dr-4',
                                   'description_for_sender': 'ds-4',
-                                  'recipient_id': self.other_account_1_id,
                                   'recipient_type': relations.ENTITY_TYPE.GAME_LOGIC,
-                                  'sender_id': self.target_account_id,
                                   'sender_type': relations.ENTITY_TYPE.GAME_ACCOUNT,
                                   'state': relations.INVOICE_STATE.REQUESTED,
                                   'updated_at': invoices[3].updated_at})]
