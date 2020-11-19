@@ -182,7 +182,7 @@ class PlaceTests(helpers.PlacesTestsMixin,
                                0.34 * self.p1.area_size_equivalent * c.PLACE_GOODS_BONUS +
                                10 * len(self.p1.persons) +
                                - 3 * c.PLACE_GOODS_BONUS +  # place size support
-                               c.PLACE_GOODS_BONUS +  # craft center
+                               2 * c.PLACE_GOODS_BONUS +  # craft center
                                - relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL.amount +
                                relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE.amount +
                                - c.CELL_STABILIZATION_PRICE +  # place terrain supporte
@@ -277,10 +277,11 @@ class PlaceTests(helpers.PlacesTestsMixin,
 
         self.p1.refresh_attributes()
 
-        self.assertAlmostEqual(self.p1.attrs.freedom, 1000 + 100 * len(self.p1.persons) + 0.1)
+        self.assertAlmostEqual(self.p1.attrs.freedom, 1000 + 100 * len(self.p1.persons) + 0.2)
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_MASTER', 0)
+    @mock.patch('the_tale.game.persons.attributes.Attributes.stability_bonus', 0)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: -0.05)
     def test_refresh_attributes__stability(self):
         self.create_effect(self.p1.id, value=-0.5, attribute=relations.ATTRIBUTE.STABILITY)

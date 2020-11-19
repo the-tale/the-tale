@@ -13,16 +13,18 @@ def _modifier_linguistics_restrictions(modifier):
 
 
 def record(name, value, text, quest, modifier_effects, description):
+    effects = tuple([tt_api_effects.Effect(name=text,
+                                           attribute=getattr(relations.ATTRIBUTE, attribute),
+                                           value=value)
+                     for attribute, value in modifier_effects])
+
     return (name,
             value,
             text,
             quest,
             getattr(technical_words, 'MODIFIER_{}'.format(name)),
             _modifier_linguistics_restrictions(name),
-            tuple([tt_api_effects.Effect(name=text,
-                                         attribute=getattr(relations.ATTRIBUTE, attribute),
-                                         value=value)
-                   for attribute, value in modifier_effects]),
+            effects,
             description,
             getattr(relations.ATTRIBUTE, 'MODIFIER_{}'.format(name)) if name != 'NONE' else None)
 
@@ -36,11 +38,11 @@ class CITY_MODIFIERS(rels_django.DjangoEnum):
     points_attribute = rels.Column(unique=False, single_type=False)
 
     records = (record('TRADE_CENTER', 0, 'Торговый центр', questgen_relations.PLACE_TYPE.NONE,
-                      (('SELL_PRICE', 0.15), ('BUY_PRICE', -0.15), ('PRODUCTION', c.PLACE_GOODS_BONUS / 2), ('FREEDOM', 0.1)),
-                      'В городе идёт оживлённая торговля, поэтому герои всегда могут найти выгодную цену для продажи своих трофеев или покупки артефактов. Увеличивается производство и уровень свободы в городе.'),
+                      (('SELL_PRICE', 0.15), ('BUY_PRICE', -0.15), ('FREEDOM', 0.1), ('CULTURE', 0.4)),
+                      'В городе идёт оживлённая торговля, поэтому герои всегда могут найти выгодную цену для продажи своих трофеев или покупки артефактов. Благодаря множеству меценатов в городе увеличиваются свобода и культура.'),
 
                record('CRAFT_CENTER', 1, 'Город ремёсел', questgen_relations.PLACE_TYPE.NONE,
-                      (('PRODUCTION', c.PLACE_GOODS_BONUS),),
+                      (('PRODUCTION', c.PLACE_GOODS_BONUS * 2),),
                       'Большое количество мастеров, трудящихся в городе, увеличивает уровень производства.'),
 
                record('FORT', 2, 'Форт', questgen_relations.PLACE_TYPE.NONE,
@@ -52,8 +54,8 @@ class CITY_MODIFIERS(rels_django.DjangoEnum):
                       'Активная политическая жизнь приводит к тому, что в городе увеличивается уровень свободы. Также увеличивается радиус влияния города и его стабильность.'),
 
                record('POLIC', 4, 'Полис', questgen_relations.PLACE_TYPE.NONE,
-                      (('PRODUCTION', c.PLACE_GOODS_BONUS), ('TERRAIN_RADIUS', 3), ('FREEDOM', 0.1)),
-                      'Самостоятельная политика города вместе с большими свободами граждан способствуют увеличению производства и уровня свободы в городе. Кроме того увеличивается радиус, в котором город влияет на изменение ландшафта.'),
+                      (('CULTURE', 1.0), ('FREEDOM', 0.2)),
+                      'Самостоятельная политика города вместе с большими свободами граждан способствует увеличению свободы и значительному увеличению культуры.'),
 
                record('RESORT', 5, 'Курорт', questgen_relations.PLACE_TYPE.NONE,
                       (('HERO_REGEN_CHANCE', 1.0), ('COMPANION_REGEN_CHANCE', 1.0), ('SAFETY', 0.02), ('FREEDOM', 0.1)),

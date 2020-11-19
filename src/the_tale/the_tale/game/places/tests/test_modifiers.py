@@ -16,8 +16,8 @@ class ModifiersTests(utils_testcase.TestCase):
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_trade_center(self):
         with self.check_increased(lambda: self.place_1.attrs.sell_price):
-            with self.check_increased(lambda: self.place_1.attrs.production):
-                with self.check_increased(lambda: self.place_1.attrs.freedom):
+            with self.check_increased(lambda: self.place_1.attrs.freedom):
+                with self.check_increased(lambda: self.place_1.attrs.culture):
                     with self.check_decreased(lambda: self.place_1.attrs.buy_price):
                         self.place_1.set_modifier(modifiers.CITY_MODIFIERS.TRADE_CENTER)
 
@@ -54,10 +54,9 @@ class ModifiersTests(utils_testcase.TestCase):
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_polic(self):
-        with self.check_increased(lambda: self.place_1.attrs.production):
-            with self.check_increased(lambda: self.place_1.attrs.terrain_radius):
-                with self.check_increased(lambda: self.place_1.attrs.freedom):
-                    self.place_1.set_modifier(modifiers.CITY_MODIFIERS.POLIC)
+        with self.check_increased(lambda: self.place_1.attrs.culture):
+            with self.check_increased(lambda: self.place_1.attrs.freedom):
+                self.place_1.set_modifier(modifiers.CITY_MODIFIERS.POLIC)
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_resort(self):

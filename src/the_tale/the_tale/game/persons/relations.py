@@ -126,7 +126,7 @@ class ATTRIBUTE(game_attributes.ATTRIBUTE):
                                     description='Бонус к наградами за задания, если Мастер получает выгоду.'),
                game_attributes.attr('FRIENDS_QUESTS_PRIORITY_BONUS', 7,
                                     'бонус к вероятности соратникам получить задание, связанное с Мастером',
-                                     verbose_units='%', formatter=game_attributes.percents_formatter),
+                                    verbose_units='%', formatter=game_attributes.percents_formatter),
                game_attributes.attr('ENEMIES_QUESTS_PRIORITY_BONUS', 8,
                                     'бонус к вероятности противников получить задание, связанное с Мастером',
                                     verbose_units='%', formatter=game_attributes.percents_formatter),
