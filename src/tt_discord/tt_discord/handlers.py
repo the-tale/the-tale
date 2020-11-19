@@ -44,9 +44,7 @@ async def sync_user(user, create_if_not_exists, logger, force=False):
 
 
 @handlers.api(discord_pb2.GetBindCodeRequest)
-async def get_bind_code(message, **kwargs):
-    logger = log.ContextLogger()
-
+async def get_bind_code(message, logger, **kwargs):
     account_info = await sync_user(message.user,
                                    create_if_not_exists=True,
                                    force=True,
@@ -58,9 +56,7 @@ async def get_bind_code(message, **kwargs):
 
 
 @handlers.api(discord_pb2.UpdateUserRequest)
-async def update_user(message, **kwargs):
-    logger = log.ContextLogger()
-
+async def update_user(message, logger, **kwargs):
     await sync_user(message.user,
                     create_if_not_exists=False,
                     force=message.force,

@@ -210,7 +210,9 @@ def verbose(name):
 
             'tt_players_properties': 'Свойства аккаунта',
             'property': 'свойство',
-            'value': 'значение'}.get(name, name)
+            'value': 'значение',
+
+            'tt_xsolla': 'Платежи XSolla'}.get(name, name)
 
 
 #############
@@ -308,4 +310,5 @@ def ids_list(account):
     return [('the_tale', account.id),
             ('tt_players_properties', account.id),
             ('tt_personal_messages', account.id),
-            ('tt_discord', account.id)]
+            ('tt_discord', account.id),
+            ('tt_xsolla', account.id)]

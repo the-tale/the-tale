@@ -136,7 +136,8 @@ class DataProtectionRequestDeletionTests(utils_testcase.TestCase):
                                                                          ids=[('the_tale', self.account.id),
                                                                               ('tt_players_properties', self.account.id),
                                                                               ('tt_personal_messages', self.account.id),
-                                                                              ('tt_discord', self.account.id)])])
+                                                                              ('tt_discord', self.account.id),
+                                                                              ('tt_xsolla', self.account.id)])])
 
         self.request_html('/')
 

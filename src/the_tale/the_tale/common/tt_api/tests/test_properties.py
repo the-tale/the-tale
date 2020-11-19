@@ -27,7 +27,7 @@ class SetGetTests(utils_testcase.TestCase):
         properties = properties_client.cmd_get_properties({666: ['test_1']})
 
         self.assertEqual(properties[666].test_1, 'x.1')
-        self.assertEqual(properties[666].test_2, 100500)
+        self.assertEqual(properties[666].test_2, [])
 
     def test_multiple(self):
         properties_client.cmd_set_properties([(666, 'test_1', 'x.1'),
@@ -40,11 +40,11 @@ class SetGetTests(utils_testcase.TestCase):
                                                            888: ['test_1', 'test_2']})
 
         self.assertEqual(properties[666].test_1, 'x.1')
-        self.assertEqual(properties[666].test_2, 100500)
+        self.assertEqual(properties[666].test_2, [])
         self.assertEqual(properties[777].test_1, None)
-        self.assertEqual(properties[777].test_2, 13)
+        self.assertEqual(properties[777].test_2, [13])
         self.assertEqual(properties[888].test_1, 'x.2')
-        self.assertEqual(properties[888].test_2, 14)
+        self.assertEqual(properties[888].test_2, [14])
 
     def test_types(self):
         properties_client.cmd_set_properties([(666, 'test_1', 'x.1'),
@@ -80,7 +80,7 @@ class SetGetSimplifiedTests(utils_testcase.TestCase):
 
     def test_default(self):
         value = properties_client.cmd_get_object_property(object_id=666, name='test_2')
-        self.assertEqual(value, 100500)
+        self.assertEqual(value, [])
 
     def test_wrong_properties(self):
 
@@ -103,8 +103,8 @@ class GetAllObjectProperties(utils_testcase.TestCase):
 
         properties = properties_client.cmd_get_all_object_properties(object_id=666)
         self.assertEqual(properties.test_1, 'x.1')
-        self.assertEqual(properties.test_2, 13)
+        self.assertEqual(properties.test_2, [13])
 
         properties = properties_client.cmd_get_all_object_properties(object_id=777)
         self.assertEqual(properties.test_1, None)
-        self.assertEqual(properties.test_2, 14)
+        self.assertEqual(properties.test_2, [14])

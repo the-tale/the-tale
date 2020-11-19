@@ -512,7 +512,8 @@ class IdsListTests(utils_testcase.TestCase):
                               [('the_tale', self.account.id),
                                ('tt_players_properties', self.account.id),
                                ('tt_personal_messages', self.account.id),
-                               ('tt_discord', self.account.id)])
+                               ('tt_discord', self.account.id),
+                               ('tt_xsolla', self.account.id)])
 
 
 class RemoveDataTests(utils_testcase.TestCase):

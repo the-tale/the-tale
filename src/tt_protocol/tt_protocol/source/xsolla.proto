@@ -1,0 +1,35 @@
+syntax = "proto3";
+package xsolla;
+
+
+message AccountInfo {
+  uint64 id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+
+message GetTokenRequest {
+  AccountInfo account_info = 1;
+  string mode = 2;
+}
+
+
+message GetTokenResponse {
+  string token = 1;
+}
+
+
+message PaymentCallbackBody {
+  uint64 account_id = 1;
+  uint64 amount = 2;
+  string secret = 3;
+}
+
+
+message PaymentCallbackAnswer {
+}
+
+
+message DebugClearServiceRequest {}
+message DebugClearServiceResponse {}

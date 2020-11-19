@@ -19,11 +19,15 @@ settings = utils_app_settings.app_settings('PAYMENTS',
                                            MARKET_STATISTICS_PERIOD=30 * 24 * 60 * 60,
 
                                            TT_MARKET_ENTRY_POINT='http://localhost:10004/',
+                                           TT_XSOLLA_ENTRY_POINT='http://localhost:10024/',
 
                                            XSOLLA_ENABLED=False if not django_settings.TESTS_RUNNING else True,
+                                           XSOLLA_PAY_STATION_VERSION=2,
+                                           XSOLLA_SUPPORT='https://www.xsolla.com/modules/support/',
+                                           XSOLLA_DIALOG_WIDTH=900,
+                                           XSOLLA_DIALOG_HEIGHT=800,
 
-                                           XSOLLA_RUB_FOR_PREMIUM_CURRENCY=0.013,
-
+                                           # XSOLLA PAYSTATION 2 CONFIGS
                                            # default values was gotten from documentation
                                            XSOLLA_BASE_LINK='https://secure.xsolla.com/paystation2/',
                                            XSOLLA_PID=6,
@@ -33,11 +37,11 @@ settings = utils_app_settings.app_settings('PAYMENTS',
                                            XSOLLA_LOCAL='ru',
                                            XSOLLA_DESCRIPTION='покупка печенек',
                                            XSOLLA_ID_THEME='id_theme',
-                                           XSOLLA_SUPPORT='https://www.xsolla.com/modules/support/',
 
-                                           XSOLLA_DIALOG_WIDTH=900,
-                                           XSOLLA_DIALOG_HEIGHT=800,
+                                           # XSOLLA PAYSTATION 3 CONFIGS
+                                           XSOLLA_EMBED_SCRIPT_VERSION='1.2.2',
+                                           XSOLLA_SANDBOX=True,
 
                                            REFERRAL_BONUS=0.1,
 
-                                           MAX_PRICE=1000000)
+                                           MAX_PRICE=1000000,)

@@ -4,11 +4,28 @@
 
 {% block title %}Рынок | {{settings.PAGE_TITLE}}{% endblock %}
 
+{% set paystation_version = 3 if context.account.is_developer else value("the_tale.finances.shop.conf", "settings").XSOLLA_PAY_STATION_VERSION %}
+
 {% block head %}
 {{ super() }}
 
 {% if context.xsolla_enabled %}
+{% if paystation_version == 3 %}
+{% set xsolla_script_version = shop_settings().XSOLLA_EMBED_SCRIPT_VERSION %}
+<script src="https://cdn.xsolla.net/embed/paystation/{{xsolla_script_version}}/widget.min.js"></script>
+<script>
+    XPayStationWidget.init({
+        access_token: '{{xsolla_access_token(context.account)}}',
+        sandbox: {{shop_settings().XSOLLA_SANDBOX|json}},
+        lightbox: {
+            width: {{shop_settings().XSOLLA_DIALOG_WIDTH}},
+            height: {{shop_settings().XSOLLA_DIALOG_HEIGHT}}
+        }
+    });
+</script>
+{% else %}
 <script id="xsolla-paystation-lightbox" type="text/javascript" src="https://secure.xsolla.com/partners/embed/lightbox.js"></script>
+{% endif %}
 {% endif %}
 
 <script type="text/javascript">
@@ -152,13 +169,28 @@ jQuery(document).ready(function(e){
     <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;" rel="title" title="печеньки"></img>
 
     {% if context.xsolla_enabled %}
+
+    {% if paystation_version == 3 %}
+
+    <a data-xpaystation-widget-open
+       style="vertical-align: middle; font-size: 25pt; line-height: 18px; color: red; font-weight: bold; text-decoration: none;"
+       href="#"
+       rel="tooltip"
+       title="Приобрести ещё!"
+       class="pgf-xsolla-dialog-link">+</a>
+
+    {% else %}
+
     <a style="vertical-align: middle; font-size: 25pt; line-height: 18px; color: green; font-weight: bold; text-decoration: none;"
-             href="#"
-             id="paystation-link"
-             rel="tooltip"
-             title="Приобрести ещё!"
-             onclick="XPSLightBox.open('{{xsolla_paystaion_widget_link(context.account)|safe}}', {{shop_settings().XSOLLA_DIALOG_WIDTH}}, {{shop_settings().XSOLLA_DIALOG_HEIGHT}}); return false;"
-             class="pgf-xsolla-dialog-link">+</a>
+       href="#"
+       id="paystation-link"
+       rel="tooltip"
+       title="Приобрести ещё!"
+       onclick="XPSLightBox.open('{{xsolla_paystaion_widget_link(context.account)|safe}}', {{shop_settings().XSOLLA_DIALOG_WIDTH}}, {{shop_settings().XSOLLA_DIALOG_HEIGHT}}); return false;"
+       class="pgf-xsolla-dialog-link">+</a>
+
+    {% endif %}
+
     {% endif %}
 
   </small>

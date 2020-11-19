@@ -29,6 +29,7 @@
     with_items:
       - local.the-tale
       - /etc/letsencrypt/live/temp-informer.local.the-tale
+      - /etc/letsencrypt/live/xsolla.local.the-tale
 
   - name: copy certificates
     copy:

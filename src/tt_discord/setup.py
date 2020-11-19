@@ -12,7 +12,7 @@ setuptools.setup(
     author_email='a.eletsky@gmail.com',
     license='BSD',
     packages=setuptools.find_packages(),
-    install_requires=['discord.py==1.3.4'],
+    install_requires=['discord.py==1.5.1'],
     entry_points={'console_scripts': []},
     include_package_data=True,
     test_suite='tests')
