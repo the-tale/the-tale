@@ -78,6 +78,19 @@ class QuestForPersonTest(helpers.CardsTestMixin,
                 self.complete_quest(self.hero)
                 politic_power_storage.persons.sync(force=True)
 
+    def test_use__hero_killed(self):
+        self.hero.kill()
+
+        self.use_card(success=False,
+                      action=quests_relations.PERSON_ACTION.HELP)
+
+        politic_power_storage.persons.sync(force=True)
+
+        with self.check_not_changed(lambda: politic_power_storage.persons.outer_power(self.random_person.id)):
+            with self.check_not_changed(lambda: politic_power_storage.persons.inner_power(self.random_person.id)):
+                self.complete_quest(self.hero)
+                politic_power_storage.persons.sync(force=True)
+
     def test_wrong_person_id(self):
         self.use_card(success=False, available_for_auction=False, person_id=-1)
 
