@@ -328,10 +328,9 @@ class Huckster(Summand):
                                  abilities_levels.get(self.TYPE.metatype, 0))
 
         if modifier.is_SELL_PRICE:
-            # +1 for increase price on low levels
             return value + aprox(self.sell_bonus_left,
                                  self.sell_bonus_right,
-                                 abilities_levels.get(self.TYPE.metatype, 0)) + 1
+                                 abilities_levels.get(self.TYPE.metatype, 0))
 
         return value
 
@@ -392,8 +391,10 @@ def quest_money_reward(name, value, text, description, rarity_delta, border_left
 
 
 def huckster(name, value, text, description, rarity_delta, work_when_dead=False, can_be_freezed=True):
-    effect = Huckster(buy_bonus_left=heroes_abilities_nonbattle.HUCKSTER.BUY_BONUS[-1] / 2 / 5, buy_bonus_right=heroes_abilities_nonbattle.HUCKSTER.BUY_BONUS[-1] / 2,
-                      sell_bonus_left=heroes_abilities_nonbattle.HUCKSTER._sell_bonus(5) / 2 / 5, sell_bonus_right=heroes_abilities_nonbattle.HUCKSTER._sell_bonus(5) / 2)
+    effect = Huckster(buy_bonus_left=heroes_abilities_nonbattle.HUCKSTER.BUY_BONUS[-1] / 2 / 5,
+                      buy_bonus_right=heroes_abilities_nonbattle.HUCKSTER.BUY_BONUS[-1] / 2,
+                      sell_bonus_left=heroes_abilities_nonbattle.HUCKSTER._sell_bonus(5) / 2 / 5,
+                      sell_bonus_right=heroes_abilities_nonbattle.HUCKSTER._sell_bonus(5) / 2)
     return (name,
             value,
             text,
