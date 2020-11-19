@@ -64,7 +64,7 @@ KEYS = [('ACTION_BATTLEPVE1X1_ARTIFACT_BROKEN', 0, 'Дневник: Артефа
          [V.DATE, V.TIME, V.MOB, V.HERO, V.ARTIFACT], None),
 
         ('ACTION_BATTLEPVE1X1_PUT_LOOT_NO_SPACE', 14, 'Журнал: Нет места в рюкзаке', relations.LEXICON_GROUP.ACTION_BATTLEPVE1X1,
-         'Герой получил добычу, но в рюкзаке нет для неё места (добыча выкидывается).',
+         'Герой получил добычу, но в рюкзаке нет для неё места и она не лучше любого другого предмета в рюкзаке. Поэтому герой выкидывает добычу. Во фразе должно быть явное указание на то, что добыча хуже всего остального в рюкзаке.',
          [V.DATE, V.TIME, V.MOB, V.HERO, V.ARTIFACT], None),
 
         ('ACTION_BATTLEPVE1X1_START', 15, 'Журнал: Начало боя', relations.LEXICON_GROUP.ACTION_BATTLEPVE1X1,
@@ -84,7 +84,7 @@ KEYS = [('ACTION_BATTLEPVE1X1_ARTIFACT_BROKEN', 0, 'Дневник: Артефа
          [V.DATE, V.TIME, V.MOB, V.HERO], None),
 
         ('ACTION_BATTLEPVE1X1_REPLACE_LOOT_WHEN_NO_SPACE', 19, 'Журнал: герой заменил предмет в рюкзаке на добычу', relations.LEXICON_GROUP.ACTION_BATTLEPVE1X1,
-         'Герой получил добычу, но в рюкзаке нет для неё места. Поэтому герой выкидывает самый ненужный (дешёвый) предмет из рюкзака и кладёт туда добычу.',
+         'Герой получил добычу, но в рюкзаке нет для неё места и в рюкзаке есть минимум один предмет хуже добычи. Герой выкидывает самый ненужный предмет в рюкзаке, чтобы положить туда добычу.',
          [V.DATE, V.TIME, V.MOB, V.HERO, V.ARTIFACT, V.DROPPED_ARTIFACT], None),
 
         ]
