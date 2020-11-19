@@ -7,6 +7,7 @@
 {% import 'places/macros.html' as places_macros with context %}
 {% import 'persons/macros.html' as persons_macros with context %}
 {% import 'emissaries/macros.html' as emissaries_macros with context %}
+{% import 'politic_power/macros.html' as politic_power_macros with context %}
 
 {% block title %} {{ place.name }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация о городе «{{place.name}}»{% endblock %}
@@ -100,11 +101,29 @@
       </tr>
       <tr>
         <th>влияние от ближнего круга</th>
-        <td>{{places_power_storage.inner_power_fraction(place.id)|percents(2)}} — {{places_power_storage.inner_power(place.id)|int}}</td>
+        <td>
+          {{places_power_storage.inner_power_fraction(place.id)|percents(2)}}
+
+          {% set current_power = places_power_storage.inner_power(place.id) %}
+
+          —
+          {{current_power|int}}
+
+          {{politic_power_macros.power_reduce_help(tt_politic_power_constants.POWER_REDUCE_FRACTION, current_power)}}
+        </td>
       </tr>
       <tr>
         <th>влияние от народа</th>
-        <td>{{places_power_storage.outer_power_fraction(place.id)|percents(2)}} — {{places_power_storage.outer_power(place.id)|int}}</td>
+        <td>
+          {{places_power_storage.outer_power_fraction(place.id)|percents(2)}}
+
+          {% set current_power = places_power_storage.outer_power(place.id) %}
+
+          —
+          {{current_power|int}}
+
+          {{politic_power_macros.power_reduce_help(tt_politic_power_constants.POWER_REDUCE_FRACTION, current_power)}}
+        </td>
       </tr>
     </tbody>
   </table>

@@ -4,6 +4,7 @@
 {% import 'game/macros.html' as game_macros with context %}
 {% import 'persons/macros.html' as persons_macros with context %}
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
+{% import 'politic_power/macros.html' as politic_power_macros with context %}
 
 {% block title %} {{ person.name }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация о Мастере «{{person.name}}»{% endblock %}
@@ -45,11 +46,28 @@
       </tr>
       <tr>
         <th>влияние от ближнего круга</th>
-        <td>{{persons_power_storage.inner_power_fraction(person.id)|percents}} — {{persons_power_storage.inner_power(person.id)|int}}</td>
-      </tr>
+        <td>
+          {{persons_power_storage.inner_power_fraction(person.id)|percents}}
+
+          {% set current_power = persons_power_storage.inner_power(person.id) %}
+
+          —
+          {{current_power|int}}
+
+          {{politic_power_macros.power_reduce_help(tt_politic_power_constants.POWER_REDUCE_FRACTION, current_power)}}
+        </td>
       <tr>
         <th>влияние от народа</th>
-        <td>{{persons_power_storage.outer_power_fraction(person.id)|percents}} — {{persons_power_storage.outer_power(person.id)|int}}</td>
+        <td>
+          {{persons_power_storage.outer_power_fraction(person.id)|percents}}
+
+          {% set current_power = persons_power_storage.outer_power(person.id) %}
+
+          —
+          {{current_power|int}}
+
+          {{politic_power_macros.power_reduce_help(tt_politic_power_constants.POWER_REDUCE_FRACTION, current_power)}}
+        </td>
       </tr>
       <tr>
         <th>здание</th>
