@@ -221,7 +221,6 @@ class VARIABLE(rels_django.DjangoEnum):
                ('EXPERIENCE', 'experience', 'опыт', VARIABLE_TYPE.NUMBER),
                ('HEALTH', 'health', 'здоровье', VARIABLE_TYPE.NUMBER),
                ('MOB', 'mob', 'монстр', VARIABLE_TYPE.MOB),
-               ('ENERGY', 'energy', 'энергия', VARIABLE_TYPE.NUMBER),
                ('SELL_PRICE', 'sell_price', 'цена продажи', VARIABLE_TYPE.COINS),
                ('OLD_ARTIFACT', 'old_artifact', 'старый артефакт', VARIABLE_TYPE.ARTIFACT),
                ('PERSON', 'person', 'мастер', VARIABLE_TYPE.PERSON),
