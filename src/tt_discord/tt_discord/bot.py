@@ -129,11 +129,23 @@ DESCRIPTION = '''
 
 
 def construct(config):
+    import discord
 
     bot = Bot(command_prefix=PrefixExtractor(prefix=config['command_prefix']),
               description=DESCRIPTION.strip(),
               help_command=HelpCommand(),
-              command_not_found='Команда "{}" не найдена.')
+              command_not_found='Команда "{}" не найдена.',
+              intents=discord.Intents(guilds=True,
+                                      members=True,
+                                      bans=True,
+                                      emojis=True,
+                                      invites=True,
+                                      messages=True,
+                                      guild_messages=True,
+                                      dm_messages=True,
+                                      reactions=True,
+                                      guild_reactions=True,
+                                      dm_reactions=True))
 
     @bot.command(help='Прикрепляет ваш аккаунт в игре к аккаунту в Discord. Вводите эту команду так, как её отобразила игра.',
                  brief='Прикрепляет ваш аккаунт в игре к аккаунту в Discord.')
