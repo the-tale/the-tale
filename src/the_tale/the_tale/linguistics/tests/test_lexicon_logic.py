@@ -75,10 +75,42 @@ class LexiconLogicTests(utils_testcase.TestCase):
     def test_construct_coins(self):
         logic.sync_static_restrictions()
 
-        def expected(value, record):
+        def expected(value, *records):
             return (utg_constructors.construct_integer(value),
-                    [restrictions.get(record)])
+                    [restrictions.get(record) for record in records])
 
-        self.assertEqual(lexicon_relations._construct_coins(0), expected(0, game_relations.COINS_AMOUNT.NO_MONEY))
-        self.assertEqual(lexicon_relations._construct_coins(100), expected(100, game_relations.COINS_AMOUNT.SILVER_1))
-        self.assertEqual(lexicon_relations._construct_coins(10000000), expected(10000000, game_relations.COINS_AMOUNT.GOLD_1000))
+        def check(coins, expected_records):
+            value, records = lexicon_relations._construct_coins(coins)
+
+            self.assertEqual(value, utg_constructors.construct_integer(coins))
+
+            self.assertCountEqual(records, [restrictions.get(record) for record in expected_records])
+
+        check(0, [game_relations.COINS_AMOUNT.NO_MONEY,
+                  game_relations.COINS_AMOUNT.MAX_COPPER_10,
+                  game_relations.COINS_AMOUNT.MAX_SILVER_1,
+                  game_relations.COINS_AMOUNT.MAX_SILVER_10,
+                  game_relations.COINS_AMOUNT.MAX_GOLD_1,
+                  game_relations.COINS_AMOUNT.MAX_GOLD_10,
+                  game_relations.COINS_AMOUNT.MAX_GOLD_100,
+                  game_relations.COINS_AMOUNT.MAX_GOLD_1000,
+                  game_relations.COINS_AMOUNT.BETWEEN_0_10])
+
+        check(100, [game_relations.COINS_AMOUNT.MIN_COPPER_1,
+                    game_relations.COINS_AMOUNT.MIN_COPPER_10,
+                    game_relations.COINS_AMOUNT.MIN_SILVER_1,
+                    game_relations.COINS_AMOUNT.MAX_SILVER_10,
+                    game_relations.COINS_AMOUNT.MAX_GOLD_1,
+                    game_relations.COINS_AMOUNT.MAX_GOLD_10,
+                    game_relations.COINS_AMOUNT.MAX_GOLD_100,
+                    game_relations.COINS_AMOUNT.MAX_GOLD_1000,
+                    game_relations.COINS_AMOUNT.BETWEEN_100_1000])
+
+        check(10000000, [game_relations.COINS_AMOUNT.MIN_COPPER_1,
+                         game_relations.COINS_AMOUNT.MIN_COPPER_10,
+                         game_relations.COINS_AMOUNT.MIN_SILVER_1,
+                         game_relations.COINS_AMOUNT.MIN_SILVER_10,
+                         game_relations.COINS_AMOUNT.MIN_GOLD_1,
+                         game_relations.COINS_AMOUNT.MIN_GOLD_10,
+                         game_relations.COINS_AMOUNT.MIN_GOLD_100,
+                         game_relations.COINS_AMOUNT.MIN_GOLD_1000])

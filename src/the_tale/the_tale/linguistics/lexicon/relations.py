@@ -76,11 +76,15 @@ def _construct_coins(value):
 
     utg_name = utg_constructors.construct_integer(value)
 
+    restrictions = []
+
     # check from greater amount to zero
     for record in reversed(game_relations.COINS_AMOUNT.records):
-        if record.minumum <= value:
-            sum_restriction = linguistics_restrictions.get(record)
-            return (utg_name, [sum_restriction])
+        if record.minumum <= value < record.maximum:
+            print(record)
+            restrictions.append(linguistics_restrictions.get(record))
+
+    return (utg_name, restrictions)
 
 
 class VARIABLE_TYPE(rels_django.DjangoEnum):
