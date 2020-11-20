@@ -264,6 +264,6 @@ tt_RAM: 4096
 tt_postgresql_maintenance_work_mem: 32MB # 256MB
 tt_postgresql_max_worker_processes: 1    # ???? ~ cores number div 2? or just cores number
 
-tt_backups: None
+tt_backups: null
 
-tt_datadog_api_key: None
+tt_datadog_api_key: null
