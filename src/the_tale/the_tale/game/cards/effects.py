@@ -1032,6 +1032,10 @@ class AddClansPoints(InvertModificatorBase):
 
         clan_id = accounts_prototypes.AccountPrototype.get_by_id(task.hero_id).clan_id
 
+        if clan_id is None:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Вы должны быть членом гильдии, чтобы использовать эту карту.')
+
         restrictions = clans_tt_services.currencies.Restrictions(hard_minimum=0,
                                                                  hard_maximum=tt_clans_constants.MAXIMUM_POINTS)
 

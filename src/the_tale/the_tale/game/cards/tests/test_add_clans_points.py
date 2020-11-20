@@ -45,7 +45,19 @@ class AddClansPointsTestMixin(helpers.CardsTestMixin,
                           clans_relations.EVENT.MEMBER_ADD_POINTS.meta_object().tag,
                           self.account_1.meta_object().tag})
 
-    def test_error(self):
+    def test_player_not_in_clan(self):
+        clans_logic._remove_member(self.clan_1, self.account_1, force=True)
+
+        with self.check_not_changed(lambda: clans_tt_services.currencies.cmd_balance(self.clan_1.id,
+                                                                                     currency=clans_relations.CURRENCY.ACTION_POINTS)):
+            result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+
+        self.assertEqual((result, step, postsave_actions),
+                         (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED,
+                          game_postponed_tasks.ComplexChangeTask.STEP.ERROR,
+                          ()))
+
+    def test_maximum_points(self):
         clans_tt_services.currencies.cmd_change_balance(account_id=self.clan_1.id,
                                                         type='test',
                                                         amount=tt_clans_constants.MAXIMUM_POINTS,
