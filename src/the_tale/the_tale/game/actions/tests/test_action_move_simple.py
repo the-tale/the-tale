@@ -423,14 +423,16 @@ class MoveSimpleTests(clans_helpers.ClansTestsMixin,
         self.assertEqual(self.action_move.percents, 1)
         self.assertTrue(self.action_move.leader)
 
-    def test_teleport_by_clan(self):
+    def prepair_clan(self):
         self.prepair_forum_for_clans()
-
         clan = self.create_clan(self.account, uid=1)
-
         self.hero.clan_id = clan.id
-
         self.place_1.attrs.fast_transportation.add(clan.id)
+
+        return clan
+
+    def test_teleport_by_clan(self):
+        self.prepair_clan()
 
         path_2 = navigation_path.simple_path(from_x=self.place_2.x, from_y=self.place_2.y,
                                              to_x=self.place_3.x, to_y=self.place_3.y)
@@ -443,14 +445,46 @@ class MoveSimpleTests(clans_helpers.ClansTestsMixin,
         self.assertEqual(self.hero.position.place_id, self.place_2.id)
         self.assertTrue(self.hero.journal.messages[-1].key.is_ACTION_MOVE_SIMPLE_TO_TELEPORT_WITH_CLAN)
 
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
+    def test_teleport_by_clan__from_place_from_moving_state(self):
+        self.prepair_clan()
+
+        self.hero.journal.messages.clear()
+
+        self.assertEqual(self.action_move.state, self.action_move.STATE.MOVING)
+
+        self.storage.process_turn(continue_steps_if_needed=False)
+
+        self.assertEqual(self.action_move.state, self.action_move.STATE.MOVING)
+        self.assertNotEqual(self.action_move.percents, 1)
+        self.assertEqual(self.hero.position.place_id, None)
+
+        self.assertFalse(any(message.key.is_ACTION_MOVE_SIMPLE_TO_TELEPORT_WITH_CLAN
+                             for message in self.hero.journal.messages
+                             if message.key is not None))
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
+    def test_teleport_by_clan__from_place_from_in_city_state(self):
+        self.prepair_clan()
+
+        self.action_move.place_hero_in_current_place(create_action=False)
+
+        self.hero.journal.messages.clear()
+
+        self.assertEqual(self.action_move.state, self.action_move.STATE.IN_CITY)
+
+        self.storage.process_turn(continue_steps_if_needed=False)
+
+        self.assertEqual(self.action_move.state, self.action_move.STATE.IN_CITY)
+        self.assertEqual(self.action_move.percents, 1)
+        self.assertEqual(self.hero.position.place_id, self.place_2.id)
+
+        self.assertTrue(any(message.key.is_ACTION_MOVE_SIMPLE_TO_TELEPORT_WITH_CLAN
+                            for message in self.hero.journal.messages
+                            if message.key is not None))
+
     def test_teleport_by_clan__no_next_place(self):
-        self.prepair_forum_for_clans()
-
-        clan = self.create_clan(self.account, uid=1)
-
-        self.hero.clan_id = clan.id
-
-        self.place_1.attrs.fast_transportation.add(clan.id)
+        self.prepair_clan()
 
         path_2 = navigation_path.simple_path(from_x=self.place_1.x, from_y=self.place_1.y,
                                              to_x=self.place_1.x+1, to_y=self.place_1.y+1)
@@ -463,13 +497,7 @@ class MoveSimpleTests(clans_helpers.ClansTestsMixin,
         self.assertFalse(self.hero.journal.messages[-1].key.is_ACTION_MOVE_SIMPLE_TO_TELEPORT_WITH_CLAN)
 
     def test_try_to_teleport_by_clan(self):
-        self.prepair_forum_for_clans()
-
-        clan = self.create_clan(self.account, uid=1)
-
-        self.hero.clan_id = clan.id
-
-        self.place_1.attrs.fast_transportation.add(clan.id)
+        clan = self.prepair_clan()
 
         self.hero.actions.pop_action()
 
@@ -489,13 +517,7 @@ class MoveSimpleTests(clans_helpers.ClansTestsMixin,
         self.assertTrue(self.hero.journal.messages[-1].key.is_ACTION_MOVE_SIMPLE_TO_TELEPORT_WITH_CLAN)
 
     def test_teleport_by_clan__not_from_place(self):
-        self.prepair_forum_for_clans()
-
-        clan = self.create_clan(self.account, uid=1)
-
-        self.hero.clan_id = clan.id
-
-        self.place_1.attrs.fast_transportation.add(clan.id)
+        clan = self.prepair_clan()
 
         self.hero.actions.pop_action()
 
@@ -516,13 +538,7 @@ class MoveSimpleTests(clans_helpers.ClansTestsMixin,
         self.assertFalse(self.hero.journal.messages[-1].key.is_ACTION_MOVE_SIMPLE_TO_TELEPORT_WITH_CLAN)
 
     def test_teleport_by_clan__wrong_clan(self):
-        self.prepair_forum_for_clans()
-
-        clan = self.create_clan(self.account, uid=1)
-
-        self.hero.clan_id = clan.id
-
-        self.place_1.attrs.fast_transportation.add(clan.id+1)
+        clan = self.prepair_clan()
 
         self.hero.actions.pop_action()
 
