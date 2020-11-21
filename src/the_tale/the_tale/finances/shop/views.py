@@ -155,6 +155,10 @@ def create_sell_lot(context):
             raise utils_views.ViewError(code='too_large_price',
                                        message='Цена продажи больше чем максимально разрешённая ({max_price}) как минимум у одной карты'.format(max_price=conf.settings.MAX_PRICE))
 
+        if cards_logic.is_companion_card_rarity_mismatch(card):
+            raise utils_views.ViewError(code='companion_rarity_mismatch',
+                                       message='Редкость спутника, получаемого по карте, не совпадает с редкостью карты. Такие карты нельзя продавать. При объединиении карт, карта будет считаться за продаваемую на рынке.'.format(max_price=conf.settings.MAX_PRICE))
+
     logic.create_lots(owner_id=context.account.id,
                       cards=context.cards,
                       price=context.price)

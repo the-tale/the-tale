@@ -365,3 +365,58 @@ class StorageOperationsTest(utils_testcase.TestCase):
 
         self.assertFalse(logic.has_cards(888, [self.cards[1].uid]))
         self.assertTrue(logic.has_cards(888, [self.cards[0].uid, self.cards[3].uid]))
+
+
+class IsCompanionCardRarityMismatchTest(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+        game_logic.create_test_map()
+
+        tt_services.storage.cmd_debug_clear_service()
+
+        companions_models.CompanionRecord.objects.all().delete()
+        companions_storage.companions.refresh()
+
+        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.items():
+            companions_logic.create_random_companion_record('%s companion' % rarity,
+                                                            mode=companions_relations.MODE.AUTOMATIC,
+                                                            abilities=rarity_abilities,
+                                                            state=companions_relations.STATE.ENABLED)
+
+        self.companion_cards = [
+            types.CARD.GET_COMPANION_COMMON.effect.create_card(types.CARD.GET_COMPANION_COMMON, available_for_auction=True),
+            types.CARD.GET_COMPANION_UNCOMMON.effect.create_card(types.CARD.GET_COMPANION_UNCOMMON, available_for_auction=True),
+            types.CARD.GET_COMPANION_RARE.effect.create_card(types.CARD.GET_COMPANION_RARE, available_for_auction=True),
+            types.CARD.GET_COMPANION_EPIC.effect.create_card(types.CARD.GET_COMPANION_EPIC, available_for_auction=True),
+            types.CARD.GET_COMPANION_LEGENDARY.effect.create_card(types.CARD.GET_COMPANION_LEGENDARY, available_for_auction=True)]
+
+    def test_not_compaion_card(self):
+        card = objects.Card(types.CARD.ADD_GOLD_COMMON, uid=uuid.uuid4())
+        self.assertFalse(logic.is_companion_card_rarity_mismatch(card))
+
+    def test_normal_compaion_card(self):
+        for card_type in (types.CARD.GET_COMPANION_COMMON,
+                          types.CARD.GET_COMPANION_UNCOMMON,
+                          types.CARD.GET_COMPANION_RARE,
+                          types.CARD.GET_COMPANION_EPIC,
+                          types.CARD.GET_COMPANION_LEGENDARY):
+            card = card_type.effect.create_card(card_type, available_for_auction=True)
+            self.assertFalse(logic.is_companion_card_rarity_mismatch(card))
+
+    def test_broken_compaion_card(self):
+        for card_type in (types.CARD.GET_COMPANION_COMMON,
+                          types.CARD.GET_COMPANION_UNCOMMON,
+                          types.CARD.GET_COMPANION_RARE,
+                          types.CARD.GET_COMPANION_EPIC,
+                          types.CARD.GET_COMPANION_LEGENDARY):
+
+            wrong_rarities = [rarity
+                              for rarity in companions_relations.RARITY.records
+                              if rarity.card_rarity != card_type.rarity]
+
+            card = card_type.effect.create_card(card_type, available_for_auction=True)
+
+            with mock.patch('the_tale.game.companions.objects.CompanionRecord.rarity',
+                            mock.PropertyMock(return_value=random.choice(wrong_rarities))):
+                self.assertTrue(logic.is_companion_card_rarity_mismatch(card))

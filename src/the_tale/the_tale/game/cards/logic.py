@@ -214,3 +214,16 @@ def has_cards(owner_id, cards_ids):
 
 def get_card_probability(type):
     return type.rarity.priority / sum(card.rarity.priority for card in types.CARD.records)
+
+
+def is_companion_card_rarity_mismatch(card):
+    if card.type not in (types.CARD.GET_COMPANION_COMMON,
+                         types.CARD.GET_COMPANION_UNCOMMON,
+                         types.CARD.GET_COMPANION_RARE,
+                         types.CARD.GET_COMPANION_EPIC,
+                         types.CARD.GET_COMPANION_LEGENDARY):
+        return False
+
+    companion_id = card.data['companion_id']
+
+    return card.type.rarity != companions_storage.companions[companion_id].rarity.card_rarity
