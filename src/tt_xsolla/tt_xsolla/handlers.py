@@ -24,7 +24,7 @@ from . import operations
 # signature documentation
 # https://developers.xsolla.com/ru/api/v2/getting-started/#api_webhooks_signing_requests
 
-SIGNATURE_REGEX = re.compile(r'^\s*Signature:\s*([^\s]+)')
+SIGNATURE_REGEX = re.compile(r'^\s*Signature\s*([^\s]+)')
 
 
 def get_auth_signature(header):
