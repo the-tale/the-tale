@@ -13,6 +13,7 @@ class Command(utilities_base.Command):
     SKIP_IF_ALREADY_IN_QUEUE = False
 
     def _handle(self, *args, **options):
+        emissaries_logic.refresh_emissaries_attributes()
         emissaries_logic.sync_power()
         emissaries_logic.update_emissaries_ratings()
         emissaries_logic.process_events()

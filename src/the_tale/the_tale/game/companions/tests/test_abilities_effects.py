@@ -646,9 +646,11 @@ class HucksterTests(BaseEffectsTests):
     def test_effect(self):
         effect = effects.Huckster(buy_bonus_left=3, buy_bonus_right=3,
                                   sell_bonus_left=2, sell_bonus_right=2)
+
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.BUY_PRICE, 12), 15)
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.BUY_PRICE, MODIFIERS.SELL_PRICE)), 11), 11)
-        self.assertEqual(effect._modify_attribute({}, MODIFIERS.SELL_PRICE, 13), 16)
+
+        self.assertEqual(effect._modify_attribute({}, MODIFIERS.SELL_PRICE, 130), 132)
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.BUY_PRICE, MODIFIERS.SELL_PRICE)), 11), 11)
 
     def test_in_game(self):

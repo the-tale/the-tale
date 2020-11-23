@@ -1,5 +1,6 @@
 {% extends "guide/base.html" %}
 {% import 'guide/macros.html' as guide_macros with context %}
+{% import 'map/macros.html' as map_macros with context %}
 
 {% block title %}Города | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Описания городов и их функций в мире игры.{% endblock %}
@@ -137,6 +138,32 @@
   Могущественный город может иметь специализацию. Доступные специализации зависят от размера города и его Мастеров. Специализация принимается с помощью соответствующей <a href="{{url('guide:politics')}}">записи в Книге Судеб</a>. Посмотреть, насколько город продвинулся на пути к каждой из специализаций, можно на странице города. Чтобы можно было изменить специализацию города, необходимо довести её развитие до {{c.PLACE_TYPE_NECESSARY_BORDER}}. Если город уже имеет специализацию, и её развитие опустится ниже {{c.PLACE_TYPE_ENOUGH_BORDER}}, то она перестанет давать преимущества городу и будет снижать стабильность.
 </p>
 
+{% macro render_effects(effects) %}
+<p style='text-align: left;'>
+  <i>Бонусы и штрафы специализации</i>
+</p>
+
+{% if not effects %}
+<p>
+  Нет бонусов или штрафов.
+</p>
+{% else %}
+
+<ul class='unstyled' style='text-align: left; width: 400px;'>
+  {% for effect in  effects %}
+  <li>
+    {{effect.attribute.text}}
+
+    <span class='pull-right'
+          style='margin-right: 5em; color: {% if effect.value > 0 %}Chartreuse{% else %}red{% endif %};'>
+      {% if effect.value > 0 %}+{%- endif -%}{{effect.attribute.formatter(effect.value)}} {{effect.attribute.verbose_units}}
+    </span>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endmacro %}
+
 <table class="table table-striped table-bordered table-condensed">
   <caption><h4>Специализации городов</h4></caption>
   <thead>
@@ -144,7 +171,17 @@
   </thead>
   <tbody>
     {% for modifier in MODIFIERS%}
-    <tr><td width="150px;">{{modifier.text}}</td><td>{{modifier.description}}</td></tr>
+    <tr>
+      <td width="150px;">
+        <a href="javascript:void(0)"
+           class="info-link"
+           rel="tooltip"
+           title="{{render_effects(modifier.effects)}}">
+          {{modifier.text}}
+        </a>
+      </td>
+      <td>{{modifier.description}}</td>
+    </tr>
     {% endfor %}
   </tbody>
 </table>

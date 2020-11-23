@@ -5,8 +5,8 @@ tt_log_level: debug
 tt_site_workers: 1
 tt_install_nginx: True
 tt_install_postfix: True
-tt_python: python3.8
-tt_python_venv_command: /usr/bin/python3.8 -m venv
+tt_python: python3.9
+tt_python_venv_command: /usr/bin/python3.9 -m venv
 
 tt_postfix_virtual_aliases: {}
 
@@ -220,12 +220,50 @@ tt_services:
           report_url: "http://localhost:10014/data-protection-collect-data"
           deletion_url: "http://localhost:10014/data-protection-delete-data"
           secret: "test.secret"
+        tt_xsolla:
+          plugin: "tt_data_protector.plugins.internal"
+          report_url: "http://localhost:10024/data-protection-collect-data"
+          deletion_url: "http://localhost:10024/data-protection-delete-data"
+          secret: "test.secret"
+
+  tt_xsolla:
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_xsolla/"}
+    custom:
+      data_protector:
+        secret: "test.secret"
+
+      secret: "test.secret"
+
+      merchant_id: 100500
+      project_id: 1317
+      token_expiration_delta: 3600
+      api_key: "some-secret-key"
+      hooks_key: "another-secret-key"
+
+      sleep_payment_processing_error: 1
+      sleep_if_no_payments_interval: 1
+
+      run_callbacks: false
+      payment_url: "http://localhost:8000/bank/tt/process-payment"
+
+      client:
+        type: fake
+        expire_after: 86400
+
+      ui:
+        components:
+          virtual_currency:
+            custom_amount: true
+
 
 
 tt_RAM: 4096
 tt_postgresql_maintenance_work_mem: 32MB # 256MB
 tt_postgresql_max_worker_processes: 1    # ???? ~ cores number div 2? or just cores number
 
-tt_backups: None
+tt_backups: null
 
-tt_datadog_api_key: None
+tt_datadog_api_key: null

@@ -33,6 +33,20 @@ class StopIdlenessTests(helpers.CardsTestMixin, utils_testcase.TestCase):
         self.assertTrue(self.hero.actions.current_action.TYPE.is_QUEST)
         self.assertTrue(self.hero.quests.has_quests)
 
+    def test_idleness__dead_hero(self):
+
+        self.hero.kill()
+
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+
+        self.assertEqual((result, step, postsave_actions),
+                         (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED,
+                          game_postponed_tasks.ComplexChangeTask.STEP.ERROR,
+                          ()))
+
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_IDLENESS)
+        self.assertFalse(self.hero.quests.has_quests)
+
     def test_idleness__not_in_place(self):
         self.hero.position.set_position(0.5, 0.5)
 

@@ -1,0 +1,13 @@
+
+{% macro power_reduce_help(fraction, current) %}
+
+<i class="icon-info-sign"
+   rel="tooltip"
+   {% if current < 0 %}
+   title="Восстанавливает {{(1-fraction)|percents(2)}} своего текущего влияния в час.<br/>При следующем расчёте восстановит примерно {{(-current*(1-fraction))|int}} влияния."
+   {% else %}
+   title="Теряет {{(1-fraction)|percents(2)}} своего текущего влияния в час.<br/>При следующем расчёте потеряет примерно {{(current*(1-fraction))|int}} влияния."
+   {% endif %}
+   ></i>
+
+{% endmacro %}

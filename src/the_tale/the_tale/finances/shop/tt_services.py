@@ -39,3 +39,6 @@ class MarketClient(tt_api_market.Client):
 
 
 market = MarketClient(entry_point=conf.settings.TT_MARKET_ENTRY_POINT)
+
+
+xsolla = tt_api_xsolla.Client(entry_point=conf.settings.TT_XSOLLA_ENTRY_POINT)

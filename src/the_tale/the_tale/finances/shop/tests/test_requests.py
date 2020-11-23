@@ -250,6 +250,37 @@ class CreateSellLotTests(RequestesTestsBase, bank_helpers.BankTestsMixin):
         response = self.post_ajax_json(logic.create_sell_lot_url(), {'card': [self.cards[0].uid, self.cards[1].uid, wrong_card.uid], 'price': 100})
         self.check_ajax_error(response, 'not_available_for_auction')
 
+    def test_companion_card_rarity_mismatch(self):
+        cards_tt_services.storage.cmd_debug_clear_service()
+
+        companions_models.CompanionRecord.objects.all().delete()
+        companions_storage.companions.refresh()
+
+        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.items():
+            companions_logic.create_random_companion_record('%s companion' % rarity,
+                                                            mode=companions_relations.MODE.AUTOMATIC,
+                                                            abilities=rarity_abilities,
+                                                            state=companions_relations.STATE.ENABLED)
+
+        for card_type in (cards_types.CARD.GET_COMPANION_COMMON,
+                          cards_types.CARD.GET_COMPANION_UNCOMMON,
+                          cards_types.CARD.GET_COMPANION_RARE,
+                          cards_types.CARD.GET_COMPANION_EPIC,
+                          cards_types.CARD.GET_COMPANION_LEGENDARY):
+
+            wrong_rarities = [rarity
+                              for rarity in companions_relations.RARITY.records
+                              if rarity.card_rarity != card_type.rarity]
+
+            card = card_type.effect.create_card(card_type, available_for_auction=True)
+
+            cards_logic.change_cards(self.account.id, operation_type='#test', to_add=[card])
+
+            with mock.patch('the_tale.game.companions.objects.CompanionRecord.rarity',
+                            mock.PropertyMock(return_value=random.choice(wrong_rarities))):
+                response = self.post_ajax_json(logic.create_sell_lot_url(), {'card': [card.uid], 'price': 100})
+                self.check_ajax_error(response, 'companion_rarity_mismatch')
+
     def test_success(self):
         response = self.post_ajax_json(logic.create_sell_lot_url(), {'card': [self.cards[0].uid, self.cards[1].uid], 'price': 100})
         self.check_ajax_ok(response)

@@ -6,6 +6,7 @@
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
 {% import 'emissaries/macros.html' as emissaries_macros with context %}
 {% import 'places/macros.html' as places_macros with context %}
+{% import 'politic_power/macros.html' as politic_power_macros with context %}
 
 {% block title %} {{ emissary.name }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация об эмиссаре «{{emissary.name}}» гильдии «{{clan.name}}»{% endblock %}
@@ -50,7 +51,11 @@
       <th>Влияние</th>
       <td>
         {{emissary_power|int}}
+
         (<a href="{{ url('game:politic-power:history', emissary=emissary.id) }}">последнее влияние</a>)
+
+        {{politic_power_macros.power_reduce_help(tt_emissaries_constants.EMISSARY_POWER_REDUCE_FRACTION, emissary_power)}}
+
         {% if emissary.is_place_leader() %}
         {{emissaries_macros.leader_marker()}}
         {% endif %}

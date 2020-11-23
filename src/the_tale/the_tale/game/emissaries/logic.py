@@ -232,6 +232,13 @@ def damage_emissaries():
         damage_emissary(emissary_id)
 
 
+def refresh_emissaries_attributes():
+    for emissary in storage.emissaries.all():
+        emissary.refresh_attributes()
+
+    storage.emissaries.save_all()
+
+
 def kill_dead_emissaries():
     for emissary in storage.emissaries.all():
         if emissary.health <= 0:

@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-bank_client = bank.Client(entry_point=game_conf.settings.TT_ENERGY_ENTRY_POINT,
+bank_client = bank.Client(entry_point=clans_conf.settings.TT_CLANS_POINTS_ENTRY_POINT,
                           transaction_lifetime=60)
 
 

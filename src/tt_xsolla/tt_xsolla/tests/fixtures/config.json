@@ -1,0 +1,39 @@
+{
+    "database": {"name": "tt_xsolla",
+                 "user": "tt_xsolla",
+                 "password": "tt_xsolla",
+                 "host": "localhost",
+                 "port": 5432,
+                 "minsize": 10,
+                 "maxsize": 10,
+                 "timeout": 60 },
+
+    "log": {"level": "critical"},
+
+    "custom": {
+        "secret": "test.secret",
+
+        "data_protector": {
+            "secret": "test.secret"
+        },
+
+	"merchant_id": "100500",
+	"project_id": "1317",
+        "token_expiration_delta": 3600,
+        "api_key": "some-secret-key",
+        "hooks_key": "another-secret-key",
+
+        "sleep_payment_processing_error": 1,
+        "sleep_if_no_payments_interval": 1,
+
+        "run_callbacks": false,
+        "payment_url": "http://localhost:8000/bank/tt/process-payment",
+
+        "client": {
+            "type": "fake",
+            "expire_after": 86400
+        },
+
+        "ui": {"components": {"virtual_currency": {"custom_amount": true}}}
+    }
+}

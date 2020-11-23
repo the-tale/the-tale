@@ -40,7 +40,7 @@
         name: "{{item.name}}"
         virtualenv: "/home/{{user}}/current/venv"
         virtualenv_command: "{{tt_python_venv_command}}"
-        extra_args: "--upgrade"
+        extra_args: "--upgrade --timeout=60"
       with_items:
         - {name: "pip"}
         - {name: "ipython"}
@@ -51,7 +51,7 @@
         virtualenv: "/home/{{user}}/current/venv"
         virtualenv_command: "{{tt_python_venv_command}}"
         editable: "{{item.editable}}"
-        extra_args: "{{item.extra}}"
+        extra_args: "--timeout=60 {{item.extra}}"
       with_items: "{{packages}}"
 
     - name: install packages for test environment
@@ -59,6 +59,7 @@
         name: "{{item.name}}"
         virtualenv: "/home/{{user}}/current/venv"
         virtualenv_command: "{{tt_python_venv_command}}"
+        extra_args: "--timeout=60"
       with_items:
         - {name: django-test-without-migrations}
       when: tt_test_enviroment

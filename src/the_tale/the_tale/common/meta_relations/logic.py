@@ -99,7 +99,6 @@ def get_objects_by_tags(tags):
     objects = {}
 
     for type_id, ids in ids_by_types.items():
-        # print(_TYPES[type_id])
         for object in _TYPES[type_id].create_from_ids(ids):
             objects[object.tag] = object
 

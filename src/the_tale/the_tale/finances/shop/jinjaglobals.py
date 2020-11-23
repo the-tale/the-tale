@@ -10,6 +10,11 @@ def shop_settings():
 
 
 @utils_jinja2.jinjaglobal
+def xsolla_access_token(account):
+    return tt_services.xsolla.cmd_get_token(account, sandbox=conf.settings.XSOLLA_SANDBOX)
+
+
+@utils_jinja2.jinjaglobal
 def create_sell_lot_url():
     return utils_jinja2.Markup(logic.create_sell_lot_url())
 

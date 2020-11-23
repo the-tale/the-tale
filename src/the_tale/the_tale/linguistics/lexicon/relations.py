@@ -76,11 +76,14 @@ def _construct_coins(value):
 
     utg_name = utg_constructors.construct_integer(value)
 
+    restrictions = []
+
     # check from greater amount to zero
     for record in reversed(game_relations.COINS_AMOUNT.records):
-        if record.minumum <= value:
-            sum_restriction = linguistics_restrictions.get(record)
-            return (utg_name, [sum_restriction])
+        if record.minumum <= value < record.maximum:
+            restrictions.append(linguistics_restrictions.get(record))
+
+    return (utg_name, restrictions)
 
 
 class VARIABLE_TYPE(rels_django.DjangoEnum):
@@ -221,7 +224,6 @@ class VARIABLE(rels_django.DjangoEnum):
                ('EXPERIENCE', 'experience', 'опыт', VARIABLE_TYPE.NUMBER),
                ('HEALTH', 'health', 'здоровье', VARIABLE_TYPE.NUMBER),
                ('MOB', 'mob', 'монстр', VARIABLE_TYPE.MOB),
-               ('ENERGY', 'energy', 'энергия', VARIABLE_TYPE.NUMBER),
                ('SELL_PRICE', 'sell_price', 'цена продажи', VARIABLE_TYPE.COINS),
                ('OLD_ARTIFACT', 'old_artifact', 'старый артефакт', VARIABLE_TYPE.ARTIFACT),
                ('PERSON', 'person', 'мастер', VARIABLE_TYPE.PERSON),

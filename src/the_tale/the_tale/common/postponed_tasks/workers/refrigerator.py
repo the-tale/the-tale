@@ -10,7 +10,6 @@ class RefrigeratorException(Exception):
 
 class Worker(utils_workers.BaseWorker):
     NO_CMD_TIMEOUT = 0.1
-    REFRESH_SETTINGS = False
 
     def clean_queues(self):
         super(Worker, self).clean_queues()

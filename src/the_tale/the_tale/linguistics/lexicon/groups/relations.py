@@ -61,7 +61,7 @@ class LEXICON_GROUP(rels_django.DjangoEnum):
 
                ('CARDS', 12, 'Карты Судьбы', 120000,
                 'Описание эффектов при использовании некоторых Карт Судьбы',
-                {V.HERO: 'герой', V.HERO__WEAPON: 'оружие героя', V.ENERGY: 'энергия', V.COINS: 'количество монет', V.EXPERIENCE: 'количество опыта', V.HEALTH: 'количество здоровья', V.MOB: 'монстр', V.MOB__WEAPON: 'оружие монстра', V.COMPANION: 'спутник', V.COMPANION__WEAPON: 'оружие спутника', V.DAMAGE: 'урон', V.DATE: 'дата', V.TIME: 'время'}),
+                {V.HERO: 'герой', V.HERO__WEAPON: 'оружие героя', V.COINS: 'количество монет', V.EXPERIENCE: 'количество опыта', V.HEALTH: 'количество здоровья', V.MOB: 'монстр', V.MOB__WEAPON: 'оружие монстра', V.COMPANION: 'спутник', V.COMPANION__WEAPON: 'оружие спутника', V.DAMAGE: 'урон', V.DATE: 'дата', V.TIME: 'время'}),
 
                ('HERO_ABILITY', 14, 'Способности', 140000,
                 'Описание применения способностей героем (или монстром)',

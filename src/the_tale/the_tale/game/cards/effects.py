@@ -162,7 +162,7 @@ class AddGold(ModificatorBase):
         return 'Герой получает %(gold)d монет.' % {'gold': self.upper_modificator}
 
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
-        task.hero.add_message('cards_money', hero=task.hero, coins=self.upper_modificator, energy=0)
+        task.hero.add_message('cards_money', hero=task.hero, coins=self.upper_modificator)
         task.hero.change_money(heroes_relations.MONEY_SOURCE.EARNED_FROM_HELP, self.upper_modificator)
         return task.logic_result()
 
@@ -513,8 +513,7 @@ class InstantMonsterKill(BaseEffect):
         task.hero.add_message('cards_lightning',
                               hero=task.hero,
                               damage=task.hero.actions.current_action.mob.health,
-                              mob=task.hero.actions.current_action.mob,
-                              energy=0)
+                              mob=task.hero.actions.current_action.mob)
 
         task.hero.actions.current_action.bit_mob(task.hero.actions.current_action.mob.max_health)
 
@@ -603,7 +602,7 @@ class ShortTeleport(BaseEffect):
         if not task.hero.actions.current_action.teleport_to_place(create_inplace_action=True):
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Телепортировать героя не получилось.')
 
-        task.hero.add_message('cards_shortteleport', hero=task.hero, energy=0)
+        task.hero.add_message('cards_shortteleport', hero=task.hero)
 
         return task.logic_result()
 
@@ -624,7 +623,7 @@ class LongTeleport(BaseEffect):
         if not task.hero.actions.current_action.teleport_to_end():
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Телепортировать героя не получилось.')
 
-        task.hero.add_message('cards_longteleport', hero=task.hero, energy=0)
+        task.hero.add_message('cards_longteleport', hero=task.hero)
 
         return task.logic_result()
 
@@ -819,7 +818,7 @@ class HealCompanion(ModificatorBase):
 
         health = task.hero.companion.heal(self.modificator)
 
-        task.hero.add_message('cards_heal_companion', hero=task.hero, companion=task.hero.companion, health=health, energy=0)
+        task.hero.add_message('cards_heal_companion', hero=task.hero, companion=task.hero.companion, health=health)
 
         return task.logic_result(message='Спутник вылечен на %(health)s HP.' % {'health': health})
 
@@ -1033,6 +1032,10 @@ class AddClansPoints(InvertModificatorBase):
 
         clan_id = accounts_prototypes.AccountPrototype.get_by_id(task.hero_id).clan_id
 
+        if clan_id is None:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Вы должны быть членом гильдии, чтобы использовать эту карту.')
+
         restrictions = clans_tt_services.currencies.Restrictions(hard_minimum=0,
                                                                  hard_maximum=tt_clans_constants.MAXIMUM_POINTS)
 
@@ -1229,6 +1232,11 @@ class StopIdleness(BaseEffect):
     DESCRIPTION = 'Заставляет героя взять задание, если тот бездельничает.'
 
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
+
+        if not task.hero.is_alive:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Герой может взять задание только когда жив.')
+
         if not task.hero.actions.current_action.TYPE.is_IDLENESS:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                      message='Герой может взять задание только когда он бездельничает.')
@@ -1269,6 +1277,10 @@ class QuestForPlace(_QuestMixin, BaseEffect):
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                      message='Город не найден.')
 
+        if not task.hero.is_alive:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Карту нельзя использовать, когда герой воскрешается.')
+
         if task.hero.actions.has_proxy_actions():
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                      message='Карту нельзя использовать, когда герой сражается на Арене.')
@@ -1304,6 +1316,10 @@ class QuestForPerson(_QuestMixin, BaseEffect):
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                      message='Мастер не найден.')
 
+        if not task.hero.is_alive:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Карту нельзя использовать, когда герой воскрешается.')
+
         if task.hero.actions.has_proxy_actions():
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                      message='Карту нельзя использовать, когда герой сражается на Арене.')
@@ -1328,11 +1344,11 @@ class Regeneration(BaseEffect):
 
         if not task.hero.is_alive:
             task.hero.resurrect()
-            task.hero.add_message('cards_resurrect', hero=task.hero, energy=0)
+            task.hero.add_message('cards_resurrect', hero=task.hero)
         else:
             heal_amount = task.hero.max_health - task.hero.health
             heal_amount = task.hero.heal(heal_amount)
-            task.hero.add_message('cards_healhero', hero=task.hero, health=heal_amount, energy=0)
+            task.hero.add_message('cards_healhero', hero=task.hero, health=heal_amount)
 
         storage.process_turn__single_hero(hero=task.hero,
                                           logger=None,

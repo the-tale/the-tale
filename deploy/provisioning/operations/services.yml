@@ -250,6 +250,17 @@
     collect_static: false
 
 
+- name: install TT xsolla hooks
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT xsolla hooks
+    user: tt_xsolla
+    packages: "{{tt_services['tt_xsolla']['packages']}}"
+    django_settings: tt_xsolla.settings
+    port: 10024
+    collect_static: false
+
+
 - name: install services cron files
   import_playbook: ../tasks/tt_cron.yml
   when: not tt_test_enviroment

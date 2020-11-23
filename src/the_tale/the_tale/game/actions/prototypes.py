@@ -430,15 +430,23 @@ class ActionIdlenessPrototype(ActionBase):
         if self.hero.clan_id is None:
             return None
 
+        candidates = set()
+
         for place in places_storage.places.all():
 
             if self.hero.clan_id not in place.attrs.task_board:
                 continue
 
-            if self.hero.position.place_id in {p.id for p in places_logic.task_board_places(place)}:
-                return place
+            for nearest_place in places_logic.task_board_places(place):
+                if self.hero.position.place_id == nearest_place.id:
+                    candidates.add(place.id)
+                    break
 
-        return None
+        if not candidates:
+            return None
+
+        # может быть несколько городов с нужным эффектом, выбираем случайный
+        return random.choice(tuple(candidates))
 
     def process(self):
 
@@ -482,14 +490,14 @@ class ActionIdlenessPrototype(ActionBase):
 
             self.percents += 1.0 / self.hero.idle_length
 
-            task_board_place = self.find_task_board_place()
+            task_board_place_id = self.find_task_board_place()
 
-            if task_board_place is not None:
+            if task_board_place_id is not None:
                 self.hero.add_message('action_idleness_task_board', hero=self.hero, clan=clans_storage.infos[self.hero.clan_id])
                 self.percents = 1.0
 
                 emissaries_logic.withdraw_event_points(clan_id=self.hero.clan_id,
-                                                       place_id=task_board_place.id,
+                                                       place_id=task_board_place_id,
                                                        currency=emissaries_relations.EVENT_CURRENCY.TASK_BOARD)
 
             if self.percents >= 1.0:
@@ -957,7 +965,7 @@ class ActionInPlacePrototype(ActionBase):
         if hero.position.place.attrs.tax > 0:
 
             if hero.money > 0:
-                tax = int(hero.money * hero.position.place.attrs.tax)
+                tax = max(1, int(hero.money * hero.position.place.attrs.tax))
                 hero.change_money(heroes_relations.MONEY_SOURCE.SPEND_FOR_TAX, -tax)
                 hero.add_message('action_inplace_tax', hero=hero, place=hero.position.place, coins=tax, diary=True)
             else:
@@ -1568,13 +1576,7 @@ class ActionMoveSimplePrototype(ActionBase):
 
         hero.position.move_out_place()
 
-        teleported = False
-
-        if leave_place:
-            teleported = prototype.try_to_teleport_with_clan()
-
-        if not teleported:
-            teleported = prototype.try_to_teleport_with_companion()
+        prototype.try_to_teleport(leave_place)
 
         return prototype
 
@@ -1745,6 +1747,8 @@ class ActionMoveSimplePrototype(ActionBase):
                                   current_destination=current_destination)
             return True
 
+        return False
+
     def place_hero_in_current_place(self, create_action=True):
         self.hero.position.set_place(self.hero.position.cell().place())
         self.state = self.STATE.IN_CITY
@@ -1899,6 +1903,13 @@ class ActionMoveSimplePrototype(ActionBase):
                                                currency=emissaries_relations.EVENT_CURRENCY.FAST_TRANSPORTATION)
         return True
 
+    def try_to_teleport(self, leave_place):
+        if leave_place and self.try_to_teleport_with_clan():
+            return True
+
+        if self.try_to_teleport_with_companion():
+            return True
+
     def process(self):
         if self.preprocess():
             return
@@ -1910,7 +1921,7 @@ class ActionMoveSimplePrototype(ActionBase):
             self.state = self.STATE.MOVING
 
         if self.state == self.STATE.IN_CITY:
-            if self.try_to_teleport_with_companion():
+            if self.try_to_teleport(leave_place=True):
                 return
 
             self.state = self.STATE.MOVING

@@ -39,8 +39,6 @@ settings = utils_app_settings.app_settings('GAME',
 
                                            ENERGY_TRANSACTION_LIFETIME=24 * 60 * 60,
 
-                                           TT_ENERGY_ENTRY_POINT='http://localhost:10005/',
-
                                            TT_IMPACTS_PERSONAL_ENTRY_POINT='http://localhost:10007/',
                                            TT_IMPACTS_CROWD_ENTRY_POINT='http://localhost:10008/',
                                            TT_IMPACTS_JOB_ENTRY_POINT='http://localhost:10009/',

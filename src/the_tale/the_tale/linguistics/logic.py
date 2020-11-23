@@ -258,7 +258,7 @@ def ui_format(text):
     (+|-){variable}#{type}
     {variable}#N
 
-    types are: HP — hit points, EXP — experience, G — gold, EN — energy, N — name
+    types are: HP — hit points, EXP — experience, G — gold, N — name
     '''
 
     # ⛁ old money
