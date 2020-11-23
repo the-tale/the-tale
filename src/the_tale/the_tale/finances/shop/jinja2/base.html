@@ -67,7 +67,7 @@ jQuery(document).ready(function(e){
         {% if purchase.uid == 'subscription-15' %}{% set icon_style = 'no-quest' %}{% endif %}
         {% if purchase.uid == 'subscription-30' %}{% set icon_style = 'help_friend' %}{% endif %}
         {% if purchase.uid == 'subscription-90' %}{% set icon_style = 'help' %}{% endif %}
-        {% if purchase.uid == 'subscription-infinit' %}{% set icon_style = 'spying' %}{% endif %}
+        {% if purchase.uid == 'subscription-infinit' %}{% set icon_style = 'hometown' %}{% endif %}
         <div class="quest-icon {{icon_style}}" style="float: none; margin: auto;"></div>
         <h4>{{purchase.name}}</h4>
         <a class="btn pgf-forms-post-simple {% if purchase.cost > account.bank_account.amount or not is_purchasable %}disabled pgf-disabled{% else %}btn-success{% endif %}"
