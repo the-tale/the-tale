@@ -123,8 +123,10 @@ class RealClient:
                          'country': {'allow_modify': True},
                          'is_legal': False},
                 'settings': {'project_id': int(self.project_id),
-                             'mode': self.mode,
                              'ui': self.ui}}
+
+        if self.mode == 'sandbox':
+            data['settings']['mode'] = self.mode
 
         answer = await self._post(url, data, logger)
 
