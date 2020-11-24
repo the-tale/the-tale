@@ -1892,6 +1892,9 @@ class ActionMoveSimplePrototype(ActionBase):
 
         start_place_id = self.hero.position.place_id
 
+        if start_place_id is None:
+            return False
+
         if self.hero.clan_id not in self.hero.position.place.attrs.fast_transportation:
             return False
 
