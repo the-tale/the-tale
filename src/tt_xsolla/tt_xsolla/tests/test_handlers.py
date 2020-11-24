@@ -122,16 +122,17 @@ class XSollaBase(helpers.BaseTests):
         h.update(content.encode('utf-8'))
         h.update(helpers.get_config()['custom']['hooks_key'].encode('utf-8'))
 
-        return {'Authorization': f'Signature: {h.hexdigest()}'}
+        return {'Authorization': f'Signature {h.hexdigest()}'}
 
-    async def check_xsolla_error(self, response, error, status_code=400):
+    async def check_xsolla_error(self, response, error, details, status_code=400):
         self.assertEqual(response.status, status_code)
 
         content = await response.content.read()
 
         data = s11n.from_json(content)
 
-        self.assertEqual(data['code'], error)
+        self.assertEqual(data['error']['code'], error)
+        self.assertEqual(data['error']['details']['code'], details)
 
     async def check_xsolla_ok(self, response):
         self.assertEqual(response.status, 204)
@@ -177,7 +178,7 @@ class XSollaHookTests(XSollaBase):
         response = await self.client.post('/xsolla-hook',
                                           data=s11n.to_json(request_data))
 
-        await self.check_xsolla_error(response, 'xsolla.hook.signature_has_not_found')
+        await self.check_xsolla_error(response, 'INVALID_SIGNATURE', 'xsolla.hook.signature_has_not_found')
 
     @test_utils.unittest_run_loop
     async def test_unexpected_signature(self):
@@ -187,7 +188,7 @@ class XSollaHookTests(XSollaBase):
                                           data=s11n.to_json(request_data),
                                           headers={'Authorization': 'Signature: blablabla'})
 
-        await self.check_xsolla_error(response, 'xsolla.hook.unexpected_signature')
+        await self.check_xsolla_error(response, 'INVALID_SIGNATURE', 'xsolla.hook.unexpected_signature')
 
     @test_utils.unittest_run_loop
     async def test_no_settings(self):
@@ -197,7 +198,7 @@ class XSollaHookTests(XSollaBase):
 
         response = await self.request_hook(request_data)
 
-        await self.check_xsolla_error(response, 'xsolla.hook.no_settings_info')
+        await self.check_xsolla_error(response, 'INVALID_PARAMETER', 'xsolla.hook.no_settings_info')
 
     @test_utils.unittest_run_loop
     async def test_no_merchant_id(self):
@@ -207,7 +208,7 @@ class XSollaHookTests(XSollaBase):
 
         response = await self.request_hook(request_data)
 
-        await self.check_xsolla_error(response, 'xsolla.hook.wrong_merchant_id')
+        await self.check_xsolla_error(response, 'INVALID_PARAMETER', 'xsolla.hook.wrong_merchant_id')
 
     @test_utils.unittest_run_loop
     async def test_no_project_id(self):
@@ -217,7 +218,7 @@ class XSollaHookTests(XSollaBase):
 
         response = await self.request_hook(request_data)
 
-        await self.check_xsolla_error(response, 'xsolla.hook.wrong_project_id')
+        await self.check_xsolla_error(response, 'INVALID_PARAMETER', 'xsolla.hook.wrong_project_id')
 
     @test_utils.unittest_run_loop
     async def test_unsupported_notification_type(self):
@@ -225,7 +226,7 @@ class XSollaHookTests(XSollaBase):
 
         response = await self.request_hook(request_data)
 
-        await self.check_xsolla_error(response, 'xsolla.hook.unknown_notification_type')
+        await self.check_xsolla_error(response, 'INVALID_PARAMETER', 'xsolla.hook.unknown_notification_type')
 
     @test_utils.unittest_run_loop
     async def test_unknown_error(self):
@@ -237,7 +238,7 @@ class XSollaHookTests(XSollaBase):
         with mock.patch('tt_xsolla.logic.validate_user', validate_user):
             response = await self.request_hook(request_data)
 
-        await self.check_xsolla_error(response, 'api.unknown_error', status_code=500)
+        await self.check_xsolla_error(response, 'api.unknown_error', 'api.unknown_error', status_code=500)
 
     @test_utils.unittest_run_loop
     async def test_success(self):
@@ -264,7 +265,21 @@ class XSollaHookUserValidationTests(XSollaBase):
 
         response = await self.request_hook(request_data)
 
-        await self.check_xsolla_error(response, 'xsolla.hook.user_validation.account_not_found', status_code=400)
+        await self.check_xsolla_error(response,
+                                      'INVALID_USER',
+                                      'xsolla.hook.user_validation.account_not_found',
+                                      status_code=400)
+
+    @test_utils.unittest_run_loop
+    async def test_wrong_account_id_format(self):
+        request_data = await self.user_validateion_request(account_id='wrong_id', save_info=False)
+
+        response = await self.request_hook(request_data)
+
+        await self.check_xsolla_error(response,
+                                      'INVALID_USER',
+                                      'xsolla.hook.user_validation.wrong_account_id_format',
+                                      status_code=400)
 
 
 class XSollaHookPaymentTests(XSollaBase):
@@ -301,7 +316,10 @@ class XSollaHookPaymentTests(XSollaBase):
         request_data = await self.payment_request(account_id=2, transaction_id=1)
         response = await self.request_hook(request_data)
 
-        await self.check_xsolla_error(response, 'xsolla.hook.payment.can_not_register_invoice', status_code=400)
+        await self.check_xsolla_error(response,
+                                      'xsolla.hook.payment.can_not_register_invoice',
+                                      'xsolla.hook.payment.can_not_register_invoice',
+                                      status_code=400)
 
 
 class XSollaHookRefundTests(XSollaBase):

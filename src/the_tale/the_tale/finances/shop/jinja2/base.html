@@ -22,6 +22,11 @@
             height: {{shop_settings().XSOLLA_DIALOG_HEIGHT}}
         }
     });
+
+    XPayStationWidget.on(XPayStationWidget.eventTypes.STATUS_DONE,
+                         function (event, data) {
+                             location.reload();
+                         });
 </script>
 {% else %}
 <script id="xsolla-paystation-lightbox" type="text/javascript" src="https://secure.xsolla.com/partners/embed/lightbox.js"></script>

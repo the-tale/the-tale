@@ -114,16 +114,10 @@ class ValidateUserTests(helpers.BaseTests):
         info = helpers.create_account_info(1)
         await operations.update_account_info(db.sql, info)
 
-        is_valid = await logic.validate_user(info.id, info.email, info.name)
+        is_valid = await logic.validate_user(info.id)
         self.assertTrue(is_valid)
 
-        is_valid = await logic.validate_user(info.id+1, info.email, info.name)
-        self.assertFalse(is_valid)
-
-        is_valid = await logic.validate_user(info.id, info.email+'1', info.name)
-        self.assertFalse(is_valid)
-
-        is_valid = await logic.validate_user(info.id, info.email, info.name+'1')
+        is_valid = await logic.validate_user(info.id+1)
         self.assertFalse(is_valid)
 
     @test_utils.unittest_run_loop
@@ -133,7 +127,7 @@ class ValidateUserTests(helpers.BaseTests):
 
         await logic.delete_account_data(info.id)
 
-        is_valid = await logic.validate_user(info.id, info.email, info.name)
+        is_valid = await logic.validate_user(info.id)
         self.assertFalse(is_valid)
 
     @test_utils.unittest_run_loop
@@ -144,17 +138,11 @@ class ValidateUserTests(helpers.BaseTests):
         await operations.update_account_info(db.sql, info_1)
         await operations.update_account_info(db.sql, info_2)
 
-        is_valid = await logic.validate_user(info_1.id, info_1.email, info_1.name)
+        is_valid = await logic.validate_user(info_1.id)
         self.assertTrue(is_valid)
 
-        is_valid = await logic.validate_user(info_2.id, info_1.email, info_1.name)
-        self.assertFalse(is_valid)
-
-        is_valid = await logic.validate_user(info_1.id, info_2.email, info_1.name)
-        self.assertFalse(is_valid)
-
-        is_valid = await logic.validate_user(info_1.id, info_1.email, info_2.name)
-        self.assertFalse(is_valid)
+        is_valid = await logic.validate_user(info_2.id)
+        self.assertTrue(is_valid)
 
 
 class RegisterInvoiceTests(helpers.BaseTests):
@@ -163,7 +151,9 @@ class RegisterInvoiceTests(helpers.BaseTests):
     async def test_no_account_info(self):
         invoice = helpers.create_invoice(1, 666)
 
-        result = await logic.register_invoice(invoice)
+        with self.check_event_setupped(False):
+            result = await logic.register_invoice(invoice)
+
         self.assertTrue(result.is_error('NoAccountForInvoice'))
 
         stored_invoice = await operations.load_cancelation(1)
@@ -176,7 +166,8 @@ class RegisterInvoiceTests(helpers.BaseTests):
 
         invoice = helpers.create_invoice(info.id, 666)
 
-        result = await logic.register_invoice(invoice)
+        with self.check_event_setupped(True):
+            result = await logic.register_invoice(invoice)
 
         self.assertTrue(result.is_ok())
 
@@ -193,16 +184,24 @@ class RegisterInvoiceTests(helpers.BaseTests):
 
         invoice = helpers.create_invoice(1, info_1.id)
 
-        result = await logic.register_invoice(invoice)
+        with self.check_event_setupped(True):
+            result = await logic.register_invoice(invoice)
+
         self.assertTrue(result.is_ok())
 
-        result = await logic.register_invoice(invoice)
+        with self.check_event_setupped(True):
+            result = await logic.register_invoice(invoice)
+
         self.assertTrue(result.is_ok())
 
-        result = await logic.register_invoice(dataclasses.replace(invoice, account_id=info_2.id))
+        with self.check_event_setupped(False):
+            result = await logic.register_invoice(dataclasses.replace(invoice, account_id=info_2.id))
+
         self.assertTrue(result.is_error('InvoiceDataDoesNotEqualToStored'))
 
-        result = await logic.register_invoice(dataclasses.replace(invoice, purchased_amount=invoice.purchased_amount+1))
+        with self.check_event_setupped(False):
+            result = await logic.register_invoice(dataclasses.replace(invoice, purchased_amount=invoice.purchased_amount+1))
+
         self.assertTrue(result.is_error('InvoiceDataDoesNotEqualToStored'))
 
         stored_invoice = await operations.load_invoice(invoice.xsolla_id)

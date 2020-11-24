@@ -51,30 +51,35 @@ async def xsolla_extractor(request, config, logger):
     request_signature = get_auth_signature(auth_header)
 
     if request_signature is None:
-        raise tt_exceptions.ApiError(code='xsolla.hook.signature_has_not_found',
+        raise tt_exceptions.ApiError(code='INVALID_SIGNATURE',
                                      message='signature has not found in headers',
-                                     details={'AuthorisationHeader': auth_header})
+                                     details={'AuthorisationHeader': auth_header,
+                                              'code': 'xsolla.hook.signature_has_not_found'})
 
     expected_signature = get_expected_auth_signature(content, config['custom']['hooks_key'])
 
     if request_signature != expected_signature:
-        raise tt_exceptions.ApiError(code='xsolla.hook.unexpected_signature',
+        raise tt_exceptions.ApiError(code='INVALID_SIGNATURE',
                                      message='Received signature does not equal to calculated',
-                                     details={'AuthorisationHeader': auth_header})
+                                     details={'AuthorisationHeader': auth_header,
+                                              'code': 'xsolla.hook.unexpected_signature'})
 
     data = s11n.from_json(content)
 
     if 'settings' not in data:
-        raise tt_exceptions.ApiError(code='xsolla.hook.no_settings_info',
-                                     message='settings not found in request body')
+        raise tt_exceptions.ApiError(code='INVALID_PARAMETER',
+                                     message='settings not found in request body',
+                                     details={'code': 'xsolla.hook.no_settings_info'})
 
     if data['settings'].get('project_id') != config['custom']['project_id']:
-        raise tt_exceptions.ApiError(code='xsolla.hook.wrong_project_id',
-                                     message='Unexpected project_id on request body')
+        raise tt_exceptions.ApiError(code='INVALID_PARAMETER',
+                                     message='Unexpected project_id on request body',
+                                     details={'code': 'xsolla.hook.wrong_project_id'})
 
     if data['settings'].get('merchant_id') != config['custom']['merchant_id']:
-        raise tt_exceptions.ApiError(code='xsolla.hook.wrong_merchant_id',
-                                     message='Unexpected merchant_id on request body')
+        raise tt_exceptions.ApiError(code='INVALID_PARAMETER',
+                                     message='Unexpected merchant_id on request body',
+                                     details={'code': 'xsolla.hook.wrong_merchant_id'})
 
     return data
 
@@ -86,14 +91,16 @@ def xsolla_ok(message):
 
 
 def xsolla_error(code, message, details):
-    data = {'code': code,
-            'message': message,
-            'details': details}
 
     status_code = 400
 
     if code == 'api.unknown_error':
+        details['code'] = code
         status_code = 500
+
+    data = {'error': {'code': code,
+                      'message': message,
+                      'details': details}}
 
     return web.Response(content_type='application/json',
                         status=status_code,
@@ -114,12 +121,19 @@ async def xsolla_hook(message, config, logger, **kwargs):
     notification_type = message.get('notification_type')
 
     if notification_type == 'user_validation':
-        is_valid = await logic.validate_user(account_id=int(message['user']['id']),
-                                             email=message['user']['email'],
-                                             name=message['user']['name'])
+        try:
+            account_id = int(message['user']['id'])
+        except ValueError:
+            raise tt_exceptions.ApiError(code='INVALID_USER',
+                                         message='Account with such credentials has not found',
+                                         details={'code': 'xsolla.hook.user_validation.wrong_account_id_format'})
+
+        is_valid = await logic.validate_user(account_id=account_id)
+
         if not is_valid:
-            raise tt_exceptions.ApiError(code='xsolla.hook.user_validation.account_not_found',
-                                         message='Account with such credentials has not found')
+            raise tt_exceptions.ApiError(code='INVALID_USER',
+                                         message='Account with such credentials has not found',
+                                         details={'code': 'xsolla.hook.user_validation.account_not_found'})
 
     elif notification_type == 'payment':
         invoice = logic.invoice_from_xsolla_data(message)
@@ -128,7 +142,8 @@ async def xsolla_hook(message, config, logger, **kwargs):
 
         if result.is_error():
             raise tt_exceptions.ApiError(code='xsolla.hook.payment.can_not_register_invoice',
-                                         message=f'Can not register invoice: {result.name}')
+                                         message=f'Can not register invoice: {result.name}',
+                                         details={'code': 'xsolla.hook.payment.can_not_register_invoice'})
 
     elif notification_type == 'refund':
         result = await logic.register_cancellation(xsolla_id=message['transaction']['id'])
@@ -138,9 +153,10 @@ async def xsolla_hook(message, config, logger, **kwargs):
                                          message=f'Can not register cancelation: {result.name}')
 
     else:
-        raise tt_exceptions.ApiError(code='xsolla.hook.unknown_notification_type',
+        raise tt_exceptions.ApiError(code='INVALID_PARAMETER',
                                      message='Service does not expect such notification type',
-                                     details={'notification_type': notification_type})
+                                     details={'notification_type': notification_type,
+                                              'code': 'xsolla.hook.unknown_notification_type'})
 
     return {'result': 'ok'}
 

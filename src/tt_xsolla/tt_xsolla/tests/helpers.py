@@ -2,10 +2,13 @@
 import os
 import uuid
 import datetime
+import contextlib
 
 from tt_web import utils
+from tt_web.common import event
 from tt_web.tests import helpers as web_helpers
 
+from .. import conf
 from .. import service
 from .. import objects
 from .. import operations
@@ -19,6 +22,12 @@ class BaseTests(web_helpers.BaseTests):
 
     async def clean_environment(self, app=None):
         await operations.clean_database()
+
+    @contextlib.contextmanager
+    def check_event_setupped(self, setupped):
+        event.get(conf.PROCESS_INVOICE_EVENT_NAME).clear()
+        yield
+        self.assertEqual(event.get(conf.PROCESS_INVOICE_EVENT_NAME).is_set(), setupped)
 
 
 def get_config():

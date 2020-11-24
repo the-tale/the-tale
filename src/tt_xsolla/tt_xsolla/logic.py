@@ -49,7 +49,7 @@ async def request_token(account_info, xsolla_client, logger):
     return Ok(token)
 
 
-async def validate_user(account_id, email, name):
+async def validate_user(account_id):
     stored_info = await operations.load_account_info(account_id)
 
     if stored_info is None:
@@ -58,9 +58,7 @@ async def validate_user(account_id, email, name):
     if stored_info.is_removed_by_gdpr():
         return False
 
-    return (stored_info.id == account_id and
-            stored_info.email == email and
-            stored_info.name == name)
+    return stored_info.id == account_id
 
 
 def invoice_from_xsolla_data(data, is_fake=False):
@@ -83,6 +81,7 @@ async def register_invoice(invoice):
     invoice_id = await operations.register_invoice(invoice)
 
     if invoice_id is not None:
+        event.get(conf.PROCESS_INVOICE_EVENT_NAME).set()
         return Ok()
 
     stored_invoice = await operations.load_invoice(invoice.xsolla_id)
@@ -91,6 +90,7 @@ async def register_invoice(invoice):
         return Error('UnknownError')
 
     if invoice == stored_invoice:
+        event.get(conf.PROCESS_INVOICE_EVENT_NAME).set()
         return Ok()
 
     return Error('InvoiceDataDoesNotEqualToStored')
