@@ -45,6 +45,7 @@ class Position(object):
 
         position.set_place(place)
         position.move_in_place()
+        position.update_previous_place()
 
         position.dx = 0
         position.dy = 0
@@ -131,6 +132,9 @@ class Position(object):
         return self.cell().place_id is not None
 
     def should_visit_current_place(self, delta):
+        # print('???delta', delta)
+        # print('???can', self.can_visit_current_place(delta=delta))
+        # print('???not visited', self.previous_place_id, self.cell().place_id, self.previous_place_id != self.cell().place_id)
         return (self.can_visit_current_place(delta=delta) and
                 self.previous_place_id != self.cell().place_id)
 
