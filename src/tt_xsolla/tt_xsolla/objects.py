@@ -19,11 +19,12 @@ class Token:
 
 @dataclasses.dataclass(frozen=True)
 class AccountInfo:
-    __slots__ = ('id', 'name', 'email', 'state')
+    __slots__ = ('id', 'name', 'email', 'return_url', 'state')
 
     id: int
     name: str
     email: str
+    return_url: str
     state: relations.ACCOUNT_INFO_STATE
 
     def remove_private_data(self):
@@ -36,7 +37,7 @@ class AccountInfo:
         return self.state == relations.ACCOUNT_INFO_STATE.REMOVED_BY_GDPR
 
     def fingerprint(self):
-        return (self.id, self.name, self.email, self.state)
+        return (self.id, self.name, self.email, self.return_url, self.state)
 
     def is_changed(self, other):
         return self.fingerprint() != other.fingerprint()

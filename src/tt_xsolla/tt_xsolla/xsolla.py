@@ -123,6 +123,7 @@ class RealClient:
                          'country': {'allow_modify': True},
                          'is_legal': False},
                 'settings': {'project_id': int(self.project_id),
+                             'return_url': account_info.return_url,
                              'ui': self.ui}}
 
         if self.mode == 'sandbox':

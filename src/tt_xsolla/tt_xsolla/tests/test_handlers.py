@@ -21,7 +21,7 @@ from .. import operations
 from . import helpers
 
 
-def random_account_info(id=None, name=None, email=None):
+def random_account_info(id=None, name=None, email=None, return_url=None):
     if id is None:
         id = random.randint(1, 100000000)
 
@@ -31,16 +31,20 @@ def random_account_info(id=None, name=None, email=None):
     if email is None:
         email = f'{name}@example.com'
 
+    if return_url is None:
+        return_url = 'https://example.com'
+
     return xsolla_pb2.AccountInfo(id=id,
                                   name=name,
-                                  email=email)
+                                  email=email,
+                                  return_url=return_url)
 
 
 class GetTokenTests(helpers.BaseTests):
 
     async def get_token(self, account_info):
         response = await self.client.post('/get-token',
-                                         data=xsolla_pb2.GetTokenRequest(account_info=account_info).SerializeToString())
+                                          data=xsolla_pb2.GetTokenRequest(account_info=account_info).SerializeToString())
         data = await self.check_success(response, xsolla_pb2.GetTokenResponse)
 
         return data
