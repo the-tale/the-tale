@@ -28,15 +28,11 @@ class InPlaceActionTest(helpers.ActionEventsTestsMixin,
         self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.action_idl = self.hero.actions.current_action
 
-        self.hero.position.previous_place_id = None  # test setting prevouse place in action constructor
-
         self.action_inplace = prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.action_event = self.action_inplace
 
     def test_create(self):
-        self.assertEqual(self.hero.position.previous_place, None)
-
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_inplace.leader, True)
         self.assertEqual(self.action_inplace.bundle_id, self.action_idl.bundle_id)
@@ -165,25 +161,10 @@ class InPlaceActionTest(helpers.ActionEventsTestsMixin,
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_reset_religion_action_cooldown(self):
-        self.hero.position.previous_place_id = None
         self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
-        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
         self.hero.last_religion_action_at_turn = 666
 
         with self.check_delta(lambda: self.hero.last_religion_action_at_turn, -666):
-            prototypes.ActionInPlacePrototype.create(hero=self.hero)
-
-        self.storage._test_save()
-
-    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
-    def test_reset_religion_action_cooldown__place_not_changed(self):
-        self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
-        self.hero.position.update_previous_place()
-        self.hero.last_religion_action_at_turn = 666
-
-        self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
-
-        with self.check_not_changed(lambda: self.hero.last_religion_action_at_turn):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
@@ -193,9 +174,6 @@ class InPlaceActionTest(helpers.ActionEventsTestsMixin,
             place.attrs.tax = 0.2
 
         self.hero.money = 100
-        self.hero.position.previous_place_id = None
-
-        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
         with self.check_delta(lambda: self.hero.statistics.money_spend, 20):
             with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 20):
@@ -211,10 +189,6 @@ class InPlaceActionTest(helpers.ActionEventsTestsMixin,
 
         self.hero.money = 3
 
-        self.hero.position.previous_place_id = None
-
-        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
-
         with self.check_delta(lambda: self.hero.statistics.money_spend, 1):
             with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 1):
                 prototypes.ActionInPlacePrototype.create(hero=self.hero)
@@ -228,9 +202,6 @@ class InPlaceActionTest(helpers.ActionEventsTestsMixin,
             place.attrs.tax = 0.2
 
         self.hero.money = 0
-        self.hero.position.previous_place_id = None
-
-        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
         with self.check_delta(lambda: self.hero.statistics.money_spend, 0):
             with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 0):
@@ -245,9 +216,6 @@ class InPlaceActionTest(helpers.ActionEventsTestsMixin,
             place.attrs.tax = 0.0
 
         self.hero.money = 100
-        self.hero.position.previous_place_id = None
-
-        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
         with self.check_delta(lambda: self.hero.statistics.money_spend, 0):
             with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 0):
@@ -257,31 +225,10 @@ class InPlaceActionTest(helpers.ActionEventsTestsMixin,
 
         self.storage._test_save()
 
-    def test_tax__place_not_changed(self):
-        for place in places_storage.places.all():
-            place.attrs.tax = 0.2
-
-        self.hero.money = 100
-
-        self.hero.position.update_previous_place()
-        self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
-
-        with self.check_delta(lambda: len(self.hero.journal.messages), 0):
-            with self.check_delta(lambda: self.hero.statistics.money_spend, 0):
-                with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 0):
-                    prototypes.ActionInPlacePrototype.create(hero=self.hero)
-
-        self.assertEqual(self.hero.money, 100)
-
-        self.storage._test_save()
-
     @mock.patch('the_tale.game.balance.constants.PLACE_HABITS_EVENT_PROBABILITY', 1.0)
     def test_habit_event(self):
         for honor in game_relations.HABIT_HONOR_INTERVAL.records:
             for peacefulness in game_relations.HABIT_PEACEFULNESS_INTERVAL.records:
-
-                self.hero.position.previous_place_id = None
-                self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
                 with mock.patch('the_tale.game.places.habits.Honor.interval', honor):
                     with mock.patch('the_tale.game.places.habits.Peacefulness.interval', peacefulness):
@@ -293,20 +240,6 @@ class InPlaceActionTest(helpers.ActionEventsTestsMixin,
 
     @mock.patch('the_tale.game.balance.constants.PLACE_HABITS_EVENT_PROBABILITY', 0.0)
     def test_habit_event__no_event(self):
-        self.hero.position.previous_place_id = None
-
-        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
-
-        with self.check_calls_count('the_tale.game.heroes.tt_services.diary.cmd_push_message', 0):
-            prototypes.ActionInPlacePrototype.create(hero=self.hero)
-
-        self.storage._test_save()
-
-    @mock.patch('the_tale.game.balance.constants.PLACE_HABITS_EVENT_PROBABILITY', 1.0)
-    def test_habit_event__not_visit(self):
-        self.hero.position.update_previous_place()
-        self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
-
         with self.check_calls_count('the_tale.game.heroes.tt_services.diary.cmd_push_message', 0):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
@@ -316,7 +249,6 @@ class InPlaceActionTest(helpers.ActionEventsTestsMixin,
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
-        self.assertEqual(self.hero.position.previous_place, self.hero.position.place)
         self.storage._test_save()
 
     def test_religion_ceremony_action_create(self):
@@ -772,7 +704,6 @@ class InPlaceActionCompanionBuyMealTests(utils_testcase.TestCase):
         self.hero.money = f.expected_gold_in_day(self.hero.level)
 
         self.hero.position.set_place(self.place_1)
-        self.hero.position.update_previous_place()
         self.hero.position.set_place(self.place_2)
 
         self.hero.position.move_out_place()
@@ -854,7 +785,6 @@ class InPlaceActionCompanionDrinkArtifactTests(utils_testcase.TestCase):
         self.hero.money = f.expected_gold_in_day(self.hero.level)
 
         self.hero.position.set_place(self.place_1)
-        self.hero.position.update_previous_place()
         self.hero.position.set_place(self.place_2)
 
         self.artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 1, rarity=artifacts_relations.RARITY.NORMAL)
@@ -870,24 +800,6 @@ class InPlaceActionCompanionDrinkArtifactTests(utils_testcase.TestCase):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertTrue(self.hero.journal.messages[-1].key.is_ACTION_INPLACE_COMPANION_DRINK_ARTIFACT)
-
-    def check_not_used(self):
-        with self.check_not_changed(lambda: self.hero.bag.occupation):
-            prototypes.ActionInPlacePrototype.create(hero=self.hero)
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_drink_artifact', lambda hero: True)
-    def test_previouse_place_is_equal(self):
-        self.hero.position.update_previous_place()
-        self.check_not_used()
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_drink_artifact', lambda hero: True)
-    def test_no_items(self):
-        self.hero.pop_loot(self.artifact)
-        self.check_not_used()
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_drink_artifact', lambda hero: False)
-    def test_companion_does_not_eat(self):
-        self.check_not_used()
 
 
 class InPlaceActionCompanionLeaveTests(utils_testcase.TestCase):
@@ -910,7 +822,6 @@ class InPlaceActionCompanionLeaveTests(utils_testcase.TestCase):
         self.hero.money = f.expected_gold_in_day(self.hero.level)
 
         self.hero.position.set_place(self.place_1)
-        self.hero.position.update_previous_place()
         self.hero.position.set_place(self.place_2)
 
         self.artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 1, rarity=artifacts_relations.RARITY.NORMAL)
@@ -946,7 +857,6 @@ class InPlaceActionCompanionStealingTest(utils_testcase.TestCase):
         self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account.id)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
-        self.hero.position.previous_place_id = None  # test setting prevouse place in action constructor
 
         self.action_idl = self.hero.actions.current_action
 
@@ -961,19 +871,6 @@ class InPlaceActionCompanionStealingTest(utils_testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_item', lambda self: True)
     def test_no_companion(self):
         self.hero.remove_companion()
-
-        with self.check_not_changed(lambda: self.hero.bag.occupation), \
-                self.check_not_changed(lambda: self.hero.money), \
-                self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions), \
-                self.check_not_changed(lambda: self.hero.statistics.artifacts_had), \
-                self.check_not_changed(lambda: self.hero.statistics.loot_had), \
-                self.check_not_changed(lambda: len(self.hero.journal)):
-            self.storage.process_turn(continue_steps_if_needed=False)
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_money', lambda self: True)
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_item', lambda self: True)
-    def test_place_not_changed(self):
-        self.hero.position.update_previous_place()
 
         with self.check_not_changed(lambda: self.hero.bag.occupation), \
                 self.check_not_changed(lambda: self.hero.money), \

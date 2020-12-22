@@ -34,7 +34,8 @@ class ActionBase(object):
                  'replane_required',
                  'path',
                  'inner_circle_places',
-                 'inner_circle_persons')
+                 'inner_circle_persons',
+                 'visited_places')
 
     class STATE:
         UNINITIALIZED = 'uninitialized'
@@ -72,7 +73,8 @@ class ActionBase(object):
                  hero=None,
                  path=None,
                  inner_circle_places=None,
-                 inner_circle_persons=None):
+                 inner_circle_persons=None,
+                 visited_places=None):
 
         self.hero = hero
 
@@ -132,13 +134,16 @@ class ActionBase(object):
         self.inner_circle_places = set(inner_circle_places) if inner_circle_places else set()
         self.inner_circle_persons = set(inner_circle_persons) if inner_circle_persons else set()
 
+        self.visited_places = set(visited_places) if visited_places is not None else set()
+
     def serialize(self):
         data = {'type': self.TYPE.value,
                 'bundle_id': self.bundle_id,
                 'state': self.state,
                 'percents': self.percents,
                 'description': self.description,
-                'created_at_turn': self.created_at_turn}
+                'created_at_turn': self.created_at_turn,
+                'visited_places': list(self.visited_places)}
         if self.replane_required:
             data['replane_required'] = self.replane_required
         if self.context:
@@ -953,9 +958,7 @@ class ActionInPlacePrototype(ActionBase):
                                                    place_id=hero.position.place_id,
                                                    currency=emissaries_relations.EVENT_CURRENCY.COMPANIONS_SUPPORT)
 
-        # process variouse effects only if it is not repeated town visit
-        if hero.position.place != hero.position.previous_place:
-            prototype._process_effect_on_new_visit()
+        prototype._process_effect_on_new_visit()
 
         hero.position.move_in_place()  # <- must be last method
 
@@ -1138,9 +1141,6 @@ class ActionInPlacePrototype(ActionBase):
         if self.hero.companion is None:
             return
 
-        if self.hero.position.place == self.hero.position.previous_place:
-            return
-
         if self.hero.can_companion_steal_money():
             money = int(f.normal_loot_cost_at_lvl(self.hero.level) * random.uniform(0.8, 1.2) * self.hero.companion_steal_money_modifier) + 1
             self.hero.change_money(heroes_relations.MONEY_SOURCE.EARNED_FROM_COMPANIONS, money)
@@ -1192,7 +1192,6 @@ class ActionInPlacePrototype(ActionBase):
 
         if self.state == self.STATE.PROCESSED:
             self.process_companion_stealing()
-            self.hero.position.update_previous_place()
 
 
 class ActionRestPrototype(ActionBase):
@@ -1570,8 +1569,10 @@ class ActionMoveSimplePrototype(ActionBase):
     @classmethod
     def _create(cls, hero, bundle_id, path, destination, break_at):
         state = cls.STATE.MOVING
+        visited_places = set()
 
         if hero.position.place_id is not None:
+            visited_places.add(hero.position.place_id)
             state = cls.STATE.IN_CITY
 
         prototype = cls(hero=hero,
@@ -1579,7 +1580,8 @@ class ActionMoveSimplePrototype(ActionBase):
                         place_id=destination.id if destination else None,
                         break_at=break_at,
                         path=path,
-                        state=state)
+                        state=state,
+                        visited_places=visited_places)
 
         if hero.position.place_id is not None and destination:
             hero.add_message('action_move_simple_to_start', hero=hero, destination=destination)
@@ -1771,8 +1773,14 @@ class ActionMoveSimplePrototype(ActionBase):
                                       before_teleport_callback=before_teleport_callback)
 
     def place_hero_in_current_place(self, create_action=True):
-        self.hero.position.set_place(self.hero.position.cell().place())
-        self.state = self.STATE.IN_CITY
+        place = self.hero.position.cell().place()
+
+        self.visited_places.add(place.id)
+        self.hero.position.set_place(place)
+
+        # do not change action state if hero finished moving
+        if self.state != self.STATE.PROCESSED:
+            self.state = self.STATE.IN_CITY
 
         percents, best_x, best_y = self.path.nearest_coordinates(self.hero.position.x,
                                                                  self.hero.position.y)
@@ -1911,7 +1919,10 @@ class ActionMoveSimplePrototype(ActionBase):
 
         self.normalize_position_to_end(delta=move_epsilon)
 
-        if self.hero.position.should_visit_current_place(delta=move_epsilon):
+        if (self.hero.position.cell().place_id is not None and
+            self.hero.position.cell().place_id not in self.visited_places and
+            self.hero.position.can_visit_current_place(delta=move_epsilon)):
+
             self.place_hero_in_current_place(create_action=create_inplace_action)
 
     def try_to_teleport_with_companion(self):

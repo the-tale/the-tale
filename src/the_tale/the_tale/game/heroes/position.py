@@ -8,7 +8,6 @@ class Position(object):
     __slots__ = ('last_place_visited_turn',
                  'moved_out_place',
                  'place_id',
-                 'previous_place_id',
                  'x',
                  'y',
                  'cell_x',
@@ -20,17 +19,16 @@ class Position(object):
                  last_place_visited_turn=None,
                  moved_out_place=False,
                  place_id=None,
-                 previous_place_id=None,
                  x=0,
                  y=0,
                  cell_x=None,
                  cell_y=None,
                  dx=0,
-                 dy=0):
+                 dy=0,
+                 **kwargs):
         self.last_place_visited_turn = last_place_visited_turn
         self.moved_out_place = moved_out_place
         self.place_id = place_id
-        self.previous_place_id = previous_place_id
 
         self.x = x
         self.y = y
@@ -45,7 +43,6 @@ class Position(object):
 
         position.set_place(place)
         position.move_in_place()
-        position.update_previous_place()
 
         position.dx = 0
         position.dy = 0
@@ -85,14 +82,6 @@ class Position(object):
 
         return places_storage.places.get(self.place_id)
 
-    @property
-    def previous_place(self):
-        from the_tale.game.places import storage as places_storage
-        return places_storage.places.get(self.previous_place_id)
-
-    def update_previous_place(self):
-        self.previous_place_id = self.place_id
-
     def set_place(self, place):
         self.set_position(place.x, place.y)
 
@@ -107,8 +96,6 @@ class Position(object):
 
         self.cell_x = int(round(self.x))
         self.cell_y = int(round(self.y))
-
-        self.update_previous_place()
 
         self.place_id = None
 
@@ -131,13 +118,6 @@ class Position(object):
 
         return self.cell().place_id is not None
 
-    def should_visit_current_place(self, delta):
-        # print('???delta', delta)
-        # print('???can', self.can_visit_current_place(delta=delta))
-        # print('???not visited', self.previous_place_id, self.cell().place_id, self.previous_place_id != self.cell().place_id)
-        return (self.can_visit_current_place(delta=delta) and
-                self.previous_place_id != self.cell().place_id)
-
     ###########################################
     # Object operations
     ###########################################
@@ -156,7 +136,6 @@ class Position(object):
         return {'last_place_visited_turn': self.last_place_visited_turn,
                 'moved_out_place': self.moved_out_place,
                 'place_id': self.place_id,
-                'previous_place_id': self.previous_place_id,
                 'x': self.x,
                 'y': self.y,
                 'cell_x': self.cell_x,

@@ -75,7 +75,7 @@ class ShortTeleportTests(helpers.CardsTestMixin, utils_testcase.TestCase):
                           ()))
 
         self.assertTrue(self.hero.position.place.id, self.place_3.id)
-        self.assertEqual(action_move.state, action_move.STATE.IN_CITY)
+        self.assertEqual(action_move.state, action_move.STATE.PROCESSED)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_use__wrong_state(self):

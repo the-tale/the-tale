@@ -41,6 +41,7 @@ class GeneralTest(utils_testcase.TestCase):
                                                       'percents': 0.0,
                                                       'description': None,
                                                       'type': helpers.TestAction.TYPE.value,
+                                                      'visited_places': [],
                                                       'created_at_turn': game_turn.number()})
         deserialized_action = helpers.TestAction.deserialize(default_action.serialize())
         deserialized_action.hero = self.hero
@@ -73,6 +74,7 @@ class GeneralTest(utils_testcase.TestCase):
                                             info_link='/bla-bla',
                                             meta_action=meta_action,
                                             replane_required=True,
+                                            visited_places={13},
                                             path=navigation_path.Path(cells=[(1, 2)]))
 
         self.assertEqual(default_action.serialize(), {'bundle_id': self.bundle_id,
@@ -93,6 +95,7 @@ class GeneralTest(utils_testcase.TestCase):
                                                       'break_at': 0.75,
                                                       'meta_action': meta_action.serialize(),
                                                       'replane_required': True,
+                                                      'visited_places': [13],
                                                       'path': navigation_path.Path(cells=[(1, 2)]).serialize()})
         deserialized_action = helpers.TestAction.deserialize(default_action.serialize())
         deserialized_action.hero = self.hero

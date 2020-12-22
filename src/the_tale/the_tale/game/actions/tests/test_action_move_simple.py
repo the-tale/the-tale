@@ -133,7 +133,7 @@ class MoveSimpleTests(clans_helpers.ClansTestsMixin,
 
         self.storage.process_turn(continue_steps_if_needed=False)
 
-        self.assertEqual(self.action_move.state, self.action_move.STATE.IN_CITY)
+        self.assertEqual(self.action_move.state, self.action_move.STATE.PROCESSED)
         self.assertEqual(self.action_move.percents, 1)
         self.assertEqual(self.hero.position.place_id, self.place_2.id)
 
@@ -181,7 +181,7 @@ class MoveSimpleTests(clans_helpers.ClansTestsMixin,
 
         self.storage.process_turn(continue_steps_if_needed=False)
 
-        self.assertEqual(self.action_move.state, self.action_move.STATE.IN_CITY)
+        self.assertEqual(self.action_move.state, self.action_move.STATE.PROCESSED)
         self.assertEqual(self.action_move.percents, 1)
         self.assertEqual(self.hero.position.place_id, self.place_2.id)
 
@@ -229,7 +229,7 @@ class MoveSimpleTests(clans_helpers.ClansTestsMixin,
 
         self.assertEqual(self.hero.position.place_id, self.place_2.id)
 
-        self.assertEqual(self.action_move.state, self.action_move.STATE.IN_CITY)
+        self.assertEqual(self.action_move.state, self.action_move.STATE.PROCESSED)
 
         self.storage._test_save()
 
@@ -508,7 +508,7 @@ class MoveSimpleTests(clans_helpers.ClansTestsMixin,
 
         self.storage.process_turn(continue_steps_if_needed=False)
 
-        self.assertEqual(self.action_move.state, self.action_move.STATE.IN_CITY)
+        self.assertEqual(self.action_move.state, self.action_move.STATE.PROCESSED)
         self.assertEqual(self.action_move.percents, 1)
         self.assertEqual(self.hero.position.place_id, self.place_2.id)
 
@@ -711,7 +711,7 @@ class MoveSimpleTests(clans_helpers.ClansTestsMixin,
 
         self.storage.process_turn(continue_steps_if_needed=False)
 
-        self.assertEqual(self.action_move.state, self.action_move.STATE.IN_CITY)
+        self.assertEqual(self.action_move.state, self.action_move.STATE.PROCESSED)
         self.assertEqual(self.action_move.percents, 1)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)

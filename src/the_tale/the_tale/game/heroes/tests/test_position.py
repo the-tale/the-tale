@@ -29,7 +29,6 @@ class HeroPositionTest(utils_testcase.TestCase):
         self.assertEqual(self.hero.position.dy, 0)
 
         self.assertFalse(self.hero.position.moved_out_place)
-        self.assertEqual(self.hero.position.previous_place_id, self.hero.position.place_id)
 
     def test_set_position(self):
         old_position = copy.deepcopy(self.hero.position)
@@ -38,7 +37,6 @@ class HeroPositionTest(utils_testcase.TestCase):
                                         y=self.hero.position.y - 0.7)
 
         self.assertEqual(self.hero.position.place_id, None)
-        self.assertEqual(self.hero.position.previous_place_id, old_position.place_id)
         self.assertEqual(self.hero.position.x, old_position.x + 0.2)
         self.assertEqual(self.hero.position.y, old_position.y - 0.7)
         self.assertEqual(self.hero.position.cell_x, old_position.cell_x)
@@ -48,7 +46,6 @@ class HeroPositionTest(utils_testcase.TestCase):
                                         y=self.hero.position.y - 0.7)
 
         self.assertEqual(self.hero.position.place_id, None)
-        self.assertEqual(self.hero.position.previous_place_id, None)
 
     def test_can_visit_current_place__in_place(self):
         pos = position.Position.create(place=self.place_1)
@@ -65,17 +62,3 @@ class HeroPositionTest(utils_testcase.TestCase):
         self.assertFalse(pos.can_visit_current_place(delta=0.1))
         self.assertFalse(pos.can_visit_current_place(delta=0.3))
         self.assertFalse(pos.can_visit_current_place(delta=0.45))
-
-    def test_should_visit_current_place__already_visited(self):
-        pos = position.Position.create(place=self.place_1)
-        pos.set_position(x=pos.x + 0.4, y=pos.y - 0.2)
-
-        self.assertFalse(pos.should_visit_current_place(delta=0.1))
-        self.assertFalse(pos.should_visit_current_place(delta=0.3))
-        self.assertFalse(pos.should_visit_current_place(delta=0.45))
-
-        pos.update_previous_place()
-
-        self.assertFalse(pos.should_visit_current_place(delta=0.1))
-        self.assertFalse(pos.should_visit_current_place(delta=0.3))
-        self.assertTrue(pos.should_visit_current_place(delta=0.45))
