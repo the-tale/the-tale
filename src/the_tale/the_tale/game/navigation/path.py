@@ -180,9 +180,13 @@ class Path:
         return path
 
     def nearest_coordinates(self, expected_x, expected_y):
+        if self.length == 0:
+            return 1.0, *self._start_from
+
         best_distance, best_percents, best_x, best_y = logic.nearest_point_on_section(expected_x, expected_y,
                                                                                       *self._start_from,
                                                                                       *self._cells[0])
+
 
         processed_percents = self._start_length / self.length
 

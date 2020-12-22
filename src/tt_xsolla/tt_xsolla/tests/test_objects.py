@@ -30,6 +30,7 @@ class AccountInfoTests(helpers.BaseTests):
                          objects.AccountInfo(id=13,
                                              name=None,
                                              email=None,
+                                             return_url='http://example.com',
                                              state=relations.ACCOUNT_INFO_STATE.REMOVED_BY_GDPR))
 
         self.assertTrue(info.remove_private_data().is_removed_by_gdpr())
@@ -42,4 +43,5 @@ class AccountInfoTests(helpers.BaseTests):
         self.assertTrue(dataclasses.replace(info, id=info.id+1).is_changed(info))
         self.assertTrue(dataclasses.replace(info, name=info.name+'x').is_changed(info))
         self.assertTrue(dataclasses.replace(info, email=info.email+'x').is_changed(info))
+        self.assertTrue(dataclasses.replace(info, email=info.return_url+'x').is_changed(info))
         self.assertTrue(dataclasses.replace(info, state=relations.ACCOUNT_INFO_STATE.REMOVED_BY_GDPR).is_changed(info))

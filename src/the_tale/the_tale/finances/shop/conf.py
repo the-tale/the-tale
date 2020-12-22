@@ -22,10 +22,8 @@ settings = utils_app_settings.app_settings('PAYMENTS',
                                            TT_XSOLLA_ENTRY_POINT='http://localhost:10024/',
 
                                            XSOLLA_ENABLED=False if not django_settings.TESTS_RUNNING else True,
-                                           XSOLLA_PAY_STATION_VERSION=2,
+                                           XSOLLA_PAY_STATION_VERSION=3,
                                            XSOLLA_SUPPORT='https://www.xsolla.com/modules/support/',
-                                           XSOLLA_DIALOG_WIDTH=900,
-                                           XSOLLA_DIALOG_HEIGHT=800,
 
                                            # XSOLLA PAYSTATION 2 CONFIGS
                                            # default values was gotten from documentation
@@ -37,6 +35,8 @@ settings = utils_app_settings.app_settings('PAYMENTS',
                                            XSOLLA_LOCAL='ru',
                                            XSOLLA_DESCRIPTION='покупка печенек',
                                            XSOLLA_ID_THEME='id_theme',
+                                           XSOLLA_DIALOG_WIDTH=900,
+                                           XSOLLA_DIALOG_HEIGHT=800,
 
                                            # XSOLLA PAYSTATION 3 CONFIGS
                                            XSOLLA_EMBED_SCRIPT_VERSION='1.2.2',

@@ -4,7 +4,7 @@
 
 {% block title %}Рынок | {{settings.PAGE_TITLE}}{% endblock %}
 
-{% set paystation_version = 3 if context.account.is_developer else value("the_tale.finances.shop.conf", "settings").XSOLLA_PAY_STATION_VERSION %}
+{% set paystation_version = 3 if context.account.is_developer or context.django_request.GET.get('new') else value("the_tale.finances.shop.conf", "settings").XSOLLA_PAY_STATION_VERSION %}
 
 {% block head %}
 {{ super() }}
@@ -15,18 +15,31 @@
 <script src="https://cdn.xsolla.net/embed/paystation/{{xsolla_script_version}}/widget.min.js"></script>
 <script>
     XPayStationWidget.init({
-        access_token: '{{xsolla_access_token(context.account)}}',
-        sandbox: {{shop_settings().XSOLLA_SANDBOX|json}},
-        lightbox: {
-            width: {{shop_settings().XSOLLA_DIALOG_WIDTH}},
-            height: {{shop_settings().XSOLLA_DIALOG_HEIGHT}}
-        }
+	access_token: '{{xsolla_access_token(context.account)}}',
+	sandbox: {{shop_settings().XSOLLA_SANDBOX|json}},
+	lightbox: {
+	    width: null,
+	    height: null,
+	    zIndex: 1050,
+	    closeByClick: false,
+	    closeByKeyboard: false
+	},
+	iframeOnly: true
     });
 
-    XPayStationWidget.on(XPayStationWidget.eventTypes.STATUS_DONE,
-                         function (event, data) {
+var PAYMENT_DONE = false;
+
+XPayStationWidget.on(XPayStationWidget.eventTypes.STATUS_DONE,
+                     function (event, data) {
+                         PAYMENT_DONE = true;
+		     });
+
+XPayStationWidget.on(XPayStationWidget.eventTypes.CLOSE,
+                     function (event, data) {
+			 if (PAYMENT_DONE) {
                              location.reload();
-                         });
+			 }
+		     });
 </script>
 {% else %}
 <script id="xsolla-paystation-lightbox" type="text/javascript" src="https://secure.xsolla.com/partners/embed/lightbox.js"></script>
@@ -178,7 +191,7 @@ jQuery(document).ready(function(e){
     {% if paystation_version == 3 %}
 
     <a data-xpaystation-widget-open
-       style="vertical-align: middle; font-size: 25pt; line-height: 18px; color: red; font-weight: bold; text-decoration: none;"
+       style="vertical-align: middle; font-size: 25pt; line-height: 18px; color: green; font-weight: bold; text-decoration: none;"
        href="#"
        rel="tooltip"
        title="Приобрести ещё!"

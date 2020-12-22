@@ -6,11 +6,12 @@ smart_imports.all()
 
 @dataclasses.dataclass(frozen=True)
 class AccountInfo:
-    __slots__ = ('id', 'name', 'email')
+    __slots__ = ('id', 'name', 'email', 'return_url')
 
     id: int
     name: str
     email: str
+    return_url: str
 
 
 class Client(client.Client):
@@ -19,7 +20,8 @@ class Client(client.Client):
     def cmd_get_token(self, account, sandbox):
         info = tt_protocol_xsolla_pb2.AccountInfo(id=account.id,
                                                   name=account.nick_verbose,
-                                                  email=account.email)
+                                                  email=account.email,
+                                                  return_url=utils_urls.full_url('https', 'shop:'))
 
         request = tt_protocol_xsolla_pb2.GetTokenRequest(account_info=info,
                                                          mode='sandbox' if sandbox else 'normal')

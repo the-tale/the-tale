@@ -29,7 +29,7 @@ class HeroPositionTest(utils_testcase.TestCase):
         self.assertEqual(self.hero.position.dy, 0)
 
         self.assertFalse(self.hero.position.moved_out_place)
-        self.assertEqual(self.hero.position.previous_place_id, None)
+        self.assertEqual(self.hero.position.previous_place_id, self.hero.position.place_id)
 
     def test_set_position(self):
         old_position = copy.deepcopy(self.hero.position)

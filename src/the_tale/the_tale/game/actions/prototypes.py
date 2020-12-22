@@ -954,50 +954,57 @@ class ActionInPlacePrototype(ActionBase):
                                                    currency=emissaries_relations.EVENT_CURRENCY.COMPANIONS_SUPPORT)
 
         # process variouse effects only if it is not repeated town visit
-        if hero.position.place == hero.position.previous_place:
-            return prototype
-
-        hero.add_message('action_inplace_enter', hero=hero, place=hero.position.place)
-
-        if random.random() < hero.position.place.attrs.reset_religion_ceremony_timeout_chance:
-            hero.reset_religion_action_timeout()
-
-        if hero.position.place.attrs.tax > 0:
-
-            if hero.money > 0:
-                tax = max(1, int(hero.money * hero.position.place.attrs.tax))
-                hero.change_money(heroes_relations.MONEY_SOURCE.SPEND_FOR_TAX, -tax)
-                hero.add_message('action_inplace_tax', hero=hero, place=hero.position.place, coins=tax, diary=True)
-            else:
-                hero.add_message('action_inplace_tax_no_money', hero=hero, place=hero.position.place, diary=True)
-
-        if hero.position.place.can_habit_event():
-
-            if random.uniform(0, 1) < 0.5:
-                hero.add_message('action_inplace_habit_event_honor_%s' % hero.position.place.habit_honor.interval.name.lower(),
-                                 hero=hero, place=hero.position.place, diary=True)
-            else:
-                hero.add_message('action_inplace_habit_event_peacefulness_%s' % hero.position.place.habit_peacefulness.interval.name.lower(),
-                                 hero=hero, place=hero.position.place, diary=True)
-
-        if hero.companion and hero.position.moved_out_place:
-            if hero.can_companion_eat():
-                expected_coins = (f.expected_gold_in_day(hero.level) *
-                                  float(game_turn.number() - hero.position.last_place_visited_turn) / (c.TURNS_IN_HOUR * 24))
-                coins = min(hero.money, int(expected_coins * hero.companion_money_for_food_multiplier))
-
-                if coins > 0:
-                    hero.change_money(heroes_relations.MONEY_SOURCE.SPEND_FOR_COMPANIONS, -coins)
-                    hero.add_message('action_inplace_companion_money_for_food', hero=hero, place=hero.position.place, companion=hero.companion, coins=coins)
-
-            if not hero.bag.is_empty and hero.can_companion_drink_artifact() and random.random() < hero.companion_drink_artifact_probability:
-                artifact = random.choice(list(hero.bag.values()))
-                hero.pop_loot(artifact)
-                hero.add_message('action_inplace_companion_drink_artifact', hero=hero, place=hero.position.place, artifact=artifact, companion=hero.companion)
+        if hero.position.place != hero.position.previous_place:
+            prototype._process_effect_on_new_visit()
 
         hero.position.move_in_place()  # <- must be last method
 
         return prototype
+
+    def _process_effect_on_new_visit(self):
+        self.hero.add_message('action_inplace_enter', hero=self.hero, place=self.hero.position.place)
+
+        if random.random() < self.hero.position.place.attrs.reset_religion_ceremony_timeout_chance:
+            self.hero.reset_religion_action_timeout()
+
+        if self.hero.position.place.attrs.tax > 0:
+
+            if self.hero.money > 0:
+                tax = max(1, int(self.hero.money * self.hero.position.place.attrs.tax))
+                self.hero.change_money(heroes_relations.MONEY_SOURCE.SPEND_FOR_TAX, -tax)
+                self.hero.add_message('action_inplace_tax', hero=self.hero, place=self.hero.position.place, coins=tax, diary=True)
+            else:
+                self.hero.add_message('action_inplace_tax_no_money', hero=self.hero, place=self.hero.position.place, diary=True)
+
+        if self.hero.position.place.can_habit_event():
+
+            if random.uniform(0, 1) < 0.5:
+                self.hero.add_message('action_inplace_habit_event_honor_%s' % self.hero.position.place.habit_honor.interval.name.lower(),
+                                      hero=self.hero, place=self.hero.position.place, diary=True)
+            else:
+                self.hero.add_message('action_inplace_habit_event_peacefulness_%s' %
+                                      self.hero.position.place.habit_peacefulness.interval.name.lower(),
+                                      hero=self.hero, place=self.hero.position.place, diary=True)
+
+        if self.hero.companion and self.hero.position.moved_out_place:
+            if self.hero.can_companion_eat():
+                expected_coins = (f.expected_gold_in_day(self.hero.level) *
+                                  float(game_turn.number() - self.hero.position.last_place_visited_turn) / (c.TURNS_IN_HOUR * 24))
+                coins = min(self.hero.money, int(expected_coins * self.hero.companion_money_for_food_multiplier))
+
+                if coins > 0:
+                    self.hero.change_money(heroes_relations.MONEY_SOURCE.SPEND_FOR_COMPANIONS, -coins)
+                    self.hero.add_message('action_inplace_companion_money_for_food',
+                                          hero=self.hero, place=self.hero.position.place, companion=self.hero.companion, coins=coins)
+
+            if (not self.hero.bag.is_empty and
+                self.hero.can_companion_drink_artifact() and
+                random.random() < self.hero.companion_drink_artifact_probability):
+
+                artifact = random.choice(list(self.hero.bag.values()))
+                self.hero.pop_loot(artifact)
+                self.hero.add_message('action_inplace_companion_drink_artifact',
+                                      hero=self.hero, place=self.hero.position.place, artifact=artifact, companion=self.hero.companion)
 
     def action_event_message_arguments(self):
         return {'place': self.hero.position.place}
@@ -1562,21 +1569,20 @@ class ActionMoveSimplePrototype(ActionBase):
 
     @classmethod
     def _create(cls, hero, bundle_id, path, destination, break_at):
+        state = cls.STATE.MOVING
+
+        if hero.position.place_id is not None:
+            state = cls.STATE.IN_CITY
+
         prototype = cls(hero=hero,
                         bundle_id=bundle_id,
                         place_id=destination.id if destination else None,
                         break_at=break_at,
                         path=path,
-                        state=cls.STATE.MOVING)
+                        state=state)
 
-        leave_place = hero.position.place_id is not None and destination
-
-        if leave_place:
+        if hero.position.place_id is not None and destination:
             hero.add_message('action_move_simple_to_start', hero=hero, destination=destination)
-
-        hero.position.move_out_place()
-
-        prototype.try_to_teleport(leave_place)
 
         return prototype
 
@@ -1645,9 +1651,9 @@ class ActionMoveSimplePrototype(ActionBase):
 
         return True
 
-    def teleport(self, distance, create_inplace_action):
+    def teleport(self, distance, create_inplace_action, check_moving_state=True):
 
-        if self.state != self.STATE.MOVING:
+        if check_moving_state and self.state != self.STATE.MOVING:
             return False
 
         if self.path.length <= 0:
@@ -1663,7 +1669,10 @@ class ActionMoveSimplePrototype(ActionBase):
 
         return self._teleport_to(new_percents, create_inplace_action)
 
-    def teleport_to_place(self, create_inplace_action, check_moving_state=True):
+    def teleport_to_place(self,
+                          create_inplace_action,
+                          check_moving_state=True,
+                          before_teleport_callback=None):
         if check_moving_state and self.state != self.STATE.MOVING:
             return False
 
@@ -1672,15 +1681,19 @@ class ActionMoveSimplePrototype(ActionBase):
         if current_destination_id is None:
             return False
 
+        if before_teleport_callback:
+            before_teleport_callback()
+
         new_percents = min(self.stop_percents(), current_destination_percents)
 
         return self._teleport_to(new_percents, create_inplace_action)
 
-    def teleport_to_end(self):
-        if self.state != self.STATE.MOVING:
+    def teleport_to_end(self, check_moving_state=True):
+        if check_moving_state and self.state != self.STATE.MOVING:
             return False
 
-        return self._teleport_to(self.stop_percents(), create_inplace_action=True)
+        return self._teleport_to(self.stop_percents(),
+                                 create_inplace_action=True)
 
     def picked_up_in_road(self):
         # save destination befor teleport, since it can be reseted after we perfom it
@@ -1709,49 +1722,70 @@ class ActionMoveSimplePrototype(ActionBase):
 
         return False
 
-    def teleport_with_companion(self):
-        # save destination befor teleport, since it can be reseted after we perfom it
+    def get_teleport_destination(self):
         current_destination_percents, current_destination_id = self.path.next_place_at(self.percents)
 
         if current_destination_id is None:
-            return False
+            return None
 
-        current_destination = places_storage.places[current_destination_id]
+        if self.break_at and self.break_at < current_destination_percents:
+            return None
+
+        return places_storage.places[current_destination_id]
+
+    def teleport_with_companion(self):
+        # save destination befor teleport, since it can be reseted after we perfom it
+        current_destination = self.get_teleport_destination()
+
+        if current_destination is None:
+            return False
 
         # store companion, since it can be removed at place
         companion = self.hero.companion
 
-        if self.teleport_to_place(create_inplace_action=True, check_moving_state=False):
+        def before_teleport_callback():
             self.hero.add_message('companions_teleport',
                                   companion_owner=self.hero,
                                   companion=companion,
                                   destination=current_destination)
-            return True
 
-        return False
+        return self.teleport_to_place(create_inplace_action=True,
+                                      check_moving_state=False,
+                                      before_teleport_callback=before_teleport_callback)
 
     def teleport_with_clan(self):
-
         # save destination befor teleport, since it can be reseted after we perfom it
-        current_destination_percents, current_destination_id = self.path.next_place_at(self.percents)
+        current_destination = self.get_teleport_destination()
 
-        if current_destination_id is None:
+        if current_destination is None:
             return False
 
-        current_destination = places_storage.places[current_destination_id]
-
-        if self.teleport_to_place(create_inplace_action=True, check_moving_state=False):
+        def before_teleport_callback():
             self.hero.add_message('action_move_simple_to_teleport_with_clan',
                                   hero=self.hero,
                                   clan=clans_storage.infos[self.hero.clan_id],
                                   current_destination=current_destination)
-            return True
 
-        return False
+        return self.teleport_to_place(create_inplace_action=True,
+                                      check_moving_state=False,
+                                      before_teleport_callback=before_teleport_callback)
 
     def place_hero_in_current_place(self, create_action=True):
         self.hero.position.set_place(self.hero.position.cell().place())
         self.state = self.STATE.IN_CITY
+
+        percents, best_x, best_y = self.path.nearest_coordinates(self.hero.position.x,
+                                                                 self.hero.position.y)
+
+        # Большой хак.
+        # Когда герой посещает город, мы его ставим в центр клетки с городом
+        # При этом реальная позиция героя в пути может быть как перед городов так и после него
+        # Поэтмоу надо соответственно подправить проценты пути,
+        # иначе неправильно работает определение следующего города и телепорты, которые его используют
+        # Правильно это сделать геморойно из-за неточности дробной арифметики и нюансов реализации движения и путей
+        # Поэтому делаем хак, всегда выбирая бОльший процент, чтобы герой гарантировано догонял свою позицию.
+        # Если герой реальную позицию обгоняет, вроде ничего страшного не случается (просто немного быстрее дойдёт до цели).
+        self.percents = max(percents, self.percents)
 
         if create_action:
             ActionInPlacePrototype.create(hero=self.hero)
@@ -1860,7 +1894,6 @@ class ActionMoveSimplePrototype(ActionBase):
             self.state = self.STATE.PROCESSED
 
     def after_move(self, create_inplace_action):
-
         move_speed = self.move_speed()
 
         stop_percents = self.stop_percents()
@@ -1874,17 +1907,18 @@ class ActionMoveSimplePrototype(ActionBase):
             self.state = self.STATE.PROCESSED
             return
 
-        self.normalize_position_to_end(delta=move_speed)
+        move_epsilon = move_speed / 2
 
-        if self.hero.position.should_visit_current_place(delta=move_speed):
+        self.normalize_position_to_end(delta=move_epsilon)
+
+        if self.hero.position.should_visit_current_place(delta=move_epsilon):
             self.place_hero_in_current_place(create_action=create_inplace_action)
 
     def try_to_teleport_with_companion(self):
         if (self.hero.companion and
             random.random() < self.hero.companion_teleport_probability):
 
-            if self.teleport_with_companion():
-                return True
+            return self.teleport_with_companion()
 
         return False
 
@@ -1906,12 +1940,15 @@ class ActionMoveSimplePrototype(ActionBase):
                                                currency=emissaries_relations.EVENT_CURRENCY.FAST_TRANSPORTATION)
         return True
 
-    def try_to_teleport(self, leave_place):
-        if leave_place and self.try_to_teleport_with_clan():
+    def try_to_teleport(self):
+
+        if self.try_to_teleport_with_clan():
             return True
 
         if self.try_to_teleport_with_companion():
             return True
+
+        return False
 
     def process(self):
         if self.preprocess():
@@ -1924,9 +1961,14 @@ class ActionMoveSimplePrototype(ActionBase):
             self.state = self.STATE.MOVING
 
         if self.state == self.STATE.IN_CITY:
-            if self.try_to_teleport(leave_place=True):
+            self.hero.position.move_out_place()
+
+            if self.try_to_teleport():
                 return
 
+            # emulate moving out place
+            self.hero.position.set_position(self.hero.position.x,
+                                            self.hero.position.y)
             self.state = self.STATE.MOVING
 
         if self.state == self.STATE.BATTLE:

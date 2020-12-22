@@ -35,10 +35,11 @@ def get_config():
     return utils.load_config(config_path)
 
 
-def create_account_info(uid, version=1):
+def create_account_info(uid, version=1, return_url='http://example.com'):
     return objects.AccountInfo(id=uid,
                                name=f'name-{uid}-{version}',
                                email=f'email-{uid}-{version}@example.com',
+                               return_url=return_url,
                                state=relations.ACCOUNT_INFO_STATE.ACTIVE)
 
 

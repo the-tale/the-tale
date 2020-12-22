@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='xsolla.proto',
   package='xsolla',
   syntax='proto3',
-  serialized_pb=_b('\n\x0cxsolla.proto\x12\x06xsolla\"6\n\x0b\x41\x63\x63ountInfo\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\"J\n\x0fGetTokenRequest\x12)\n\x0c\x61\x63\x63ount_info\x18\x01 \x01(\x0b\x32\x13.xsolla.AccountInfo\x12\x0c\n\x04mode\x18\x02 \x01(\t\"!\n\x10GetTokenResponse\x12\r\n\x05token\x18\x01 \x01(\t\"I\n\x13PaymentCallbackBody\x12\x12\n\naccount_id\x18\x01 \x01(\x04\x12\x0e\n\x06\x61mount\x18\x02 \x01(\x04\x12\x0e\n\x06secret\x18\x03 \x01(\t\"\x17\n\x15PaymentCallbackAnswer\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
+  serialized_pb=_b('\n\x0cxsolla.proto\x12\x06xsolla\"J\n\x0b\x41\x63\x63ountInfo\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\x12\x12\n\nreturn_url\x18\x04 \x01(\t\"J\n\x0fGetTokenRequest\x12)\n\x0c\x61\x63\x63ount_info\x18\x01 \x01(\x0b\x32\x13.xsolla.AccountInfo\x12\x0c\n\x04mode\x18\x02 \x01(\t\"!\n\x10GetTokenResponse\x12\r\n\x05token\x18\x01 \x01(\t\"I\n\x13PaymentCallbackBody\x12\x12\n\naccount_id\x18\x01 \x01(\x04\x12\x0e\n\x06\x61mount\x18\x02 \x01(\x04\x12\x0e\n\x06secret\x18\x03 \x01(\t\"\x17\n\x15PaymentCallbackAnswer\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -54,6 +54,13 @@ _ACCOUNTINFO = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='return_url', full_name='xsolla.AccountInfo.return_url', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -67,7 +74,7 @@ _ACCOUNTINFO = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=24,
-  serialized_end=78,
+  serialized_end=98,
 )
 
 
@@ -104,8 +111,8 @@ _GETTOKENREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=80,
-  serialized_end=154,
+  serialized_start=100,
+  serialized_end=174,
 )
 
 
@@ -135,8 +142,8 @@ _GETTOKENRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=156,
-  serialized_end=189,
+  serialized_start=176,
+  serialized_end=209,
 )
 
 
@@ -180,8 +187,8 @@ _PAYMENTCALLBACKBODY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=191,
-  serialized_end=264,
+  serialized_start=211,
+  serialized_end=284,
 )
 
 
@@ -204,8 +211,8 @@ _PAYMENTCALLBACKANSWER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=266,
-  serialized_end=289,
+  serialized_start=286,
+  serialized_end=309,
 )
 
 
@@ -228,8 +235,8 @@ _DEBUGCLEARSERVICEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=291,
-  serialized_end=317,
+  serialized_start=311,
+  serialized_end=337,
 )
 
 
@@ -252,8 +259,8 @@ _DEBUGCLEARSERVICERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=319,
-  serialized_end=346,
+  serialized_start=339,
+  serialized_end=366,
 )
 
 _GETTOKENREQUEST.fields_by_name['account_info'].message_type = _ACCOUNTINFO

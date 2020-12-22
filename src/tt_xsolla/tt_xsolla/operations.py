@@ -11,6 +11,7 @@ def row_to_account_info(row):
     return objects.AccountInfo(id=row['id'],
                                name=row['data']['name'],
                                email=row['data']['email'],
+                               return_url=row['data']['return_url'],
                                state=relations.ACCOUNT_INFO_STATE(row['state']))
 
 
@@ -45,7 +46,8 @@ async def load_account_info(account_id):
 
 async def update_account_info(execute, account_info):
     data = {'name': account_info.name,
-            'email': account_info.email}
+            'email': account_info.email,
+            'return_url': account_info.return_url}
 
     await execute('''INSERT INTO accounts_infos (id, state, data, created_at, updated_at)
                      VALUES (%(id)s, %(state)s, %(data)s, NOW(), NOW())
