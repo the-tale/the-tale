@@ -12,7 +12,7 @@ setuptools.setup(
     author_email='a.eletsky@gmail.com',
     license='BSD',
     packages=setuptools.find_packages(),
-    install_requires=['aiohttp==3.6.3',
+    install_requires=['aiohttp==3.7.4',
                       'cchardet==2.1.5',
                       'aiodns==2.0.0',
                       'aiopg==1.0.0',
