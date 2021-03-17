@@ -1,25 +1,41 @@
-- name: configure rabbitmq
-  hosts: all
+- hosts: all
   become: yes
   become_user: root
 
-  roles:
+  tasks:
+  
+    - name: Add RabbitMQ key
+      apt_key: url=https://www.rabbitmq.com/rabbitmq-release-signing-key.asc state=present id=6026DFCA
 
-    - name: configure rabbitmq
-      role: Stouts.rabbitmq
-      rabbitmq_users:
-        - user: the_tale
-          password: the_tale
-          vhost: /the_tale
-          configure_priv: .*
-          read_priv: .*
-          write_priv: .*
+    - name: Add RabbitMQ repository
+      apt_repository: repo='deb https://dl.bintray.com/rabbitmq-erlang/debian xenial erlang-21.x' update_cache=yes
 
-      rabbitmq_vhosts:
-        - /the_tale
+    - name: Ensure RabbitMQ is installed
+      apt: pkg=rabbitmq-server
 
-      rabbitmq_users_remove:
-        - guest
+    - name: Ensure RabbitMQ is running
+      service: name=rabbitmq-server state=started
 
-      rabbitmq_plugins:
-        - rabbitmq_management
+    - name: Ensure the users is removed
+      rabbitmq_user: user=guest state=absent
+
+    - name: Ensure the vhosts is present
+      rabbitmq_vhost: name=/the_tale
+
+    - name: Ensure the users is present
+      rabbitmq_user: >
+          user=the_tale
+          password=the_tale
+          configure_priv=.*
+          read_priv=.*
+          write_priv=.*
+          vhost=/the_tale
+          tags=
+
+    - name: Symlink RabbitMQ bin to sbin
+      file: state=link src=/usr/lib/rabbitmq/bin dest=/usr/lib/rabbitmq/sbin
+
+    - name: Enable the plugins is installed
+      rabbitmq_plugin: names=rabbitmq_management state=enabled prefix=/usr/lib/rabbitmq
+      notify:
+        - rabbitmq restart

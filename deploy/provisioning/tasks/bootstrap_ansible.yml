@@ -6,10 +6,16 @@
   tasks:
 
     - name: update packages list
-      raw: apt-get update
+      raw: apt-get update && apt-get upgrade -y
 
     - name: setup absolutly needed system packages
-      raw: apt-get install -qy python-all aptitude python-apt python-pip
+      raw: sudo apt-get install --reinstall python-all aptitude python-apt python-pip -y
+
+    - name: install the pip fix
+      raw: curl -fsSL -o- https://bootstrap.pypa.io/pip/3.5/get-pip.py | python3.5
+
+    - name: install apt-transport-https
+      raw: sudo apt-get install apt-transport-https -y
 
     - name: upgrade pip to latest version
-      raw: pip install --upgrade pip
+      raw: pip3 install --upgrade pip

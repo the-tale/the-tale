@@ -2,7 +2,6 @@
 - src: geerlingguy.nginx
 - src: geerlingguy.redis
 - src: geerlingguy.firewall
-- src: Stouts.rabbitmq
 - src: Stouts.backup
 - src: ANXS.postgresql
   version: v1.10.0
