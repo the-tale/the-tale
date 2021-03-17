@@ -7,8 +7,11 @@
     - name: Add RabbitMQ key
       apt_key: url=https://www.rabbitmq.com/rabbitmq-release-signing-key.asc state=present id=6026DFCA
 
+    - name: Add RabbitMQ Erlang repository
+      apt_repository: repo='deb https://dl.bintray.com/rabbitmq-erlang/debian xenial erlang' update_cache=yes
+
     - name: Add RabbitMQ repository
-      apt_repository: repo='deb https://dl.bintray.com/rabbitmq-erlang/debian xenial erlang-21.x' update_cache=yes
+      apt_repository: repo='deb https://dl.bintray.com/rabbitmq/debian xenial main' update_cache=yes
 
     - name: Ensure RabbitMQ is installed
       apt: pkg=rabbitmq-server
