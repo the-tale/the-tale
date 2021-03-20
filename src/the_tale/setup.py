@@ -36,7 +36,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=['Django==3.0.7',
                       'argon2_cffi==19.2.0',
-                      'Jinja2==2.10.3',
+                      'Jinja2==2.11.3',
                       'psycopg2==2.8.4',
 
                       'kombu==4.6.6',
