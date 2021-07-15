@@ -242,7 +242,7 @@ class SELFISH(prototypes.AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = 'Герой чаще выбирает задания, связанные со своими предпочтениями.'
 
-    MULTIPLIER = [0.2, 0.4, 0.6, 0.8, 0.0]
+    MULTIPLIER = [0.2, 0.4, 0.6, 0.8, 1.0]
 
     @property
     def multiplier(self): return self.MULTIPLIER[self.level - 1]
