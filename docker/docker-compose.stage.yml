@@ -1,0 +1,24 @@
+version: "3.9"
+
+volumes:
+  postgresql-storage: {}
+
+
+services:
+
+  core_postgresql:
+    environment:
+      POSTGRES_PASSWORD: postgresql
+    volumes:
+       - postgresql-storage:/var/lib/postgresql/data
+
+  utils_backup:
+
+    environment:
+      BACKUP_USER: postgres
+      BACKUP_PASSWORD: postgresql
+
+  core_nginx:
+    environment:
+      TT_SERVERS: "site"
+      TT_GENERATE_CERTIFICATES: "yes"

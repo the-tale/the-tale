@@ -1,0 +1,18 @@
+{
+    "database": {"name": "tt_players_properties",
+                 "user": "tt_players_properties",
+                 "password": "tt_players_properties",
+                 "host": "core_postgresql",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "django": {"secret_key": "eg2646ql5kph*#xhkouhc5)yaz3&t^hi-%(87anwgbe%klsa^-"},
+
+    "log": {"level": "info"},
+
+    "service": {"port": 80},
+
+    "custom": {"data_protector": {"secret": "test.secret"}}
+}

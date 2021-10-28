@@ -1,0 +1,13 @@
+[tool.poetry]
+name = "tt_properties"
+version = "0.1"
+description = "Object properties service The Tale."
+repository = "https://github.com/Tiendil/the-tale"
+authors = ["Aliaksei Yaletski (Tiendil) <a.eletsky@gmail.com>"]
+license = "BSD-3"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+tt_web = { path = "../tt_web/", develop = true }
+tt_protocol = { path = "../tt_protocol/", develop = true }

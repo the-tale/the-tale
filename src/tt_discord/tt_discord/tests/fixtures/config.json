@@ -2,7 +2,7 @@
     "database": {"name": "tt_discord",
                  "user": "tt_discord",
                  "password": "tt_discord",
-                 "host": "localhost",
+                 "host": "core_postgresql",
                  "port": 5432,
                  "minsize": 2,
                  "maxsize": 5,

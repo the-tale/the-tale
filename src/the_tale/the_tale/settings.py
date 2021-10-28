@@ -8,6 +8,7 @@ TESTS_RUNNING = 'test' in sys.argv or 'testserver' in sys.argv
 # and only for tests
 ################################################################
 if TESTS_RUNNING:
+    print('WARNING: tests is running, some configs can be changed.')
     from typeguard.importhook import install_import_hook
     install_import_hook('the_tale')
 ################################################################
@@ -25,8 +26,7 @@ HOME_DIR = os.getenv("HOME")
 
 PROJECT_MODULE = os.path.basename(PROJECT_DIR)
 
-META_CONFIG_FILE = os.path.join(PROJECT_DIR, 'meta_config.json')
-META_CONFIG = utils_meta_config.MetaConfig(config_path=META_CONFIG_FILE)
+GAME_VERSION = std_metadata.version('the_tale')
 
 DEBUG = False
 
@@ -38,7 +38,7 @@ DATABASES = {
         'NAME': 'the_tale',
         'USER': 'the_tale',
         'PASSWORD': 'the_tale',
-        'HOST': '',
+        'HOST': 'core_postgresql',
         'PORT': '',
         'CONN_MAX_AGE': 60 * 60  # close connection after an hour
     }
@@ -57,7 +57,7 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = True
 
 SITE_ID = 1
-SITE_URL = 'local.the-tale'
+SITE_URL = 'localhost'
 
 SOCIAL_VK_GROUP_URL = None
 SOCIAL_TWITTER_GROUP_URL = None
@@ -74,10 +74,9 @@ CARDS_TUTORIAL = None
 X_FRAME_OPTIONS = 'DENY'
 
 ALLOWED_HOSTS = ['localhost',
+                 'site',  # host name in docker environment
                  'the-tale.org',
-                 '.the-tale.org',
-                 'local.the-tale',
-                 '.local.the-tale']
+                 '.the-tale.org']
 
 AUTH_USER_MODEL = 'accounts.Account'
 
@@ -85,7 +84,7 @@ OWNER = 'Информация о владельце сайта'
 
 PAGE_TITLE = 'Сказка'
 
-API_CLIENT = 'the_tale-%s' % META_CONFIG.version
+API_CLIENT = 'the_tale-%s' % GAME_VERSION
 
 ##############################
 # I18N
@@ -269,7 +268,7 @@ else:
 # AMQP
 ###############################
 
-AMQP_BROKER_HOST = 'localhost'
+AMQP_BROKER_HOST = 'core_rabbitmq'
 AMQP_BROKER_USER = 'the_tale'
 AMQP_BROKER_PASSWORD = 'the_tale'
 AMQP_BROKER_VHOST = '/the_tale'
@@ -287,7 +286,7 @@ if TESTS_RUNNING:
 ################
 
 CACHES = {'default': {'BACKEND': 'django_redis.cache.RedisCache',
-                      'LOCATION': 'unix:///var/run/redis/redis.sock',
+                      'LOCATION': 'redis://core_redis',
                       'OPTIONS': {
                           'CLIENT_CLASS': 'django_redis.client.DefaultClient',
                           'SERIALIZER': 'django_redis.serializers.json.JSONSerializer'}}}
@@ -338,13 +337,13 @@ AMQP_CONNECTION_URL = 'amqp://%s:%s@%s/%s' % (AMQP_BROKER_USER,
 
 STATICFILES_DIRS = [os.path.join(PROJECT_DIR, 'static')]
 
-STATIC_URL = '/static/%s/' % META_CONFIG.static_data_version
+STATIC_URL = '/static/%s/' % GAME_VERSION
 
-STATIC_ROOT = '/var/www/the_tale/static/%s/' % META_CONFIG.static_data_version
+STATIC_ROOT = '/var/www/the_tale/static/%s/' % GAME_VERSION
 
 CDN_DOMAIN = globals().get('CDN_DOMAIN', 'static.the-tale.org')
 
-STATIC_CDN = '//%s/static/%s/' % (CDN_DOMAIN, META_CONFIG.static_data_version)
+STATIC_CDN = '//%s/static/%s/' % (CDN_DOMAIN, GAME_VERSION)
 
 ADMIN_MEDIA_PREFIX = '%sadmin/' % STATIC_URL
 

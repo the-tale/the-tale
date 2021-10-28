@@ -1,0 +1,50 @@
+{% import "macroses.j2" as macroses %}
+
+{{ macroses.server_redirects(tt_domain) }}
+
+server {
+        {{ macroses.common(tt_domain) }}
+        {{ macroses.ssl("site") }}
+        {{ macroses.gzip() }}
+
+        if ($host != "{{tt_domain}}") {
+             return 301 https://{{tt_domain}};
+        }
+
+        # hack for django bug with reseting csrf-token on favicon request
+        location /favicon.ico {
+            return 404;
+        }
+
+        # TODO: change proxy_pass logic
+        #       regular expressions — not fastest way to rout requests
+        location ~ ^/(.*)$ {
+            # TODO: change maintenance logic
+            if (-f /var/www/the_tale/maintenance.html) {
+                   return 503;
+            }
+
+            {{ macroses.proxy_config("site", "/") }}
+        }
+
+        # TODO: rewrite paths
+        {% if not tt_test_enviroment %}
+        location /static/ {
+            if (-f /var/www/the_tale/maintenance.html) {
+                   return 503;
+            }
+            root         /var/www/the_tale/;
+            access_log   off;
+            expires      30d;
+        }
+        {% endif %}
+
+        {{ macroses.location_robots_txt() }}
+
+         # TODO: change maintenance logic
+        error_page 503 /maintenance.html;
+        location =/maintenance.html {
+            root /var/www/the_tale;
+            internal;
+        }
+}

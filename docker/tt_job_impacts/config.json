@@ -1,0 +1,18 @@
+{
+    "database": {"name": "tt_job_impacts",
+                 "user": "tt_job_impacts",
+                 "password": "tt_job_impacts",
+                 "host": "core_postgresql",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "django": {"secret_key": "fi6rl8zc@v))ws*4c2sl^3$cre6%^8#16xc(=ks5ed2^xm7(9r"},
+
+    "log": {"level": "info"},
+
+    "service": {"port": 80},
+
+    "custom": {"scale_chunk_size": 100}
+}

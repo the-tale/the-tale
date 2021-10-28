@@ -1,0 +1,18 @@
+{
+    "database": {"name": "tt_clans_chronicle",
+                 "user": "tt_clans_chronicle",
+                 "password": "tt_clans_chronicle",
+                 "host": "core_postgresql",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "django": {"secret_key": "lv-1f_4z4*wa^mv#&#7+de@*o)721bj*2(i1r!#ehuz*-sazmm"},
+
+    "log": {"level": "info"},
+
+    "service": {"port": 80},
+
+    "custom": {"scale_chunk_size": 100}
+}

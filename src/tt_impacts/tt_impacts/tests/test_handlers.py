@@ -27,8 +27,9 @@ class AddImpactsTests(helpers.BaseTests):
 
         created_impacts = await operations.last_impacts(limit=100)
 
-        for impact, created_impact in zip(impacts, created_impacts):
+        for impact, created_impact in zip(impacts, created_impacts[::-1]):
             impact.time = created_impact.time
+
             self.assertEqual(impact, created_impact)
 
 

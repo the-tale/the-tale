@@ -1,0 +1,17 @@
+{% import "macroses.j2" as macroses %}
+
+{% set current_domain = "xsolla." + tt_domain %}
+
+server {
+        {{ macroses.common(current_domain) }}
+        {{ macroses.ssl("xsolla") }}
+        {{ macroses.gzip() }}
+
+        location ~ ^/xsolla-hook/(.*)$ {
+            {{ macroses.proxy_config("tt_xsolla", "/xsolla-hook/") }}
+
+            allow 185.30.20.0/24;
+            allow 185.30.21.0/24;
+            deny  all;
+        }
+}

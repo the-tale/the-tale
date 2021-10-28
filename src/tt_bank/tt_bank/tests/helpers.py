@@ -1,6 +1,5 @@
 
 import os
-import getpass
 
 from tt_web import log
 from tt_web import utils
@@ -28,11 +27,11 @@ def get_config():
     config_path = os.path.join(os.path.dirname(__file__), 'fixtures', 'config.json')
     config = utils.load_config(config_path)
 
-    service_user = getpass.getuser()
+    service_name = os.environ['TT_SERVICE']
 
-    config['database']['name'] = service_user
-    config['database']['user'] = service_user
-    config['database']['password'] = service_user
+    config['database']['name'] = service_name
+    config['database']['user'] = service_name
+    config['database']['password'] = service_name
 
     return config
 

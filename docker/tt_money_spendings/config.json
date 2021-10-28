@@ -1,0 +1,21 @@
+{
+    "database": {"name": "tt_money_spendings",
+                 "user": "tt_money_spendings",
+                 "password": "tt_money_spendings",
+                 "host": "core_postgresql",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "django": {"secret_key": "3!dcy4tc2-o3(tvgzss7pfv667ce2hue3(a&q0&u=#$jwyf(j("},
+
+    "log": {"level": "info"},
+
+    "service": {"port": 80},
+
+    "custom": {"scale_chunk_size": 100,
+               "log_single_impacts": false,
+               "log_actors_impacts": false,
+               "log_target_impacts": true}
+}

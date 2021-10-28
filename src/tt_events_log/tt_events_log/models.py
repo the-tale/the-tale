@@ -8,7 +8,7 @@ class Event(models.Model):
 
     id = models.BigAutoField(primary_key=True)
 
-    data = postgres_fields.JSONField(default='{}')
+    data = postgres_fields.JSONField(default=dict)
 
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     created_at_turn = models.BigIntegerField(db_index=True)

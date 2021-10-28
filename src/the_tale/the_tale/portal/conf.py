@@ -50,7 +50,7 @@ settings = utils_app_settings.app_settings('PORTAL',
 
                                            SETTINGS_CDN_INFO_KEY='cdn info',
 
-                                           TT_DISCORD_ENTRY_POINT='http://localhost:10022/',
+                                           TT_DISCORD_ENTRY_POINT='http://tt_discord:80/',
 
                                            DISCORD_BIND_CODE_EXPIRE_TIMEOUT=10*60,
 

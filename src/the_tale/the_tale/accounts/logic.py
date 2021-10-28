@@ -140,8 +140,6 @@ def register_user(nick,
     hero = heroes_logic.create_hero(account_id=account.id, attributes=hero_attributes)
 
     if full_create:
-        create_cards_timer(account.id)
-
         cards_for_new_account(hero)
 
     return relations.REGISTER_USER_RESULT.OK, account.id, hero.actions.current_action.bundle_id

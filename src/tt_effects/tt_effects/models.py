@@ -12,7 +12,7 @@ class Effect(models.Model):
 
     entity = models.BigIntegerField()
 
-    data = postgres_fields.JSONField(default='{}')
+    data = postgres_fields.JSONField(default=dict)
 
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)

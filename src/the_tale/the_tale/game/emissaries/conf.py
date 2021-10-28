@@ -14,5 +14,5 @@ settings = utils_app_settings.app_settings('EMISSARIES',
 
                                            SHOW_START_EVENT_WARNING_BARRIER=1000,
 
-                                           TT_EVENTS_CURRENCIES_ENTRY_POINT='http://localhost:10020/',
-                                           TT_EVENTS_UNIQUER_ENTRY_POINT='http://localhost:10021/')
+                                           TT_EVENTS_CURRENCIES_ENTRY_POINT='http://tt_emissaries_events_currencies:80/',
+                                           TT_EVENTS_UNIQUER_ENTRY_POINT='http://tt_emissaries_events_uniquer:80/')

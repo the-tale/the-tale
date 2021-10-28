@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "tt_protocol"
+version = "0.1"
+description = "The Tale protocol buffers communication protocol desctiption."
+repository = "https://github.com/Tiendil/the-tale"
+authors = ["Aliaksei Yaletski (Tiendil) <a.eletsky@gmail.com>"]
+license = "BSD-3"
+include = ["*.proto"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.scripts]
+tt_regenerate_protocol = "tt_protocol.commands.tt_regenerate_protocol:main"

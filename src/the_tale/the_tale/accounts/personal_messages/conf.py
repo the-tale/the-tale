@@ -13,4 +13,4 @@ settings = utils_app_settings.app_settings('PERSONAL_MESSAGES',
 
                                            NEW_MESSAGES_NUMNER_API_VERSION='0.1',
 
-                                           TT_PERSONAL_MESSAGES_ENTRY_POINT='http://localhost:10002/')
+                                           TT_PERSONAL_MESSAGES_ENTRY_POINT='http://tt_personal_messages:80/')

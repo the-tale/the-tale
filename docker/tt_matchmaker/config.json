@@ -1,0 +1,18 @@
+{
+    "database": {"name": "tt_matchmaker",
+                 "user": "tt_matchmaker",
+                 "password": "tt_matchmaker",
+                 "host": "core_postgresql",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "django": {"secret_key": "6r6c958hn@r-^j$3hau8vz)rurf4s4@_#v9$u%fu!!zhst$nh*"},
+
+    "log": {"level": "info"},
+
+    "service": {"port": 80},
+
+    "custom": null
+}

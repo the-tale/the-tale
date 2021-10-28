@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "tt_web"
+version = "0.1"
+description = "Web framework for The Tale."
+repository = "https://github.com/Tiendil/the-tale"
+authors = ["Aliaksei Yaletski (Tiendil) <a.eletsky@gmail.com>"]
+license = "BSD-3"
+
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+aiohttp = "3.7.4"
+cchardet = '2.1.5'
+aiodns = '2.0.0'
+aiopg = '1.0.0'
+Django = '3.0.11'
+yarl = '1.4.2'
+protobuf = '3.11.1'
+
+
+[tool.poetry.dev-dependencies]
+
+django-test-without-migrations = "^0.6"
+
+
+[tool.poetry.scripts]
+tt_service = "tt_web.commands.tt_service:main"

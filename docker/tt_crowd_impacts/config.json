@@ -1,0 +1,18 @@
+{
+    "database": {"name": "tt_crowd_impacts",
+                 "user": "tt_crowd_impacts",
+                 "password": "tt_crowd_impacts",
+                 "host": "core_postgresql",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "django": {"secret_key": "tu_sh^-l8s)zt(zjez_i=!2^03-b-id5(obr!zh62-ugi-fewp"},
+
+    "log": {"level": "info"},
+
+    "service": {"port": 80},
+
+    "custom": {"scale_chunk_size": 100}
+}

@@ -1,0 +1,16 @@
+{
+    "database": {"name": "tt_market",
+                 "user": "tt_market",
+                 "password": "tt_market",
+                 "host": "core_postgresql",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "django": {"secret_key": "d*awil6lu21jz5d)*2xo@spu!)%_886irkfln@ov!$x1$g+kz6"},
+
+    "log": {"level": "info"},
+
+    "service": {"port": 80}
+}

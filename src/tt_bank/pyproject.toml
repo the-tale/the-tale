@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "tt_bank"
+version = "0.1"
+description = "Bank service for The Tale."
+repository = "https://github.com/Tiendil/the-tale"
+authors = ["Aliaksei Yaletski (Tiendil) <a.eletsky@gmail.com>"]
+license = "BSD-3"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+tt_web = { path = "../tt_web/", develop = true }
+tt_protocol = { path = "../tt_protocol/", develop = true }
+
+[tool.poetry.scripts]
+tt_bank_rollback_hanged_transactions = "tt_bank.commands.tt_bank_rollback_hanged_transactions:main"
+tt_bank_remove_old_transactions = "tt_bank.commands.tt_bank_remove_old_transactions:main"

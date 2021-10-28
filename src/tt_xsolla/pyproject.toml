@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "tt_xsolla"
+version = "0.1"
+description = "XSolla hooks service for The Tale."
+repository = "https://github.com/Tiendil/the-tale"
+authors = ["Aliaksei Yaletski (Tiendil) <a.eletsky@gmail.com>"]
+license = "BSD-3"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+tt_web = { path = "../tt_web/", develop = true }
+tt_protocol = { path = "../tt_protocol/", develop = true }
+
+[tool.poetry.scripts]
+tt_xsolla_create_fake_invoice = "tt_xsolla.commands.tt_xsolla_create_fake_invoice:main"

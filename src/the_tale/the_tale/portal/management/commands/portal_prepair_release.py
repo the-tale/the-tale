@@ -4,9 +4,6 @@ import smart_imports
 smart_imports.all()
 
 
-META_CONFIG = django_settings.META_CONFIG
-
-
 class Command(utilities_base.Command):
 
     help = 'prepair all generated static files'
@@ -38,9 +35,8 @@ class Command(utilities_base.Command):
         utils_logic.run_django_command(['less_generate_css', '--ignore-lock', 'portal_commands'])
 
         self.logger.info('')
-        self.logger.info('GENERATE META CONFIG')
+        self.logger.info('UPDATE GAME VERSION')
         self.logger.info('')
 
-        META_CONFIG.increment_static_data_version()
-        META_CONFIG.version = version
-        META_CONFIG.save_config()
+        os.chdir(os.path.dirname(__file__))
+        subprocess.call(['poetry', 'version', version])

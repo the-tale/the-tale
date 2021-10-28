@@ -1,0 +1,18 @@
+{
+    "database": {"name": "tt_clans_currencies",
+                 "user": "tt_clans_currencies",
+                 "password": "tt_clans_currencies",
+                 "host": "core_postgresql",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "django": {"secret_key": "(%p14jk=xy8o5%g8+qy)kktv%n^wd$h&%cjg_qud#@#q0&48w9"},
+
+    "log": {"level": "info"},
+
+    "service": {"port": 80},
+
+    "custom": null
+}

@@ -39,9 +39,9 @@ settings = utils_app_settings.app_settings('GAME',
 
                                            ENERGY_TRANSACTION_LIFETIME=24 * 60 * 60,
 
-                                           TT_IMPACTS_PERSONAL_ENTRY_POINT='http://localhost:10007/',
-                                           TT_IMPACTS_CROWD_ENTRY_POINT='http://localhost:10008/',
-                                           TT_IMPACTS_JOB_ENTRY_POINT='http://localhost:10009/',
-                                           TT_IMPACTS_FAME_ENTRY_POINT='http://localhost:10010/',
-                                           TT_IMPACTS_MONEY_ENTRY_POINT='http://localhost:10013/',
-                                           TT_IMPACTS_EMISSARY_ENTRY_POINT='http://localhost:10018/')
+                                           TT_IMPACTS_PERSONAL_ENTRY_POINT='http://tt_personal_impacts:80/',
+                                           TT_IMPACTS_CROWD_ENTRY_POINT='http://tt_crowd_impacts:80/',
+                                           TT_IMPACTS_JOB_ENTRY_POINT='http://tt_job_impacts:80/',
+                                           TT_IMPACTS_FAME_ENTRY_POINT='http://tt_fame_impacts:80/',
+                                           TT_IMPACTS_MONEY_ENTRY_POINT='http://tt_money_spendings:80/',
+                                           TT_IMPACTS_EMISSARY_ENTRY_POINT='http://tt_emissaries_impacts:80/')

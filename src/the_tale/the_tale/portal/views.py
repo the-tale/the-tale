@@ -147,7 +147,7 @@ def api_info(context):
     cdn_paths = logic.cdn_paths()
 
     data = {'static_content': cdn_paths['STATIC_CONTENT'],
-            'game_version': django_settings.META_CONFIG.version,
+            'game_version': django_settings.GAME_VERSION,
             'turn_delta': c.TURN_DELTA,
             'account_id': context.account.id if context.account.is_authenticated else None,
             'account_name': context.account.nick if context.account.is_authenticated else None}

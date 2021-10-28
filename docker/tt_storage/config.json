@@ -1,0 +1,16 @@
+{
+    "database": {"name": "tt_storage",
+                 "user": "tt_storage",
+                 "password": "tt_storage",
+                 "host": "core_postgresql",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "django": {"secret_key": "crr8fzog*np(9olw0hc!lp^wm9zg%v!s#m1u0qjd)2$qyi=j+l"},
+
+    "log": {"level": "info"},
+
+    "service": {"port": 80}
+}

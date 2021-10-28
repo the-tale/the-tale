@@ -31,7 +31,7 @@ def _point_circle_height(obj, borders, normalizer, power_percent):
                                                 name='height_circle_' + obj.uid,
                                                 x=obj.x,
                                                 y=obj.y,
-                                                radius=obj.r,
+                                                radius=obj.r if obj.r >= 1 else 1,
                                                 power=get_height_power_function(borders, power_percent),
                                                 default_power=(0.0, 0.0),
                                                 normalizer=normalizer)
@@ -103,7 +103,7 @@ def _point_circle_vegetation(obj, power, normalizer, power_percent):
                                                 name='vegetation_' + obj.uid,
                                                 x=obj.x,
                                                 y=obj.y,
-                                                radius=obj.r,
+                                                radius=obj.r if obj.r >= 1 else 1,
                                                 power=(power[0] * power_percent, power[1] * power_percent),
                                                 default_power=(0.0, 0.0),
                                                 normalizer=normalizer)
@@ -114,7 +114,7 @@ def _point_circle_soil(obj, power, normalizer, power_percent):
                                                 name='soil_' + obj.uid,
                                                 x=obj.x,
                                                 y=obj.y,
-                                                radius=obj.r,
+                                                radius=obj.r if obj.r >= 1 else 1,
                                                 power=power * power_percent,
                                                 default_power=0.0,
                                                 normalizer=normalizer)
@@ -125,7 +125,7 @@ def _point_circle_temperature(obj, power, normalizer, power_percent):
                                                 name='temperature_' + obj.uid,
                                                 x=obj.x,
                                                 y=obj.y,
-                                                radius=obj.r,
+                                                radius=obj.r if obj.r >= 1 else 1,
                                                 power=power * power_percent,
                                                 normalizer=normalizer)
 
@@ -135,49 +135,53 @@ def _point_circle_wetness(obj, power, normalizer, power_percent):
                                                 name='wetness_' + obj.uid,
                                                 x=obj.x,
                                                 y=obj.y,
-                                                radius=obj.r,
+                                                radius=obj.r if obj.r >= 1 else 1,
                                                 power=power * power_percent,
                                                 normalizer=normalizer)
 
 
 def _default_temperature_points(delta=0.0):
+    r = int(math.hypot(conf.settings.WIDTH, conf.settings.HEIGHT) / 2)
     return deworld_power_points.CircleAreaPoint(layer_type=deworld_layers.LAYER_TYPE.TEMPERATURE,
                                                 name='default_temperature',
                                                 x=conf.settings.WIDTH // 2,
                                                 y=conf.settings.HEIGHT // 2,
                                                 power=0.5 + delta,
-                                                radius=int(math.hypot(conf.settings.WIDTH, conf.settings.HEIGHT) / 2) + 1,
+                                                radius=r if r >= 1 else 1,
                                                 normalizer=deworld_normalizers.equal)
 
 
 def _default_wetness_points(delta=0.0):
+    r = int(math.hypot(conf.settings.WIDTH, conf.settings.HEIGHT) / 2)
     return deworld_power_points.CircleAreaPoint(layer_type=deworld_layers.LAYER_TYPE.WETNESS,
                                                 name='default_wetness',
                                                 x=conf.settings.WIDTH // 2,
                                                 y=conf.settings.HEIGHT // 2,
                                                 power=0.6 + delta,
-                                                radius=int(math.hypot(conf.settings.WIDTH, conf.settings.HEIGHT) / 2) + 1,
+                                                radius=r if r >= 1 else 1,
                                                 normalizer=deworld_normalizers.equal)
 
 
 def _default_soil_points(delta=0.0):
+    r = int(math.hypot(conf.settings.WIDTH, conf.settings.HEIGHT) / 2)
     return deworld_power_points.CircleAreaPoint(layer_type=deworld_layers.LAYER_TYPE.SOIL,
                                                 name='default_soil',
                                                 x=conf.settings.WIDTH // 2,
                                                 y=conf.settings.HEIGHT // 2,
                                                 power=0.3 + delta,
-                                                radius=int(math.hypot(conf.settings.WIDTH, conf.settings.HEIGHT) / 2) + 1,
+                                                radius=r if r >= 1 else 1,
                                                 normalizer=deworld_normalizers.equal)
 
 
 def _default_vegetation_points():
+    r = int(math.hypot(conf.settings.WIDTH, conf.settings.HEIGHT) / 2)
     return deworld_power_points.CircleAreaPoint(layer_type=deworld_layers.LAYER_TYPE.VEGETATION,
                                                 name='default_vegetation',
                                                 x=conf.settings.WIDTH // 2,
                                                 y=conf.settings.HEIGHT // 2,
                                                 power=(0.25, 0.25),
                                                 default_power=(0.0, 0.0),
-                                                radius=int(math.hypot(conf.settings.WIDTH, conf.settings.HEIGHT) / 2) + 1,
+                                                radius=r if r >= 1 else 1,
                                                 normalizer=deworld_normalizers.equal)
 
 

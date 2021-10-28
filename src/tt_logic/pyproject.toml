@@ -1,0 +1,7 @@
+[tool.poetry]
+name = "tt_logic"
+version = "0.1"
+description = "Pure logic for The Tale."
+repository = "https://github.com/Tiendil/the-tale"
+authors = ["Aliaksei Yaletski (Tiendil) <a.eletsky@gmail.com>"]
+license = "BSD-3"

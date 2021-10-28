@@ -1,0 +1,30 @@
+{
+    "database": {"name": "tt_players_timers",
+                 "user": "tt_players_timers",
+                 "password": "tt_players_timers",
+                 "host": "core_postgresql",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "django": {"secret_key": "g9wnfnzrj&0cl%*x9m#12ub1zj(j*$_^#+ll0ka&_w_!1#m^1("},
+
+    "log": {"level": "info"},
+
+    "service": {"port": 80},
+
+    "custom": {
+        "secret": "test.secret",
+        "sleep_if_no_timers_interval": 0.1,
+        "delay_before_callback_retry": 1.0,
+        "max_delay_before_callback_retry": 3600,
+        "max_simultaneously_requests": 5,
+
+        "types": {
+            "0": {
+                "url": "http://site:80/game/cards/tt/take-card-callback"
+            }
+        }
+    }
+}

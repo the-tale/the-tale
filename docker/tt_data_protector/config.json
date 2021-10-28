@@ -1,0 +1,45 @@
+{
+    "database": {"name": "tt_data_protector",
+                 "user": "tt_data_protector",
+                 "password": "tt_data_protector",
+                 "host": "core_postgresql",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "django": {"secret_key": "uw0p9bt_drvv4j_&*u-c0p!$0i_5uc597npkd-0cnte=0h85$v"},
+
+    "log": {"level": "info"},
+
+    "service": {"port": 80},
+
+    "custom": {
+        "report_livetime": 86400,
+        "sources": {
+            "the_tale": {
+                "plugin": "tt_data_protector.plugins.internal",
+                "report_url": "http://site:80/accounts/profile/tt/data-protection-collect-data",
+                "deletion_url": "http://site:80/accounts/profile/tt/data-protection-delete-data",
+                "secret": "test.secret"},
+            "tt_personal_messages": {
+                "plugin": "tt_data_protector.plugins.internal",
+                "report_url": "http://tt_personal_messages:80/data-protection-collect-data",
+                "deletion_url": "http://tt_personal_messages:80/data-protection-delete-data",
+                "secret": "test.secret"},
+            "tt_discord": {
+                "plugin": "tt_data_protector.plugins.internal",
+                "report_url": "http://tt_discord:80/data-protection-collect-data",
+                "deletion_url": "http://tt_discord:80/data-protection-delete-data",
+                "secret": "test.secret"},
+            "tt_players_properties": {
+                "plugin": "tt_data_protector.plugins.internal",
+                "report_url": "http://tt_players_properties:80/data-protection-collect-data",
+                "deletion_url": "http://tt_players_properties:80/data-protection-delete-data",
+                "secret": "test.secret"},
+            "tt_xsolla": {
+                "plugin": "tt_data_protector.plugins.internal",
+                "report_url": "http://tt_xsolla:80/data-protection-collect-data",
+                "deletion_url": "http://tt_xsolla:80/data-protection-delete-data",
+                "secret": "test.secret"}}}
+}

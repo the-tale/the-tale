@@ -1,0 +1,71 @@
+{% macro gzip() %}
+        gzip on;
+        gzip_proxied any;
+        gzip_http_version 1.0;
+        gzip_types *;
+        gzip_vary on;
+{% endmacro %}
+
+
+{% macro ssl(name) %}
+        ssl_certificate     /etc/nginx/certificates/{{name}}/fullcert.pem;
+        ssl_certificate_key /etc/nginx/certificates/{{name}}/privkey.pem;
+        ssl_session_cache   shared:SSL:10m;
+        ssl_session_timeout 10m;
+{% endmacro %}
+
+
+{% macro server_redirects(domain) %}
+
+server {
+    server_name www.{{domain}};
+    return 301 https://{{domain}}$request_uri;
+}
+
+server {
+    listen        80;
+    server_name   {{domain}};
+    return 301 https://{{domain}}$request_uri;
+}
+
+{% endmacro %}
+
+
+{% macro common(domain) %}
+        listen        443 ssl http2;
+        server_name   {{domain}};
+
+        resolver 8.8.8.8;
+
+        charset  utf-8;
+        source_charset utf-8;
+
+        keepalive_requests 10000;
+        keepalive_timeout 125s;
+
+        proxy_buffers 16 4k;
+{% endmacro %}
+
+
+{% macro location_robots_txt() %}
+        location =/robots.txt {
+            add_header Content-Type text/plain;
+            return 200 "User-agent: *\nDisallow: /admin/\n";
+        }
+{% endmacro %}
+
+{% macro proxy_config(domain, location, port=80) %}
+            resolver 127.0.0.11 valid=1s;
+
+            set $tt_var_{{domain}} {{domain}};
+
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto https;
+            proxy_set_header Host $http_host;
+            # we don't want nginx trying to do something clever with
+            # redirects, we set the Host: header above already.
+            proxy_redirect off;
+
+            # TODO: change proxy_pass logic
+            proxy_pass http://$tt_var_{{domain}}:{{port}}{{location}}$1$is_args$args;
+{% endmacro %}

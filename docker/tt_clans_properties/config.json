@@ -1,0 +1,18 @@
+{
+    "database": {"name": "tt_clans_properties",
+                 "user": "tt_clans_properties",
+                 "password": "tt_clans_properties",
+                 "host": "core_postgresql",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "django": {"secret_key": "(5^pxzt$n=pv_czoyty)^9j$dks@sym_y6f$=%n&-s9th-2%(&"},
+
+    "log": {"level": "info"},
+
+    "service": {"port": 80},
+
+    "custom": {"data_protector": {"secret": "test.secret"}}
+}

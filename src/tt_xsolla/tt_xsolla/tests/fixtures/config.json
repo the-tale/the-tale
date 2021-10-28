@@ -2,7 +2,7 @@
     "database": {"name": "tt_xsolla",
                  "user": "tt_xsolla",
                  "password": "tt_xsolla",
-                 "host": "localhost",
+                 "host": "core_postgresql",
                  "port": 5432,
                  "minsize": 10,
                  "maxsize": 10,
@@ -27,7 +27,7 @@
         "sleep_if_no_payments_interval": 1,
 
         "run_callbacks": false,
-        "payment_url": "http://localhost:8000/bank/tt/process-payment",
+        "payment_url": "http://localhost:80/bank/tt/process-payment",
 
         "client": {
             "type": "fake",

@@ -209,7 +209,7 @@ def api_get_cards(context):
 
     timers = accounts_tt_services.players_timers.cmd_get_owner_timers(context.account.id)
 
-    if not timers and (django_settings.RUNSERVER_RUNNING or django_settings.TESTS_RUNNING):
+    if not timers:
         accounts_logic.create_cards_timer(account_id=context.account.id)
         timers = accounts_tt_services.players_timers.cmd_get_owner_timers(context.account.id)
 

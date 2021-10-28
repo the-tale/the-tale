@@ -1,0 +1,18 @@
+{
+    "rabbit_version":"3.9.7",
+    "rabbitmq_version":"3.9.7",
+    "bindings":[],
+    "exchanges":[],
+    "global_parameters":[],
+    "parameters":[],
+    "permissions":[{"configure":".*","read":".*","user":"the_tale","vhost":"/the_tale","write":".*"}],
+    "policies":[],
+    "queues":[],
+    "topic_permissions":[],
+    "users":[{"hashing_algorithm":"rabbit_password_hashing_sha256",
+              "limits":{},
+              "name":"the_tale",
+              "password_hash":"aKAD0UKdT0G82l7dMUiQWviLykjp7AzBCRg+LD42geY7NIb1",
+              "tags":[]}],
+    "vhosts":[{"limits":[],"metadata":{"description":"","tags":[]},"name":"/the_tale"}]
+}

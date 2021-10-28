@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "tt_personal_messages"
+version = "0.1"
+description = "Personal Messages service for The Tale."
+repository = "https://github.com/Tiendil/the-tale"
+authors = ["Aliaksei Yaletski (Tiendil) <a.eletsky@gmail.com>"]
+license = "BSD-3"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+rels = "^0.3"
+
+tt_web = { path = "../tt_web/", develop = true }
+tt_protocol = { path = "../tt_protocol/", develop = true }
+
+[tool.poetry.scripts]
+tt_personal_messages_clean = "tt_personal_messages.commands.tt_personal_messages_clean:main"

@@ -14,7 +14,7 @@ class Diary(models.Model):
 
     version = models.BigIntegerField(default=0)
 
-    data = postgres_fields.JSONField(default='{}')
+    data = postgres_fields.JSONField(default=dict)
 
     class Meta:
         db_table = 'diaries'

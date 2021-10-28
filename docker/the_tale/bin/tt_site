@@ -1,0 +1,7 @@
+#!/bin/sh
+
+wait-for-it core_postgresql:5432 -t $TT_WAIT_TIMEOUT
+wait-for-it core_redis:6379 -t $TT_WAIT_TIMEOUT
+wait-for-it core_rabbitmq:5672 -t $TT_WAIT_TIMEOUT
+
+exec gunicorn the_tale.wsgi:application $*

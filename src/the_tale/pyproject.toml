@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "the_tale"
+version = "0.4.3.3"
+description = "Zero Player Game with indirect character controll."
+repository = "https://github.com/Tiendil/the-tale"
+authors = ["Aliaksei Yaletski (Tiendil) <a.eletsky@gmail.com>"]
+license = "BSD-3"
+exclude = ["docs", "the_tale/dcont"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+Django = "3.0.7"
+argon2_cffi = "19.2.0"
+Jinja2 = "2.10.3"
+psycopg2 = "2.8.4"
+
+kombu = "4.6.6"
+postmarkup = "1.2.2"
+Markdown = "3.1.1"
+xlrd = "1.2.0"
+MarkupSafe = "1.1.1"
+unicodecsv = "0.14.1"
+django-redis = "4.12.1"
+psutil = "5.6.7"
+requests = "2.22.0"
+protobuf = "3.11.1"
+gunicorn = "20.0.4"
+sentry-sdk = "0.14.3"
+
+pynames = "0.2.3"
+utg = "0.3.1"
+rels = "0.3.1"
+smart_imports = "0.2.6"
+
+deworld = "0.2.2"
+questgen = "0.4.1"
+
+tt_protocol = { path = "../tt_protocol/", develop = true }
+tt_logic = { path = "../tt_logic/", develop = true }
+tt_calendar = { path = "../tt_calendar/", develop = true }
+
+[tool.poetry.dev-dependencies]
+django-test-without-migrations = "^0.6"
+typeguard = "2.9.1"

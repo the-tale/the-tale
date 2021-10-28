@@ -42,7 +42,7 @@ settings = utils_app_settings.app_settings('HEROES',
                                            RARE_OPERATIONS_INTERVAL=1000,
                                            INACTIVE_HERO_DELAY=int(10),  # для неактивных героев замедлять время в N раз
 
-                                           TT_DIARY_ENTRY_POINT='http://localhost:10001/',
+                                           TT_DIARY_ENTRY_POINT='http://tt_diary:80/',
 
                                            MAX_HERO_DESCRIPTION_LENGTH=10000,
 

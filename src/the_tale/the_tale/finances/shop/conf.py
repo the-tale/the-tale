@@ -18,8 +18,8 @@ settings = utils_app_settings.app_settings('PAYMENTS',
 
                                            MARKET_STATISTICS_PERIOD=30 * 24 * 60 * 60,
 
-                                           TT_MARKET_ENTRY_POINT='http://localhost:10004/',
-                                           TT_XSOLLA_ENTRY_POINT='http://localhost:10024/',
+                                           TT_MARKET_ENTRY_POINT='http://tt_market:80/',
+                                           TT_XSOLLA_ENTRY_POINT='http://tt_xsolla:80/',
 
                                            XSOLLA_ENABLED=False if not django_settings.TESTS_RUNNING else True,
                                            XSOLLA_PAY_STATION_VERSION=3,

@@ -63,9 +63,15 @@ class Connection(kombu.Connection):
                             no_ack,
                             queue_opts,
                             exchange_opts,
-                             **kwargs)
+                            **kwargs)
 
 
-connection = Connection(django_settings.AMQP_CONNECTION_URL) # pylint: disable=C0103
+def __getattr__(name):
+    if name != 'connection':
+        raise AttributeError(f"module {__name__} has no attribute {name}")
 
-connection.connect()
+    connection = Connection(django_settings.AMQP_CONNECTION_URL)  # pylint: disable=C0103
+
+    connection.connect()
+
+    return connection

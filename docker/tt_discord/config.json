@@ -1,0 +1,34 @@
+{
+    "database": {"name": "tt_discord",
+                 "user": "tt_discord",
+                 "password": "tt_discord",
+                 "host": "core_postgresql",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "django": {"secret_key": "uw0p9bt_drvv4j_&*u-c0p!$0i_5uc597npkd-0cnte=0h85$v"},
+
+    "log": {"level": "info"},
+
+    "service": {"port": 80},
+
+    "custom": {
+        "data_protector": {"secret": "test.secret"},
+        "discord": {
+            "connect_to_server": false,
+            "command_prefix": "tt\\s+",
+            "token": null,
+            "sync_users_chank_size": 100,
+            "sleep_on_sync_users_error": 1,
+            "roles": {
+                "developer": "706039951514533918",
+                "moderator": "706039907143122976",
+                "pillar_of_world": "706039836145877002",
+                "mighty_keeper": "706039505420812298",
+                "keeper": "706039067996848160",
+                "spirit_of_pandora": "706039007427166251",
+                "hand_of_fate": "706859419257798696",
+                "clan_command": "706859419257798696"}}}
+}

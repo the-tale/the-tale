@@ -45,7 +45,7 @@ class TestRequests(utils_testcase.TestCase):
     def test_info(self):
         self.check_ajax_ok(self.request_json(utils_urls.url('portal:api-info', api_version='1.1', api_client=django_settings.API_CLIENT)),
                            data={'static_content': django_settings.STATIC_URL,
-                                 'game_version': django_settings.META_CONFIG.version,
+                                 'game_version': django_settings.GAME_VERSION,
                                  'turn_delta': c.TURN_DELTA,
                                  'account_id': None,
                                  'account_name': None})
@@ -56,7 +56,7 @@ class TestRequests(utils_testcase.TestCase):
 
         self.check_ajax_ok(self.request_json(utils_urls.url('portal:api-info', api_version='1.1', api_client=django_settings.API_CLIENT)),
                            data={'static_content': django_settings.STATIC_URL,
-                                 'game_version': django_settings.META_CONFIG.version,
+                                 'game_version': django_settings.GAME_VERSION,
                                  'turn_delta': c.TURN_DELTA,
                                  'account_id': account.id,
                                  'account_name': account.nick})

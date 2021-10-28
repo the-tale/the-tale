@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+
+  core_postgresql:
+    environment:
+      POSTGRES_PASSWORD: postgresql
+    volumes:
+       - type: tmpfs
+         target: /var/lib/postgresql/data
+
+    # command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf", "-c", "log_statement=all"]
+
+  utils_backup:
+
+    environment:
+      BACKUP_USER: postgres
+      BACKUP_PASSWORD: postgresql
+
+  core_nginx:
+    environment:
+      TT_SERVERS: "site"
+      TT_GENERATE_CERTIFICATES: "yes"

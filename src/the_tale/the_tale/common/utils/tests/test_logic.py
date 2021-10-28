@@ -166,7 +166,7 @@ class LogicTests(testcase.TestCase):
     def test_absolutize_urls(self):
         text = '<a href=""></a> <a href="/">!</a> <a href=\'#\'></a> <a href="https://the-tale.org">!</a>'
         self.assertEqual(logic.absolutize_urls(text),
-                         '<a href=""></a> <a href="https://local.the-tale/">!</a> <a href=\'#\'></a> <a href="https://the-tale.org">!</a>')
+                         f'<a href=""></a> <a href="https://{django_settings.SITE_URL}/">!</a> <a href=\'#\'></a> <a href="https://the-tale.org">!</a>')
 
     def test_distribute_values_on_interval(self):
         distribute = logic.distribute_values_on_interval

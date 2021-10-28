@@ -15,4 +15,4 @@ settings = utils_app_settings.app_settings('PVP',
                                            CREATE_ARENA_BOT_BATTLE_API_VERSION='0.1',
                                            INFO_API_VERSION='0.1',
 
-                                           TT_MATCHMAKER_ENTRY_POINT='http://localhost:10016/')
+                                           TT_MATCHMAKER_ENTRY_POINT='http://tt_matchmaker:80/')

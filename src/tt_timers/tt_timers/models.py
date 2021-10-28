@@ -19,7 +19,7 @@ class Timer(models.Model):
     resources_at = models.DateTimeField(auto_now_add=True)
     finish_at = models.DateTimeField()
 
-    data = postgres_fields.JSONField(default='{}')
+    data = postgres_fields.JSONField(default=dict)
 
     restarted = models.IntegerField(default=0)
 

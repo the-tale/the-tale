@@ -1,0 +1,7 @@
+[tool.poetry]
+name = "tt_calendar"
+version = "0.1"
+description = "Calendar library for The Tale."
+repository = "https://github.com/Tiendil/the-tale"
+authors = ["Aliaksei Yaletski (Tiendil) <a.eletsky@gmail.com>"]
+license = "BSD-3"
