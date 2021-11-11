@@ -12,7 +12,7 @@ from . import protobuf
 from . import operations
 
 
-@handlers.api(events_log_pb2.AddEventRequest)
+@handlers.protobuf_api(events_log_pb2.AddEventRequest)
 async def add_event(message, **kwargs):
     await operations.add_event(tags=frozenset(message.tags),
                                data=s11n.from_json(message.data),
@@ -21,7 +21,7 @@ async def add_event(message, **kwargs):
     return events_log_pb2.AddEventResponse()
 
 
-@handlers.api(events_log_pb2.GetEventsRequest)
+@handlers.protobuf_api(events_log_pb2.GetEventsRequest)
 async def get_events(message, **kwargs):
     tags = frozenset(message.tags)
 
@@ -44,7 +44,7 @@ async def get_events(message, **kwargs):
                                             total_records=records_number)
 
 
-@handlers.api(events_log_pb2.GetLastEventsRequest)
+@handlers.protobuf_api(events_log_pb2.GetLastEventsRequest)
 async def get_last_events(message, **kwargs):
     tags = frozenset(message.tags)
 
@@ -60,7 +60,7 @@ async def get_last_events(message, **kwargs):
                                                 total_records=records_number)
 
 
-@handlers.api(events_log_pb2.DebugClearServiceRequest)
+@handlers.protobuf_api(events_log_pb2.DebugClearServiceRequest)
 async def debug_clear_service(message, **kwargs):
     await operations.clean_database()
     return events_log_pb2.DebugClearServiceResponse()

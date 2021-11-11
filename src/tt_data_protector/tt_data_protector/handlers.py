@@ -10,7 +10,7 @@ from . import protobuf
 from . import operations
 
 
-@handlers.api(data_protector_pb2.RequestReportRequest)
+@handlers.protobuf_api(data_protector_pb2.RequestReportRequest)
 async def request_report(message, config, **kwargs):
 
     if len(message.ids) == 0:
@@ -27,13 +27,13 @@ async def request_report(message, config, **kwargs):
     return data_protector_pb2.RequestReportResponse(report_id=report_id.hex)
 
 
-@handlers.api(data_protector_pb2.GetReportRequest)
+@handlers.protobuf_api(data_protector_pb2.GetReportRequest)
 async def get_report(message, **kwargs):
     report = await operations.get_report(uuid.UUID(message.report_id))
     return data_protector_pb2.GetReportResponse(report=protobuf.from_report(report))
 
 
-@handlers.api(data_protector_pb2.RequestDeletionRequest)
+@handlers.protobuf_api(data_protector_pb2.RequestDeletionRequest)
 async def request_deletion(message, config, **kwargs):
 
     if len(message.ids) == 0:
@@ -51,7 +51,7 @@ async def request_deletion(message, config, **kwargs):
     return data_protector_pb2.RequestDeletionResponse()
 
 
-@handlers.api(data_protector_pb2.DebugClearServiceRequest)
+@handlers.protobuf_api(data_protector_pb2.DebugClearServiceRequest)
 async def debug_clear_service(message, **kwargs):
     await operations.clean_database()
     return data_protector_pb2.DebugClearServiceResponse()

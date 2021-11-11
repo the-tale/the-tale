@@ -3,8 +3,6 @@ import uuid
 
 from django.db import models
 
-from django.contrib.postgres import fields as postgres_fields
-
 from . import conf
 
 
@@ -16,7 +14,7 @@ class Item(models.Model):
 
     storage = models.IntegerField(default=0)
 
-    data = postgres_fields.JSONField(default=dict)
+    data = models.JSONField(default=dict)
 
     base_type = models.CharField(max_length=conf.ITEM_TYPE_LENGTH)
 
@@ -38,7 +36,7 @@ class LogRecord(models.Model):
 
     type = models.IntegerField()
 
-    data = postgres_fields.JSONField(default=dict)
+    data = models.JSONField(default=dict)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

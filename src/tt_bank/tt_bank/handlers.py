@@ -11,20 +11,20 @@ from . import operations
 from . import exceptions
 
 
-@handlers.api(bank_pb2.AccountsBalancesRequest)
+@handlers.protobuf_api(bank_pb2.AccountsBalancesRequest)
 async def accounts_balances(message, **kwargs):
     balances = await operations.load_balances(accounts_ids=message.accounts_ids)
     return bank_pb2.AccountsBalancesResponse(balances={account_id: protobuf.from_balances(amounts)
                                                        for account_id, amounts in balances.items()})
 
 
-@handlers.api(bank_pb2.AccountHistoryRequest)
+@handlers.protobuf_api(bank_pb2.AccountHistoryRequest)
 async def account_history(message, **kwargs):
     history = await operations.load_history(account_id=message.account_id)
     return bank_pb2.AccountHistoryResponse(history=[protobuf.from_history(record) for record in history])
 
 
-@handlers.api(bank_pb2.StartTransactionRequest)
+@handlers.protobuf_api(bank_pb2.StartTransactionRequest)
 async def start_transaction(message, **kwargs):
     logger = log.ContextLogger()
 
@@ -45,7 +45,7 @@ async def start_transaction(message, **kwargs):
     return bank_pb2.StartTransactionResponse(transaction_id=transaction_id)
 
 
-@handlers.api(bank_pb2.CommitTransactionRequest)
+@handlers.protobuf_api(bank_pb2.CommitTransactionRequest)
 async def commit_transaction(message, **kwargs):
     logger = log.ContextLogger()
 
@@ -61,7 +61,7 @@ async def commit_transaction(message, **kwargs):
     return bank_pb2.CommitTransactionResponse()
 
 
-@handlers.api(bank_pb2.RollbackTransactionRequest)
+@handlers.protobuf_api(bank_pb2.RollbackTransactionRequest)
 async def rollback_transaction(message, **kwargs):
     logger = log.ContextLogger()
 
@@ -77,7 +77,7 @@ async def rollback_transaction(message, **kwargs):
     return bank_pb2.RollbackTransactionResponse()
 
 
-@handlers.api(bank_pb2.DebugClearServiceRequest)
+@handlers.protobuf_api(bank_pb2.DebugClearServiceRequest)
 async def debug_clear_service(message, **kwargs):
     await operations.clean_database()
     return bank_pb2.DebugClearServiceResponse()

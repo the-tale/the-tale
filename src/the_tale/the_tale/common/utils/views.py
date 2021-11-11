@@ -393,7 +393,7 @@ class MapArgumentProcessor(ArgumentProcessor):
 
     def parse(self, context, raw_value):
 
-        mapping = self.mapping if not isinstance(self.mapping, collections.Callable) else self.mapping()
+        mapping = self.mapping if not isinstance(self.mapping, collections.abc.Callable) else self.mapping()
 
         if raw_value not in mapping:
             self.raise_wrong_value()

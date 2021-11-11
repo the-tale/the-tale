@@ -114,7 +114,7 @@ def choice_element(caption, attribute, choices, default_value=None):
 
         def __init__(self, list_filter, value):
             super(ChoiceElement, self).__init__(list_filter, value)
-            self.choices = self.CHOICES if not isinstance(self.CHOICES, collections.Callable) else self.CHOICES()
+            self.choices = self.CHOICES if not isinstance(self.CHOICES, collections.abc.Callable) else self.CHOICES()
 
             self.choice_name = None
 

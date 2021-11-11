@@ -12,6 +12,25 @@ class PlayerTimersClient(tt_api_timers.Client):
     def type_to_protobuf(self, type):
         return type.value
 
+    def get_timer(self, account_id):
+        timers = self.cmd_get_owner_timers(account_id)
+
+        for timer in timers:
+            if timer.type.is_CARDS_MINER:
+                return timer
+
+        return None
+
+    def get_or_create_timer(self, account_id):
+        timer = self.get_timer(account_id)
+
+        if timer is not None:
+            return timer
+
+        accounts_logic.create_cards_timer(account_id)
+
+        return self.get_timer(account_id)
+
 
 players_timers = PlayerTimersClient(entry_point=conf.settings.TT_PLAYERS_TIMERS_ENTRY_POINT)
 

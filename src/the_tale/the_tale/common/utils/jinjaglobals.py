@@ -98,7 +98,7 @@ def up_first(value):
 
 @utils_jinja2.jinjaglobal
 def is_sequence(variable):
-    return not isinstance(variable, str) and isinstance(variable, collections.Iterable)
+    return not isinstance(variable, str) and isinstance(variable, collections.abc.Iterable)
 
 
 @utils_jinja2.jinjaglobal

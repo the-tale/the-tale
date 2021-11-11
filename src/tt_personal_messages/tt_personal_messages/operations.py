@@ -91,6 +91,8 @@ async def send_message(sender_id, recipients_ids, body):
                       add_to_conversation(sender_id, recipient_id, message_id=message_id),
                       increment_new_messages(recipient_id)))
 
+    tasks = [asyncio.create_task(task) for task in tasks]
+
     await asyncio.wait(tasks)
 
     return message_id

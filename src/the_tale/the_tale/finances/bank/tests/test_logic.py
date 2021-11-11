@@ -10,4 +10,4 @@ class LogicTests(utils_testcase.TestCase):
         super(LogicTests, self).setUp()
 
     def test_get_account_id_function_defined(self):
-        self.assertTrue(isinstance(logic._GET_ACCOUNT_ID_BY_EMAIL_FUNCTION, collections.Callable))
+        self.assertTrue(isinstance(logic._GET_ACCOUNT_ID_BY_EMAIL_FUNCTION, collections.abc.Callable))

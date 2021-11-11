@@ -8,13 +8,13 @@ from . import protobuf
 from . import operations
 
 
-@handlers.api(diary_pb2.VersionRequest)
+@handlers.protobuf_api(diary_pb2.VersionRequest)
 async def version(message, **kwargs):
     version = operations.TIMESTAMPS_CACHE.get(message.account_id, 0)
     return diary_pb2.VersionResponse(version=version)
 
 
-@handlers.api(diary_pb2.PushMessageRequest)
+@handlers.protobuf_api(diary_pb2.PushMessageRequest)
 async def push_message(message, **kwargs):
     await operations.push_message(account_id=message.account_id,
                                   diary_size=message.diary_size,
@@ -22,7 +22,7 @@ async def push_message(message, **kwargs):
     return diary_pb2.PushMessageResponse()
 
 
-@handlers.api(diary_pb2.DiaryRequest)
+@handlers.protobuf_api(diary_pb2.DiaryRequest)
 async def diary(message, **kwargs):
     diary = await operations.load_diary(account_id=message.account_id)
 

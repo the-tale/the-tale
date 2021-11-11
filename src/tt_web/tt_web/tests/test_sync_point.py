@@ -26,7 +26,6 @@ class SyncPointTests(helpers.BaseTests):
             self.assertNotEqual(locker._lock, None)
             self.assertEqual(locker.key, 'key_1')
             self.assertEqual(locker.timeout, None)
-            self.assertEqual(locker.loop, None)
 
             self.assertEqual(set(POINT._locks), {'key_1',})
 

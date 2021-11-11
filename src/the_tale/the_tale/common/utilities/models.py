@@ -19,7 +19,7 @@ class History(django_models.Model):
 
     name = django_models.CharField(max_length=MAX_NAME_LENGHT)
 
-    data = django_postgres_fields.JSONField()
+    data = django_models.JSONField()
 
     class Meta:
         index_together = (('name', 'state'),)

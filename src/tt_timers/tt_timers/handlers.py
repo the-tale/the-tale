@@ -9,7 +9,7 @@ from . import operations
 from . import exceptions
 
 
-@handlers.api(timers_pb2.CreateTimerRequest)
+@handlers.protobuf_api(timers_pb2.CreateTimerRequest)
 async def create_timer(message, config, **kwargs):
 
     if str(message.type) not in config['custom']['types']:
@@ -29,13 +29,13 @@ async def create_timer(message, config, **kwargs):
     return timers_pb2.CreateTimerResponse(timer=protobuf.from_timer(timer))
 
 
-@handlers.api(timers_pb2.GetOwnerTimersRequest)
+@handlers.protobuf_api(timers_pb2.GetOwnerTimersRequest)
 async def get_owner_timers(message, **kwargs):
     timers = await operations.get_owner_timers(owner_id=message.owner_id)
     return timers_pb2.GetOwnerTimersResponse(timers=[protobuf.from_timer(timer) for timer in timers])
 
 
-@handlers.api(timers_pb2.ChangeSpeedRequest)
+@handlers.protobuf_api(timers_pb2.ChangeSpeedRequest)
 async def change_speed(message, config, **kwargs):
 
     if str(message.type) not in config['custom']['types']:
@@ -52,7 +52,7 @@ async def change_speed(message, config, **kwargs):
     return timers_pb2.ChangeSpeedResponse(timer=protobuf.from_timer(timer))
 
 
-@handlers.api(timers_pb2.DebugClearServiceRequest)
+@handlers.protobuf_api(timers_pb2.DebugClearServiceRequest)
 async def debug_clear_service(message, **kwargs):
     await operations.clean_database()
     return timers_pb2.DebugClearServiceResponse()

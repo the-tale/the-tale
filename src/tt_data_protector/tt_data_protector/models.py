@@ -1,8 +1,6 @@
 
 from django.db import models
 
-from django.contrib.postgres import fields as postgres_fields
-
 
 MAX_SOURCE_NAME_LENGTH = 32
 MAX_CORE_ID_LENGTH = 32
@@ -14,7 +12,7 @@ class Report(models.Model):
 
     state = models.IntegerField()
 
-    data = postgres_fields.JSONField(default=dict)
+    data = models.JSONField(default=dict)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -37,7 +35,7 @@ class SubReport(models.Model):
 
     state = models.IntegerField(db_index=True)
 
-    data = postgres_fields.JSONField(default=dict)
+    data = models.JSONField(default=dict)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -54,7 +52,7 @@ class DeletionRequest(models.Model):
 
     source = models.CharField(max_length=MAX_SOURCE_NAME_LENGTH)
 
-    data = postgres_fields.JSONField(default=dict)
+    data = models.JSONField(default=dict)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

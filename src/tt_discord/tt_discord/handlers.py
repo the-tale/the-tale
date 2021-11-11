@@ -43,7 +43,7 @@ async def sync_user(user, create_if_not_exists, logger, force=False):
     return account_info
 
 
-@handlers.api(discord_pb2.GetBindCodeRequest)
+@handlers.protobuf_api(discord_pb2.GetBindCodeRequest)
 async def get_bind_code(message, logger, **kwargs):
     account_info = await sync_user(message.user,
                                    create_if_not_exists=True,
@@ -55,7 +55,7 @@ async def get_bind_code(message, logger, **kwargs):
     return discord_pb2.GetBindCodeResponse(code=protobuf.from_bind_code(bind_code))
 
 
-@handlers.api(discord_pb2.UpdateUserRequest)
+@handlers.protobuf_api(discord_pb2.UpdateUserRequest)
 async def update_user(message, logger, **kwargs):
     await sync_user(message.user,
                     create_if_not_exists=False,
@@ -65,7 +65,7 @@ async def update_user(message, logger, **kwargs):
     return discord_pb2.UpdateUserResponse()
 
 
-@handlers.api(data_protector_pb2.PluginReportRequest, raw=True)
+@handlers.protobuf_api(data_protector_pb2.PluginReportRequest, raw=True)
 async def data_protection_collect_data(message, config, **kwargs):
 
     if config['custom']['data_protector']['secret'] != message.secret:
@@ -81,7 +81,7 @@ async def data_protection_collect_data(message, config, **kwargs):
                                                    data=s11n.to_json(report))
 
 
-@handlers.api(data_protector_pb2.PluginDeletionRequest, raw=True)
+@handlers.protobuf_api(data_protector_pb2.PluginDeletionRequest, raw=True)
 async def data_protection_delete_data(message, config, **kwargs):
     if config['custom']['data_protector']['secret'] != message.secret:
         raise tt_exceptions.ApiError(code='discord.data_protection_delete_data.wrong_secret',
@@ -96,7 +96,7 @@ async def data_protection_delete_data(message, config, **kwargs):
     return data_protector_pb2.PluginDeletionResponse(result=data_protector_pb2.PluginDeletionResponse.ResultType.SUCCESS)
 
 
-@handlers.api(discord_pb2.DebugClearServiceRequest)
+@handlers.protobuf_api(discord_pb2.DebugClearServiceRequest)
 async def debug_clear_service(message, **kwargs):
     await operations.clean_database()
     return discord_pb2.DebugClearServiceResponse()

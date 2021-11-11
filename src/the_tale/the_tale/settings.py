@@ -13,7 +13,6 @@ if TESTS_RUNNING:
     install_import_hook('the_tale')
 ################################################################
 
-
 import smart_imports
 
 smart_imports.all()
@@ -43,6 +42,8 @@ DATABASES = {
         'CONN_MAX_AGE': 60 * 60  # close connection after an hour
     }
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TIME_ZONE = 'UTC'
 
@@ -147,6 +148,7 @@ TEMPLATES = [{'BACKEND': 'the_tale.common.utils.jinja2.Backend',
                   'extensions': ['jinja2.ext.loopcontrols'],
 
                   'context_processors': ('django.contrib.auth.context_processors.auth',
+                                         'django.template.context_processors.request',
                                          'django.template.context_processors.debug',
                                          'django.template.context_processors.i18n',
                                          'django.template.context_processors.media',
@@ -166,6 +168,7 @@ TEMPLATES = [{'BACKEND': 'the_tale.common.utils.jinja2.Backend',
                   'debug': False,
 
                   'context_processors': ('django.contrib.auth.context_processors.auth',
+                                         'django.template.context_processors.request',
                                          'django.template.context_processors.debug',
                                          'django.template.context_processors.i18n',
                                          'django.template.context_processors.media',

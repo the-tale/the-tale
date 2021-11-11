@@ -2,8 +2,6 @@
 
 from django.db import models
 
-from django.contrib.postgres import fields as postgres_fields
-
 
 class AccountInfo(models.Model):
 
@@ -11,7 +9,7 @@ class AccountInfo(models.Model):
 
     state = models.IntegerField()
 
-    data = postgres_fields.JSONField(default=dict)
+    data = models.JSONField(default=dict)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -44,7 +42,7 @@ class Invoice(models.Model):
 
     account = models.ForeignKey(AccountInfo, related_name='+', on_delete=models.PROTECT, db_column='account')
 
-    data = postgres_fields.JSONField(default=dict)
+    data = models.JSONField(default=dict)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -66,7 +64,7 @@ class Cancellation(models.Model):
 
     xsolla_id = models.BigIntegerField(unique=True)
 
-    data = postgres_fields.JSONField(default=dict)
+    data = models.JSONField(default=dict)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

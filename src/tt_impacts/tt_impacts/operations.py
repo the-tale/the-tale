@@ -171,7 +171,8 @@ async def get_impacters_ratings(targets, actor_types, limit):
 
     targets = frozenset(targets)
 
-    tasks = [get_impacters_target_ratings(target, actor_types, limit) for target in targets]
+    tasks = [asyncio.create_task(get_impacters_target_ratings(target, actor_types, limit))
+             for target in targets]
 
     done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
 

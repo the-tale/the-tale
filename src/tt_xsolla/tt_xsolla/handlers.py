@@ -190,7 +190,7 @@ async def get_token(message, config, logger, **kwargs):
     return xsolla_pb2.GetTokenResponse(token=token.value.value)
 
 
-@handlers.api(data_protector_pb2.PluginReportRequest, raw=True)
+@handlers.protobuf_api(data_protector_pb2.PluginReportRequest, raw=True)
 async def data_protection_collect_data(message, config, **kwargs):
 
     if config['custom']['data_protector']['secret'] != message.secret:
@@ -203,7 +203,7 @@ async def data_protection_collect_data(message, config, **kwargs):
                                                    data=s11n.to_json(report))
 
 
-@handlers.api(data_protector_pb2.PluginDeletionRequest, raw=True)
+@handlers.protobuf_api(data_protector_pb2.PluginDeletionRequest, raw=True)
 async def data_protection_delete_data(message, config, **kwargs):
     if config['custom']['data_protector']['secret'] != message.secret:
         raise tt_exceptions.ApiError(code='xsolla.data_protection_delete_data.wrong_secret',

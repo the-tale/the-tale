@@ -1,8 +1,6 @@
 
 from django.db import models
 
-from django.contrib.postgres import fields as postgres_fields
-
 
 class Timer(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -19,7 +17,7 @@ class Timer(models.Model):
     resources_at = models.DateTimeField(auto_now_add=True)
     finish_at = models.DateTimeField()
 
-    data = postgres_fields.JSONField(default=dict)
+    data = models.JSONField(default=dict)
 
     restarted = models.IntegerField(default=0)
 

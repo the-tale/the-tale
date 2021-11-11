@@ -15,4 +15,4 @@ class LockRequest(django_models.Model):
 
     name = django_models.CharField(max_length=MAX_NAME_LENGTH, db_index=True)
 
-    data = django_postgres_fields.JSONField()
+    data = django_models.JSONField()

@@ -13,7 +13,7 @@ def get_cdns_info(cdns):
 
         variable_value = local_path
 
-        if isinstance(checked_url, collections.Callable):
+        if isinstance(checked_url, collections.abc.Callable):
             checked_url = checked_url()
 
         if cdn_path is not None:

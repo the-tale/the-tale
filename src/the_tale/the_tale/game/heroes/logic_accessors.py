@@ -360,7 +360,7 @@ class LogicAccessorsMixin(object):
     def might_pvp_effectiveness_bonus(self): return f.might_pvp_effectiveness_bonus(self.might)
 
     @property
-    def politics_power_might(self) -> int:
+    def politics_power_might(self) -> float:
         return tt_politic_power_formulas.might_to_power(self.might)
 
     @property

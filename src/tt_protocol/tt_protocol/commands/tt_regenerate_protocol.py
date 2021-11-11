@@ -23,4 +23,5 @@ def main():
     subprocess.run('protoc  --proto_path="{source_dir}" --python_out="{output_dir}" {files}'.format(source_dir=SOURCE_DIR,
                                                                                                     output_dir=OUTPUT_DIR,
                                                                                                     files=u' '.join(files)),
-                   shell=True, check=True)
+                   shell=True,
+                   check=True)

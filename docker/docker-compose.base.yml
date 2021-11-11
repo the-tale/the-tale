@@ -125,6 +125,9 @@ services:
     networks:
       tt_network: {}
 
+    profiles:
+      - utils
+
   core_redis:
 
     build:
@@ -423,7 +426,7 @@ services:
       - core_nginx
       - site_migrations
 
-  site_utils:
+  utils_site:
     << : *default-the-tale
 
     profiles:
@@ -431,6 +434,23 @@ services:
 
     depends_on:
       - site_migrations
+
+  utils_regenerate_protocol:
+
+    build:
+      context: ../
+      dockerfile: ./docker/utils_regenerate_protocol/Dockerfile
+
+    volumes:
+      - ${PWD}:/home/tt_service/repository
+
+    command: tt_regenerate_protocol
+
+    networks:
+      tt_network: {}
+
+    profiles:
+      - utils
 
   worker_bank_processor:
     << : *default-the-tale-worker

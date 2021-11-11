@@ -1,8 +1,6 @@
 
 from django.db import models
 
-from django.contrib.postgres import fields as postgres_fields
-
 
 class Effect(models.Model):
 
@@ -12,7 +10,7 @@ class Effect(models.Model):
 
     entity = models.BigIntegerField()
 
-    data = postgres_fields.JSONField(default=dict)
+    data = models.JSONField(default=dict)
 
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)

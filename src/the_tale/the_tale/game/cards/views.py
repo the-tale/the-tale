@@ -206,17 +206,7 @@ def api_combine(context):
 @utils_api.Processor(versions=(conf.settings.GET_CARDS_API_VERSION, ))
 @resource('api', 'get-cards', name='api-get-cards', method='get')
 def api_get_cards(context):
-
-    timers = accounts_tt_services.players_timers.cmd_get_owner_timers(context.account.id)
-
-    if not timers:
-        accounts_logic.create_cards_timer(account_id=context.account.id)
-        timers = accounts_tt_services.players_timers.cmd_get_owner_timers(context.account.id)
-
-    for timer in timers:
-        if timer.type.is_CARDS_MINER:
-            new_card_timer = timer
-            break
+    new_card_timer = accounts_tt_services.players_timers.get_or_create_timer(context.account.id)
 
     return utils_views.AjaxOk(content={'cards': [card.ui_info()
                                                  for card in context.account_cards.values()

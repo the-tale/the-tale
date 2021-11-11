@@ -53,14 +53,24 @@ def fill_globals(environment):
         environment.filters.update(filter_functions)
 
 
-def create_loader(directories, package_path):
+def create_loader(directories, package_path, packages=('the_tale',)):
     filesystem_loader = jinja2.FileSystemLoader(directories)
 
     apps_loader_params = {}
 
     # use last application_name part as unique name, since django expect it's uniqueness
     for application in django_apps.apps.get_app_configs():
-        apps_loader_params[application.name.split('.')[-1]] = jinja2.PackageLoader(application.name, package_path)
+        parts = application.name.split('.')
+
+        if parts[0] not in packages:
+            # load templates only for project applications
+            continue
+
+        templates_directory = os.path.join(django_settings.PROJECT_DIR,
+                                           *parts[1:],
+                                           package_path)
+
+        apps_loader_params[parts[-1]] = jinja2.FileSystemLoader([templates_directory])
 
     apps_loader = jinja2.PrefixLoader(apps_loader_params)
 
@@ -75,7 +85,7 @@ def create_environment(**options):
     return environment
 
 
-class Backend(django_template.backends.jinja2.Jinja2):
+class Backend(django_template_backends_jinja2.Jinja2):
 
     def __init__(self, params):
         if params['OPTIONS'].get('loader') is None:

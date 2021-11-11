@@ -136,9 +136,14 @@ def protobuf_error(code, message, details):
                         body=body)
 
 
-def protobuf_api(ExpectedMessage):
+def protobuf_api(ExpectedMessage, raw=False):
+    ok_constructor = protobuf_ok
+
+    if raw:
+        ok_constructor = protobuf_raw_ok
+
     return raw_api(extractor=protobuf_extractor(ExpectedMessage),
-                   ok_constructor=protobuf_ok,
+                   ok_constructor=ok_constructor,
                    error_constructor=protobuf_error)
 
 

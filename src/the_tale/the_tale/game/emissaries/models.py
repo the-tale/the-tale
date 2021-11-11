@@ -14,7 +14,7 @@ class Emissary(django_models.Model):
 
     state = rels_django.RelationIntegerField(relation=relations.STATE, db_index=True)
 
-    data = django_postgres_fields.JSONField()
+    data = django_models.JSONField()
 
 
 class Event(django_models.Model):
@@ -26,6 +26,6 @@ class Event(django_models.Model):
 
     state = rels_django.RelationIntegerField(relation=relations.EVENT_STATE, db_index=True)
 
-    data = django_postgres_fields.JSONField()
+    data = django_models.JSONField()
 
     stop_reason = rels_django.RelationIntegerField(relation=relations.EVENT_STOP_REASON, db_index=True)

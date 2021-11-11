@@ -370,14 +370,7 @@ class TakeCardCallbackTests(CardsRequestsTestsBase, tt_api_testcase.TestCaseMixi
         if account_id is None:
             account_id = self.account.id
 
-        timers = accounts_tt_services.players_timers.cmd_get_owner_timers(account_id)
-
-        new_card_timer = None
-
-        for timer in timers:
-            if timer.type.is_CARDS_MINER:
-                new_card_timer = timer
-                break
+        new_card_timer = accounts_tt_services.players_timers.get_or_create_timer(account_id)
 
         speed = new_card_timer.speed if new_card_timer else 666
 
@@ -441,13 +434,7 @@ class TakeCardCallbackTests(CardsRequestsTestsBase, tt_api_testcase.TestCaseMixi
         self.assertEqual(cards, {})
 
     def check_cards_timer_speed(self, speed):
-        timers = accounts_tt_services.players_timers.cmd_get_owner_timers(self.account.id)
-
-        for timer in timers:
-            if timer.type.is_CARDS_MINER:
-                new_card_timer = timer
-                break
-
+        new_card_timer = accounts_tt_services.players_timers.get_timer(self.account.id)
         self.assertEqual(new_card_timer.speed, speed)
 
     def test_premium(self):

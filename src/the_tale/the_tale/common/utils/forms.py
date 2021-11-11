@@ -36,9 +36,9 @@ def widget(self):
     return html
 
 
-django_forms.forms.BoundField.html = property(html)
-django_forms.forms.BoundField.errors_container = property(errors_container)
-django_forms.forms.BoundField.widget = property(widget)
+django_forms.boundfield.BoundField.html = property(html)
+django_forms.boundfield.BoundField.errors_container = property(errors_container)
+django_forms.boundfield.BoundField.widget = property(widget)
 
 
 class CleanedDataAccessor(object):

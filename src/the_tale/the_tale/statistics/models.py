@@ -17,4 +17,4 @@ class FullStatistics(django_models.Model):
 
     created_at = django_models.DateTimeField(auto_now_add=True)
 
-    data = django_postgres_fields.JSONField()
+    data = django_models.JSONField()

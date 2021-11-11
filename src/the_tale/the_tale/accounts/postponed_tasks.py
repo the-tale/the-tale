@@ -20,7 +20,7 @@ class UpdateAccount(PostponedLogic):
     def __init__(self, account_id, method, data, state=UPDATE_ACCOUNT_STATE.UNPROCESSED):
         super(UpdateAccount, self).__init__()
         self.account_id = account_id
-        self.method = method.__name__ if isinstance(method, collections.Callable) else method
+        self.method = method.__name__ if isinstance(method, collections.abc.Callable) else method
         self.data = data
         self.state = state if isinstance(state, rels.Record) else UPDATE_ACCOUNT_STATE.index_value[state]
 

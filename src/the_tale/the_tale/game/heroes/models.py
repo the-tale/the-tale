@@ -44,7 +44,7 @@ class Hero(django_models.Model):
 
     money = django_models.BigIntegerField(null=False, default=0)
 
-    data = django_postgres_fields.JSONField()
+    data = django_models.JSONField()
 
     actions = django_models.TextField()
 

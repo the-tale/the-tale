@@ -13,7 +13,7 @@ from . import exceptions
 from . import operations
 
 
-@handlers.api(market_pb2.PlaceSellLotRequest)
+@handlers.protobuf_api(market_pb2.PlaceSellLotRequest)
 async def place_sell_lot(message, **kwargs):
     try:
         lots_ids = await operations.place_sell_lots(lots=[protobuf.to_sell_lot(lot) for lot in message.lots])
@@ -27,7 +27,7 @@ async def place_sell_lot(message, **kwargs):
     return market_pb2.PlaceSellLotResponse(lots_ids=[lot_id.hex for lot_id in lots_ids])
 
 
-@handlers.api(market_pb2.CloseSellLotRequest)
+@handlers.protobuf_api(market_pb2.CloseSellLotRequest)
 async def close_sell_lot(message, **kwargs):
     lots = await operations.close_sell_lot(item_type=message.item_type,
                                            buyer_id=message.buyer_id,
@@ -36,7 +36,7 @@ async def close_sell_lot(message, **kwargs):
     return market_pb2.CloseSellLotResponse(lots=[protobuf.from_sell_lot(lot) for lot in lots])
 
 
-@handlers.api(market_pb2.CancelSellLotRequest)
+@handlers.protobuf_api(market_pb2.CancelSellLotRequest)
 async def cancel_sell_lot(message, **kwargs):
     lots = await operations.cancel_sell_lot(item_type=message.item_type,
                                             owner_id=message.owner_id,
@@ -45,19 +45,19 @@ async def cancel_sell_lot(message, **kwargs):
     return market_pb2.CancelSellLotResponse(lots=[protobuf.from_sell_lot(lot) for lot in lots])
 
 
-@handlers.api(market_pb2.CancelSellLotsByTypeRequest)
+@handlers.protobuf_api(market_pb2.CancelSellLotsByTypeRequest)
 async def cancel_sell_lots_by_type(message, **kwargs):
     lots = await operations.cancel_sell_lots_by_type(item_type=message.item_type)
     return market_pb2.CancelSellLotsByTypeResponse(lots=[protobuf.from_sell_lot(lot) for lot in lots])
 
 
-@handlers.api(market_pb2.ListSellLotsRequest)
+@handlers.protobuf_api(market_pb2.ListSellLotsRequest)
 async def list_sell_lots(message, **kwargs):
     lots = await operations.load_sell_lots(owner_id=message.owner_id)
     return market_pb2.ListSellLotsResponse(lots=[protobuf.from_sell_lot_info(lot) for lot in lots])
 
 
-@handlers.api(market_pb2.InfoRequest)
+@handlers.protobuf_api(market_pb2.InfoRequest)
 async def info(message, **kwargs):
     info = await operations.MARKET_INFO_CACHE.get_value()
 
@@ -69,7 +69,7 @@ async def info(message, **kwargs):
     return market_pb2.InfoResponse(info=[protobuf.from_item_type_summary(summary) for summary in info])
 
 
-@handlers.api(market_pb2.ItemTypePricesRequest)
+@handlers.protobuf_api(market_pb2.ItemTypePricesRequest)
 async def item_type_prices(message, **kwargs):
     prices = await operations.get_type_prices(message.item_type)
     owner_prices = None
@@ -82,7 +82,7 @@ async def item_type_prices(message, **kwargs):
                                              owner_prices=owner_prices)
 
 
-@handlers.api(market_pb2.HistoryRequest)
+@handlers.protobuf_api(market_pb2.HistoryRequest)
 async def history(message, **kwargs):
 
     records_number = await operations.history_records_number()
@@ -99,7 +99,7 @@ async def history(message, **kwargs):
                                       page=page)
 
 
-@handlers.api(market_pb2.StatisticsRequest)
+@handlers.protobuf_api(market_pb2.StatisticsRequest)
 async def statistics(message, **kwargs):
 
     statistics = await operations.statistics(time_from=datetime.datetime.fromtimestamp(message.time_from),
@@ -110,7 +110,7 @@ async def statistics(message, **kwargs):
                                          turnover=str(statistics['turnover']))
 
 
-@handlers.api(market_pb2.DoesLotExistForItemRequest)
+@handlers.protobuf_api(market_pb2.DoesLotExistForItemRequest)
 async def does_lot_exist_for_item(message, **kwargs):
 
     exists = await operations.does_lot_exist_for_item(item_type=message.item_type,
@@ -119,7 +119,7 @@ async def does_lot_exist_for_item(message, **kwargs):
     return market_pb2.DoesLotExistForItemResponse(exists=exists)
 
 
-@handlers.api(market_pb2.DebugClearServiceRequest)
+@handlers.protobuf_api(market_pb2.DebugClearServiceRequest)
 async def debug_clear_service(message, **kwargs):
     await operations.clean_database()
     return market_pb2.DebugClearServiceResponse()

@@ -11,7 +11,7 @@ from . import exceptions
 from . import operations
 
 
-@handlers.api(storage_pb2.ApplyRequest)
+@handlers.protobuf_api(storage_pb2.ApplyRequest)
 async def apply(message, **kwargs):
     try:
         await operations.apply(operations=[protobuf.to_operation(operation) for operation in message.operations])
@@ -21,26 +21,26 @@ async def apply(message, **kwargs):
     return storage_pb2.ApplyResponse()
 
 
-@handlers.api(storage_pb2.GetItemsRequest)
+@handlers.protobuf_api(storage_pb2.GetItemsRequest)
 async def get_items(message, **kwargs):
     items = await operations.load_items(owner_id=message.owner_id)
 
     return storage_pb2.GetItemsResponse(items=[protobuf.from_item(item) for item in items])
 
 
-@handlers.api(storage_pb2.HasItemsRequest)
+@handlers.protobuf_api(storage_pb2.HasItemsRequest)
 async def has_items(message, **kwargs):
     has = await operations.has_items(owner_id=message.owner_id, items_ids=[uuid.UUID(item_id) for item_id in message.items_ids])
     return storage_pb2.HasItemsResponse(has=has)
 
 
-@handlers.api(storage_pb2.GetItemLogsRequest)
+@handlers.protobuf_api(storage_pb2.GetItemLogsRequest)
 async def get_item_logs(message, **kwargs):
     logs = await operations.get_item_logs(uuid.UUID(message.item_id))
     return storage_pb2.GetItemLogsResponse(logs=[protobuf.from_log_record(log_record) for log_record in logs])
 
 
-@handlers.api(storage_pb2.DebugClearServiceRequest)
+@handlers.protobuf_api(storage_pb2.DebugClearServiceRequest)
 async def debug_clear_service(message, **kwargs):
     await operations.clean_database()
     return storage_pb2.DebugClearServiceResponse()

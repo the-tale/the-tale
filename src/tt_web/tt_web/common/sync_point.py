@@ -5,19 +5,18 @@ from .. import exceptions
 
 
 class Lock:
-    __slots__ = ('_point', 'key', '_lock', 'loop', 'timeout')
+    __slots__ = ('_point', 'key', '_lock', 'timeout')
 
-    def __init__(self, point, key, lock, loop=None, timeout=None):
+    def __init__(self, point, key, lock, timeout=None):
         self._point = point
         self._lock = lock
 
         self.key = key
-        self.loop = loop
         self.timeout = timeout
 
     async def acquire(self):
         try:
-            await asyncio.wait_for(self._lock.acquire(), timeout=self.timeout, loop=self.loop)
+            await asyncio.wait_for(self._lock.acquire(), timeout=self.timeout)
         except asyncio.TimeoutError:
             raise exceptions.SyncPointTimeoutError(key=self.key, timeout=self.timeout)
 
@@ -41,8 +40,8 @@ class SyncPoint:
     def __init__(self):
         self._locks = {}
 
-    def lock(self, key, loop=None, timeout=None):
+    def lock(self, key, timeout=None):
         if key not in self._locks:
-            self._locks[key] = asyncio.Lock(loop=loop)
+            self._locks[key] = asyncio.Lock()
 
-        return Lock(point=self, key=key, lock=self._locks[key], loop=loop, timeout=timeout)
+        return Lock(point=self, key=key, lock=self._locks[key], timeout=timeout)

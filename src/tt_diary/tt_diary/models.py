@@ -2,8 +2,6 @@
 
 from django.db import models
 
-from django.contrib.postgres import fields as postgres_fields
-
 
 class Diary(models.Model):
 
@@ -14,7 +12,7 @@ class Diary(models.Model):
 
     version = models.BigIntegerField(default=0)
 
-    data = postgres_fields.JSONField(default=dict)
+    data = models.JSONField(default=dict)
 
     class Meta:
         db_table = 'diaries'

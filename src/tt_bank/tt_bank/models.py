@@ -1,8 +1,6 @@
 
 from django.db import models
 
-from django.contrib.postgres import fields as postgres_fields
-
 from . import conf
 
 
@@ -31,7 +29,7 @@ class Transaction(models.Model):
 
     lifetime = models.DurationField()
 
-    data = postgres_fields.JSONField(default=dict)
+    data = models.JSONField(default=dict)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

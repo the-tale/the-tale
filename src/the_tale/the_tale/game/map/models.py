@@ -35,7 +35,7 @@ class MapRegion(django_models.Model):
 
     turn_number = django_models.BigIntegerField(null=False, unique=True)
 
-    data = django_postgres_fields.JSONField()
+    data = django_models.JSONField()
 
     class Meta:
         index_together = (('turn_number', 'created_at'),)

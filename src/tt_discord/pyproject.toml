@@ -7,7 +7,7 @@ authors = ["Aliaksei Yaletski (Tiendil) <a.eletsky@gmail.com>"]
 license = "BSD-3"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 
 "discord.py" = "1.7.3"
 
