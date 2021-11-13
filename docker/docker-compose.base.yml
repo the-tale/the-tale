@@ -22,7 +22,7 @@ x-tt-service:
     - ${PWD}:/home/tt_service/repository
 
   depends_on:
-    - core_postgresql
+    - core-postgresql
 
   profiles:
     - services
@@ -48,9 +48,9 @@ x-the-tale:
   image: the-tale/the-tale:latest
 
   depends_on:
-    - core_postgresql
-    - core_redis
-    - core_rabbitmq
+    - core-postgresql
+    - core-redis
+    - core-rabbitmq
 
   networks:
     tt_network: {}
@@ -66,7 +66,7 @@ x-the-tale-worker:
     - workers
 
   depends_on:
-    - site_migrations
+    - utils-site-migrations
 
 
 networks:
@@ -80,7 +80,9 @@ volumes:
 
 services:
 
-  core_postgresql:
+  core-postgresql:
+
+    image: the-tale/core-postgresql:$TT_ENV-$TT_VERSION
 
     build:
       context: ./postgresql
@@ -104,7 +106,9 @@ services:
     networks:
       tt_network: {}
 
-  utils_backup:
+  utils-backup:
+
+    image: the-tale/utils-backup:$TT_ENV-$TT_VERSION
 
     build:
       context: ./utils_backup
@@ -120,7 +124,7 @@ services:
       TT_S3_BACKET: "s3 backet name"
 
     depends_on:
-      - core_postgresql
+      - core-postgresql
 
     networks:
       tt_network: {}
@@ -128,7 +132,9 @@ services:
     profiles:
       - utils
 
-  core_redis:
+  core-redis:
+
+    image: the-tale/core-redis:$TT_ENV-$TT_VERSION
 
     build:
       context: ./redis
@@ -141,7 +147,9 @@ services:
     networks:
       tt_network: {}
 
-  core_rabbitmq:
+  core-rabbitmq:
+
+    image: the-tale/core-rabbitmq:$TT_ENV-$TT_VERSION
 
     build:
       context: ./rabbitmq
@@ -158,7 +166,9 @@ services:
     networks:
       tt_network: {}
 
-  core_nginx:
+  core-nginx:
+
+    image: the-tale/core-nginx:$TT_ENV-$TT_VERSION
 
     build:
       context: ./nginx
@@ -184,12 +194,12 @@ services:
       tt_network: {}
 
   # base image for tt services
-  tt_base:
+  tt-base:
     build:
       context: ../
       dockerfile: ./docker/common/Dockerfile
 
-    image: the-tale/tt-base:latest
+    image: the-tale/tt-base:$TT_ENV-$TT_VERSION
 
     entrypoint: []
 
@@ -199,8 +209,10 @@ services:
     networks:
       tt_network: {}
 
-  tt_diary:
+  tt-diary:
     << : *default-tt-service
+
+    image: the-tale/tt-diary:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -208,8 +220,10 @@ services:
         - TT_SERVICE=tt_diary
         - TT_PACKAGE=tt_diary
 
-  tt_personal_messages:
+  tt-personal-messages:
     << : *default-tt-service
+
+    image: the-tale/tt-personal-messages:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -217,8 +231,10 @@ services:
         - TT_SERVICE=tt_personal_messages
         - TT_PACKAGE=tt_personal_messages
 
-  tt_storage:
+  tt-storage:
     << : *default-tt-service
+
+    image: the-tale/tt-storage:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -226,8 +242,10 @@ services:
         - TT_SERVICE=tt_storage
         - TT_PACKAGE=tt_storage
 
-  tt_market:
+  tt-market:
     << : *default-tt-service
+
+    image: the-tale/tt-market:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -235,8 +253,10 @@ services:
         - TT_SERVICE=tt_market
         - TT_PACKAGE=tt_market
 
-  tt_players_timers:
+  tt-players-timers:
     << : *default-tt-service
+
+    image: the-tale/tt-players-timers:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -244,8 +264,10 @@ services:
         - TT_SERVICE=tt_players_timers
         - TT_PACKAGE=tt_timers
 
-  tt_personal_impacts:
+  tt-personal-impacts:
     << : *default-tt-service
+
+    image: the-tale/tt-personal-impacts:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -253,8 +275,10 @@ services:
         - TT_SERVICE=tt_personal_impacts
         - TT_PACKAGE=tt_impacts
 
-  tt_crowd_impacts:
+  tt-crowd-impacts:
     << : *default-tt-service
+
+    image: the-tale/tt-crowd-impacts:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -262,8 +286,10 @@ services:
         - TT_SERVICE=tt_crowd_impacts
         - TT_PACKAGE=tt_impacts
 
-  tt_job_impacts:
+  tt-job-impacts:
     << : *default-tt-service
+
+    image: the-tale/tt-job-impacts:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -271,8 +297,10 @@ services:
         - TT_SERVICE=tt_job_impacts
         - TT_PACKAGE=tt_impacts
 
-  tt_fame_impacts:
+  tt-fame-impacts:
     << : *default-tt-service
+
+    image: the-tale/tt-fame-impacts:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -280,8 +308,10 @@ services:
         - TT_SERVICE=tt_fame_impacts
         - TT_PACKAGE=tt_impacts
 
-  tt_game_chronicle:
+  tt-game-chronicle:
     << : *default-tt-service
+
+    image: the-tale/tt-game-chronicle:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -289,8 +319,10 @@ services:
         - TT_SERVICE=tt_game_chronicle
         - TT_PACKAGE=tt_events_log
 
-  tt_clans_chronicle:
+  tt-clans-chronicle:
     << : *default-tt-service
+
+    image: the-tale/tt-clans-chronicle:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -298,8 +330,10 @@ services:
         - TT_SERVICE=tt_clans_chronicle
         - TT_PACKAGE=tt_events_log
 
-  tt_money_spendings:
+  tt-money-spendings:
     << : *default-tt-service
+
+    image: the-tale/tt-money-spendings:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -307,8 +341,10 @@ services:
         - TT_SERVICE=tt_money_spendings
         - TT_PACKAGE=tt_impacts
 
-  tt_emissaries_impacts:
+  tt-emissaries-impacts:
     << : *default-tt-service
+
+    image: the-tale/tt-emissaries-impacts:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -316,8 +352,10 @@ services:
         - TT_SERVICE=tt_emissaries_impacts
         - TT_PACKAGE=tt_impacts
 
-  tt_players_properties:
+  tt-players-properties:
     << : *default-tt-service
+
+    image: the-tale/tt-players-properties:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -325,8 +363,10 @@ services:
         - TT_SERVICE=tt_players_properties
         - TT_PACKAGE=tt_properties
 
-  tt_clans_properties:
+  tt-clans-properties:
     << : *default-tt-service
+
+    image: the-tale/tt-clans-properties:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -334,8 +374,10 @@ services:
         - TT_SERVICE=tt_clans_properties
         - TT_PACKAGE=tt_properties
 
-  tt_matchmaker:
+  tt-matchmaker:
     << : *default-tt-service
+
+    image: the-tale/tt-matchmaker:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -343,8 +385,10 @@ services:
         - TT_SERVICE=tt_matchmaker
         - TT_PACKAGE=tt_matchmaker
 
-  tt_places_effects:
+  tt-places-effects:
     << : *default-tt-service
+
+    image: the-tale/tt-places-effects:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -352,8 +396,10 @@ services:
         - TT_SERVICE=tt_places_effects
         - TT_PACKAGE=tt_effects
 
-  tt_clans_currencies:
+  tt-clans-currencies:
     << : *default-tt-service
+
+    image: the-tale/tt-clans-currencies:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -361,8 +407,10 @@ services:
         - TT_SERVICE=tt_clans_currencies
         - TT_PACKAGE=tt_bank
 
-  tt_emissaries_events_currencies:
+  tt-emissaries-events-currencies:
     << : *default-tt-service
+
+    image: the-tale/tt-emissaries-events-currencies:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -370,8 +418,10 @@ services:
         - TT_SERVICE=tt_emissaries_events_currencies
         - TT_PACKAGE=tt_bank
 
-  tt_emissaries_events_uniquer:
+  tt-emissaries-events-uniquer:
     << : *default-tt-service
+
+    image: the-tale/tt-emissaries-events-uniquer:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -379,8 +429,10 @@ services:
         - TT_SERVICE=tt_emissaries_events_uniquer
         - TT_PACKAGE=tt_uniquer
 
-  tt_discord:
+  tt-discord:
     << : *default-tt-service
+
+    image: the-tale/tt-discord:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -388,8 +440,10 @@ services:
         - TT_SERVICE=tt_discord
         - TT_PACKAGE=tt_discord
 
-  tt_data_protector:
+  tt-data-protector:
     << : *default-tt-service
+
+    image: the-tale/tt-data-protector:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -397,8 +451,10 @@ services:
         - TT_SERVICE=tt_data_protector
         - TT_PACKAGE=tt_data_protector
 
-  tt_xsolla:
+  tt-xsolla:
     << : *default-tt-service
+
+    image: the-tale/tt-xsolla:$TT_ENV-$TT_VERSION
 
     build:
       << : *default-tt-service-build
@@ -406,8 +462,11 @@ services:
         - TT_SERVICE=tt_xsolla
         - TT_PACKAGE=tt_xsolla
 
-  site_migrations:
+  utils-site-migrations:
     << : *default-the-tale
+
+    profiles:
+      - utils
 
     command: tt_django migrate
 
@@ -423,19 +482,19 @@ services:
       - site
 
     depends_on:
-      - core_nginx
-      - site_migrations
+      - core-nginx
+      - utils-site-migrations
 
-  utils_site:
+  utils-site:
     << : *default-the-tale
 
     profiles:
       - utils
 
     depends_on:
-      - site_migrations
+      - utils-site-migrations
 
-  utils_regenerate_protocol:
+  utils-regenerate-protocol:
 
     build:
       context: ../
@@ -452,50 +511,50 @@ services:
     profiles:
       - utils
 
-  worker_bank_processor:
+  worker-bank-processor:
     << : *default-the-tale-worker
     environment:
       TT_WORKER: bank_processor
 
-  worker_xsolla_banker:
+  worker-xsolla-banker:
     << : *default-the-tale-worker
     environment:
       TT_WORKER: xsolla_banker
 
-  worker_refrigerator:
+  worker-refrigerator:
     << : *default-the-tale-worker
     environment:
       TT_WORKER: refrigerator
 
-  worker_message_sender:
+  worker-message-sender:
     << : *default-the-tale-worker
     environment:
       TT_WORKER: message_sender
 
-  worker_items_manager:
+  worker-items-manager:
     << : *default-the-tale-worker
     environment:
       TT_WORKER: items_manager
 
-  worker_linguistics_manager:
+  worker-linguistics-manager:
     << : *default-the-tale-worker
     environment:
       TT_WORKER: linguistics_manager
 
-  worker_achievements_manager:
+  worker-achievements-manager:
     << : *default-the-tale-worker
     environment:
       TT_WORKER: achievements_manager
 
     depends_on:
-      - worker_items_manager
+      - worker-items-manager
 
-  worker_turns_loop:
+  worker-turns-loop:
     << : *default-the-tale-worker
     environment:
       TT_WORKER: turns_loop
 
-  worker_logic_1:
+  worker-logic-1:
     << : *default-the-tale-worker
     environment:
       TT_WORKER: logic_1
@@ -503,7 +562,7 @@ services:
     # service can be stopped only by worker_supervisor
     stop_grace_period: 8760h
 
-  worker_logic_2:
+  worker-logic-2:
     << : *default-the-tale-worker
     environment:
       TT_WORKER: logic_2
@@ -511,17 +570,17 @@ services:
     # service can be stopped only by worker_supervisor
     stop_grace_period: 8760h
 
-  worker_quests_generator:
+  worker-quests-generator:
     << : *default-the-tale-worker
     environment:
       TT_WORKER: quests_generator
 
-  worker_quests_generator:
+  worker-quests-generator:
     << : *default-the-tale-worker
     environment:
       TT_WORKER: quests_generator
 
-  worker_supervisor:
+  worker-supervisor:
     << : *default-the-tale-worker
     environment:
       TT_WORKER: supervisor
@@ -529,5 +588,5 @@ services:
     stop_grace_period: 1h
 
     depends_on:
-      - worker_logic_1
-      - worker_logic_2
+      - worker-logic-1
+      - worker-logic-2

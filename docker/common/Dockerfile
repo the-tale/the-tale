@@ -31,4 +31,19 @@ RUN pip install --user -r ./requirements.txt
 
 RUN python -m venv $TT_VENV
 
+# Copy actual code to container
+# It will be runing in production
+# In development environment it will be replaced by mounted volume
+
+COPY --chown=$TT_USER ./src  $TT_REPOSITORY/src
+
+# Setup tt_web & tt_protocols
+# not ideal solution, since concrete service can require different package version,
+# but for most cases it will spedup container builds
+# in case of problems with packages versions, child container could install right version, specified in service lock file
+
+RUN . $TT_VENV/bin/activate && \
+    cd $TT_REPOSITORY/src/tt_web && poetry install && \
+    cd $TT_REPOSITORY/src/tt_protocol && poetry install
+
 ENTRYPOINT ["entrypoint.sh"]

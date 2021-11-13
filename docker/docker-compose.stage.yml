@@ -6,19 +6,19 @@ volumes:
 
 services:
 
-  core_postgresql:
+  core-postgresql:
     environment:
       POSTGRES_PASSWORD: postgresql
     volumes:
        - postgresql-storage:/var/lib/postgresql/data
 
-  utils_backup:
+  utils-backup:
 
     environment:
       BACKUP_USER: postgres
       BACKUP_PASSWORD: postgresql
 
-  core_nginx:
+  core-nginx:
     environment:
       TT_SERVERS: "site"
       TT_GENERATE_CERTIFICATES: "yes"
