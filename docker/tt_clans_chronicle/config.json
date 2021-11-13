@@ -2,7 +2,7 @@
     "database": {"name": "tt_clans_chronicle",
                  "user": "tt_clans_chronicle",
                  "password": "tt_clans_chronicle",
-                 "host": "core_postgresql",
+                 "host": "core-postgresql",
                  "port": 5432,
                  "minsize": 2,
                  "maxsize": 5,

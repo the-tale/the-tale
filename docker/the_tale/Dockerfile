@@ -1,6 +1,6 @@
-ARG_TT_BASE_VERSION
+ARG TT_BASE_IMAGE_VERSION
 
-FROM the-tale/tt-base:$TT_BASE_VERSION
+FROM the-tale/tt-base:$TT_BASE_IMAGE_VERSION
 
 ARG TT_PACKAGE=the_tale
 ARG TT_USER=tt_service

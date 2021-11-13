@@ -2,7 +2,7 @@
     "database": {"name": "tt_players_properties",
                  "user": "tt_players_properties",
                  "password": "tt_players_properties",
-                 "host": "core_postgresql",
+                 "host": "core-postgresql",
                  "port": 5432,
                  "minsize": 2,
                  "maxsize": 5,

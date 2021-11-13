@@ -2,7 +2,7 @@
     "database": {"name": "tt_market",
                  "user": "tt_market",
                  "password": "tt_market",
-                 "host": "core_postgresql",
+                 "host": "core-postgresql",
                  "port": 5432,
                  "minsize": 2,
                  "maxsize": 5,

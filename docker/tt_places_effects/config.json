@@ -2,7 +2,7 @@
     "database": {"name": "tt_places_effects",
                  "user": "tt_places_effects",
                  "password": "tt_places_effects",
-                 "host": "core_postgresql",
+                 "host": "core-postgresql",
                  "port": 5432,
                  "minsize": 2,
                  "maxsize": 5,

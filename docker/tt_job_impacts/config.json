@@ -2,7 +2,7 @@
     "database": {"name": "tt_job_impacts",
                  "user": "tt_job_impacts",
                  "password": "tt_job_impacts",
-                 "host": "core_postgresql",
+                 "host": "core-postgresql",
                  "port": 5432,
                  "minsize": 2,
                  "maxsize": 5,

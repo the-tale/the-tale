@@ -2,7 +2,7 @@
     "database": {"name": "tt_clans_currencies",
                  "user": "tt_clans_currencies",
                  "password": "tt_clans_currencies",
-                 "host": "core_postgresql",
+                 "host": "core-postgresql",
                  "port": 5432,
                  "minsize": 2,
                  "maxsize": 5,

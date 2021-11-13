@@ -2,7 +2,7 @@
     "database": {"name": "tt_fame_impacts",
                  "user": "tt_fame_impacts",
                  "password": "tt_fame_impacts",
-                 "host": "core_postgresql",
+                 "host": "core-postgresql",
                  "port": 5432,
                  "minsize": 2,
                  "maxsize": 5,

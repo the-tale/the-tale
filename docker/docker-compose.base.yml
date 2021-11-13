@@ -219,6 +219,7 @@ services:
       args:
         - TT_SERVICE=tt_diary
         - TT_PACKAGE=tt_diary
+        - TT_BASE_IMAGE_VERSION=$TT_ENV-$TT_VERSION
 
   tt-personal-messages:
     << : *default-tt-service

@@ -2,7 +2,7 @@
     "database": {"name": "tt_money_spendings",
                  "user": "tt_money_spendings",
                  "password": "tt_money_spendings",
-                 "host": "core_postgresql",
+                 "host": "core-postgresql",
                  "port": 5432,
                  "minsize": 2,
                  "maxsize": 5,
