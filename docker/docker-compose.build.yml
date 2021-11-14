@@ -20,8 +20,7 @@ services:
       context: ./utils_backup
 
       args:
-        TT_BASE_IMAGE_VERSION: stage-latest
-        # TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
 
     profiles:
       - utils
@@ -286,16 +285,6 @@ services:
     profiles:
       - site
 
-  utils-backup:
-
-    image: the-tale/utils-backup:$TT_RELEASE_VERSION
-
-    build:
-      context: ./utils_backup
-
-    profiles:
-      - utils
-
   utils-regenerate-protocol:
 
     image: the-tale/utils-regenerate-protocol:$TT_RELEASE_VERSION
@@ -305,13 +294,3 @@ services:
       dockerfile: ./docker/utils_regenerate_protocol/Dockerfile
       args:
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
-
-  utils-backup:
-
-    image: the-tale/utils-backup:$TT_RELEASE_VERSION
-
-    build:
-      context: ./utils_backup
-
-    profiles:
-      - utils
