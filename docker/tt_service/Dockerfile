@@ -2,7 +2,6 @@ ARG TT_BASE_IMAGE_VERSION
 
 FROM the-tale/tt-base:$TT_BASE_IMAGE_VERSION
 
-ARG TT_SERVICE
 ARG TT_PACKAGE
 
 COPY --chown=$TT_USER ./docker/tt_service/bin/* $HOME_BIN
@@ -11,4 +10,4 @@ RUN . $TT_VENV/bin/activate && \
     cd $TT_REPOSITORY/src/$TT_PACKAGE && poetry install
 
 ENV TT_PACKAGE="$TT_PACKAGE" \
-    TT_CONFIG="$HOME/repository/docker/$TT_SERVICE/config.json"
+    TT_CONFIG="$HOME/config.json"
