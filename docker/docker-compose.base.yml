@@ -41,13 +41,12 @@ x-the-tale:
   environment:
     TT_WAIT_TIMEOUT: $TT_WAIT_TIMEOUT
 
-  image: the-tale/site:latest
+  image: the-tale/site:$TT_RELEASE_VERSION
 
   depends_on:
     - core-postgresql
     - core-redis
     - core-rabbitmq
-    - utils-site-migrations
 
   networks:
     tt_network: {}
@@ -62,6 +61,12 @@ x-the-tale-worker:
 
   profiles:
     - workers
+
+  depends_on:
+    - core-postgresql
+    - core-redis
+    - core-rabbitmq
+    - utils-site-migrations
 
 
 networks:
@@ -82,7 +87,7 @@ services:
     build:
       context: ./postgresql
 
-    image: the-tale/postgresql:latest
+    image: the-tale/postgresql:$TT_RELEASE_VERSION
 
     volumes:
        - ${PWD}/docker/postgresql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
@@ -543,8 +548,11 @@ services:
       - site
 
     depends_on:
-      - core-nginx
+      - core-postgresql
+      - core-redis
+      - core-rabbitmq
       - utils-site-migrations
+      - core-nginx
 
   utils-site:
     << : *default-the-tale
@@ -553,6 +561,9 @@ services:
       - utils
 
     depends_on:
+      - core-postgresql
+      - core-redis
+      - core-rabbitmq
       - utils-site-migrations
 
   worker-bank-processor:

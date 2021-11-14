@@ -1,4 +1,6 @@
-FROM the-tale/tt-base:latest AS tt-service-base
+ARG TT_BASE_IMAGE_VERSION
+
+FROM the-tale/tt-base:$TT_BASE_IMAGE_VERSION
 
 # Setup tt_protocols
 # not ideal solution, since concrete service can require different package version,
