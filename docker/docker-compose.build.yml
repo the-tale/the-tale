@@ -1,0 +1,317 @@
+version: "3.9"
+
+services:
+
+  core-postgresql:
+
+    image: the-tale/core-postgresql:$TT_RELEASE_VERSION
+
+    build:
+      context: ./postgresql
+
+    profiles:
+      - core
+
+  utils-backup:
+
+    image: the-tale/utils-backup:$TT_RELEASE_VERSION
+
+    build:
+      context: ./utils_backup
+
+      args:
+        TT_BASE_IMAGE_VERSION: stage-latest
+        # TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - utils
+
+  core-redis:
+
+    image: the-tale/core-redis:$TT_RELEASE_VERSION
+
+    build:
+      context: ./redis
+
+    profiles:
+      - core
+
+  core-rabbitmq:
+
+    image: the-tale/core-rabbitmq:$TT_RELEASE_VERSION
+
+    build:
+      context: ./rabbitmq
+
+    profiles:
+      - core
+
+  core-nginx:
+
+    image: the-tale/core-nginx:$TT_RELEASE_VERSION
+
+    build:
+      context: ./nginx
+
+    profiles:
+      - core
+
+  tt-base:
+
+    image: the-tale/tt-base:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/common/Dockerfile
+
+  tt-diary:
+
+    image: the-tale/tt-diary:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/tt_service/Dockerfile
+      args:
+        TT_PACKAGE: tt_diary
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - services
+
+  tt-personal-messages:
+
+    image: the-tale/tt-personal-messages:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/tt_service/Dockerfile
+      args:
+        TT_PACKAGE: tt_personal_messages
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - services
+
+  tt-storage:
+
+    image: the-tale/tt-storage:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/tt_service/Dockerfile
+      args:
+        TT_PACKAGE: tt_storage
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - services
+
+  tt-market:
+
+    image: the-tale/tt-market:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/tt_service/Dockerfile
+      args:
+        TT_PACKAGE: tt_market
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - services
+
+  tt-timers:
+
+    image: the-tale/tt-timers:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/tt_service/Dockerfile
+      args:
+        TT_PACKAGE: tt_timers
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - services
+
+  tt-impacts:
+    image: the-tale/tt-impacts:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/tt_service/Dockerfile
+      args:
+        TT_PACKAGE: tt_impacts
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - services
+
+  tt-events-log:
+
+    image: the-tale/tt-events-log:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/tt_service/Dockerfile
+      args:
+        TT_PACKAGE: tt_events_log
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - services
+
+  tt-properties:
+
+    image: the-tale/tt-properties:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/tt_service/Dockerfile
+      args:
+        TT_PACKAGE: tt_properties
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - services
+
+  tt-matchmaker:
+
+    image: the-tale/tt-matchmaker:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/tt_service/Dockerfile
+      args:
+        TT_PACKAGE: tt_matchmaker
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - services
+
+  tt-effects:
+
+    image: the-tale/tt-effects:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/tt_service/Dockerfile
+      args:
+        TT_PACKAGE: tt_effects
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - services
+
+  tt-bank:
+
+    image: the-tale/tt-bank:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/tt_service/Dockerfile
+      args:
+        TT_PACKAGE: tt_bank
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - services
+
+  tt-uniquer:
+
+    image: the-tale/tt-uniquer:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/tt_service/Dockerfile
+      args:
+        TT_PACKAGE: tt_uniquer
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - services
+
+  tt-discord:
+
+    image: the-tale/tt-discord:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/tt_service/Dockerfile
+      args:
+        TT_PACKAGE: tt_discord
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - services
+
+  tt-data-protector:
+
+    image: the-tale/tt-data-protector:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/tt_service/Dockerfile
+      args:
+        TT_PACKAGE: tt_data_protector
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - services
+
+  tt-xsolla:
+
+    image: the-tale/tt-xsolla:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/tt_service/Dockerfile
+      args:
+        TT_PACKAGE: tt_xsolla
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - services
+
+  site:
+
+    image: the-tale/site:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/the_tale/Dockerfile
+      args:
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+    profiles:
+      - site
+
+  utils-backup:
+
+    image: the-tale/utils-backup:$TT_RELEASE_VERSION
+
+    build:
+      context: ./utils_backup
+
+    profiles:
+      - utils
+
+  utils-regenerate-protocol:
+
+    image: the-tale/utils-regenerate-protocol:$TT_RELEASE_VERSION
+
+    build:
+      context: ../
+      dockerfile: ./docker/utils_regenerate_protocol/Dockerfile
+      args:
+        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+
+  utils-backup:
+
+    image: the-tale/utils-backup:$TT_RELEASE_VERSION
+
+    build:
+      context: ./utils_backup
+
+    profiles:
+      - utils

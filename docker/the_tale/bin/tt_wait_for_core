@@ -5,7 +5,5 @@ set -e
 trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
 
 wait-for-it core-postgresql:5432 -t $TT_WAIT_TIMEOUT
-
-tt_django migrate
-
-exec tt_service -s $TT_PACKAGE -c $TT_CONFIG
+wait-for-it core-redis:6379 -t $TT_WAIT_TIMEOUT
+wait-for-it core-rabbitmq:5672 -t $TT_WAIT_TIMEOUT

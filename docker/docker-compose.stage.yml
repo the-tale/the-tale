@@ -12,16 +12,10 @@ services:
 
   utils-regenerate-protocol:
 
-    build:
-      context: ../
-      dockerfile: ./docker/utils_regenerate_protocol/Dockerfile
-      args:
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
+    image: the-tale/utils-regenerate-protocol:$TT_RELEASE_VERSION
 
     volumes:
       - ${PWD}:/home/tt_service/repository
-
-    image: the-tale/utils-regenerate-protocol:$TT_RELEASE_VERSION
 
     command: tt_regenerate_protocol
 

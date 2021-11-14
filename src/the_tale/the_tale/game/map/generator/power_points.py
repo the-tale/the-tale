@@ -31,7 +31,7 @@ def _point_circle_height(obj, borders, normalizer, power_percent):
                                                 name='height_circle_' + obj.uid,
                                                 x=obj.x,
                                                 y=obj.y,
-                                                radius=obj.r if obj.r >= 1 else 1,
+                                                radius=max(obj.r, 1),
                                                 power=get_height_power_function(borders, power_percent),
                                                 default_power=(0.0, 0.0),
                                                 normalizer=normalizer)
@@ -76,15 +76,15 @@ def _point_arrow_height(obj, borders, length_normalizer, width_normalizer, power
     if len(distances) > 0:
         distance, other_place = distances[0]  # pylint: disable=W0612
         arrow = deworld_power_points.ArrowAreaPoint.Arrow(angle=math.atan2(other_place.y - obj.y, other_place.x - obj.x),
-                                                          length=obj.r,
-                                                          width=(obj.r // 3) + 1)
+                                                          length=max(obj.r, 1),
+                                                          width=max(obj.r // 3, 1))
         arrows.extend([arrow, arrow.rounded_arrow])
 
     if len(distances) > 1:
         distance, other_place = distances[1]
         arrow = deworld_power_points.ArrowAreaPoint.Arrow(angle=math.atan2(other_place.y - obj.y, other_place.x - obj.x),
-                                                          length=obj.r,
-                                                          width=(obj.r // 3) + 1)
+                                                          length=max(obj.r, 1),
+                                                          width=max(obj.r // 3, 1))
         arrows.extend([arrow, arrow.rounded_arrow])
 
     return deworld_power_points.ArrowAreaPoint(layer_type=deworld_layers.LAYER_TYPE.HEIGHT,
@@ -103,7 +103,7 @@ def _point_circle_vegetation(obj, power, normalizer, power_percent):
                                                 name='vegetation_' + obj.uid,
                                                 x=obj.x,
                                                 y=obj.y,
-                                                radius=obj.r if obj.r >= 1 else 1,
+                                                radius=max(obj.r, 1),
                                                 power=(power[0] * power_percent, power[1] * power_percent),
                                                 default_power=(0.0, 0.0),
                                                 normalizer=normalizer)
@@ -114,7 +114,7 @@ def _point_circle_soil(obj, power, normalizer, power_percent):
                                                 name='soil_' + obj.uid,
                                                 x=obj.x,
                                                 y=obj.y,
-                                                radius=obj.r if obj.r >= 1 else 1,
+                                                radius=max(obj.r, 1),
                                                 power=power * power_percent,
                                                 default_power=0.0,
                                                 normalizer=normalizer)
@@ -125,7 +125,7 @@ def _point_circle_temperature(obj, power, normalizer, power_percent):
                                                 name='temperature_' + obj.uid,
                                                 x=obj.x,
                                                 y=obj.y,
-                                                radius=obj.r if obj.r >= 1 else 1,
+                                                radius=max(obj.r, 1),
                                                 power=power * power_percent,
                                                 normalizer=normalizer)
 
@@ -135,7 +135,7 @@ def _point_circle_wetness(obj, power, normalizer, power_percent):
                                                 name='wetness_' + obj.uid,
                                                 x=obj.x,
                                                 y=obj.y,
-                                                radius=obj.r if obj.r >= 1 else 1,
+                                                radius=max(obj.r, 1),
                                                 power=power * power_percent,
                                                 normalizer=normalizer)
 
@@ -147,7 +147,7 @@ def _default_temperature_points(delta=0.0):
                                                 x=conf.settings.WIDTH // 2,
                                                 y=conf.settings.HEIGHT // 2,
                                                 power=0.5 + delta,
-                                                radius=r if r >= 1 else 1,
+                                                radius=max(r, 1),
                                                 normalizer=deworld_normalizers.equal)
 
 
@@ -158,7 +158,7 @@ def _default_wetness_points(delta=0.0):
                                                 x=conf.settings.WIDTH // 2,
                                                 y=conf.settings.HEIGHT // 2,
                                                 power=0.6 + delta,
-                                                radius=r if r >= 1 else 1,
+                                                radius=max(r, 1),
                                                 normalizer=deworld_normalizers.equal)
 
 
@@ -169,7 +169,7 @@ def _default_soil_points(delta=0.0):
                                                 x=conf.settings.WIDTH // 2,
                                                 y=conf.settings.HEIGHT // 2,
                                                 power=0.3 + delta,
-                                                radius=r if r >= 1 else 1,
+                                                radius=max(r, 1),
                                                 normalizer=deworld_normalizers.equal)
 
 
@@ -181,7 +181,7 @@ def _default_vegetation_points():
                                                 y=conf.settings.HEIGHT // 2,
                                                 power=(0.25, 0.25),
                                                 default_power=(0.0, 0.0),
-                                                radius=r if r >= 1 else 1,
+                                                radius=max(r, 1),
                                                 normalizer=deworld_normalizers.equal)
 
 

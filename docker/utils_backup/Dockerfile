@@ -1,4 +1,6 @@
-FROM the-tale/postgresql:latest
+ARG TT_BASE_IMAGE_VERSION
+
+FROM the-tale/core-postgresql:$TT_BASE_IMAGE_VERSION
 
 ENTRYPOINT ["entrypoint.sh"]
 

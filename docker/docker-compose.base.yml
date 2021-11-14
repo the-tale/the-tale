@@ -3,11 +3,6 @@ version: "3.9"
 x-tt-service:
   &default-tt-service
 
-  build:
-    &default-tt-service-build
-    context: ../
-    dockerfile: ./docker/tt_service/Dockerfile
-
   ports:
     - "80"
 
@@ -29,12 +24,6 @@ x-tt-service:
 
 x-the-tale:
   &default-the-tale
-
-  build:
-    context: ../
-    dockerfile: ./docker/the_tale/Dockerfile
-    args:
-      - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
 
   stop_grace_period: 1s
 
@@ -84,11 +73,6 @@ services:
 
     image: the-tale/core-postgresql:$TT_RELEASE_VERSION
 
-    build:
-      context: ./postgresql
-
-    image: the-tale/postgresql:$TT_RELEASE_VERSION
-
     volumes:
        - ${PWD}/docker/postgresql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
        - $TT_CONFIGS_ROOT/postgresql/postgresql.$TT_ENV.conf:/etc/postgresql/postgresql.conf:ro
@@ -109,9 +93,6 @@ services:
   utils-backup:
 
     image: the-tale/utils-backup:$TT_RELEASE_VERSION
-
-    build:
-      context: ./utils_backup
 
     volumes:
        - $TT_CONFIGS_ROOT/utils_backup/aws.config:/root/aws.config:ro
@@ -135,9 +116,6 @@ services:
 
     image: the-tale/core-redis:$TT_RELEASE_VERSION
 
-    build:
-      context: ./redis
-
     stop_grace_period: 1m
 
     ports:
@@ -149,9 +127,6 @@ services:
   core-rabbitmq:
 
     image: the-tale/core-rabbitmq:$TT_RELEASE_VERSION
-
-    build:
-      context: ./rabbitmq
 
     stop_grace_period: 1m
 
@@ -168,9 +143,6 @@ services:
   core-nginx:
 
     image: the-tale/core-nginx:$TT_RELEASE_VERSION
-
-    build:
-      context: ./nginx
 
     environment:
       TT_SERVERS: "site temp_informer xsolla localhost"
@@ -190,32 +162,10 @@ services:
     networks:
       tt_network: {}
 
-  # base image for tt services
-  tt-base:
-    build:
-      context: ../
-      dockerfile: ./docker/common/Dockerfile
-
-    image: the-tale/tt-base:$TT_RELEASE_VERSION
-
-    entrypoint: []
-
-    profiles:
-      - base_images
-
-    networks:
-      tt_network: {}
-
   tt-diary:
     << : *default-tt-service
 
     image: the-tale/tt-diary:$TT_RELEASE_VERSION
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_diary
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_diary/config.json:/home/tt_service/config.json
@@ -225,12 +175,6 @@ services:
 
     image: the-tale/tt-personal-messages:$TT_RELEASE_VERSION
 
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_personal_messages
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
-
     volumes:
       - $TT_CONFIGS_ROOT/tt_personal_messages/config.json:/home/tt_service/config.json
 
@@ -238,12 +182,6 @@ services:
     << : *default-tt-service
 
     image: the-tale/tt-storage:$TT_RELEASE_VERSION
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_storage
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_storage/config.json:/home/tt_service/config.json
@@ -253,12 +191,6 @@ services:
 
     image: the-tale/tt-market:$TT_RELEASE_VERSION
 
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_market
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
-
     volumes:
       - $TT_CONFIGS_ROOT/tt_storage/config.json:/home/tt_service/config.json
 
@@ -266,12 +198,6 @@ services:
     << : *default-tt-service
 
     image: the-tale/tt-timers:$TT_RELEASE_VERSION
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_timers
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_players_timers/config.json:/home/tt_service/config.json
@@ -281,12 +207,6 @@ services:
 
     image: the-tale/tt-impacts:$TT_RELEASE_VERSION
 
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_impacts
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
-
     volumes:
       - $TT_CONFIGS_ROOT/tt_personal_impacts/config.json:/home/tt_service/config.json
 
@@ -294,12 +214,6 @@ services:
     << : *default-tt-service
 
     image: the-tale/tt-impacts:$TT_RELEASE_VERSION
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_impacts
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_crowd_impacts/config.json:/home/tt_service/config.json
@@ -309,12 +223,6 @@ services:
 
     image: the-tale/tt-impacts:$TT_RELEASE_VERSION
 
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_impacts
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
-
     volumes:
       - $TT_CONFIGS_ROOT/tt_job_impacts/config.json:/home/tt_service/config.json
 
@@ -322,12 +230,6 @@ services:
     << : *default-tt-service
 
     image: the-tale/tt-impacts:$TT_RELEASE_VERSION
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_impacts
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_fame_impacts/config.json:/home/tt_service/config.json
@@ -337,12 +239,6 @@ services:
 
     image: the-tale/tt-events-log:$TT_RELEASE_VERSION
 
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_events_log
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
-
     volumes:
       - $TT_CONFIGS_ROOT/tt_game_chronicle/config.json:/home/tt_service/config.json
 
@@ -350,12 +246,6 @@ services:
     << : *default-tt-service
 
     image: the-tale/tt-events-log:$TT_RELEASE_VERSION
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_events_log
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_clans_chronicle/config.json:/home/tt_service/config.json
@@ -365,12 +255,6 @@ services:
 
     image: the-tale/tt-impacts:$TT_RELEASE_VERSION
 
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_impacts
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
-
     volumes:
       - $TT_CONFIGS_ROOT/tt_money_spendings/config.json:/home/tt_service/config.json
 
@@ -378,12 +262,6 @@ services:
     << : *default-tt-service
 
     image: the-tale/tt-impacts:$TT_RELEASE_VERSION
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_impacts
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_emissaries_impacts/config.json:/home/tt_service/config.json
@@ -393,12 +271,6 @@ services:
 
     image: the-tale/tt-properties:$TT_RELEASE_VERSION
 
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_properties
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
-
     volumes:
       - $TT_CONFIGS_ROOT/tt_players_properties/config.json:/home/tt_service/config.json
 
@@ -406,12 +278,6 @@ services:
     << : *default-tt-service
 
     image: the-tale/tt-properties:$TT_RELEASE_VERSION
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_properties
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_clans_properties/config.json:/home/tt_service/config.json
@@ -421,12 +287,6 @@ services:
 
     image: the-tale/tt-matchmaker:$TT_RELEASE_VERSION
 
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_matchmaker
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
-
     volumes:
       - $TT_CONFIGS_ROOT/tt_matchmaker/config.json:/home/tt_service/config.json
 
@@ -434,12 +294,6 @@ services:
     << : *default-tt-service
 
     image: the-tale/tt-effects:$TT_RELEASE_VERSION
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_effects
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_places_effects/config.json:/home/tt_service/config.json
@@ -449,12 +303,6 @@ services:
 
     image: the-tale/tt-bank:$TT_RELEASE_VERSION
 
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_bank
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
-
     volumes:
       - $TT_CONFIGS_ROOT/tt_clans_currencies/config.json:/home/tt_service/config.json
 
@@ -462,12 +310,6 @@ services:
     << : *default-tt-service
 
     image: the-tale/tt-bank:$TT_RELEASE_VERSION
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_bank
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_emissaries_events_currencies/config.json:/home/tt_service/config.json
@@ -477,12 +319,6 @@ services:
 
     image: the-tale/tt-uniquer:$TT_RELEASE_VERSION
 
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_uniquer
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
-
     volumes:
       - $TT_CONFIGS_ROOT/tt_emissaries_events_uniquer/config.json:/home/tt_service/config.json
 
@@ -490,12 +326,6 @@ services:
     << : *default-tt-service
 
     image: the-tale/tt-discord:$TT_RELEASE_VERSION
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_discord
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_discord/config.json:/home/tt_service/config.json
@@ -505,12 +335,6 @@ services:
 
     image: the-tale/tt-data-protector:$TT_RELEASE_VERSION
 
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_data_protector
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
-
     volumes:
       - $TT_CONFIGS_ROOT/tt_data_protector/config.json:/home/tt_service/config.json
 
@@ -518,12 +342,6 @@ services:
     << : *default-tt-service
 
     image: the-tale/tt-xsolla:$TT_RELEASE_VERSION
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_PACKAGE=tt_xsolla
-        - TT_BASE_IMAGE_VERSION=$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_xsolla/config.json:/home/tt_service/config.json
@@ -533,6 +351,8 @@ services:
 
     profiles:
       - utils
+      - workers
+      - site
 
     command: tt_django migrate
 
@@ -551,8 +371,8 @@ services:
       - core-postgresql
       - core-redis
       - core-rabbitmq
-      - utils-site-migrations
       - core-nginx
+      - utils-site-migrations
 
   utils-site:
     << : *default-the-tale

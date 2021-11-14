@@ -81,8 +81,8 @@ settings = utils_app_settings.app_settings('ACCOUNTS',
 
                                            GUIDE_HABITS='https://the-tale.org/guide/hero-habits',
 
-                                           TT_PLAYERS_TIMERS_ENTRY_POINT='http://tt_players_timers:80/',
-                                           TT_PLAYERS_PROPERTIES_ENTRY_POINT='http://tt_players_properties:80/',
-                                           TT_DATA_PROTECTOR_ENTRY_POINT='http://tt_data_protector:80/',
+                                           TT_PLAYERS_TIMERS_ENTRY_POINT='http://tt-players-timers:80/',
+                                           TT_PLAYERS_PROPERTIES_ENTRY_POINT='http://tt-players-properties:80/',
+                                           TT_DATA_PROTECTOR_ENTRY_POINT='http://tt-data-protector:80/',
 
                                            FREE_CARDS_FOR_REGISTRATION=10)

@@ -37,7 +37,7 @@ DATABASES = {
         'NAME': 'the_tale',
         'USER': 'the_tale',
         'PASSWORD': 'the_tale',
-        'HOST': 'core_postgresql',
+        'HOST': 'core-postgresql',
         'PORT': '',
         'CONN_MAX_AGE': 60 * 60  # close connection after an hour
     }
@@ -271,7 +271,7 @@ else:
 # AMQP
 ###############################
 
-AMQP_BROKER_HOST = 'core_rabbitmq'
+AMQP_BROKER_HOST = 'core-rabbitmq'
 AMQP_BROKER_USER = 'the_tale'
 AMQP_BROKER_PASSWORD = 'the_tale'
 AMQP_BROKER_VHOST = '/the_tale'
@@ -289,7 +289,7 @@ if TESTS_RUNNING:
 ################
 
 CACHES = {'default': {'BACKEND': 'django_redis.cache.RedisCache',
-                      'LOCATION': 'redis://core_redis',
+                      'LOCATION': 'redis://core-redis',
                       'OPTIONS': {
                           'CLIENT_CLASS': 'django_redis.client.DefaultClient',
                           'SERIALIZER': 'django_redis.serializers.json.JSONSerializer'}}}

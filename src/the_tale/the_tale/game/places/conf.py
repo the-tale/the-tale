@@ -16,4 +16,4 @@ settings = utils_app_settings.app_settings('PLACES',
 
                                            CHOOSE_BY_TERRAIN_LIMIT=7**2,
 
-                                           TT_PLACES_EFFECTS_ENTRY_POINT='http://tt_places_effects:80/')
+                                           TT_PLACES_EFFECTS_ENTRY_POINT='http://tt-places-effects:80/')
