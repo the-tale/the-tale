@@ -11,12 +11,14 @@ ARG TT_SITE_STATIC_DIR
 # TODO: remove in production environment?
 USER root
 RUN apt-get install -y node-less
+
+RUN mkdir -p $TT_SITE_STATIC_DIR && \
+    chown $TT_USER $TT_SITE_STATIC_DIR
+
 USER $TT_USER
 ########################################
 
 COPY --chown=$TT_USER ./docker/the_tale/bin/* $HOME_BIN
-
-RUN mkdir -p $TT_SITE_STATIC_DIR
 
 RUN . $TT_VENV/bin/activate && \
     cd $TT_REPOSITORY/src/$TT_PACKAGE && poetry install

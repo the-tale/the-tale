@@ -144,6 +144,8 @@ services:
 
   core-nginx:
 
+    command: [nginx-debug, '-g', 'daemon off;']
+
     image: the-tale/core-nginx:$TT_RELEASE_VERSION
 
     environment:
@@ -398,7 +400,7 @@ services:
     command: tt_generate_static
 
     volumes:
-      - tt_site_static:/var/www/site/:ro
+      - tt_site_static:/var/www/site/
 
     depends_on:
       - core-postgresql

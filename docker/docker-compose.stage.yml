@@ -147,6 +147,10 @@ services:
     volumes:
       - ${PWD}:/home/tt_service/repository
 
+  utils-site-generate-static:
+    volumes:
+      - ${PWD}:/home/tt_service/repository
+
   utils-site:
     volumes:
       - ${PWD}:/home/tt_service/repository

@@ -342,7 +342,7 @@ STATICFILES_DIRS = [os.path.join(PROJECT_DIR, 'static')]
 
 STATIC_URL = '/static/%s/' % GAME_VERSION
 
-STATIC_ROOT = os.environ['TT_SITE_STATIC_DIR']
+STATIC_ROOT = os.path.join(os.environ['TT_SITE_STATIC_DIR'], 'static', GAME_VERSION)
 
 CDN_DOMAIN = globals().get('CDN_DOMAIN', 'static.the-tale.org')
 
@@ -351,6 +351,7 @@ STATIC_CDN = '//%s/static/%s/' % (CDN_DOMAIN, GAME_VERSION)
 ADMIN_MEDIA_PREFIX = '%sadmin/' % STATIC_URL
 
 LESS_FILES_DIR = os.path.join(PROJECT_DIR, 'less')
+LESS_OUTPUT_DIR = os.path.join(STATIC_ROOT, 'css')
 
 CDNS_ENABLED = globals().get('CDNS_ENABLED', False)
 

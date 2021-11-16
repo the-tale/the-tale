@@ -12,7 +12,13 @@ class Command(utilities_base.Command):
 
     def add_arguments(self, parser):
         super().add_arguments(parser)
-        parser.add_argument('-o', '--output', action='store', type=str, dest='output', help='output directory')
+        parser.add_argument('-o',
+                            '--output',
+                            action='store',
+                            type=str,
+                            dest='output',
+                            help='output directory',
+                            default=django_settings.LESS_OUTPUT_DIR)
 
     def _handle(self, *args, **options):
 
@@ -23,8 +29,8 @@ class Command(utilities_base.Command):
 
         self.logger.info('remove old data')
 
-        if os.path.exists(django_settings.LESS_DEST_DIR):
-            shutil.rmtree(django_settings.LESS_DEST_DIR)
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
 
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)

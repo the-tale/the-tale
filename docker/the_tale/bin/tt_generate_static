@@ -11,4 +11,4 @@ tt_django game_generate_js --ignore-lock portal_commands
 
 tt_django collectstatic
 
-tt_django less_generate_css --ignore-lock portal_commands --output $TT_SITE_STATIC_DIR/css
+tt_django less_generate_css --ignore-lock portal_commands

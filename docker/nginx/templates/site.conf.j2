@@ -29,7 +29,7 @@ server {
 
         # TODO: rewrite paths
         {% if not tt_test_enviroment %}
-        location /static/ {
+        location ^~ /static/ {
             if (-f /var/www/the_tale/maintenance.html) {
                    return 503;
             }
@@ -43,7 +43,7 @@ server {
 
          # TODO: change maintenance logic
         error_page 503 /maintenance.html;
-        location =/maintenance.html {
+        location = /maintenance.html {
             root /var/www/the_tale;
             internal;
         }
