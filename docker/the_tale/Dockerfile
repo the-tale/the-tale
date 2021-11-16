@@ -4,6 +4,7 @@ FROM the-tale/tt-base:$TT_BASE_IMAGE_VERSION
 
 ARG TT_PACKAGE=the_tale
 ARG TT_USER=tt_service
+ARG TT_SITE_STATIC_DIR
 
 ########################################
 # required for development environment
@@ -14,6 +15,8 @@ USER $TT_USER
 ########################################
 
 COPY --chown=$TT_USER ./docker/the_tale/bin/* $HOME_BIN
+
+RUN mkdir -p $TT_SITE_STATIC_DIR
 
 RUN . $TT_VENV/bin/activate && \
     cd $TT_REPOSITORY/src/$TT_PACKAGE && poetry install

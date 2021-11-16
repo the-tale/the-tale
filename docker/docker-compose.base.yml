@@ -29,6 +29,7 @@ x-the-tale:
 
   environment:
     TT_WAIT_TIMEOUT: $TT_WAIT_TIMEOUT
+    TT_SITE_STATIC_DIR: $TT_SITE_STATIC_DIR
 
   image: the-tale/site:$TT_RELEASE_VERSION
 
@@ -65,6 +66,7 @@ networks:
 
 volumes:
   tt_nginx_sertificates: {}
+  tt_site_static: {}
 
 
 services:
@@ -152,8 +154,9 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/nginx/templates:/nginx-config-templates:ro
       - $TT_CONFIGS_ROOT/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - $TT_CONFIGS_ROOT/nginx/config.$TT_ENV.json:/root/nginx_config.json
-      - tt_nginx_sertificates:/etc/nginx/certificates/
+      - $TT_CONFIGS_ROOT/nginx/config.$TT_ENV.json:/root/nginx_config.json:ro
+      - tt_nginx_sertificates:/etc/nginx/certificates/:ro
+      - tt_site_static:/var/www/site/:ro
 
     ports:
       - "80:80"
@@ -379,6 +382,23 @@ services:
 
     profiles:
       - utils
+
+    depends_on:
+      - core-postgresql
+      - core-redis
+      - core-rabbitmq
+      - utils-site-migrations
+
+  utils-site-generate-static:
+    << : *default-the-tale
+
+    profiles:
+      - utils
+
+    command: tt_generate_static
+
+    volumes:
+      - tt_site_static:/var/www/site/:ro
 
     depends_on:
       - core-postgresql

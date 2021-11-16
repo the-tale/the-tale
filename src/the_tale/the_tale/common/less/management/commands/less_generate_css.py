@@ -10,18 +10,24 @@ class Command(utilities_base.Command):
 
     LOCKS = []
 
+    def add_arguments(self, parser):
+        super().add_arguments(parser)
+        parser.add_argument('-o', '--output', action='store', type=str, dest='output', help='output directory')
+
     def _handle(self, *args, **options):
 
+        output_dir = options['output']
+
         self.logger.info('source dir: %s' % django_settings.LESS_FILES_DIR)
-        self.logger.info('destination dir: %s' % django_settings.LESS_DEST_DIR)
+        self.logger.info('destination dir: %s' % output_dir)
 
         self.logger.info('remove old data')
 
         if os.path.exists(django_settings.LESS_DEST_DIR):
             shutil.rmtree(django_settings.LESS_DEST_DIR)
 
-        if not os.path.exists(django_settings.LESS_DEST_DIR):
-            os.mkdir(django_settings.LESS_DEST_DIR)
+        if not os.path.exists(output_dir):
+            os.mkdir(output_dir)
 
         self.logger.info('generate new data')
 
@@ -31,7 +37,7 @@ class Command(utilities_base.Command):
             norm_path = os.path.abspath(dirpath)
 
             rel_path = os.path.relpath(norm_path, norm_source_path)
-            dest_dir = os.path.join(django_settings.LESS_DEST_DIR, rel_path)
+            dest_dir = os.path.join(output_dir, rel_path)
 
             if not os.path.isdir(dest_dir):
                 os.mkdir(dest_dir)

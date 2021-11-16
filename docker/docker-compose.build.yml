@@ -51,6 +51,8 @@ services:
 
     build:
       context: ./nginx
+      args:
+        TT_SITE_STATIC_DIR: $TT_SITE_STATIC_DIR
 
     profiles:
       - core
@@ -281,6 +283,7 @@ services:
       dockerfile: ./docker/the_tale/Dockerfile
       args:
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_SITE_STATIC_DIR: $TT_SITE_STATIC_DIR
 
     profiles:
       - site
