@@ -33,6 +33,11 @@ x-the-tale:
 
   image: the-tale/site:$TT_RELEASE_VERSION
 
+  volumes:
+    # all site containers must has access to static files foulder
+    # they determine maintenance mode with its help
+    - tt_site_static:/var/www/site/
+
   depends_on:
     - core-postgresql
     - core-redis
@@ -398,9 +403,6 @@ services:
       - utils
 
     command: tt_generate_static
-
-    volumes:
-      - tt_site_static:/var/www/site/
 
     depends_on:
       - core-postgresql

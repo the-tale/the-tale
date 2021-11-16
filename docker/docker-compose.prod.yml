@@ -29,6 +29,7 @@ services:
       TT_SERVERS: "site"
       TT_GENERATE_CERTIFICATES: "yes"
 
+
   # TODO: uncomment
   # site:
 
@@ -37,15 +38,15 @@ services:
 
   # TODO: remove
 
+  utils-site-generate-static:
+    volumes:
+      - ${PWD}:/home/tt_service/repository
+
   site:
     volumes:
       - ${PWD}:/home/tt_service/repository
 
   utils-site-migrations:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  utils-site-generate-static:
     volumes:
       - ${PWD}:/home/tt_service/repository
 

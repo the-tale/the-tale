@@ -295,9 +295,6 @@ CACHES = {'default': {'BACKEND': 'django_redis.cache.RedisCache',
                           'SERIALIZER': 'django_redis.serializers.json.JSONSerializer'}}}
 
 
-MAINTENANCE_FILE = '/var/www/the_tale/maintenance.html'
-
-
 try:
     from the_tale.settings_local import *  # pylint: disable=W0403,W0401,W0614
 except Exception:  # pylint: disable=W0702,W0703
@@ -363,6 +360,9 @@ CDNS = (('STATIC_TWITTER_BOOTSTRAP',
          STATIC_URL, STATIC_CDN,
          lambda: 'https:%simages/rss.png?_=%f' % (STATIC_CDN, time.time())),  # prevent url from caching for cases, when portal closed to 503
         )
+
+MAINTENANCE_PREDEFINED_FILE = os.path.join(PROJECT_DIR, 'static', 'maintenance.html')
+MAINTENANCE_FILE = '/var/www/site/maintenance.html'
 
 
 ############################
