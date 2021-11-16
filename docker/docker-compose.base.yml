@@ -192,7 +192,7 @@ services:
     image: the-tale/tt-market:$TT_RELEASE_VERSION
 
     volumes:
-      - $TT_CONFIGS_ROOT/tt_storage/config.json:/home/tt_service/config.json
+      - $TT_CONFIGS_ROOT/tt_market/config.json:/home/tt_service/config.json
 
   tt-players-timers:
     << : *default-tt-service
