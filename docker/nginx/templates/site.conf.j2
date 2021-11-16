@@ -41,6 +41,8 @@ server {
 
         {{ macroses.location_robots_txt() }}
 
+        {{ macroses.location_certbot() }}
+
          # TODO: change maintenance logic
         error_page 503 /maintenance.html;
         location = /maintenance.html {

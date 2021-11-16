@@ -69,3 +69,14 @@ server {
             # TODO: change proxy_pass logic
             proxy_pass http://$tt_var_{{domain}}:{{port}}{{location}}$1$is_args$args;
 {% endmacro %}
+
+
+{% macro location_certbot() %}
+        location ^~ /.well-known/acme-challenge/ {
+            resolver 127.0.0.11 valid=1s;
+
+            set $tt_certbot utils-certbot;
+
+            proxy_pass http://$tt_certbot;
+        }
+{% endmacro %}

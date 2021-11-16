@@ -57,6 +57,16 @@ services:
     profiles:
       - core
 
+  utils-certbot:
+
+    image: the-tale/utils-certbot:$TT_RELEASE_VERSION
+
+    build:
+      context: ./utils_certbot
+
+    profiles:
+      - utils
+
   tt-base:
 
     image: the-tale/tt-base:$TT_RELEASE_VERSION
