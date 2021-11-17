@@ -45,6 +45,16 @@ services:
     profiles:
       - core
 
+  core-postfix:
+
+    image: the-tale/core-postfix:$TT_RELEASE_VERSION
+
+    build:
+      context: ./postfix
+
+    profiles:
+      - core
+
   core-nginx:
 
     image: the-tale/core-nginx:$TT_RELEASE_VERSION

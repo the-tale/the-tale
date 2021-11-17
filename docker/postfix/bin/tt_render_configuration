@@ -1,0 +1,4 @@
+#!/bin/sh
+
+jinja2 --strict /postfix-config-templates/main.cf /root/postfix_config.json > /etc/postfix/main.cf
+jinja2 --strict /postfix-config-templates/virtual /root/postfix_config.json > /etc/postfix/virtual

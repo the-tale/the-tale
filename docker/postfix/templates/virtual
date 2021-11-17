@@ -1,0 +1,3 @@
+{% for alias in virtual_aliases %}
+{{ alias['local']}}@{{tt_domain}} {{alias['remote']}}
+{% endfor %}
