@@ -1,0 +1,21 @@
+
+- name: Add docker key
+  become: yes
+  shell: "wget -q -O - {{docker_key}} | sudo apt-key add -"
+
+- name: Add Docker repo
+  become: yes
+  apt_repository:
+    repo: "deb [arch=amd64] {{docker_repository}} {{ansible_distribution_release}} stable"
+    state: present
+    filename: docker
+    update_cache: yes
+
+- name: Install Docker
+  become: yes
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: latest

@@ -1,0 +1,22 @@
+
+all:
+
+  vars:
+    ansible_connection: ssh
+    ansible_python_interpreter: /usr/bin/python3
+
+  hosts:
+
+    test:
+      ansible_user: root
+      ansible_host: localhost
+      ansible_port: 2222
+
+      datadog_enabled: no
+
+    the-tale.org:
+      datadog_enabled: yes
+
+      datadog_api_key: "some secrete key"
+      datadog_postgres_password: "some password"
+      datadog_rabbitmq_password: "some password"

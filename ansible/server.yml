@@ -1,0 +1,60 @@
+- hosts: all
+
+  roles:
+    - role: geerlingguy.firewall
+      vars:
+        firewall_allowed_tcp_ports:
+          - "22"   # ssh
+          - "25"   # postfix (incoming mail)
+          - "80"   # http
+          - "443"  # https
+
+        firewall_allowed_udp_ports: []
+
+    - base_server
+
+    - role: datadog.datadog
+      vars:
+        datadog_api_key: "{{datadog_api_key}}"
+
+        datadog_config:
+          use_curl_http_client: 'yes'
+
+        datadog_checks:
+          nginx:
+            init_config:
+              instances:
+                - nginx_status_url: http://localhost/nginx-status/
+
+        redisdb:
+          init_config:
+            instances:
+              - host: localhost
+                port: 6379
+                password:
+
+        postgres:
+          init_config:
+            instances:
+              - host: localhost
+                port: 5432
+                username: datadog
+                password: "{{datadog_postgres_password}}"
+
+        postfix:
+          init_config:
+            instances:
+              - directory: /var/spool/postfix
+                queues:
+                  - incoming
+                  - active
+                  - deferred
+
+        rabbitmq:
+          init_config:
+            instances:
+              - rabbitmq_api_url: http://localhost:15672/api/
+                rabbitmq_user: the_tale
+                rabbitmq_pass: "{{datadog_rabbitmq_password}}"
+
+      when: datadog_enabled

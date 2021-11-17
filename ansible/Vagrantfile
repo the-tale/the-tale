@@ -1,0 +1,18 @@
+# -*- mode: ruby -*-
+
+# VM just to test server configuration
+
+Vagrant.configure("2") do |config|
+    config.vm.box = "generic/ubuntu2004"
+    # config.disksize.size = '20GB'
+
+    ENV['LC_ALL']="en_US.UTF-8"
+
+    config.vm.define :the_tale do |mgs_vm|
+        mgs_vm.vm.provider "virtualbox" do |vb|
+            vb.name = "the_tale"
+            vb.customize ["modifyvm", :id, "--memory", "2048"]
+            vb.customize ["modifyvm", :id, "--cpus", "1"]
+        end
+    end
+end

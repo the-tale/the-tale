@@ -1,0 +1,12 @@
+
+# - name: bootstrap ansible
+#   import_tasks: bootstrap_ansible.yml
+
+- name: Prepair packages
+  import_tasks: prepare_packages.yml
+
+- name: configure system
+  import_tasks: configure_system.yml
+
+- name: setup docker
+  import_tasks: docker.yml

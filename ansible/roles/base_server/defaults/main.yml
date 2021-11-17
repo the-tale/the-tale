@@ -1,0 +1,13 @@
+prerequired_packages:
+  - aptitude
+  - apt-transport-https
+
+required_packages:
+  - python3-pip # requred by Ubuntu, usage of other pip installation can potentialy broke system
+
+removed_packages: []
+
+additional_packages: []
+
+docker_key: https://download.docker.com/linux/ubuntu/gpg
+docker_repository: https://download.docker.com/linux/ubuntu
