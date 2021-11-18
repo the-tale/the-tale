@@ -1,7 +1,4 @@
 
-# - name: bootstrap ansible
-#   import_tasks: bootstrap_ansible.yml
-
 - name: Prepair packages
   import_tasks: prepare_packages.yml
 

@@ -14,7 +14,7 @@ all:
 
       datadog_enabled: no
 
-    the-tale.org:
+    production-example:
       datadog_enabled: yes
 
       datadog_api_key: "some secrete key"

@@ -1,0 +1,5 @@
+
+- name: Upload docker compose configs
+  import_tasks: upload_docker_compose_configs.yml
+
+# - name: Switch actual configs version

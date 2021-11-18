@@ -1,0 +1,98 @@
+
+tt_domain: example.com
+tt_secret: null
+
+actual_configs: /root/the_tale/actual
+future_configs: /root/the_tale/future
+
+release_version: "latest"
+full_version: "{{release_version}}.{{ansible_date_time.iso8601}}"
+
+current_configs_directory: "{{future_configs}}/{{full_version}}"
+latest_configs_directory: "{{future_configs}}/latest"
+
+# dummy, MUST be redefied in inventory
+tt_services_configs:
+  tt_diary: {}
+  tt_personal_messages: {}
+  tt_storage: {}
+  tt_market: {}
+  tt_players_timers: {}
+  tt_personal_impacts: {}
+  tt_crowd_impacts: {}
+  tt_job_impacts: {}
+  tt_fame_impacts: {}
+  tt_game_chronicle: {}
+  tt_clans_chronicle: {}
+  tt_money_spendings: {}
+  tt_players_properties: {}
+  tt_clans_properties: {}
+  tt_matchmaker: {}
+  tt_clans_currencies: {}
+  tt_emissaries_impacts: {}
+  tt_places_effects: {}
+  tt_emissaries_events_currencies: {}
+  tt_emissaries_events_uniquer: {}
+  tt_discord: {}
+  tt_data_protector: {}
+  tt_xsolla: {}
+
+
+tt_log_level: info
+
+postgresql_host: core-postgresql
+postgresql_maintenance_work_mem: 1024MB
+postgresql_max_worker_processes: 4
+
+rabbitmq_users: []
+
+
+site_xsolla_secret_key: ''
+
+site_payments_enable_real_payments: false
+
+site_payments_xsolla_enabled: false
+site_payments_xsolla_theme: 101
+site_payments_xsolla_project: null
+site_payments_xsolla_pid: null
+
+site_payments_xsolla_marketplace: 'paydesk'
+site_payments_xsolla_base_link: 'https://secure.xsolla.com/paystation2/'
+site_payments_xsolla_id_theme: 'theme'
+site_payments_xsolla_pid: null
+
+site_cdn_enabled: true
+
+site_social_vk_group_url: null
+site_social_twitter_group_url: null
+site_social_facebook_group_url: null
+
+site_social_developer_blog: null
+
+site_community_projects: []
+
+site_cards_tutorial: null
+
+site_owner: null
+
+site_secret_key: null
+
+site_ga_code: null
+site_mail_ru: null
+
+site_email_noreply: null
+site_email_support: null
+site_email_support_short: null
+
+site_sentry_raven_config: null
+
+site_discord_widget_url: null
+site_discord_invite_link: null
+
+
+backup_aws_region: null
+backup_aws_access_key_id: null
+backup_aws_secret_access_key: null
+
+
+certbot_email: null

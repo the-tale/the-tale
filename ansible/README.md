@@ -18,5 +18,9 @@ ansible-galaxy install -r requirements.yml
 ## Настройка сервера
 
 ```console
-ansible-playbook --ask-become-pass -l <hostname> -i ./inventory.yml ./server.yml
+# подготовка сервера
+ansible-playbook --ask-become-pass -l <hostname> -i ./inventory.yml ./server_base.yml
+
+# подготовка игры
+ansible-playbook --ask-become-pass -l <hostname> -i ./inventory.yml ./server_game.yml
 ```
