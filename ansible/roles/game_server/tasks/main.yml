@@ -2,4 +2,8 @@
 - name: Upload docker compose configs
   import_tasks: upload_docker_compose_configs.yml
 
-# - name: Switch actual configs version
+- name: Switch actual configs version
+  file:
+    src: "{{current_configs_directory}}"
+    dest: "{{actual_configs}}"
+    state: link
