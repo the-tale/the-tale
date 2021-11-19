@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+
+trap 'echo "\"${last_command}\" command failed with exit code $?."' ERR
+
+./docker_compose.sh stop `./docker_compose.sh ps --filter=org.the-tale.group=workers | tr '\n' ' '`
+./docker_compose.sh stop `./docker_compose.sh ps --filter=org.the-tale.group=site | tr '\n' ' '`
+./docker_compose.sh stop `./docker_compose.sh ps --filter=org.the-tale.group=services | tr '\n' ' '`

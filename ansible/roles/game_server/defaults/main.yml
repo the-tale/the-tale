@@ -1,15 +1,18 @@
 
 tt_domain: example.com
 tt_secret: null
+tt_version: null
 
 actual_configs: /root/the_tale/actual
 future_configs: /root/the_tale/future
+latest_configs: /root/the_tale/latest
 
 release_version: "latest"
 full_version: "{{release_version}}.{{ansible_date_time.iso8601}}"
 
 current_configs_directory: "{{future_configs}}/{{full_version}}"
-latest_configs_directory: "{{future_configs}}/latest"
+current_configs_docker: "{{current_configs_directory}}/docker"
+current_configs_bin: "{{current_configs_directory}}/bin"
 
 # dummy, MUST be redefied in inventory
 tt_services_configs:

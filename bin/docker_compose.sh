@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# load redefined variables, for example, in production environment
+if [ -f ./bin/variables.env ];
+then
+    source ./bin/variables.env
+fi;
+
 source ./bin/defaults.env
 
 if [ "$TT_ENV" != "tests" ] && [ "$TT_ENV" != "stage" ]  && [ "$TT_ENV" != "prod" ];

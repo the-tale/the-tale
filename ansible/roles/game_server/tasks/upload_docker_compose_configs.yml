@@ -6,25 +6,27 @@
   loop:
     - "{{future_configs}}"
     - "{{current_configs_directory}}"
+    - "{{current_configs_docker}}"
+    - "{{current_configs_bin}}"
 
 
 - name: Change latest uploaded configs link
   file:
     src: "{{current_configs_directory}}"
-    dest: "{{latest_configs_directory}}"
+    dest: "{{latest_configs}}"
     state: link
 
 
 - name: Ensure tt services configs directories exists
   file:
-    dest: "{{current_configs_directory}}/{{item}}"
+    dest: "{{current_configs_docker}}/{{item}}"
     state: directory
   loop: "{{tt_services_configs.keys()}}"
 
 
 - name: Ensure other services configs directories exists
   file:
-    dest: "{{current_configs_directory}}/{{item}}"
+    dest: "{{current_configs_docker}}/{{item}}"
     state: directory
   loop:
     - site
@@ -39,7 +41,7 @@
 - name: Render tt service configs
   template:
     src: ../templates/json.j2
-    dest: "{{current_configs_directory}}/{{item}}/config.json"
+    dest: "{{current_configs_docker}}/{{item}}/config.json"
   loop: "{{tt_services_configs.keys()}}"
   vars:
     tt_service: "{{item}}"
@@ -62,12 +64,12 @@
 - name: Render postgresql configs
   template:
     src: ../templates/postgresql.conf.j2
-    dest: "{{current_configs_directory}}/postgresql/postgresql.prod.conf"
+    dest: "{{current_configs_docker}}/postgresql/postgresql.prod.conf"
 
 - name: Render nginx configs
   template:
     src: ../templates/json.j2
-    dest: "{{current_configs_directory}}/nginx/config.prod.json"
+    dest: "{{current_configs_docker}}/nginx/config.prod.json"
   vars:
     full_json:
       tt_domain: "{{tt_domain}}"
@@ -76,7 +78,7 @@
 - name: Render postfix configs
   template:
     src: ../templates/json.j2
-    dest: "{{current_configs_directory}}/postfix/config.prod.json"
+    dest: "{{current_configs_docker}}/postfix/config.prod.json"
   vars:
     full_json:
       domain: "{{tt_domain}}"
@@ -85,12 +87,12 @@
 - name: Render rabbitmq configs
   template:
     src: ../templates/rabbitmq.conf.j2
-    dest: "{{current_configs_directory}}/rabbitmq/rabbitmq.conf"
+    dest: "{{current_configs_docker}}/rabbitmq/rabbitmq.conf"
 
 - name: Render rabbitmq destinations
   template:
     src: ../templates/json.j2
-    dest: "{{current_configs_directory}}/rabbitmq/destinations.json"
+    dest: "{{current_configs_docker}}/rabbitmq/destinations.json"
   vars:
     full_json:
       rabbit_version: "3.9.7"
@@ -109,12 +111,12 @@
 - name: Render the_tale settings_local.py
   template:
     src: ../templates/the_tale_settings_local.py.j2
-    dest: "{{current_configs_directory}}/site/settings_local.py"
+    dest: "{{current_configs_docker}}/site/settings_local.py"
 
 - name: Render backup config
   template:
     src: ../templates/aws.config.j2
-    dest: "{{current_configs_directory}}/utils_backup/aws.config"
+    dest: "{{current_configs_docker}}/utils_backup/aws.config"
   vars:
     aws_region: "{{backup_aws_region}}"
     aws_access_key_id: "{{backup_aws_access_key_id}}"
@@ -123,7 +125,23 @@
 - name: Render certbot config
   template:
     src: ../templates/certbot_cli.ini.j2
-    dest: "{{current_configs_directory}}/utils_certbot/cli.ini"
+    dest: "{{current_configs_docker}}/utils_certbot/cli.ini"
 
+- name: Copy base utilities
+  copy:
+    src: "../../../../bin/{{item}}"
+    dest: "{{current_configs_bin}}/{{item}}"
+  loop:
+    - docker_compose.sh
 
-# utils_certbot
+- name: Copy utilities
+  copy:
+    src: "{{item}}"
+    dest: "{{current_configs_bin}}/{{item|basename}}"
+  with_fileglob:
+    - "../../../../bin/tt_*"
+
+- name: Render redefined variables
+  template:
+    src: ../templates/variables.env.j2
+    dest: "{{current_configs_bin}}/variables.env"
