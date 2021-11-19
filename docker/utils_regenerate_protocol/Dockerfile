@@ -1,6 +1,7 @@
 ARG TT_BASE_IMAGE_VERSION
+ARG TT_CONTAINERS_REGISTRY
 
-FROM the-tale/tt-base:$TT_BASE_IMAGE_VERSION
+FROM $TT_CONTAINERS_REGISTRY/the-tale/tt-base:$TT_BASE_IMAGE_VERSION
 
 # Setup tt_protocols
 # not ideal solution, since concrete service can require different package version,

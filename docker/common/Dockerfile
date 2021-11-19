@@ -34,7 +34,6 @@ RUN python -m venv $TT_VENV
 # Copy actual code to container
 # It will be runing in production
 # In development environment it will be replaced by mounted volume
-
 COPY --chown=$TT_USER ./src  $TT_REPOSITORY/src
 
 # Setup tt_web & tt_protocols

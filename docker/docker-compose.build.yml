@@ -25,6 +25,7 @@ services:
 
       args:
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
 
     profiles:
       - utils
@@ -73,6 +74,7 @@ services:
       context: ./nginx
       args:
         TT_SITE_STATIC_DIR: $TT_SITE_STATIC_DIR
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -111,6 +113,7 @@ services:
       args:
         TT_PACKAGE: tt_diary
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -127,6 +130,7 @@ services:
       args:
         TT_PACKAGE: tt_personal_messages
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -143,6 +147,7 @@ services:
       args:
         TT_PACKAGE: tt_storage
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -159,6 +164,7 @@ services:
       args:
         TT_PACKAGE: tt_market
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -175,6 +181,7 @@ services:
       args:
         TT_PACKAGE: tt_timers
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -190,6 +197,7 @@ services:
       args:
         TT_PACKAGE: tt_impacts
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -206,6 +214,7 @@ services:
       args:
         TT_PACKAGE: tt_events_log
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -222,6 +231,7 @@ services:
       args:
         TT_PACKAGE: tt_properties
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -238,6 +248,7 @@ services:
       args:
         TT_PACKAGE: tt_matchmaker
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -254,6 +265,7 @@ services:
       args:
         TT_PACKAGE: tt_effects
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -270,6 +282,7 @@ services:
       args:
         TT_PACKAGE: tt_bank
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -286,6 +299,7 @@ services:
       args:
         TT_PACKAGE: tt_uniquer
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -302,6 +316,7 @@ services:
       args:
         TT_PACKAGE: tt_discord
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -318,6 +333,7 @@ services:
       args:
         TT_PACKAGE: tt_data_protector
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -334,6 +350,7 @@ services:
       args:
         TT_PACKAGE: tt_xsolla
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -350,6 +367,7 @@ services:
       args:
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
         TT_SITE_STATIC_DIR: $TT_SITE_STATIC_DIR
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -365,5 +383,6 @@ services:
       dockerfile: ./docker/utils_regenerate_protocol/Dockerfile
       args:
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
+        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
