@@ -12,7 +12,7 @@ services:
 
   utils-regenerate-protocol:
 
-    image: the-tale/utils-regenerate-protocol:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-regenerate-protocol:$TT_RELEASE_VERSION
 
     volumes:
       - ${PWD}:/home/tt_service/repository

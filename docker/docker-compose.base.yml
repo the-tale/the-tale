@@ -7,7 +7,7 @@ x-tt-service:
     - "80"
 
   labels:
-    org.the-tale.group: tt-services
+    org.the-tale.group: services
 
   command: tt_run_service
 
@@ -34,7 +34,7 @@ x-the-tale:
     TT_WAIT_TIMEOUT: $TT_WAIT_TIMEOUT
     TT_SITE_STATIC_DIR: $TT_SITE_STATIC_DIR
 
-  image: the-tale/site:$TT_RELEASE_VERSION
+  image: $TT_CONTAINERS_REGISTRY/the-tale/site:$TT_RELEASE_VERSION
 
   volumes:
     # all site containers must has access to static files foulder
@@ -84,7 +84,7 @@ services:
 
   core-postgresql:
 
-    image: the-tale/core-postgresql:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/core-postgresql:$TT_RELEASE_VERSION
 
     volumes:
        - ${PWD}/docker/postgresql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
@@ -108,7 +108,7 @@ services:
 
   utils-backup:
 
-    image: the-tale/utils-backup:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-backup:$TT_RELEASE_VERSION
 
     volumes:
        - $TT_CONFIGS_ROOT/utils_backup/aws.config:/root/aws.config:ro
@@ -133,7 +133,7 @@ services:
 
   core-redis:
 
-    image: the-tale/core-redis:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/core-redis:$TT_RELEASE_VERSION
 
     stop_grace_period: 1m
 
@@ -148,7 +148,7 @@ services:
 
   core-rabbitmq:
 
-    image: the-tale/core-rabbitmq:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/core-rabbitmq:$TT_RELEASE_VERSION
 
     stop_grace_period: 1m
 
@@ -169,7 +169,7 @@ services:
 
     command: [nginx-debug, '-g', 'daemon off;']
 
-    image: the-tale/core-nginx:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/core-nginx:$TT_RELEASE_VERSION
 
     environment:
       TT_SERVERS: "site temp_informer xsolla localhost"
@@ -195,7 +195,7 @@ services:
 
   utils-certbot:
 
-    image: the-tale/utils-certbot:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-certbot:$TT_RELEASE_VERSION
 
     labels:
       org.the-tale.group: utils
@@ -208,7 +208,7 @@ services:
   tt-diary:
     << : *default-tt-service
 
-    image: the-tale/tt-diary:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-diary:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_diary/config.json:/home/tt_service/config.json
@@ -216,7 +216,7 @@ services:
   tt-personal-messages:
     << : *default-tt-service
 
-    image: the-tale/tt-personal-messages:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-personal-messages:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_personal_messages/config.json:/home/tt_service/config.json
@@ -224,7 +224,7 @@ services:
   tt-storage:
     << : *default-tt-service
 
-    image: the-tale/tt-storage:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-storage:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_storage/config.json:/home/tt_service/config.json
@@ -232,7 +232,7 @@ services:
   tt-market:
     << : *default-tt-service
 
-    image: the-tale/tt-market:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-market:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_market/config.json:/home/tt_service/config.json
@@ -240,7 +240,7 @@ services:
   tt-players-timers:
     << : *default-tt-service
 
-    image: the-tale/tt-timers:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-timers:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_players_timers/config.json:/home/tt_service/config.json
@@ -248,7 +248,7 @@ services:
   tt-personal-impacts:
     << : *default-tt-service
 
-    image: the-tale/tt-impacts:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_personal_impacts/config.json:/home/tt_service/config.json
@@ -256,7 +256,7 @@ services:
   tt-crowd-impacts:
     << : *default-tt-service
 
-    image: the-tale/tt-impacts:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_crowd_impacts/config.json:/home/tt_service/config.json
@@ -264,7 +264,7 @@ services:
   tt-job-impacts:
     << : *default-tt-service
 
-    image: the-tale/tt-impacts:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_job_impacts/config.json:/home/tt_service/config.json
@@ -272,7 +272,7 @@ services:
   tt-fame-impacts:
     << : *default-tt-service
 
-    image: the-tale/tt-impacts:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_fame_impacts/config.json:/home/tt_service/config.json
@@ -280,7 +280,7 @@ services:
   tt-game-chronicle:
     << : *default-tt-service
 
-    image: the-tale/tt-events-log:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-events-log:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_game_chronicle/config.json:/home/tt_service/config.json
@@ -288,7 +288,7 @@ services:
   tt-clans-chronicle:
     << : *default-tt-service
 
-    image: the-tale/tt-events-log:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-events-log:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_clans_chronicle/config.json:/home/tt_service/config.json
@@ -296,7 +296,7 @@ services:
   tt-money-spendings:
     << : *default-tt-service
 
-    image: the-tale/tt-impacts:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_money_spendings/config.json:/home/tt_service/config.json
@@ -304,7 +304,7 @@ services:
   tt-emissaries-impacts:
     << : *default-tt-service
 
-    image: the-tale/tt-impacts:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_emissaries_impacts/config.json:/home/tt_service/config.json
@@ -312,7 +312,7 @@ services:
   tt-players-properties:
     << : *default-tt-service
 
-    image: the-tale/tt-properties:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-properties:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_players_properties/config.json:/home/tt_service/config.json
@@ -320,7 +320,7 @@ services:
   tt-clans-properties:
     << : *default-tt-service
 
-    image: the-tale/tt-properties:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-properties:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_clans_properties/config.json:/home/tt_service/config.json
@@ -328,7 +328,7 @@ services:
   tt-matchmaker:
     << : *default-tt-service
 
-    image: the-tale/tt-matchmaker:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-matchmaker:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_matchmaker/config.json:/home/tt_service/config.json
@@ -336,7 +336,7 @@ services:
   tt-places-effects:
     << : *default-tt-service
 
-    image: the-tale/tt-effects:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-effects:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_places_effects/config.json:/home/tt_service/config.json
@@ -344,7 +344,7 @@ services:
   tt-clans-currencies:
     << : *default-tt-service
 
-    image: the-tale/tt-bank:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-bank:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_clans_currencies/config.json:/home/tt_service/config.json
@@ -352,7 +352,7 @@ services:
   tt-emissaries-events-currencies:
     << : *default-tt-service
 
-    image: the-tale/tt-bank:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-bank:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_emissaries_events_currencies/config.json:/home/tt_service/config.json
@@ -360,7 +360,7 @@ services:
   tt-emissaries-events-uniquer:
     << : *default-tt-service
 
-    image: the-tale/tt-uniquer:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-uniquer:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_emissaries_events_uniquer/config.json:/home/tt_service/config.json
@@ -368,7 +368,7 @@ services:
   tt-discord:
     << : *default-tt-service
 
-    image: the-tale/tt-discord:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-discord:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_discord/config.json:/home/tt_service/config.json
@@ -376,7 +376,7 @@ services:
   tt-data-protector:
     << : *default-tt-service
 
-    image: the-tale/tt-data-protector:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-data-protector:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_data_protector/config.json:/home/tt_service/config.json
@@ -384,7 +384,7 @@ services:
   tt-xsolla:
     << : *default-tt-service
 
-    image: the-tale/tt-xsolla:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-xsolla:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_xsolla/config.json:/home/tt_service/config.json
