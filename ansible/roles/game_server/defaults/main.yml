@@ -6,14 +6,14 @@ tt_version: null
 actual_configs: /root/the_tale/actual
 latest_configs: /root/the_tale/latest
 
-future_configs: /root/the_tale/future
+versions_configs: /root/the_tale/versions
 
 project_root: ../../../../
 
-release_version: "latest"
+release_version: "{{tt_version}}"
 full_version: "{{release_version}}.{{ansible_date_time.iso8601}}"
 
-current_configs_directory: "{{future_configs}}/{{full_version}}"
+current_configs_directory: "{{versions_configs}}/{{full_version}}"
 current_configs_docker: "{{current_configs_directory}}/docker"
 current_configs_bin: "{{current_configs_directory}}/bin"
 

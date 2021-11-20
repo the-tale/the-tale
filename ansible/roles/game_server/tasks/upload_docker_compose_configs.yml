@@ -4,7 +4,7 @@
     dest: "{{item}}"
     state: directory
   loop:
-    - "{{future_configs}}"
+    - "{{versions_configs}}"
     - "{{current_configs_directory}}"
     - "{{current_configs_docker}}"
     - "{{current_configs_bin}}"
