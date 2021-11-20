@@ -26,91 +26,27 @@ services:
   # TODO
   core-nginx:
     environment:
-      TT_SERVERS: "site"
+      TT_SERVERS: "site xsolla localhost temp_informer"
+      # TODO
       TT_GENERATE_CERTIFICATES: "yes"
-
 
   core-postfix:
 
-    image: the-tale/core-postfix:$TT_RELEASE_VERSION
-
-    profiles:
-      - core
+    image: $TT_CONTAINERS_REGISTRY/the-tale/core-postfix:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/postfix/config.$TT_ENV.json:/root/postfix_config.json:ro
 
+    labels:
+      org.the-tale.group: core
+
     ports:
       - "25"
 
-  # TODO: uncomment
-  # site:
-
-  #   depends_on:
-  #     - utils-site-generate-static
-
-  # TODO: remove
-
-  utils-site-generate-static:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
+    networks:
+      tt_network: {}
 
   site:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
 
-  utils-site-migrations:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  utils-site:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  worker-bank-processor:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  worker-xsolla-banker:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  worker-refrigerator:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  worker-message-sender:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  worker-items-manager:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  worker-linguistics-manager:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  worker-achievements-manager:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  worker-turns-loop:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  worker-logic-1:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  worker-logic-2:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  worker-quests-generator:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  worker-supervisor:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
+    depends_on:
+      - utils-site-generate-static

@@ -75,6 +75,23 @@
       tt_domain: "{{tt_domain}}"
       tt_test_enviroment: false
 
+- name: Render nginx configs
+  template:
+    src: ../templates/json.j2
+    dest: "{{current_configs_docker}}/nginx/config.prod.json"
+  vars:
+    full_json:
+      tt_domain: "{{tt_domain}}"
+      tt_test_enviroment: false
+
+- name: Copy nginx configs
+  copy:
+    src: "{{project_root}}/docker/nginx/{{item}}"
+    dest: "{{current_configs_docker}}/nginx/{{item}}"
+  loop:
+    - templates
+    - nginx.conf
+
 - name: Render postfix configs
   template:
     src: ../templates/json.j2
@@ -127,19 +144,31 @@
     src: ../templates/certbot_cli.ini.j2
     dest: "{{current_configs_docker}}/utils_certbot/cli.ini"
 
+- name: Copy compose configs
+  copy:
+    src: "{{project_root}}/docker/{{item}}"
+    dest: "{{current_configs_docker}}/{{item}}"
+  loop:
+    - docker-compose.base.yml
+    - docker-compose.prod.yml
+
 - name: Copy base utilities
   copy:
-    src: "../../../../bin/{{item}}"
+    src: "{{project_root}}/bin/{{item}}"
     dest: "{{current_configs_bin}}/{{item}}"
+    mode: u+rwx
   loop:
     - docker_compose.sh
+    - docker_compose_pull.sh
+    - defaults.env
 
 - name: Copy utilities
   copy:
     src: "{{item}}"
     dest: "{{current_configs_bin}}/{{item|basename}}"
+    mode: u+rwx
   with_fileglob:
-    - "../../../../bin/tt_*"
+    - "{{project_root}}/bin/tt_*"
 
 - name: Render redefined variables
   template:

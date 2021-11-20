@@ -4,4 +4,4 @@ set -e
 
 trap 'echo "\"${last_command}\" command failed with exit code $?."' ERR
 
-./docker_compose.sh run utils-backup backup.sh
+./bin/docker_compose.sh run utils-backup backup.sh

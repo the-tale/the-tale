@@ -7,6 +7,8 @@ actual_configs: /root/the_tale/actual
 future_configs: /root/the_tale/future
 latest_configs: /root/the_tale/latest
 
+project_root: ../../../../
+
 release_version: "latest"
 full_version: "{{release_version}}.{{ansible_date_time.iso8601}}"
 

@@ -19,3 +19,8 @@
       - docker-ce-cli
       - containerd.io
     state: latest
+
+- name: Install Docker Compose
+  become: yes
+  pip:
+    name: "docker-compose=={{docker_compose_version}}"

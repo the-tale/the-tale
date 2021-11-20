@@ -14,9 +14,4 @@ all:
 
       datadog_enabled: no
 
-    production-example:
-      datadog_enabled: yes
-
-      datadog_api_key: "some secrete key"
-      datadog_postgres_password: "some password"
-      datadog_rabbitmq_password: "some password"
+      tt_version: feature-gh-2628

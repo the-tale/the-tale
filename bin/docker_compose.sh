@@ -14,4 +14,8 @@ then
     exit 1
 fi;
 
+echo "ENVIRONMENT: " $TT_ENV
+echo "VERSION: " $TT_VERSION
+echo "RELEASE VERSION" $TT_RELEASE_VERSION
+
 docker-compose -f ./docker/docker-compose.base.yml -f ./docker/docker-compose.$TT_ENV.yml $@

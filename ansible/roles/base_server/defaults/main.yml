@@ -11,3 +11,4 @@ additional_packages: []
 
 docker_key: https://download.docker.com/linux/ubuntu/gpg
 docker_repository: https://download.docker.com/linux/ubuntu
+docker_compose_version: "1.29.2"
