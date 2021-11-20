@@ -204,6 +204,8 @@ services:
       - tt_nginx_sertificates:/etc/nginx/certificates/
       - $TT_CONFIGS_ROOT/utils-certbot/cli.ini /etc/letsencrypt/cli.ini
 
+    profiles:
+      - utils
 
   tt-diary:
     << : *default-tt-service

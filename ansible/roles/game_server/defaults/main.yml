@@ -4,8 +4,9 @@ tt_secret: null
 tt_version: null
 
 actual_configs: /root/the_tale/actual
-future_configs: /root/the_tale/future
 latest_configs: /root/the_tale/latest
+
+future_configs: /root/the_tale/future
 
 project_root: ../../../../
 
