@@ -12,5 +12,7 @@
 
     "service": {"port": 80},
 
+    "django": {{tt_config.get('django')|to_nice_json}},
+
     "custom": {{tt_config.get('custom')|to_nice_json}}
 }
