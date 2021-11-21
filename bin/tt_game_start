@@ -9,5 +9,5 @@ trap 'echo "\"${last_command}\" command failed with exit code $?."' ERR
 
 # up services
 ./bin/docker_compose.sh --profile services up -d
-./bin/docker_compose.sh up -d site
+./bin/docker_compose.sh --profile utils up -d site
 ./bin/docker_compose.sh --profile workers up -d

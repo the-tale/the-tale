@@ -48,7 +48,7 @@ tt_log_level: info
 
 postgresql_host: core-postgresql
 postgresql_maintenance_work_mem: 1024MB
-postgresql_max_worker_processes: 4
+postgresql_max_worker_processes: 2
 
 rabbitmq_users: []
 

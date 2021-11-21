@@ -55,10 +55,13 @@
         host: "{{postgresql_host}}"
         port: 5432
         minsize: 2
-        axsize: 5
+        maxsize: 5
         timeout: 60
-      log: {level: "{{tt_log_level}}"}
-      service: {port: 80}
+      log:
+        level: "{{tt_log_level}}"
+      service:
+        port: 80
+      django: "{{tt_config.get('django', {})}}"
       custom: "{{tt_config.get('custom', {})}}"
 
 - name: Render postgresql configs
@@ -116,7 +119,7 @@
 - name: Render rabbitmq destinations
   template:
     src: ../templates/json.j2
-    dest: "{{current_configs_docker}}/rabbitmq/destinations.json"
+    dest: "{{current_configs_docker}}/rabbitmq/definitions.json"
   vars:
     full_json:
       rabbit_version: "3.9.7"
