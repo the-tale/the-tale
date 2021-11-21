@@ -2,6 +2,7 @@ version: "3.9"
 
 volumes:
   postgresql-storage: {}
+  postgresql-backups: {}
 
 
 services:
@@ -21,7 +22,7 @@ services:
       BACKUP_PASSWORD: postgresql
 
     volumes:
-       - ${PWD}/.backups:/backups/
+       - postgresql-backups:/backups/
 
   # TODO
   core-nginx:

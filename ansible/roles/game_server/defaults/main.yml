@@ -99,6 +99,7 @@ site_discord_invite_link: null
 backup_aws_region: null
 backup_aws_access_key_id: null
 backup_aws_secret_access_key: null
+backup_aws_s3_backet: null
 
 
 certbot_email: null

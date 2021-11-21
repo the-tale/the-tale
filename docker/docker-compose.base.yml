@@ -50,7 +50,7 @@ services:
 
     environment:
       TT_DATABASES: $TT_DATABASES
-      TT_S3_BACKET: "s3 backet name"
+      TT_S3_BACKET: $TT_BACKUP_S3_BACKET
 
     depends_on:
       - core-postgresql
