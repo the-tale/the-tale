@@ -1,75 +1,5 @@
 version: "3.9"
 
-x-tt-service:
-  &default-tt-service
-
-  ports:
-    - "80"
-
-  labels:
-    org.the-tale.group: services
-
-  command: tt_run_service
-
-  stop_grace_period: 1s
-
-  environment:
-    TT_WAIT_TIMEOUT: $TT_WAIT_TIMEOUT
-
-  depends_on:
-    - core-postgresql
-
-  profiles:
-    - services
-
-  networks:
-    tt_network: {}
-
-x-the-tale:
-  &default-the-tale
-
-  stop_grace_period: 1s
-
-  environment:
-    TT_WAIT_TIMEOUT: $TT_WAIT_TIMEOUT
-    TT_SITE_STATIC_DIR: $TT_SITE_STATIC_DIR
-
-  image: $TT_CONTAINERS_REGISTRY/the-tale/site:$TT_RELEASE_VERSION
-
-  volumes:
-    # all site containers must has access to static files foulder
-    # they determine maintenance mode with its help
-    - tt_site_static:/var/www/site/
-
-  depends_on:
-    - core-postgresql
-    - core-redis
-    - core-rabbitmq
-
-  networks:
-    tt_network: {}
-
-x-the-tale-worker:
-  &default-the-tale-worker
-  << : *default-the-tale
-
-  command: tt_worker
-
-  stop_grace_period: 10s
-
-  profiles:
-    - workers
-
-  labels:
-    org.the-tale.group: workers
-
-  depends_on:
-    - core-postgresql
-    - core-redis
-    - core-rabbitmq
-    - utils-site-migrations
-
-
 networks:
   tt_network:
     driver: bridge
@@ -208,192 +138,144 @@ services:
       - utils
 
   tt-diary:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-diary:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_diary/config.json:/home/tt_service/config.json
 
   tt-personal-messages:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-personal-messages:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_personal_messages/config.json:/home/tt_service/config.json
 
   tt-storage:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-storage:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_storage/config.json:/home/tt_service/config.json
 
   tt-market:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-market:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_market/config.json:/home/tt_service/config.json
 
   tt-players-timers:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-timers:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_players_timers/config.json:/home/tt_service/config.json
 
   tt-personal-impacts:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_personal_impacts/config.json:/home/tt_service/config.json
 
   tt-crowd-impacts:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_crowd_impacts/config.json:/home/tt_service/config.json
 
   tt-job-impacts:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_job_impacts/config.json:/home/tt_service/config.json
 
   tt-fame-impacts:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_fame_impacts/config.json:/home/tt_service/config.json
 
   tt-game-chronicle:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-events-log:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_game_chronicle/config.json:/home/tt_service/config.json
 
   tt-clans-chronicle:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-events-log:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_clans_chronicle/config.json:/home/tt_service/config.json
 
   tt-money-spendings:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_money_spendings/config.json:/home/tt_service/config.json
 
   tt-emissaries-impacts:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_emissaries_impacts/config.json:/home/tt_service/config.json
 
   tt-players-properties:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-properties:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_players_properties/config.json:/home/tt_service/config.json
 
   tt-clans-properties:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-properties:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_clans_properties/config.json:/home/tt_service/config.json
 
   tt-matchmaker:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-matchmaker:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_matchmaker/config.json:/home/tt_service/config.json
 
   tt-places-effects:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-effects:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_places_effects/config.json:/home/tt_service/config.json
 
   tt-clans-currencies:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-bank:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_clans_currencies/config.json:/home/tt_service/config.json
 
   tt-emissaries-events-currencies:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-bank:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_emissaries_events_currencies/config.json:/home/tt_service/config.json
 
   tt-emissaries-events-uniquer:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-uniquer:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_emissaries_events_uniquer/config.json:/home/tt_service/config.json
 
   tt-discord:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-discord:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_discord/config.json:/home/tt_service/config.json
 
   tt-data-protector:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-data-protector:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_data_protector/config.json:/home/tt_service/config.json
 
   tt-xsolla:
-    << : *default-tt-service
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-xsolla:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_xsolla/config.json:/home/tt_service/config.json
 
   utils-site-migrations:
-    << : *default-the-tale
-
     labels:
       org.the-tale.group: utils
 
@@ -405,8 +287,6 @@ services:
     command: tt_django migrate
 
   site:
-    << : *default-the-tale
-
     command: tt_site -b 0.0.0.0:80 -w 4
 
     ports:
@@ -426,8 +306,6 @@ services:
       org.the-tale.group: site
 
   utils-site:
-    << : *default-the-tale
-
     profiles:
       - utils
 
@@ -441,8 +319,6 @@ services:
       - utils-site-migrations
 
   utils-site-generate-static:
-    << : *default-the-tale
-
     profiles:
       - utils
 
@@ -458,37 +334,30 @@ services:
       - utils-site-migrations
 
   worker-bank-processor:
-    << : *default-the-tale-worker
     environment:
       TT_WORKER: bank_processor
 
   worker-xsolla-banker:
-    << : *default-the-tale-worker
     environment:
       TT_WORKER: xsolla_banker
 
   worker-refrigerator:
-    << : *default-the-tale-worker
     environment:
       TT_WORKER: refrigerator
 
   worker-message-sender:
-    << : *default-the-tale-worker
     environment:
       TT_WORKER: message_sender
 
   worker-items-manager:
-    << : *default-the-tale-worker
     environment:
       TT_WORKER: items_manager
 
   worker-linguistics-manager:
-    << : *default-the-tale-worker
     environment:
       TT_WORKER: linguistics_manager
 
   worker-achievements-manager:
-    << : *default-the-tale-worker
     environment:
       TT_WORKER: achievements_manager
 
@@ -496,12 +365,10 @@ services:
       - worker-items-manager
 
   worker-turns-loop:
-    << : *default-the-tale-worker
     environment:
       TT_WORKER: turns_loop
 
   worker-logic-1:
-    << : *default-the-tale-worker
     environment:
       TT_WORKER: logic_1
 
@@ -509,7 +376,6 @@ services:
     stop_grace_period: 8760h
 
   worker-logic-2:
-    << : *default-the-tale-worker
     environment:
       TT_WORKER: logic_2
 
@@ -517,12 +383,10 @@ services:
     stop_grace_period: 8760h
 
   worker-quests-generator:
-    << : *default-the-tale-worker
     environment:
       TT_WORKER: quests_generator
 
   worker-supervisor:
-    << : *default-the-tale-worker
     environment:
       TT_WORKER: supervisor
 

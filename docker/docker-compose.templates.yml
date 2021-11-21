@@ -1,0 +1,203 @@
+
+# define services sceletons with help of yaml templating
+
+version: "3.9"
+
+x-tt-service:
+  &default-tt-service
+
+  ports:
+    - "80"
+
+  labels:
+    org.the-tale.group: services
+
+  command: tt_run_service
+
+  stop_grace_period: 1s
+
+  environment:
+    TT_WAIT_TIMEOUT: $TT_WAIT_TIMEOUT
+
+  depends_on:
+    - core-postgresql
+
+  profiles:
+    - services
+
+  networks:
+    tt_network: {}
+
+x-the-tale:
+  &default-the-tale
+
+  stop_grace_period: 1s
+
+  environment:
+    TT_WAIT_TIMEOUT: $TT_WAIT_TIMEOUT
+    TT_SITE_STATIC_DIR: $TT_SITE_STATIC_DIR
+
+  image: $TT_CONTAINERS_REGISTRY/the-tale/site:$TT_RELEASE_VERSION
+
+  volumes:
+    # all site containers must has access to static files foulder
+    # they determine maintenance mode with its help
+    - tt_site_static:/var/www/site/
+
+  depends_on:
+    - core-postgresql
+    - core-redis
+    - core-rabbitmq
+
+  networks:
+    tt_network: {}
+
+x-the-tale-worker:
+  &default-the-tale-worker
+  << : *default-the-tale
+
+  command: tt_worker
+
+  stop_grace_period: 10s
+
+  profiles:
+    - workers
+
+  labels:
+    org.the-tale.group: workers
+
+  depends_on:
+    - core-postgresql
+    - core-redis
+    - core-rabbitmq
+    - utils-site-migrations
+
+
+networks:
+  tt_network:
+    driver: bridge
+
+
+volumes:
+  tt_nginx_sertificates: {}
+  tt_site_static: {}
+
+
+services:
+
+  tt-diary:
+    << : *default-tt-service
+
+  tt-personal-messages:
+    << : *default-tt-service
+
+  tt-storage:
+    << : *default-tt-service
+
+  tt-market:
+    << : *default-tt-service
+
+  tt-players-timers:
+    << : *default-tt-service
+
+  tt-personal-impacts:
+    << : *default-tt-service
+
+  tt-crowd-impacts:
+    << : *default-tt-service
+
+  tt-job-impacts:
+    << : *default-tt-service
+
+  tt-fame-impacts:
+    << : *default-tt-service
+
+  tt-game-chronicle:
+    << : *default-tt-service
+
+  tt-clans-chronicle:
+    << : *default-tt-service
+
+  tt-money-spendings:
+    << : *default-tt-service
+
+  tt-emissaries-impacts:
+    << : *default-tt-service
+
+  tt-players-properties:
+    << : *default-tt-service
+
+  tt-clans-properties:
+    << : *default-tt-service
+
+  tt-matchmaker:
+    << : *default-tt-service
+
+  tt-places-effects:
+    << : *default-tt-service
+
+  tt-clans-currencies:
+    << : *default-tt-service
+
+  tt-emissaries-events-currencies:
+    << : *default-tt-service
+
+  tt-emissaries-events-uniquer:
+    << : *default-tt-service
+
+  tt-discord:
+    << : *default-tt-service
+
+  tt-data-protector:
+    << : *default-tt-service
+
+  tt-xsolla:
+    << : *default-tt-service
+
+  utils-site-migrations:
+    << : *default-the-tale
+
+  site:
+    << : *default-the-tale
+
+  utils-site:
+    << : *default-the-tale
+
+  utils-site-generate-static:
+    << : *default-the-tale
+
+  worker-bank-processor:
+    << : *default-the-tale-worker
+
+  worker-xsolla-banker:
+    << : *default-the-tale-worker
+
+  worker-refrigerator:
+    << : *default-the-tale-worker
+
+  worker-message-sender:
+    << : *default-the-tale-worker
+
+  worker-items-manager:
+    << : *default-the-tale-worker
+
+  worker-linguistics-manager:
+    << : *default-the-tale-worker
+
+  worker-achievements-manager:
+    << : *default-the-tale-worker
+
+  worker-turns-loop:
+    << : *default-the-tale-worker
+
+  worker-logic-1:
+    << : *default-the-tale-worker
+
+  worker-logic-2:
+    << : *default-the-tale-worker
+
+  worker-quests-generator:
+    << : *default-the-tale-worker
+
+  worker-supervisor:
+    << : *default-the-tale-worker

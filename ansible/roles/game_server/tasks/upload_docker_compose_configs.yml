@@ -159,6 +159,7 @@
     src: "{{project_root}}/docker/{{item}}"
     dest: "{{current_configs_docker}}/{{item}}"
   loop:
+    - docker-compose.templates.yml
     - docker-compose.base.yml
     - docker-compose.prod.yml
 

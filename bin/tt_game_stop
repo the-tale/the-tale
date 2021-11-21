@@ -4,6 +4,6 @@ set -e
 
 trap 'echo "\"${last_command}\" command failed with exit code $?."' ERR
 
-./bin/docker_compose.sh stop `./docker_compose.sh ps --filter=org.the-tale.group=workers | tr '\n' ' '`
-./bin/docker_compose.sh stop `./docker_compose.sh ps --filter=org.the-tale.group=site | tr '\n' ' '`
-./bin/docker_compose.sh stop `./docker_compose.sh ps --filter=org.the-tale.group=services | tr '\n' ' '`
+./bin/docker_compose.sh stop `docker ps -q --filter label=org.the-tale.group=workers`
+./bin/docker_compose.sh stop `docker ps -q --filter label=org.the-tale.group=site`
+./bin/docker_compose.sh stop `docker ps -q --filter label=org.the-tale.group=services`
