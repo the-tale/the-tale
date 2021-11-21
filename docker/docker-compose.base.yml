@@ -295,13 +295,6 @@ services:
     profiles:
       - site
 
-    depends_on:
-      - core-postgresql
-      - core-redis
-      - core-rabbitmq
-      # - core-nginx — site can be accessed by tt-services even if nginx has not started
-      - utils-site-migrations
-
     labels:
       org.the-tale.group: site
 
@@ -312,12 +305,6 @@ services:
     labels:
       org.the-tale.group: utils
 
-    depends_on:
-      - core-postgresql
-      - core-redis
-      - core-rabbitmq
-      - utils-site-migrations
-
   utils-site-generate-static:
     profiles:
       - utils
@@ -326,12 +313,6 @@ services:
 
     labels:
       org.the-tale.group: utils
-
-    depends_on:
-      - core-postgresql
-      - core-redis
-      - core-rabbitmq
-      - utils-site-migrations
 
   worker-bank-processor:
     environment:

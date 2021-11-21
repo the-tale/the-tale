@@ -162,6 +162,7 @@
     - docker-compose.templates.yml
     - docker-compose.base.yml
     - docker-compose.prod.yml
+    - .env
 
 - name: Copy base utilities
   copy:

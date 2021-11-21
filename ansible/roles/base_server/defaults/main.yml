@@ -11,4 +11,6 @@ additional_packages: []
 
 docker_key: https://download.docker.com/linux/ubuntu/gpg
 docker_repository: https://download.docker.com/linux/ubuntu
-docker_compose_version: "1.29.2"
+docker_compose_version: v2.1.1
+docker_compose_binary_url: "https://github.com/docker/compose/releases/download/{{docker_compose_version}}/docker-compose-linux-x86_64"
+docker_compose_binary_path: /usr/libexec/docker/cli-plugins/docker-compose

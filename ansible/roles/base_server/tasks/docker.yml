@@ -22,5 +22,7 @@
 
 - name: Install Docker Compose
   become: yes
-  pip:
-    name: "docker-compose=={{docker_compose_version}}"
+  get_url:
+    url: "{{docker_compose_binary_url}}"
+    dest: "{{docker_compose_binary_path}}"
+    mode: '0755'
