@@ -28,8 +28,6 @@ fi
 
 sql_clean="SELECT 'DROP TABLE IF EXISTS \"' || tablename || '\" CASCADE;' FROM pg_tables WHERE schemaname = 'public'"
 
-export PGPASSWORD="$TT_DB_BACKUPER_PASSWORD"
-
 for db_name in $databases;
 do
     backup_file="$backup_dir/$db_name.gz"
@@ -40,13 +38,15 @@ do
         exit 1
     fi
 
+    export PGPASSWORD="$db_name"
+
     echo "clean $db_name"
 
-    psql -U $TT_DB_BACKUPER_USER $db_name --quiet -t -c "$sql_clean" | psql --quiet $db_name
+    psql -U $db_name $db_name --quiet -t -c "$sql_clean" | psql -U $db_name --quiet $db_name
 
     echo "restore backup of $db_name"
 
-    gunzip -c "$backup_file" | psql --quiet $db_name
+    gunzip -c "$backup_file" | psql -U $db_name --quiet $db_name
 
     echo "restored"
 done
