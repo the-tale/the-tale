@@ -28,16 +28,10 @@ services:
   ###############################
 
   core-postgresql:
-    environment:
-      POSTGRES_PASSWORD: postgresql
     volumes:
        - postgresql-storage:/var/lib/postgresql/data
 
-  utils-backup:
-
-    environment:
-      BACKUP_USER: postgres
-      BACKUP_PASSWORD: postgresql
+  utils-postgresql:
 
     volumes:
        - ${PWD}/.backups:/backups/

@@ -26,7 +26,11 @@ services:
     stop_grace_period: 1m
 
     environment:
-      TT_DATABASES: $TT_DATABASES
+      POSTGRES_PASSWORD: $TT_DB_ROOT_PASSWORD
+      TT_DB_MANAGER_USER: $TT_DB_MANAGER_USER
+      TT_DB_MANAGER_PASSWORD: $TT_DB_MANAGER_PASSWORD
+      TT_DB_BACKUPER_USER: $TT_DB_BACKUPER_USER
+      TT_DB_BACKUPER_PASSWORD: $TT_DB_BACKUPER_PASSWORD
 
     labels:
       org.the-tale.group: core
@@ -36,12 +40,12 @@ services:
     networks:
       tt_network: {}
 
-  utils-backup:
+  utils-postgresql:
 
-    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-backup:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-postgresql:$TT_RELEASE_VERSION
 
     volumes:
-       - $TT_CONFIGS_ROOT/utils_backup/aws.config:/root/aws.config:ro
+       - $TT_CONFIGS_ROOT/utils_postgresql/aws.config:/root/aws.config:ro
 
     stop_grace_period: 1m
 
@@ -50,6 +54,10 @@ services:
 
     environment:
       TT_DATABASES: $TT_DATABASES
+      TT_DB_MANAGER_USER: $TT_DB_MANAGER_USER
+      TT_DB_MANAGER_PASSWORD: $TT_DB_MANAGER_PASSWORD
+      TT_DB_BACKUPER_USER: $TT_DB_BACKUPER_USER
+      TT_DB_BACKUPER_PASSWORD: $TT_DB_BACKUPER_PASSWORD
       TT_S3_BACKET: $TT_BACKUP_S3_BACKET
 
     depends_on:

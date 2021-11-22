@@ -3,17 +3,9 @@ version: "3.9"
 services:
 
   core-postgresql:
-    environment:
-      POSTGRES_PASSWORD: postgresql
     volumes:
        - type: tmpfs
          target: /var/lib/postgresql/data
-
-  utils-backup:
-
-    environment:
-      BACKUP_USER: postgres
-      BACKUP_PASSWORD: postgresql
 
   core-nginx:
     environment:

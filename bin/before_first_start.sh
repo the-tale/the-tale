@@ -1,6 +1,9 @@
 #!/bin/bash
 
 ./bin/docker_compose.sh up -d
+
+./bin/docker_compose.sh run utils-postgresql db_init.sh
+
 ./bin/docker_compose.sh --profile services up -d
 
 ./bin/docker_compose.sh run utils-site-migrations

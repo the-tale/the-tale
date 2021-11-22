@@ -14,12 +14,12 @@ services:
     profiles:
       - core
 
-  utils-backup:
+  utils-postgresql:
 
-    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-backup:$TT_RELEASE_VERSION
+    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-postgresql:$TT_RELEASE_VERSION
 
     build:
-      context: ./utils_backup
+      context: ./utils_postgresql
       labels:
         org.opencontainers.image.source: $TT_REPO
 
