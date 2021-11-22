@@ -23,7 +23,7 @@ databases="${@:2}"
 
 if [ -z "$databases" ];
 then
-    databases=$TT_DATABASES
+    databases="$TT_DATABASES"
 fi
 
 sql_clean="SELECT 'DROP TABLE IF EXISTS \"' || tablename || '\" CASCADE;' FROM pg_tables WHERE schemaname = 'public'"
@@ -32,7 +32,7 @@ for db_name in $databases;
 do
     backup_file="$backup_dir/$db_name.gz"
 
-    if [ ! -f $backup_file ];
+    if [ ! -f "$backup_file" ];
     then
         echo "ERROR: no backup found for $db_name"
         exit 1
@@ -42,11 +42,15 @@ do
 
     echo "clean $db_name"
 
-    psql -U $db_name $db_name --quiet -t -c "$sql_clean" | psql -U $db_name --quiet $db_name
+    # TODO: fix "ERROR:  must be owner of extension plpgsql"
+    # that error does not break restoration, but is annoying
+    # it caused by dumping db extensions, which is created by root user, not by db owner
+
+    psql -U "$db_name" "$db_name" --quiet -t -c "$sql_clean" | psql -U "$db_name" --quiet "$db_name"
 
     echo "restore backup of $db_name"
 
-    gunzip -c "$backup_file" | psql -U $db_name --quiet $db_name
+    gunzip -c "$backup_file" | psql -U "$db_name" --quiet "$db_name"
 
     echo "restored"
 done
