@@ -15,3 +15,9 @@ all:
       datadog_enabled: no
 
       tt_version: feature-gh-2628
+
+      datadog_api_key_id: null
+      datadog_api_key: null
+      datadog_api_key: null
+      datadog_postgres_password: null
+      datadog_rabbitmq_password: null

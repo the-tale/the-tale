@@ -69,13 +69,6 @@
     src: ../templates/postgresql.conf.j2
     dest: "{{current_configs_docker}}/postgresql/postgresql.prod.conf"
 
-- name: Copy postgresql configs
-  copy:
-    src: "{{project_root}}/docker/postgresql/{{item}}"
-    dest: "{{current_configs_docker}}/postgresql/"
-  loop:
-    - docker-entrypoint-initdb.d
-
 - name: Render nginx configs
   template:
     src: ../templates/json.j2

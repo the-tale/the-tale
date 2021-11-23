@@ -15,8 +15,6 @@
 
     - role: datadog.datadog
       vars:
-        datadog_api_key: "{{datadog_api_key}}"
-
         datadog_config:
           use_curl_http_client: 'yes'
 

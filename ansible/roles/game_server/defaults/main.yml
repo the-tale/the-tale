@@ -101,5 +101,7 @@ backup_aws_access_key_id: null
 backup_aws_secret_access_key: null
 backup_aws_s3_backet: null
 
-
 certbot_email: null
+
+postgresql_password: null
+datadog_postgresql_password: null
