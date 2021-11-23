@@ -1,7 +1,7 @@
 
 #!/bin/sh
 
-if [ ! -z $TT_GENERATE_CERTIFICATES];
+if [ -z $TT_GENERATE_CERTIFICATES ];
 then
     # exit if certificates generation does not required
     exit 0

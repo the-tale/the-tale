@@ -104,4 +104,50 @@ backup_aws_s3_backet: null
 certbot_email: null
 
 postgresql_password: null
+
+datadog_api_key: null
 datadog_postgresql_password: null
+
+datadog_conf:
+  disk:
+    init_config: {}
+    instances:
+      - use_mount: false
+        include_allevices: false
+
+  nginx:
+    init_config: {}
+    instances:
+      - nginx_status_url: http://core-nginx:8888/nginx-status/
+
+  redisdb:
+    ad_identifiers:
+      - core-redis
+    init_config: {}
+    instances:
+      - host: core-redis
+        port: 6379
+
+  postgres:
+    init_config: {}
+    instances:
+      - host: core-postgresql
+        port: 5432
+        username: datadog
+        password: "{{datadog_postgres_password}}"
+
+  # postfix:
+  #   init_config: {}
+  #   instances:
+  #     - directory: /var/spool/postfix
+  #       queues:
+  #         - incoming
+  #         - active
+  #         - deferred
+
+  rabbitmq:
+    init_config: {}
+    instances:
+      - rabbitmq_api_url: http://core-rabbitmq:15672/api/
+        rabbitmq_user: the_tale
+        rabbitmq_pass: "{{datadog_rabbitmq_password}}"

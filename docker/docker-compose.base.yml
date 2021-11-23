@@ -106,7 +106,7 @@ services:
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-nginx:$TT_RELEASE_VERSION
 
     environment:
-      TT_SERVERS: "site temp_informer xsolla localhost"
+      TT_SERVERS: "site temp_informer xsolla core-nginx"
 
     stop_grace_period: 1s
 
@@ -123,6 +123,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "8888"  # metrics
 
     networks:
       tt_network: {}

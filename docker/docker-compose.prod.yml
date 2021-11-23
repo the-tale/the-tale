@@ -17,12 +17,17 @@ services:
     volumes:
        - postgresql-backups:/backups/
 
+  # TODO:
+  core-redis:
+    labels:
+      com.datadoghq.tags.env: $TT_ENV
+      com.datadoghq.tags.service: redis
+      com.datadoghq.tags.version: $TT_VERSION
+
   # TODO
   core-nginx:
     environment:
-      TT_SERVERS: "site xsolla localhost temp_informer"
-      # TODO
-      TT_GENERATE_CERTIFICATES: "yes"
+      TT_SERVERS: "site temp_informer xsolla core-nginx"
 
   core-postfix:
 
@@ -36,6 +41,22 @@ services:
 
     ports:
       - "25"
+
+    networks:
+      tt_network: {}
+
+  core-datadog:
+
+    image: gcr.io/datadoghq/agent:7
+
+    environment:
+      DD_API_KEY: $TT_DATADOG_API_KEY
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+      - $TT_CONFIGS_ROOT/datadog/conf.d:/conf.d:ro
 
     networks:
       tt_network: {}

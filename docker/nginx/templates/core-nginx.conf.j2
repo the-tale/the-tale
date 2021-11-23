@@ -1,0 +1,10 @@
+server {
+       listen        *:8888;
+       server_name   core-nginx;
+
+       location /nginx-status {
+            stub_status;
+            allow 172.18.0.0/16;
+            deny  all;
+        }
+}
