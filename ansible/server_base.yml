@@ -19,28 +19,35 @@
           use_curl_http_client: 'yes'
 
         datadog_checks:
+          disk:
+
+            init_config:
+            instances:
+              - use_mount: false
+                include_all_devices: false
+
           nginx:
             init_config:
-              instances:
-                - nginx_status_url: http://localhost/nginx-status/
+            instances:
+              - nginx_status_url: http://localhost/nginx-status/
 
-        redisdb:
-          init_config:
+          redisdb:
+            init_config:
             instances:
               - host: localhost
                 port: 6379
                 password:
 
-        postgres:
-          init_config:
+          postgres:
+            init_config:
             instances:
               - host: localhost
                 port: 5432
                 username: datadog
                 password: "{{datadog_postgres_password}}"
 
-        postfix:
-          init_config:
+          postfix:
+            init_config:
             instances:
               - directory: /var/spool/postfix
                 queues:
@@ -48,8 +55,8 @@
                   - active
                   - deferred
 
-        rabbitmq:
-          init_config:
+          rabbitmq:
+            init_config:
             instances:
               - rabbitmq_api_url: http://localhost:15672/api/
                 rabbitmq_user: the_tale

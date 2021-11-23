@@ -9,6 +9,11 @@ removed_packages: []
 
 additional_packages: []
 
+base_packages_enabled: yes
+
+configure_system_enabled: yes
+
+docker_enabled: yes
 docker_key: https://download.docker.com/linux/ubuntu/gpg
 docker_repository: https://download.docker.com/linux/ubuntu
 docker_compose_version: v2.1.1

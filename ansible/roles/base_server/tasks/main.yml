@@ -1,9 +1,12 @@
 
 - name: Prepair packages
   import_tasks: prepare_packages.yml
+  when: base_packages_enabled
 
 - name: configure system
   import_tasks: configure_system.yml
+  when: configure_system_enabled
 
 - name: setup docker
   import_tasks: docker.yml
+  when: docker_enabled
