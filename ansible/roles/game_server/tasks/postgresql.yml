@@ -1,0 +1,21 @@
+- name: Ensure postgresql configs directories exist
+  file:
+    dest: "{{current_configs_docker}}/{{item}}"
+    state: directory
+  loop:
+    - postgresql
+    - utils_postgresql
+
+- name: Render postgresql configs
+  template:
+    src: ../templates/postgresql.conf.j2
+    dest: "{{current_configs_docker}}/postgresql/postgresql.prod.conf"
+
+- name: Render backup config
+  template:
+    src: ../templates/aws.config.j2
+    dest: "{{current_configs_docker}}/utils_postgresql/aws.config"
+  vars:
+    aws_region: "{{backup_aws_region}}"
+    aws_access_key_id: "{{backup_aws_access_key_id}}"
+    aws_secret_access_key: "{{backup_aws_secret_access_key}}"

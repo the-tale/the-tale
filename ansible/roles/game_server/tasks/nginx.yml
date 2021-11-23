@@ -1,0 +1,23 @@
+- name: Ensure nginx configs directory exists
+  file:
+    dest: "{{current_configs_docker}}/{{item}}"
+    state: directory
+  loop:
+    - nginx
+
+- name: Render nginx configs
+  template:
+    src: ../templates/json.j2
+    dest: "{{current_configs_docker}}/nginx/config.prod.json"
+  vars:
+    full_json:
+      tt_domain: "{{tt_domain}}"
+      tt_test_enviroment: false
+
+- name: Copy nginx configs
+  copy:
+    src: "{{project_root}}/docker/nginx/{{item}}"
+    dest: "{{current_configs_docker}}/nginx/"
+  loop:
+    - templates
+    - nginx.conf
