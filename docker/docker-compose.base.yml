@@ -30,6 +30,9 @@ services:
 
     labels:
       org.the-tale.group: core
+      com.datadoghq.tags.env: $TT_ENV
+      com.datadoghq.tags.service: core-postgresql
+      com.datadoghq.tags.version: $TT_VERSION
 
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
 
@@ -76,6 +79,9 @@ services:
 
     labels:
       org.the-tale.group: core
+      com.datadoghq.tags.env: $TT_ENV
+      com.datadoghq.tags.service: core-redis
+      com.datadoghq.tags.version: $TT_VERSION
 
     networks:
       tt_network: {}
@@ -88,6 +94,7 @@ services:
 
     ports:
       - "5672"
+      - "15672" # metrics
 
     volumes:
        - $TT_CONFIGS_ROOT/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
@@ -95,6 +102,9 @@ services:
 
     labels:
       org.the-tale.group: core
+      com.datadoghq.tags.env: $TT_ENV
+      com.datadoghq.tags.service: core-rabbitmq
+      com.datadoghq.tags.version: $TT_VERSION
 
     networks:
       tt_network: {}
@@ -112,6 +122,9 @@ services:
 
     labels:
       org.the-tale.group: core
+      com.datadoghq.tags.env: $TT_ENV
+      com.datadoghq.tags.service: core-nginx
+      com.datadoghq.tags.version: $TT_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/nginx/templates:/nginx-config-templates:ro

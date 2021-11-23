@@ -149,5 +149,5 @@ datadog_conf:
     init_config: {}
     instances:
       - rabbitmq_api_url: http://core-rabbitmq:15672/api/
-        rabbitmq_user: the_tale
-        rabbitmq_pass: "{{datadog_rabbitmq_password}}"
+        username: the_tale
+        password: "{{datadog_rabbitmq_password}}"

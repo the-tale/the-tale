@@ -17,18 +17,6 @@ services:
     volumes:
        - postgresql-backups:/backups/
 
-  # TODO:
-  core-redis:
-    labels:
-      com.datadoghq.tags.env: $TT_ENV
-      com.datadoghq.tags.service: redis
-      com.datadoghq.tags.version: $TT_VERSION
-
-  # TODO
-  core-nginx:
-    environment:
-      TT_SERVERS: "site temp_informer xsolla core-nginx"
-
   core-postfix:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-postfix:$TT_RELEASE_VERSION
@@ -38,6 +26,9 @@ services:
 
     labels:
       org.the-tale.group: core
+      com.datadoghq.tags.env: $TT_ENV
+      com.datadoghq.tags.service: core-postfix
+      com.datadoghq.tags.version: $TT_VERSION
 
     ports:
       - "25"
