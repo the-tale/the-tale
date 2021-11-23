@@ -17,7 +17,6 @@ services:
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-postgresql:$TT_RELEASE_VERSION
 
     volumes:
-       - ${PWD}/docker/postgresql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
        - $TT_CONFIGS_ROOT/postgresql/postgresql.$TT_ENV.conf:/etc/postgresql/postgresql.conf:ro
 
     ports:
@@ -26,9 +25,8 @@ services:
     stop_grace_period: 1m
 
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: $TT_DB_ROOT_PASSWORD
-      TT_DB_MANAGER_USER: $TT_DB_MANAGER_USER
-      TT_DB_MANAGER_PASSWORD: $TT_DB_MANAGER_PASSWORD
 
     labels:
       org.the-tale.group: core
@@ -52,8 +50,9 @@ services:
 
     environment:
       TT_DATABASES: $TT_DATABASES
-      TT_DB_MANAGER_USER: $TT_DB_MANAGER_USER
-      TT_DB_MANAGER_PASSWORD: $TT_DB_MANAGER_PASSWORD
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: $TT_DB_ROOT_PASSWORD
+      # TT_DB_ROOT_PASSWORD: $TT_DB_ROOT_PASSWORD
       TT_S3_BACKET: $TT_BACKUP_S3_BACKET
 
     depends_on:
