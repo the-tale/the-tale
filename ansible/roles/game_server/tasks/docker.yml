@@ -1,0 +1,3 @@
+
+- name: Pull docker images
+  shell: "cd '{{current_configs}}' && ./bin/docker_compose.sh pull"

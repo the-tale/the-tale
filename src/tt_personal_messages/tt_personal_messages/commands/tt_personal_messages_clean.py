@@ -1,4 +1,5 @@
 
+import os
 import argparse
 
 from tt_web import utils
@@ -9,7 +10,12 @@ from .. import operations
 
 parser = argparse.ArgumentParser(description='clean database from removed messages')
 
-parser.add_argument('-c', '--config', metavar='config', required=True, type=str, help='path to config file')
+parser.add_argument('-c',
+                    '--config',
+                    metavar='config',
+                    default=os.environ.get('TT_CONFIG'),
+                    type=str,
+                    help='path to config file')
 
 
 def main():

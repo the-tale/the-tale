@@ -1,0 +1,42 @@
+
+- name: Check if new configs exist
+  stat:
+    path: "{{current_configs}}"
+  register: current_configs_dir_info
+
+- name: Check if we can switch versions
+  fail:
+    msg: "No configs found at: {{current_configs}}"
+  when: not current_configs_dir_info.stat.exists
+
+- name: Check if actual configs exist
+  stat:
+    path: "{{actual_configs}}"
+  register: actual_configs_dir_info
+
+- name: Turn on maintainance
+  shell: "cd '{{actual_configs}}' && ./bin/tt_maintenance_on"
+  when: actual_configs_dir_info.stat.exists
+
+- name: Stop infrasturcture
+  shell: "cd '{{actual_configs}}' && ./bin/docker_compose.sh down"
+  when: actual_configs_dir_info.stat.exists
+
+- name: Switch actual configs version
+  file:
+    src: "{{current_configs}}"
+    dest: "{{actual_configs}}"
+    state: link
+
+- name: Ensure cron link to actual configs exists
+  file:
+    src: "{{actual_cron}}"
+    dest: "{{real_cron}}"
+    state: link
+
+- name: Up game infrastructure
+  shell: "cd '{{actual_configs}}' && ./bin/docker_compose.sh up -d"
+
+- name: Warn about stopped game
+  debug:
+    msg: Game is stopped and on maintainance, you MUST start it manually and turn maintenance off

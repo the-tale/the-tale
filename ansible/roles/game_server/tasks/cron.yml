@@ -1,0 +1,201 @@
+
+- cron:
+    name: HOME
+    env: yes
+    cron_file: "{{current_cron}}"
+    user: root
+    job: "{{current_configs}}"
+
+- cron:
+    name: PATH
+    env: yes
+    cron_file: "{{current_cron}}"
+    user: root
+    job: "$PATH:{{current_configs}}/bin/"
+
+- cron:
+    name: clean personal messages
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    job: docker_compose.sh run tt-personal-messages tt_personal_messages_clean
+
+- cron:
+    name: process data protection tasks
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: "*/5"
+    job: docker_compose.sh run tt-data-protector tt_data_protector_process_tasks
+
+- cron:
+    name: clans statistics sync
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    job: docker_compose.sh run utils-site tt_django clans_sync_statistics
+
+- cron:
+    name: clans points adding
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    job: docker_compose.sh run utils-site tt_django clans_give_points --interval 3600
+
+- cron:
+    name: clans currencies rollback
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    job: docker_compose.sh run tt-clans-currencies tt_bank_rollback_hanged_transactions
+
+- cron:
+    name: clans free quests reset
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    hour: 0
+    job: docker_compose.sh run utils-site tt_django clans_reset_free_quests
+
+- cron:
+    name: emissaries step
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 1
+    job: docker_compose.sh run utils-site tt_django emissaries_step
+
+- cron:
+    name: emissaries remove orphan effects
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 10
+    job: docker_compose.sh run utils-site tt_django emissaries_remove_orphan_effects
+
+- cron:
+    name: emissaries monitoring
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: "*/5"
+    job: docker_compose.sh run utils-site tt_django emissaries_monitoring
+
+- cron:
+    name: process emissaries days cycle
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 2
+    hour: 0
+    job: docker_compose.sh run utils-site tt_django emissaries_process_day
+
+- cron:
+    name: periodicaly apply bills
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: "*/10"
+    job: docker_compose.sh run utils-site tt_django bills_apply
+
+- cron:
+    name: do highlevel step
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    job: docker_compose.sh run utils-site tt_django game_highlevel_step
+
+- cron:
+    name: portal cleaning
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    hour: 1
+    job: docker_compose.sh run utils-site tt_django portal_clean
+
+- cron:
+    name: sessions cleaning
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    hour: 2
+    job: docker_compose.sh run utils-site tt_django clearsessions
+
+- cron:
+    name: remove personal messages from system user
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    hour: 3
+    job: docker_compose.sh run utils-site tt_django personal_messages_remove_system_messages
+
+- cron:
+    name: clean removed linguistics templates
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    hour: 4
+    job: docker_compose.sh run utils-site tt_django linguistics_clean_removed_templates
+
+- cron:
+    name: removed expired access tokens
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    job: docker_compose.sh run utils-site tt_django third_party_remove_expired_access_tokens
+
+- cron:
+    name: update game statistics
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    hour: 5
+    job: docker_compose.sh run utils-site tt_django statistics_complete
+
+- cron:
+    name: refresh cdns
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    hour: "*/4"
+    job: docker_compose.sh run utils-site tt_django portal_refresh_cdns
+
+- cron:
+    name: update might
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    hour: 6
+    job: docker_compose.sh run utils-site tt_django accounts_calculate_might
+
+- cron:
+    name: update ratings
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    hour: 7
+    job: docker_compose.sh run utils-site tt_django ratings_recalculate_ratings
+
+- cron:
+    name: new day actions
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    hour: 8
+    job: docker_compose.sh run utils-site tt_django portal_new_day_actions
+
+- cron:
+    name: send notifications about expired premiums
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 30
+    job: docker_compose.sh run utils-site tt_django accounts_send_premium_expired_notifications
+
+- cron:
+    name: monitor protectorates
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 3
+    job: docker_compose.sh run utils-site tt_django places_monitor_protectorates
+
+- cron:
+    name: postgres backup
+    cron_file: "{{current_cron}}"
+    user: root
+    minute: 0
+    hour: 3
+    job: tt_backup

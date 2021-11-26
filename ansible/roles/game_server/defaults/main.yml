@@ -11,11 +11,15 @@ versions_configs: /root/the_tale/versions
 project_root: ../../../../
 
 release_version: "{{tt_version}}"
-full_version: "{{release_version}}.{{ansible_date_time.iso8601}}"
+full_version: "{{release_version}}.{{ansible_date_time.iso8601.replace(':', '-')}}"
 
-current_configs_directory: "{{versions_configs}}/{{full_version}}"
-current_configs_docker: "{{current_configs_directory}}/docker"
-current_configs_bin: "{{current_configs_directory}}/bin"
+current_configs: "{{versions_configs}}/{{full_version}}"
+current_configs_docker: "{{current_configs}}/docker"
+current_configs_bin: "{{current_configs}}/bin"
+
+real_cron: /etc/cron.d/tt_cron
+actual_cron: "{{actual_configs}}/tt_cron"
+current_cron: "{{current_configs}}/tt_cron"
 
 # dummy, MUST be redefied in inventory
 tt_services_configs:

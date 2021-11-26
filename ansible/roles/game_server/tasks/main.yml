@@ -1,49 +1,18 @@
 
-- name: Ensure base configs directories exists
-  file:
-    dest: "{{item}}"
-    state: directory
-  loop:
-    - "{{versions_configs}}"
-    - "{{current_configs_directory}}"
-    - "{{current_configs_docker}}"
-    - "{{current_configs_bin}}"
+- name: Upload Configs
+  import_tasks: configs.yml
+  tags:
+    - never
+    - configs
 
-- name: Change latest uploaded configs link
-  file:
-    src: "{{current_configs_directory}}"
-    dest: "{{latest_configs}}"
-    state: link
+- name: Backup
+  shell: "cd '{{actual_configs}}' && ./bin/tt_backup"
+  tags:
+    - never
+    - backup
 
-- name: Setup utilities
-  import_tasks: utilities.yml
-
-- name: Upload tt services configs
-  import_tasks: tt_services.yml
-
-- name: Upload postgresql configs
-  import_tasks: postgresql.yml
-
-- name: Upload nginx configs
-  import_tasks: nginx.yml
-
-- name: Upload postfix configs
-  import_tasks: postfix.yml
-
-- name: Upload rabbitmq configs
-  import_tasks: rabbitmq.yml
-
-- name: Upload site configs
-  import_tasks: site.yml
-
-- name: Upload datadog configs
-  import_tasks: datadog.yml
-
-- name: Upload certbot configs
-  import_tasks: cetbot.yml
-
-- name: Switch actual configs version
-  file:
-    src: "{{current_configs_directory}}"
-    dest: "{{actual_configs}}"
-    state: link
+- name: Switch versions
+  import_tasks: switch_versions.yml
+  tags:
+    - never
+    - switch
