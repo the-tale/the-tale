@@ -7,7 +7,7 @@
 
 # установите ansible любым удобным способом
 
-cd ./ansible
+cd ./the-tale/ansible
 
 ansible-galaxy install -r requirements.yml
 
@@ -21,6 +21,14 @@ ansible-galaxy install -r requirements.yml
 # подготовка сервера
 ansible-playbook --ask-become-pass -l <hostname> -i ./inventory.yml ./server_base.yml
 
-# подготовка игры
-ansible-playbook --ask-become-pass -l <hostname> -i ./inventory.yml ./server_game.yml
+# загрузка данных для следующей версии
+ansible-playbook --ask-become-pass -l <hostname> -i ./inventory.yml ./server_game.yml --tags configs
+
+# делаем бэкап
+ansible-playbook --ask-become-pass -l <hostname> -i ./inventory.yml ./server_game.yml --tags backup
+
+# переключаем версию
+ansible-playbook --ask-become-pass -l <hostname> -i ./inventory.yml ./server_game.yml --tags switch
 ```
+
+**Внимание!** После переключения версий игра будет остановлена и переключена в режим maintainance — nginx будет отображать рассказ об обновлении.
