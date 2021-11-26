@@ -198,4 +198,4 @@
     user: root
     minute: 0
     hour: 3
-    job: tt_backup
+    job: docker_compose.sh run utils-postgresql backup_make_upload_cleanup.sh

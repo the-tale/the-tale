@@ -1,13 +1,14 @@
 #!/bin/bash
 
-databases=${@:1}
+stamp=$1
+
+databases=${@:2}
 
 if [ -z $databases ];
 then
     databases=$TT_DATABASES
+    echo "Databases has not specified, backup all: $databases"
 fi
-
-stamp=$(date +"%FT%T")
 
 backup_dir="/backups/$stamp"
 
