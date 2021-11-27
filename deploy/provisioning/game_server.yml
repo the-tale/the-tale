@@ -1,4 +1,0 @@
-
-- import_playbook: operations/infrastructure.yml
-
-- import_playbook: operations/services.yml

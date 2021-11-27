@@ -1,3 +1,0 @@
-{% for alias in tt_postfix_virtual_aliases %}
-{{ alias['local']}}@{{tt_domain}} {{alias['remote']}}
-{% endfor %}
