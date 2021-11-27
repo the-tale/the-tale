@@ -19,7 +19,6 @@ server {
         # TODO: change proxy_pass logic
         #       regular expressions — not fastest way to rout requests
         location ~ ^/(.*)$ {
-            # TODO: change maintenance logic
             if (-f /var/www/site/maintenance.html) {
                    return 503;
             }
@@ -27,7 +26,6 @@ server {
             {{ macroses.proxy_config("site", "/") }}
         }
 
-        # TODO: rewrite paths
         {% if not tt_test_enviroment %}
         location ^~ /static/ {
             if (-f /var/www/site/maintenance.html) {
@@ -43,7 +41,6 @@ server {
 
         {{ macroses.location_certbot() }}
 
-         # TODO: change maintenance logic
         error_page 503 /maintenance.html;
         location = /maintenance.html {
             root /var/www/site;

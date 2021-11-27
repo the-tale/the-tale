@@ -32,7 +32,6 @@ services:
        - postgresql-storage:/var/lib/postgresql/data
 
   utils-postgresql:
-
     volumes:
        - ${PWD}/.backups:/backups/
 

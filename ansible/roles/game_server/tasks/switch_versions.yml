@@ -18,6 +18,10 @@
   shell: "cd '{{actual_configs}}' && ./bin/tt_maintenance_on"
   when: actual_configs_dir_info.stat.exists
 
+- name: Stop game
+  shell: "cd '{{actual_configs}}' && ./bin/tt_game_stop"
+  when: actual_configs_dir_info.stat.exists
+
 - name: Stop infrasturcture
   shell: "cd '{{actual_configs}}' && ./bin/docker_compose.sh down"
   when: actual_configs_dir_info.stat.exists

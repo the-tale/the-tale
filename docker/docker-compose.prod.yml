@@ -7,18 +7,15 @@ volumes:
 
 services:
 
-  # TODO
   core-postgresql:
     volumes:
        - postgresql-storage:/var/lib/postgresql/data
 
-  # TODO
   utils-postgresql:
     volumes:
        - postgresql-backups:/backups/
 
   core-postfix:
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-postfix:$TT_RELEASE_VERSION
 
     volumes:

@@ -8,8 +8,6 @@ ARG TT_USER=tt_service
 ARG TT_SITE_STATIC_DIR
 
 ########################################
-# required for development environment
-# TODO: remove in production environment?
 USER root
 RUN apt-get install -y node-less
 
