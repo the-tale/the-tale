@@ -5,11 +5,6 @@
   loop:
     - rabbitmq
 
-- name: Render rabbitmq configs
-  template:
-    src: ../templates/rabbitmq.conf.j2
-    dest: "{{current_configs_docker}}/rabbitmq/rabbitmq.conf"
-
 - name: Render rabbitmq destinations
   template:
     src: ../templates/json.j2

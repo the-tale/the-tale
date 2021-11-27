@@ -13,11 +13,3 @@
     full_json:
       tt_domain: "{{tt_domain}}"
       tt_test_enviroment: false
-
-- name: Copy nginx configs
-  copy:
-    src: "{{project_root}}/docker/nginx/{{item}}"
-    dest: "{{current_configs_docker}}/nginx/"
-  loop:
-    - templates
-    - nginx.conf

@@ -97,7 +97,6 @@ services:
       - "15672" # metrics
 
     volumes:
-       - $TT_CONFIGS_ROOT/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
        - $TT_CONFIGS_ROOT/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
 
     labels:
