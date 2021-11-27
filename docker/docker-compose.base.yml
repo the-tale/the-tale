@@ -127,8 +127,6 @@ services:
       com.datadoghq.tags.version: $TT_VERSION
 
     volumes:
-      - $TT_CONFIGS_ROOT/nginx/templates:/nginx-config-templates:ro
-      - $TT_CONFIGS_ROOT/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - $TT_CONFIGS_ROOT/nginx/config.$TT_ENV.json:/root/nginx_config.json:ro
       - tt_nginx_sertificates:/etc/nginx/certificates/
       - tt_site_static:/var/www/site/:ro

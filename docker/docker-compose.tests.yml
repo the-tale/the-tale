@@ -11,6 +11,8 @@ services:
     environment:
       TT_SERVERS: "site"
       TT_GENERATE_CERTIFICATES: "yes"
+    volumes:
+      - $TT_CONFIGS_ROOT/nginx/templates:/nginx-config-templates:ro
 
   tt-diary:
     volumes:
