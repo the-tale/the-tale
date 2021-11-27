@@ -19,9 +19,6 @@ services:
     volumes:
        - $TT_CONFIGS_ROOT/postgresql/postgresql.$TT_ENV.conf:/etc/postgresql/postgresql.conf:ro
 
-    ports:
-      - "5432"
-
     stop_grace_period: 1m
 
     environment:
@@ -74,9 +71,6 @@ services:
 
     stop_grace_period: 1m
 
-    ports:
-      - "6379"
-
     labels:
       org.the-tale.group: core
       com.datadoghq.tags.env: $TT_ENV
@@ -91,10 +85,6 @@ services:
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-rabbitmq:$TT_RELEASE_VERSION
 
     stop_grace_period: 1m
-
-    ports:
-      - "5672"
-      - "15672" # metrics
 
     volumes:
        - $TT_CONFIGS_ROOT/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
@@ -133,7 +123,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "8888"  # metrics
 
     networks:
       tt_network: {}
@@ -303,9 +292,6 @@ services:
 
   site:
     command: tt_site -b 0.0.0.0:80 -w 4
-
-    ports:
-      - "80"
 
     profiles:
       - site
