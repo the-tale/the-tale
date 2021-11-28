@@ -2,6 +2,8 @@
 
 source ./bin/defaults.env
 
+./bin/check_and_info.sh
+
 export DOCKER_BUILDKIT=1
 
 docker compose -f ./docker/docker-compose.build.yml \
