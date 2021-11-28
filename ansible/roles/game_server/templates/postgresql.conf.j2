@@ -1,6 +1,8 @@
 listen_addresses = '*'
 max_connections = 200
 
+superuser_reserved_connections = 3
+
 shared_buffers = {{(ansible_memtotal_mb*0.1)|int}}MB  # 10% of RAM
 
 work_mem = 32MB
