@@ -6,9 +6,6 @@ version: "3.9"
 x-tt-service:
   &default-tt-service
 
-  ports:
-    - "80"
-
   labels:
     org.the-tale.group: services
 
