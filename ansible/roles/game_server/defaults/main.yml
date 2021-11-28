@@ -21,32 +21,31 @@ real_cron: /etc/cron.d/tt_cron
 actual_cron: "{{actual_configs}}/tt_cron"
 current_cron: "{{current_configs}}/tt_cron"
 
-# dummy, MUST be redefied in inventory
-tt_services_configs:
-  tt_diary: {}
-  tt_personal_messages: {}
-  tt_storage: {}
-  tt_market: {}
-  tt_players_timers: {}
-  tt_personal_impacts: {}
-  tt_crowd_impacts: {}
-  tt_job_impacts: {}
-  tt_fame_impacts: {}
-  tt_game_chronicle: {}
-  tt_clans_chronicle: {}
-  tt_money_spendings: {}
-  tt_players_properties: {}
-  tt_clans_properties: {}
-  tt_matchmaker: {}
-  tt_clans_currencies: {}
-  tt_emissaries_impacts: {}
-  tt_places_effects: {}
-  tt_emissaries_events_currencies: {}
-  tt_emissaries_events_uniquer: {}
-  tt_discord: {}
-  tt_data_protector: {}
-  tt_xsolla: {}
+tt_service_diary: {}
+tt_service_personal_messages: {}
+tt_service_storage: {}
+tt_service_market: {}
+tt_service_players_timers: {}
+tt_service_personal_impacts: {}
+tt_service_crowd_impacts: {}
+tt_service_job_impacts: {}
+tt_service_fame_impacts: {}
+tt_service_game_chronicle: {}
+tt_service_clans_chronicle: {}
+tt_service_money_spendings: {}
+tt_service_players_properties: {}
+tt_service_clans_properties: {}
+tt_service_matchmaker: {}
+tt_service_clans_currencies: {}
+tt_service_emissaries_impacts: {}
+tt_service_places_effects: {}
+tt_service_emissaries_events_currencies: {}
+tt_service_emissaries_events_uniquer: {}
+tt_service_discord: {}
+tt_service_data_protector: {}
+tt_service_xsolla: {}
 
+tt_services_configs_names: "{{ query('varnames', '^tt_service_.+') }}"
 
 tt_log_level: info
 
@@ -69,7 +68,6 @@ site_payments_xsolla_pid: null
 site_payments_xsolla_marketplace: 'paydesk'
 site_payments_xsolla_base_link: 'https://secure.xsolla.com/paystation2/'
 site_payments_xsolla_id_theme: 'theme'
-site_payments_xsolla_pid: null
 
 site_cdn_enabled: true
 

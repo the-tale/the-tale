@@ -1,10 +1,14 @@
 
+- name: Search services configs
+  set_fact:
+    tt_services_configs: "{{ tt_services_configs|default({}) | combine( {item.replace('tt_service_', 'tt_'): lookup('vars', item)} ) }}"
+  with_items: "{{ tt_services_configs_names }}"
+
 - name: Ensure tt services configs directories exists
   file:
     dest: "{{current_configs_docker}}/{{item}}"
     state: directory
   loop: "{{tt_services_configs.keys()}}"
-
 
 - name: Render tt service configs
   template:
