@@ -16,6 +16,7 @@
   loop:
     - docker_compose.sh
     - docker_compose_pull.sh
+    - check_and_info.sh
     - defaults.env
 
 - name: Copy utilities
