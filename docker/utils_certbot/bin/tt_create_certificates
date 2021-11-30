@@ -1,6 +1,0 @@
-#!/bin/sh
-
-for domain in $TT_DOMAINS
-do
-    certbot certonly --no-eff-email --standalon -d $domain
-done

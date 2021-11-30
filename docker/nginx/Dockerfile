@@ -14,9 +14,9 @@ RUN rm -f /etc/nginx/conf.d/default.conf
 
 RUN mkdir -p /etc/nginx/certificates $TT_SITE_STATIC_DIR
 
-COPY ./bin/tt_generate_fake_certificates.sh /bin/tt_generate_fake_certificates.sh
+COPY ./bin/* /bin/
 
-RUN tt_generate_fake_certificates.sh
+RUN tt_generate_fake_certificates
 
 COPY ./docker-entrypoint.d /docker-entrypoint.d
 

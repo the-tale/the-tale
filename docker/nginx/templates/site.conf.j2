@@ -4,7 +4,7 @@
 
 server {
         {{ macroses.common(tt_domain) }}
-        {{ macroses.ssl("site") }}
+        {{ macroses.ssl(tt_domain) }}
         {{ macroses.gzip() }}
 
         if ($host != "{{tt_domain}}") {

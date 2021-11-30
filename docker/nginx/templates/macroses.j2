@@ -8,7 +8,7 @@
 
 
 {% macro ssl(name) %}
-        ssl_certificate     /etc/nginx/certificates/{{name}}/fullcert.pem;
+        ssl_certificate     /etc/nginx/certificates/{{name}}/fullchain.pem;
         ssl_certificate_key /etc/nginx/certificates/{{name}}/privkey.pem;
         ssl_session_cache   shared:SSL:10m;
         ssl_session_timeout 10m;
@@ -73,10 +73,6 @@ server {
 
 {% macro location_certbot() %}
         location ^~ /.well-known/acme-challenge/ {
-            resolver 127.0.0.11 valid=1s;
-
-            set $tt_certbot utils-certbot-standalon;
-
-            proxy_pass http://$tt_certbot;
+            root /var/www/certbot;
         }
 {% endmacro %}

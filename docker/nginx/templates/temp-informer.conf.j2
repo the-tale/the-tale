@@ -6,7 +6,7 @@
 
 server {
     {{ macroses.common(current_domain) }}
-    {{ macroses.ssl("temp-informer") }}
+    {{ macroses.ssl(current_domain) }}
     {{ macroses.gzip() }}
 
     location / {

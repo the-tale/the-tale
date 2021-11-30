@@ -6,9 +6,9 @@ networks:
 
 
 volumes:
-  tt_nginx_sertificates: {}
   tt_site_static: {}
-
+  tt_certbot_well_known: {}
+  tt_certbot_storage: {}
 
 services:
 
@@ -104,6 +104,7 @@ services:
 
     environment:
       TT_SERVERS: $TT_SERVERS
+      TT_DOMAINS: $TT_DOMAINS
 
     stop_grace_period: 1s
 
@@ -115,7 +116,8 @@ services:
 
     volumes:
       - $TT_CONFIGS_ROOT/nginx/config.$TT_ENV.json:/root/nginx_config.json:ro
-      - tt_nginx_sertificates:/etc/nginx/certificates/
+      - tt_certbot_well_known:/var/www/certbot/:ro
+      - tt_certbot_storage:/etc/letsencrypt/:ro
       - tt_site_static:/var/www/site/:ro
 
     ports:
@@ -125,6 +127,7 @@ services:
     networks:
       tt_network: {}
 
+  # https://mindsers.blog/post/https-using-nginx-certbot-docker/
   utils-certbot:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/utils-certbot:$TT_RELEASE_VERSION
@@ -136,16 +139,12 @@ services:
       TT_DOMAINS: $TT_DOMAINS
 
     volumes:
-      - tt_nginx_sertificates:/etc/letsencrypt/live
-      - $TT_CONFIGS_ROOT/utils_certbot/cli.ini:/etc/letsencrypt/cli.ini
+      - tt_certbot_well_known:/var/www/certbot/
+      - tt_certbot_storage:/etc/letsencrypt/
+      - $TT_CONFIGS_ROOT/utils_certbot/cli.ini:/etc/letsencrypt/cli.ini:ro
 
     profiles:
       - utils
-
-    networks:
-      tt_network:
-        aliases:
-          - utils-certbot-standalon
 
   tt-diary:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-diary:$TT_RELEASE_VERSION

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+for domain in $TT_DOMAINS
+do
+    if [ ! -d /etc/letsencrypt/live/$domain ];
+    then
+        certbot certonly --no-eff-email --webroot --webroot-path /var/www/certbot/ -d $domain
+    fi
+done
+
+
+certbot renew

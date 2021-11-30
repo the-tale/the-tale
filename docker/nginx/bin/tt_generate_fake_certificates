@@ -11,6 +11,6 @@ openssl req \
         -x509 \
         -newkey rsa:4096 \
         -keyout "$certs_dir/privkey.pem" \
-        -out "$certs_dir/fullcert.pem" \
+        -out "$certs_dir/fullchain.pem" \
         -days 3650 \
         -subj "$subject"

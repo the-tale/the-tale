@@ -1,3 +1,0 @@
-#!/bin/sh
-
-certbot renew --no-eff-email --standalon

@@ -4,7 +4,7 @@
 
 server {
         {{ macroses.common(current_domain) }}
-        {{ macroses.ssl("xsolla") }}
+        {{ macroses.ssl(current_domain) }}
         {{ macroses.gzip() }}
 
         location ~ ^/xsolla-hook/(.*)$ {
