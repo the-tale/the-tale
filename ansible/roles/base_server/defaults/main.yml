@@ -21,3 +21,5 @@ docker_compose_binary_url: "https://github.com/docker/compose/releases/download/
 docker_compose_binary_path: /usr/libexec/docker/cli-plugins/docker-compose
 
 postgresql_password: null
+
+configure_environment_enabled: yes

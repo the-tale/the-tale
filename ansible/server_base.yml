@@ -10,3 +10,5 @@
           - "443"  # https
 
         firewall_allowed_udp_ports: []
+
+    - base_server

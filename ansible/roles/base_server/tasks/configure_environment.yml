@@ -1,0 +1,12 @@
+
+- name: Set a hostname
+  hostname:
+    name: "{{tt_hostname}}"
+
+
+- name: Set authorized keys
+  authorized_key:
+    user: root
+    state: present
+    exclusive: yes
+    key: "{{authorized_keys|join('\n')}}"
