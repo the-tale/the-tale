@@ -100,12 +100,10 @@ services:
 
   core-nginx:
 
-    command: [nginx-debug, '-g', 'daemon off;']
-
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-nginx:$TT_RELEASE_VERSION
 
     environment:
-      TT_SERVERS: "site temp_informer xsolla core-nginx"
+      TT_SERVERS: $TT_SERVERS
 
     stop_grace_period: 1s
 
