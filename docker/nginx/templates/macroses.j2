@@ -75,7 +75,7 @@ server {
         location ^~ /.well-known/acme-challenge/ {
             resolver 127.0.0.11 valid=1s;
 
-            set $tt_certbot utils-certbot;
+            set $tt_certbot utils-certbot-standalon;
 
             proxy_pass http://$tt_certbot;
         }

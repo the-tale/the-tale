@@ -132,12 +132,20 @@ services:
     labels:
       org.the-tale.group: utils
 
+    environment:
+      TT_DOMAINS: $TT_DOMAINS
+
     volumes:
-      - tt_nginx_sertificates:/etc/nginx/certificates/
-      - $TT_CONFIGS_ROOT/utils-certbot/cli.ini /etc/letsencrypt/cli.ini
+      - tt_nginx_sertificates:/etc/letsencrypt/live
+      - $TT_CONFIGS_ROOT/utils_certbot/cli.ini:/etc/letsencrypt/cli.ini
 
     profiles:
       - utils
+
+    networks:
+      tt_network:
+        aliases:
+          - utils-certbot-standalon
 
   tt-diary:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-diary:$TT_RELEASE_VERSION
