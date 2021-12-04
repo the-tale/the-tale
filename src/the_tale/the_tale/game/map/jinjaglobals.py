@@ -6,7 +6,7 @@ smart_imports.all()
 
 @utils_jinja2.jinjaglobal
 def region_url(turn=None):
-    return logic.region_url(turn=turn)
+    return utils_jinja2.Markup(logic.region_url(turn=turn))
 
 
 @utils_jinja2.jinjaglobal
