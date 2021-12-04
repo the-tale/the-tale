@@ -25,5 +25,5 @@ mkdir -p "$backup_dir"
 for db_name in $databases;
 do
     backup_file="$backup_dir/$db_name.gz"
-    aws --output text --no-paginate s3 cp "s3://$TT_S3_BACKET/$db_name/$stamp.gz" "$backup_file"
+    aws --output text --no-paginate s3 cp "s3://the-tale-org-backups/$db_name/$stamp.gz" "$backup_file"
 done
