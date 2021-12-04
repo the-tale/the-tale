@@ -75,9 +75,16 @@ CARDS_TUTORIAL = None
 X_FRAME_OPTIONS = 'DENY'
 
 ALLOWED_HOSTS = ['localhost',
-                 'site',  # host name in docker environment
+
                  'the-tale.org',
-                 '.the-tale.org']
+                 '.the-tale.org',
+
+                 # docker network
+                 'site',
+
+                 # test server
+                 'the-tale.com',
+                 '.the-tale.com']
 
 AUTH_USER_MODEL = 'accounts.Account'
 
