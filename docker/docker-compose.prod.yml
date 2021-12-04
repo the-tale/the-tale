@@ -28,7 +28,7 @@ services:
       com.datadoghq.tags.version: $TT_VERSION
 
     ports:
-      - "25"
+      - "25:25"
 
     networks:
       tt_network: {}
