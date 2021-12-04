@@ -9,6 +9,7 @@ class Command(utilities_base.Command):
     help = 'generate javascript files'
 
     LOCKS = ['portal_commands']
+    GAME_CAN_BE_IN_MAINTENANCE_MODE = True
 
     def _handle(self, *args, **options):
 

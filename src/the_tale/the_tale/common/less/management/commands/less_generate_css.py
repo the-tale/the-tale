@@ -10,6 +10,8 @@ class Command(utilities_base.Command):
 
     LOCKS = []
 
+    GAME_CAN_BE_IN_MAINTENANCE_MODE = True
+
     def add_arguments(self, parser):
         super().add_arguments(parser)
         parser.add_argument('-o',
