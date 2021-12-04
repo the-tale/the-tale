@@ -4,9 +4,9 @@
     dest: "{{current_configs_docker}}/{{item}}"
     state: directory
   loop:
-    - site
+    - the_tale
 
 - name: Render the_tale settings_local.py
   template:
     src: ../templates/the_tale_settings_local.py.j2
-    dest: "{{current_configs_docker}}/site/settings_local.py"
+    dest: "{{current_configs_docker}}/the_tale/settings_local.py"
