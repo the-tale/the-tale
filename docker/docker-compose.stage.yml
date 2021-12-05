@@ -11,19 +11,8 @@ services:
   ###############################
 
   utils-regenerate-protocol:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-regenerate-protocol:$TT_RELEASE_VERSION
-
     volumes:
       - ${PWD}:/home/tt_service/repository
-
-    command: tt_regenerate_protocol
-
-    networks:
-      tt_network: {}
-
-    profiles:
-      - utils
 
   ###############################
 

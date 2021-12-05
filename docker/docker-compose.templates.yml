@@ -1,7 +1,43 @@
-
 # define services sceletons with help of yaml templating
 
 version: "3.9"
+
+x-core:
+  &default-core
+
+  labels:
+    org.the-tale.group: core
+    com.datadoghq.tags.env: $TT_ENV
+    com.datadoghq.tags.version: $TT_VERSION
+
+  stop_grace_period: 1m
+
+  profiles:
+    - core
+
+  networks:
+    tt_network: {}
+
+
+x-utils:
+  &default-utils
+
+  stop_grace_period: 1m
+
+  labels:
+    org.the-tale.group: utils
+    com.datadoghq.tags.env: $TT_ENV
+    com.datadoghq.tags.version: $TT_VERSION
+
+  environment:
+    TT_WAIT_TIMEOUT: $TT_WAIT_TIMEOUT
+    TT_SITE_STATIC_DIR: $TT_SITE_STATIC_DIR
+
+  networks:
+    tt_network: {}
+
+  profiles:
+    - utils
 
 x-tt-service:
   &default-tt-service
@@ -83,6 +119,42 @@ volumes:
 
 services:
 
+  core-postgresql:
+    << : *default-core
+
+  core-redis:
+    << : *default-core
+
+  core-rabbitmq:
+    << : *default-core
+
+  core-nginx:
+    << : *default-core
+
+  core-postfix:
+    << : *default-core
+
+  core-datadog:
+    << : *default-core
+
+  utils-postgresql:
+    << : *default-utils
+
+  utils-certbot:
+    << : *default-utils
+
+  utils-site-migrations:
+    << : *default-utils
+
+  utils-site:
+    << : *default-utils
+
+  utils-site-generate-static:
+    << : *default-utils
+
+  utils-regenerate-protocol:
+    << : *default-utils
+
   tt-diary:
     << : *default-tt-service
 
@@ -152,16 +224,7 @@ services:
   tt-xsolla:
     << : *default-tt-service
 
-  utils-site-migrations:
-    << : *default-the-tale
-
   site:
-    << : *default-the-tale
-
-  utils-site:
-    << : *default-the-tale
-
-  utils-site-generate-static:
     << : *default-the-tale
 
   worker-bank-processor:

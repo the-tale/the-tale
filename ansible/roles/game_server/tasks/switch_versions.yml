@@ -23,7 +23,7 @@
   when: actual_configs_dir_info.stat.exists
 
 - name: Stop infrasturcture
-  shell: "cd '{{actual_configs}}' && ./bin/docker_compose.sh down"
+  shell: "cd '{{actual_configs}}' && ./bin/tt_infrastructure_stop"
   when: actual_configs_dir_info.stat.exists
 
 - name: Switch actual configs version
@@ -39,7 +39,7 @@
     state: link
 
 - name: Up game infrastructure
-  shell: "cd '{{actual_configs}}' && ./bin/docker_compose.sh up -d"
+  shell: "cd '{{actual_configs}}' && ./bin/tt_infrastructure_start"
 
 - name: Warn about stopped game
   debug:

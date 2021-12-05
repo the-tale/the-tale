@@ -4,6 +4,6 @@ set -e
 
 trap 'echo "\"${last_command}\" command failed with exit code $?."' ERR
 
-./bin/docker_compose.sh stop `./bin/docker_compose.sh ps --services | grep "^worker-"`
-./bin/docker_compose.sh --profile utils stop `./bin/docker_compose.sh ps --services | grep "^site$"`
-./bin/docker_compose.sh stop `./bin/docker_compose.sh ps --services | grep "^tt-"`
+./bin/docker_compose.sh --profile core stop `./bin/docker_compose.sh ps --services | grep "^worker-"`
+./bin/docker_compose.sh --profile core --profile utils stop `./bin/docker_compose.sh ps --services | grep "^site$"`
+./bin/docker_compose.sh --profile core stop `./bin/docker_compose.sh ps --services | grep "^tt-"`

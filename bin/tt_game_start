@@ -5,9 +5,9 @@ set -e
 trap 'echo "\"${last_command}\" command failed with exit code $?."' ERR
 
 # up core services
-./bin/docker_compose.sh up -d
+./bin/tt_infrastructure_start
 
 # up services
-./bin/docker_compose.sh --profile services up -d
-./bin/docker_compose.sh --profile utils up -d site
-./bin/docker_compose.sh --profile workers up -d
+./bin/docker_compose.sh --profile core --profile services up -d
+./bin/docker_compose.sh --profile core --profile utils up -d site
+./bin/docker_compose.sh --profile core --profile workers up -d

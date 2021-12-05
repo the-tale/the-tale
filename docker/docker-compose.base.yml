@@ -19,22 +19,14 @@ services:
     volumes:
        - $TT_CONFIGS_ROOT/postgresql/postgresql.$TT_ENV.conf:/etc/postgresql/postgresql.conf:ro
 
-    stop_grace_period: 1m
-
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: $TT_DB_ROOT_PASSWORD
 
     labels:
-      org.the-tale.group: core
-      com.datadoghq.tags.env: $TT_ENV
       com.datadoghq.tags.service: core-postgresql
-      com.datadoghq.tags.version: $TT_VERSION
 
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
-
-    networks:
-      tt_network: {}
 
   utils-postgresql:
 
@@ -42,11 +34,6 @@ services:
 
     volumes:
        - $TT_CONFIGS_ROOT/utils_postgresql/aws.config:/root/aws.config:ro
-
-    stop_grace_period: 1m
-
-    labels:
-      org.the-tale.group: utils
 
     environment:
       TT_DATABASES: $TT_DATABASES
@@ -59,44 +46,22 @@ services:
     depends_on:
       - core-postgresql
 
-    networks:
-      tt_network: {}
-
-    profiles:
-      - utils
-
   core-redis:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-redis:$TT_RELEASE_VERSION
 
-    stop_grace_period: 1m
-
     labels:
-      org.the-tale.group: core
-      com.datadoghq.tags.env: $TT_ENV
       com.datadoghq.tags.service: core-redis
-      com.datadoghq.tags.version: $TT_VERSION
-
-    networks:
-      tt_network: {}
 
   core-rabbitmq:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-rabbitmq:$TT_RELEASE_VERSION
 
-    stop_grace_period: 1m
-
     volumes:
        - $TT_CONFIGS_ROOT/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
 
     labels:
-      org.the-tale.group: core
-      com.datadoghq.tags.env: $TT_ENV
       com.datadoghq.tags.service: core-rabbitmq
-      com.datadoghq.tags.version: $TT_VERSION
-
-    networks:
-      tt_network: {}
 
   core-nginx:
 
@@ -109,10 +74,7 @@ services:
     stop_grace_period: 1s
 
     labels:
-      org.the-tale.group: core
-      com.datadoghq.tags.env: $TT_ENV
       com.datadoghq.tags.service: core-nginx
-      com.datadoghq.tags.version: $TT_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/nginx/config.$TT_ENV.json:/root/nginx_config.json:ro
@@ -124,16 +86,10 @@ services:
       - "80:80"
       - "443:443"
 
-    networks:
-      tt_network: {}
-
   # https://mindsers.blog/post/https-using-nginx-certbot-docker/
   utils-certbot:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/utils-certbot:$TT_RELEASE_VERSION
-
-    labels:
-      org.the-tale.group: utils
 
     environment:
       TT_DOMAINS: $TT_DOMAINS
@@ -143,8 +99,9 @@ services:
       - tt_certbot_storage:/etc/letsencrypt/
       - $TT_CONFIGS_ROOT/utils_certbot/cli.ini:/etc/letsencrypt/cli.ini:ro
 
-    profiles:
-      - utils
+  utils-regenerate-protocol:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-regenerate-protocol:$TT_RELEASE_VERSION
+    command: tt_regenerate_protocol
 
   tt-diary:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-diary:$TT_RELEASE_VERSION
@@ -285,11 +242,9 @@ services:
       - $TT_CONFIGS_ROOT/tt_xsolla/config.json:/home/tt_service/config.json
 
   utils-site-migrations:
-    labels:
-      org.the-tale.group: utils
+    image: $TT_CONTAINERS_REGISTRY/the-tale/site:$TT_RELEASE_VERSION
 
     profiles:
-      - utils
       - workers
       - site
 
@@ -305,20 +260,11 @@ services:
       org.the-tale.group: site
 
   utils-site:
-    profiles:
-      - utils
-
-    labels:
-      org.the-tale.group: utils
+    image: $TT_CONTAINERS_REGISTRY/the-tale/site:$TT_RELEASE_VERSION
 
   utils-site-generate-static:
-    profiles:
-      - utils
-
+    image: $TT_CONTAINERS_REGISTRY/the-tale/site:$TT_RELEASE_VERSION
     command: tt_generate_static
-
-    labels:
-      org.the-tale.group: utils
 
   worker-bank-processor:
     environment:
