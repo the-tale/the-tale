@@ -43,9 +43,6 @@ services:
       TT_DATADOG_POSTGRESQL_USER: $TT_DATADOG_POSTGRESQL_USER
       TT_DATADOG_POSTGRESQL_PASSWORD: $TT_DATADOG_POSTGRESQL_PASSWORD
 
-    depends_on:
-      - core-postgresql
-
   core-redis:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-redis:$TT_RELEASE_VERSION
