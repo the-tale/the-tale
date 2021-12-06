@@ -14,6 +14,10 @@
     path: "{{actual_configs}}"
   register: actual_configs_dir_info
 
+- name: Ensure, that core services running (required for maintanance mode)
+  shell: "cd '{{actual_configs}}' && ./bin/tt_infrastructure_start"
+  when: actual_configs_dir_info.stat.exists
+
 - name: Turn on maintainance
   shell: "cd '{{actual_configs}}' && ./bin/tt_maintenance_on"
   when: actual_configs_dir_info.stat.exists

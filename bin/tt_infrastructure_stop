@@ -4,5 +4,8 @@ set -e
 
 trap 'echo "\"${last_command}\" command failed with exit code $?."' ERR
 
-# up core services
-./bin/docker_compose.sh --profile core down
+
+# enshure game stopped
+./bin/tt_game_stop
+
+./bin/docker_compose.sh --profile core stop `./bin/docker_compose.sh ps --services | grep "^core-"`
