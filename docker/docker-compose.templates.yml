@@ -33,6 +33,11 @@ x-utils:
     TT_WAIT_TIMEOUT: $TT_WAIT_TIMEOUT
     TT_SITE_STATIC_DIR: $TT_SITE_STATIC_DIR
 
+  volumes:
+    # all utils containers must has access to static files foulder
+    # they determine maintenance mode with its help
+    - tt_site_static:/var/www/site/
+
   networks:
     tt_network: {}
 
