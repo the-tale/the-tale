@@ -33,17 +33,3 @@ def log_command_finish(record_id, result):
                                                        updated_at=now,
                                                        state=relations.STATE.FINISHED,
                                                        result=result)
-
-
-def is_game_running():
-
-    for proc in psutil.process_iter():
-        try:
-            process_cmdline = ' '.join(proc.cmdline())
-
-            if 'django-admin' in process_cmdline and 'supervisor' in process_cmdline and 'the_tale' in process_cmdline:
-                return True
-        except psutil.NoSuchProcess:
-            pass
-
-    return False

@@ -82,12 +82,12 @@ class Command(django_management.BaseCommand):
 
         record_id = logic.log_command_waiting(name=command_name)
 
-        if options['game_must_be_running'] and not logic.is_game_running():
+        if options['game_must_be_running'] and game_prototypes.GameState.is_stopped():
             self.logger.info(f'game MUST be running to run command "{command_name}"')
             logic.log_command_finish(record_id, relations.RESULT.GAME_MUST_BE_RUNNING)
             return
 
-        if self.GAME_MUST_BE_STOPPED and logic.is_game_running():
+        if self.GAME_MUST_BE_STOPPED and game_prototypes.GameState.is_working():
             self.logger.info(f'game MUST be stopped to run command "{command_name}"')
             logic.log_command_finish(record_id, relations.RESULT.GAME_MUST_BE_STOPPED)
             return
