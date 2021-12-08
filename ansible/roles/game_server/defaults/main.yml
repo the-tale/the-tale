@@ -153,3 +153,84 @@ datadog_conf:
       - rabbitmq_api_url: http://core-rabbitmq:15672/api/
         username: the_tale
         password: "{{datadog_rabbitmq_password}}"
+
+
+ofelia_config:
+  job_run:
+    - schedule: "0 0 * * * *"
+      base_service: tasks-site-clans-sync-statistics
+
+    - schedule: "0 0 * * * *"
+      base_service: tasks-site-clans-give-points
+
+    - schedule: "0 0 0 * * *"
+      base_service: tasks-site-clans-reset-free-quests
+
+    - schedule: "0 1 * * * *"
+      base_service: tasks-site-emissaries-step
+
+    - schedule: "0 10 * * * *"
+      base_service: tasks-site-emissaries-remove-orphan-effects
+
+    - schedule: "0 */5 * * * *"
+      base_service: tasks-site-emissaries-monitoring
+
+    - schedule: "0 2 0 * * *"
+      base_service: tasks-site-emissaries-process-day
+
+    - schedule: "0 */10 * * * *"
+      base_service: tasks-site-bills-apply
+
+    - schedule: "0 0 * * * *"
+      base_service: tasks-site-game-highlevel-step
+
+    - schedule: "0 0 1 * * *"
+      base_service: tasks-site-portal-clean
+
+    - schedule: "0 0 2 * * *"
+      base_service: tasks-site-clearsessions
+
+    - schedule: "0 0 3 * * *"
+      base_service: tasks-site-personal-messages-remove-system-messages
+
+    - schedule: "0 0 4 * * *"
+      base_service: tasks-site-linguistics-clean-removed-templates
+
+    - schedule: "0 0 * * * *"
+      base_service: tasks-site-third-party-remove-expired-access-tokens
+
+    - schedule: "0 0 5 * * *"
+      base_service: tasks-site-statistics-complete
+
+    - schedule: "0 0 */4 * * *"
+      base_service: tasks-site-portal-refresh-cdns
+
+    - schedule: "0 0 6 * * *"
+      base_service: tasks-site-accounts-calculate-might
+
+    - schedule: "0 0 7 * * *"
+      base_service: tasks-site-ratings-recalculate-ratings
+
+    - schedule: "0 0 8 * * *"
+      base_service: tasks-site-portal-new-day-actions
+
+    - schedule: "0 30 * * * *"
+      base_service: tasks-site-accounts-send-premium-expired-notifications
+
+    - schedule: "0 3 * * * *"
+      base_service: tasks-site-places-monitor-protectorates
+
+    - schedule: "0 0 * * * *"
+      base_service: tasks-tt-personal-messages-clean
+
+    - schedule: "0 */5 * * * *"
+      base_service: tasks-tt-data-protector-process-tasks
+
+    - schedule: "0 0 * * * *"
+      base_service: tasks-tt-clans-currencies-rollback-hanged-transactions
+
+    - schedule: "0 0 3 * * *"
+      base_service: tasks-postgresql-backup-make-upload-cleanup
+
+    - schedule: "0 0 4 * * *"
+      base_service: tasks-certbot-create-or-renew-certificates

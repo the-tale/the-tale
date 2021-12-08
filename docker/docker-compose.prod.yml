@@ -16,7 +16,6 @@ services:
        - postgresql-backups:/backups/
 
   core-postfix:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/core-postfix:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/postfix/config.$TT_ENV.json:/root/postfix_config.json:ro
@@ -28,7 +27,6 @@ services:
       - "25:25"
 
   core-datadog:
-    image: gcr.io/datadoghq/agent:7
 
     environment:
       DD_API_KEY: $TT_DATADOG_API_KEY
@@ -43,3 +41,81 @@ services:
 
     depends_on:
       - utils-site-generate-static
+
+  tasks-site-clans-sync-statistics:
+    command: tt_django clans_sync_statistics
+
+  tasks-site-clans-give-points:
+    command: tt_django clans_give_points --interval 3600
+
+  tasks-site-clans-reset-free-quests:
+    command: tt_django clans_reset_free_quests
+
+  tasks-site-emissaries-step:
+    command: tt_django emissaries_step
+
+  tasks-site-emissaries-remove-orphan-effects:
+    command: tt_django emissaries_remove_orphan_effects
+
+  tasks-site-emissaries-monitoring:
+    command: tt_django emissaries_monitoring
+
+  tasks-site-emissaries-process-day:
+    command: tt_django emissaries_process_day
+
+  tasks-site-bills-apply:
+    command: tt_django bills_apply
+
+  tasks-site-game-highlevel-step:
+    command: tt_django game_highlevel_step
+
+  tasks-site-portal-clean:
+    command: tt_django portal_clean
+
+  tasks-site-clearsessions:
+    command: tt_django clearsessions
+
+  tasks-site-personal-messages-remove-system-messages:
+    command: tt_django personal_messages_remove_system_messages
+
+  tasks-site-linguistics-clean-removed-templates:
+    command: tt_django linguistics_clean_removed_templates
+
+  tasks-site-third-party-remove-expired-access-tokens:
+    command: tt_django third_party_remove_expired_access_tokens
+
+  tasks-site-statistics-complete:
+    command: tt_django statistics_complete
+
+  tasks-site-portal-refresh-cdns:
+    command: tt_django portal_refresh_cdns
+
+  tasks-site-accounts-calculate-might:
+    command: tt_django accounts_calculate_might
+
+  tasks-site-ratings-recalculate-ratings:
+    command: tt_django ratings_recalculate_ratings
+
+  tasks-site-portal-new-day-actions:
+    command: tt_django portal_new_day_actions
+
+  tasks-site-accounts-send-premium-expired-notifications:
+    command: tt_django accounts_send_premium_expired_notifications
+
+  tasks-site-places-monitor-protectorates:
+    command: tt_django places_monitor_protectorates
+
+  tasks-tt-personal-messages-clean:
+    command: tt_personal_messages_clean
+
+  tasks-tt-data-protector-process-tasks:
+    command: tt_data_protector_process_tasks
+
+  tasks-tt-clans-currencies-rollback-hanged-transactions:
+    command: tt_bank_rollback_hanged_transactions
+
+  tasks-postgresql-backup-make-upload-cleanup:
+    command: backup_make_upload_cleanup.sh
+
+  tasks-certbot-create-or-renew-certificates:
+    command: tt_create_or_renew_certificates

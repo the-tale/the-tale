@@ -7,4 +7,6 @@ docker compose -f ./docker/docker-compose.build.yml \
                --profile services \
                --profile utils \
                --profile site \
+               --profile tasks \
+               --profile tasks-manager \
                push $@

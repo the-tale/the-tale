@@ -4,4 +4,6 @@
                         --profile services \
                         --profile utils \
                         --profile site \
+                        --profile tasks \
+                        --profile tasks-manager \
                         pull $@

@@ -25,8 +25,6 @@ services:
        - ${PWD}/.backups:/backups/
 
   core-nginx:
-    environment:
-      TT_SERVERS: "site"
     volumes:
       - $TT_CONFIGS_ROOT/nginx/templates:/nginx-config-templates:ro
 

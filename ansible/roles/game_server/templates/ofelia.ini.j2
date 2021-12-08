@@ -1,0 +1,7 @@
+
+{% for job in ofelia_config.job_run %}
+[job-run "{{job.base_service}}"]
+schedule = {{job.schedule}}
+container = the_tale-{{job.base_service}}-1
+
+{% endfor %}

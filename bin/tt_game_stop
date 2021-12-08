@@ -4,6 +4,8 @@ set -e
 
 trap 'echo "\"${last_command}\" command failed with exit code $?."' ERR
 
+./bin/tt_tasks_manager_stop
+
 ./bin/docker_compose.sh --profile workers stop `./bin/docker_compose.sh ps --services | grep "^worker-"`
 
 ./bin/docker_compose.sh --profile utils stop `./bin/docker_compose.sh ps --services | grep "^site$"`

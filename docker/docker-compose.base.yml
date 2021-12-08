@@ -10,12 +10,10 @@ volumes:
   tt_certbot_well_known: {}
   tt_certbot_storage: {}
 
+
 services:
 
   core-postgresql:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/core-postgresql:$TT_RELEASE_VERSION
-
     volumes:
        - $TT_CONFIGS_ROOT/postgresql/postgresql.$TT_ENV.conf:/etc/postgresql/postgresql.conf:ro
 
@@ -27,21 +25,6 @@ services:
       com.datadoghq.tags.service: core-postgresql
 
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
-
-  utils-postgresql:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-postgresql:$TT_RELEASE_VERSION
-
-    volumes:
-       - $TT_CONFIGS_ROOT/utils_postgresql/aws.config:/root/aws.config:ro
-
-    environment:
-      TT_DATABASES: $TT_DATABASES
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: $TT_DB_ROOT_PASSWORD
-      TT_S3_BACKET: $TT_BACKUP_S3_BACKET
-      TT_DATADOG_POSTGRESQL_USER: $TT_DATADOG_POSTGRESQL_USER
-      TT_DATADOG_POSTGRESQL_PASSWORD: $TT_DATADOG_POSTGRESQL_PASSWORD
 
   core-redis:
 
@@ -64,10 +47,6 @@ services:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-nginx:$TT_RELEASE_VERSION
 
-    environment:
-      TT_SERVERS: $TT_SERVERS
-      TT_DOMAINS: $TT_DOMAINS
-
     stop_grace_period: 1s
 
     labels:
@@ -83,22 +62,41 @@ services:
       - "80:80"
       - "443:443"
 
-  # https://mindsers.blog/post/https-using-nginx-certbot-docker/
-  utils-certbot:
+  core-datadog:
+    image: gcr.io/datadoghq/agent:7
 
-    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-certbot:$TT_RELEASE_VERSION
+  core-postfix:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/core-postfix:$TT_RELEASE_VERSION
 
-    environment:
-      TT_DOMAINS: $TT_DOMAINS
+  utils-postgresql: {}
 
-    volumes:
-      - tt_certbot_well_known:/var/www/certbot/
-      - tt_certbot_storage:/etc/letsencrypt/
-      - $TT_CONFIGS_ROOT/utils_certbot/cli.ini:/etc/letsencrypt/cli.ini:ro
+  utils-certbot: {}
 
   utils-regenerate-protocol:
     image: $TT_CONTAINERS_REGISTRY/the-tale/utils-regenerate-protocol:$TT_RELEASE_VERSION
     command: tt_regenerate_protocol
+
+  utils-site-migrations:
+    profiles:
+      - workers
+      - site
+
+    command: tt_django migrate
+
+  utils-site: {}
+
+  utils-site-generate-static:
+    command: tt_generate_static
+
+  tasks-manager-ofelia:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tasks-ofelia:$TT_RELEASE_VERSION
+
+    labels:
+      com.datadoghq.tags.service: tasks-ofelia
+
+    volumes:
+      - $TT_CONFIGS_ROOT/ofelia/config.ini:/etc/ofelia/config.ini:ro
+      - /var/run/docker.sock:/var/run/docker.sock
 
   tt-diary:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-diary:$TT_RELEASE_VERSION
@@ -106,11 +104,7 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/tt_diary/config.json:/home/tt_service/config.json
 
-  tt-personal-messages:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-personal-messages:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_personal_messages/config.json:/home/tt_service/config.json
+  tt-personal-messages: {}
 
   tt-storage:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-storage:$TT_RELEASE_VERSION
@@ -202,11 +196,7 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/tt_places_effects/config.json:/home/tt_service/config.json
 
-  tt-clans-currencies:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-bank:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_clans_currencies/config.json:/home/tt_service/config.json
+  tt-clans-currencies: {}
 
   tt-emissaries-events-currencies:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-bank:$TT_RELEASE_VERSION
@@ -226,26 +216,13 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/tt_discord/config.json:/home/tt_service/config.json
 
-  tt-data-protector:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-data-protector:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_data_protector/config.json:/home/tt_service/config.json
+  tt-data-protector: {}
 
   tt-xsolla:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-xsolla:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_xsolla/config.json:/home/tt_service/config.json
-
-  utils-site-migrations:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/site:$TT_RELEASE_VERSION
-
-    profiles:
-      - workers
-      - site
-
-    command: tt_django migrate
 
   site:
     command: tt_site -b 0.0.0.0:80 -w 4
@@ -255,13 +232,6 @@ services:
 
     labels:
       org.the-tale.group: site
-
-  utils-site:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/site:$TT_RELEASE_VERSION
-
-  utils-site-generate-static:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/site:$TT_RELEASE_VERSION
-    command: tt_generate_static
 
   worker-bank-processor:
     environment:

@@ -42,8 +42,8 @@
 - name: Upload certbot configs
   import_tasks: cetbot.yml
 
-- name: Upload cron configs
-  import_tasks: cron.yml
+- name: Upload ofelia config & schedule
+  import_tasks: ofelia.yml
 
 - name: Prepair docker
   import_tasks: docker.yml
