@@ -11,9 +11,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-    profiles:
-      - core
-
   utils-postgresql:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/utils-postgresql:$TT_RELEASE_VERSION
@@ -27,9 +24,6 @@ services:
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
         TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
 
-    profiles:
-      - utils
-
   core-redis:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-redis:$TT_RELEASE_VERSION
@@ -38,9 +32,6 @@ services:
       context: ./redis
       labels:
         org.opencontainers.image.source: $TT_REPO
-
-    profiles:
-      - core
 
   core-rabbitmq:
 
@@ -51,9 +42,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-    profiles:
-      - core
-
   core-postfix:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-postfix:$TT_RELEASE_VERSION
@@ -62,9 +50,6 @@ services:
       context: ./postfix
       labels:
         org.opencontainers.image.source: $TT_REPO
-
-    profiles:
-      - core
 
   core-nginx:
 
@@ -78,9 +63,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-    profiles:
-      - core
-
   utils-certbot:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/utils-certbot:$TT_RELEASE_VERSION
@@ -90,8 +72,13 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-    profiles:
-      - utils
+  task-ofelia:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tasks-ofelia:$TT_RELEASE_VERSION
+
+    build:
+      context: ./ofelia
+      labels:
+        org.opencontainers.image.source: $TT_REPO
 
   tt-base:
 
@@ -117,9 +104,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-    profiles:
-      - services
-
   tt-personal-messages:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-personal-messages:$TT_RELEASE_VERSION
@@ -133,9 +117,6 @@ services:
         TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
-
-    profiles:
-      - services
 
   tt-storage:
 
@@ -151,9 +132,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-    profiles:
-      - services
-
   tt-market:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-market:$TT_RELEASE_VERSION
@@ -167,9 +145,6 @@ services:
         TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
-
-    profiles:
-      - services
 
   tt-timers:
 
@@ -185,9 +160,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-    profiles:
-      - services
-
   tt-impacts:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 
@@ -200,9 +172,6 @@ services:
         TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
-
-    profiles:
-      - services
 
   tt-events-log:
 
@@ -218,9 +187,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-    profiles:
-      - services
-
   tt-properties:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-properties:$TT_RELEASE_VERSION
@@ -234,9 +200,6 @@ services:
         TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
-
-    profiles:
-      - services
 
   tt-matchmaker:
 
@@ -252,9 +215,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-    profiles:
-      - services
-
   tt-effects:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-effects:$TT_RELEASE_VERSION
@@ -268,9 +228,6 @@ services:
         TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
-
-    profiles:
-      - services
 
   tt-bank:
 
@@ -286,9 +243,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-    profiles:
-      - services
-
   tt-uniquer:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-uniquer:$TT_RELEASE_VERSION
@@ -302,9 +256,6 @@ services:
         TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
-
-    profiles:
-      - services
 
   tt-discord:
 
@@ -320,9 +271,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-    profiles:
-      - services
-
   tt-data-protector:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-data-protector:$TT_RELEASE_VERSION
@@ -336,9 +284,6 @@ services:
         TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
-
-    profiles:
-      - services
 
   tt-xsolla:
 
@@ -354,9 +299,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-    profiles:
-      - services
-
   site:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/site:$TT_RELEASE_VERSION
@@ -370,9 +312,6 @@ services:
         TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO
-
-    profiles:
-      - site
 
   utils-regenerate-protocol:
 
