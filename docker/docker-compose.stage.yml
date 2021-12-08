@@ -6,16 +6,6 @@ volumes:
 
 services:
 
-  ###############################
-  # services for development only
-  ###############################
-
-  utils-regenerate-protocol:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  ###############################
-
   core-postgresql:
     volumes:
        - postgresql-storage:/var/lib/postgresql/data
@@ -27,6 +17,18 @@ services:
   core-nginx:
     volumes:
       - $TT_CONFIGS_ROOT/nginx/templates:/nginx-config-templates:ro
+
+  core-postfix:
+    entrypoint: bash -c
+    command: echo "turned off"
+
+  core-datadog:
+    entrypoint: bash -c
+    command: echo "turned off"
+
+  tasks-manager-ofelia:
+    entrypoint: sh -c
+    command: echo "turned off"
 
   tt-diary:
     volumes:
@@ -121,6 +123,10 @@ services:
       - ${PWD}:/home/tt_service/repository
 
   site:
+    volumes:
+      - ${PWD}:/home/tt_service/repository
+
+  utils-regenerate-protocol:
     volumes:
       - ${PWD}:/home/tt_service/repository
 
