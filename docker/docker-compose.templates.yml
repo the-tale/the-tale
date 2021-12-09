@@ -3,10 +3,6 @@
 version: "3.9"
 
 
-x-postgres-image: &default-postgres-image
-  image: $TT_CONTAINERS_REGISTRY/the-tale/core-postgresql:$TT_RELEASE_VERSION
-
-
 x-site-image: &default-site-image
   image: $TT_CONTAINERS_REGISTRY/the-tale/site:$TT_RELEASE_VERSION
 
@@ -156,7 +152,8 @@ x-tt-data-protector: &default-tt-data-protector
 
 x-utils-postgresql: &default-utils-postgresql
     << : *default-utils
-    << : *default-postgres-image
+
+    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-postgresql:$TT_RELEASE_VERSION
 
     volumes:
        - $TT_CONFIGS_ROOT/utils_postgresql/aws.config:/root/aws.config:ro
@@ -188,7 +185,6 @@ services:
 
   core-postgresql:
     << : *default-core
-    << : *default-postgres-image
 
   core-redis:
     << : *default-core

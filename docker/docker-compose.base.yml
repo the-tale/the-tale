@@ -17,6 +17,8 @@ volumes:
 services:
 
   core-postgresql:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/core-postgresql:$TT_RELEASE_VERSION
+
     volumes:
        - $TT_CONFIGS_ROOT/postgresql/postgresql.$TT_ENV.conf:/etc/postgresql/postgresql.conf:ro
 
