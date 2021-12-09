@@ -3,6 +3,9 @@ version: "3.9"
 networks:
   tt_network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/16
 
 
 volumes:
