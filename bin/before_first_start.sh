@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./bin/docker_compose.sh up -d
+./bin/tt_infrastructure_start
 
 ./bin/docker_compose.sh run utils-postgresql db_init.sh
 
