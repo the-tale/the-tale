@@ -24,12 +24,14 @@ COPY --chown=$TT_USER ./docker/common/bin/* $HOME_BIN
 
 COPY --chown=$TT_USER ./docker/common/requirements.txt $HOME
 
-RUN pip install --user -r ./requirements.txt
-
 # Use virtual environment, since poetry can not detect packages, installed outside environments,
-# and always reinstalls reinstalls them, even if their version did not changed
+# and always reinstalls them, even if their version did not changed
+
+RUN python -m pip install --upgrade pip
 
 RUN python -m venv $TT_VENV
+
+RUN . $TT_VENV/bin/activate && pip install -r ./requirements.txt
 
 # Copy actual code to container
 # It will be runing in production

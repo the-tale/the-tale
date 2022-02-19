@@ -1,1 +1,2 @@
-poetry == 1.1.11
+setuptools == 57.5.0
+poetry == 1.1.13
