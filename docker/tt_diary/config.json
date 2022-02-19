@@ -2,7 +2,7 @@
     "database": {"name": "tt_diary",
                  "user": "tt_diary",
                  "password": "tt_diary",
-                 "host": "core_postgresql",
+                 "host": "core-postgresql",
                  "port": 5432,
                  "minsize": 2,
                  "maxsize": 5,

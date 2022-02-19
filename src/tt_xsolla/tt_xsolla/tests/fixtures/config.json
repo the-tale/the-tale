@@ -2,7 +2,7 @@
     "database": {"name": "tt_xsolla",
                  "user": "tt_xsolla",
                  "password": "tt_xsolla",
-                 "host": "core_postgresql",
+                 "host": "core-postgresql",
                  "port": 5432,
                  "minsize": 10,
                  "maxsize": 10,

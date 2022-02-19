@@ -1,0 +1,68 @@
+
+SITE_URL = '{{tt_domain}}'
+CDN_DOMAIN = 'static.{{tt_domain}}'
+
+SERVER_EMAIL = 'admin@{{tt_domain}}'
+ADMINS = (('Администратор', SERVER_EMAIL),)
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST_USER = 'no-reply@{{tt_domain}}'
+
+# payments
+XSOLLA_SECRET_KEY = {{site_xsolla_secret_key|repr}}
+
+XSOLLA_ALLOWED_IPS = []
+
+XSOLLA_ALLOWED_IPS.extend('185.30.20.%d' % i for i in range(0, 256))
+XSOLLA_ALLOWED_IPS.extend('185.30.21.%d' % i for i in range(0, 256))
+XSOLLA_ALLOWED_IPS.extend('185.30.22.%d' % i for i in range(0, 256))
+XSOLLA_ALLOWED_IPS.extend('185.30.23.%d' % i for i in range(0, 256))
+
+PAYMENTS_ENABLE_REAL_PAYMENTS = {{site_payments_enable_real_payments|repr}}
+
+PAYMENTS_XSOLLA_ENABLED = {{site_payments_xsolla_enabled|repr}}
+PAYMENTS_XSOLLA_THEME = {{site_payments_xsolla_theme|repr}}
+PAYMENTS_XSOLLA_PROJECT = {{site_payments_xsolla_project|repr}}
+PAYMENTS_XSOLLA_PID = {{site_payments_xsolla_pid|repr}}
+
+PAYMENTS_XSOLLA_MARKETPLACE = {{site_payments_xsolla_marketplace|repr}}
+PAYMENTS_XSOLLA_BASE_LINK = {{site_payments_xsolla_base_link|repr}}
+PAYMENTS_XSOLLA_ID_THEME = {{site_payments_xsolla_id_theme|repr}}
+PAYMENTS_XSOLLA_PID = {{site_payments_xsolla_pid|repr}}
+
+CDNS_ENABLED = {{site_cdn_enabled|repr}}
+
+SOCIAL_VK_GROUP_URL = {{site_social_vk_group_url|repr}}
+SOCIAL_TWITTER_GROUP_URL = {{site_social_twitter_group_url|repr}}
+SOCIAL_FACEBOOK_GROUP_URL = {{site_social_facebook_group_url|repr}}
+
+SOCIAL_DEVELOPER_BLOG = {{site_social_developer_blog|repr}}
+
+COMMUNITY_PROJECTS = {{site_community_projects|repr}}
+
+CARDS_TUTORIAL = {{site_cards_tutorial|repr}}
+
+OWNER = {{site_owner|repr}}
+
+SECRET_KEY = {{site_secret_key|repr}}
+
+GA_CODE = {{site_ga_code|repr}}
+MAIL_RU = {{site_mail_ru|repr}}
+
+# падает sentry, если указать такую почту
+# SERVER_EMAIL = '«Сказка»: системное сообщение <no-reply@the-tale.org>'
+
+EMAIL_NOREPLY = {{site_email_noreply|repr}}
+EMAIL_SUPPORT = {{site_email_support|repr}}
+EMAIL_SUPPORT_SHORT = {{site_email_support_short|repr}}
+
+
+SENTRY_RAVEN_CONFIG = {{site_sentry_raven_config|repr}}
+
+TT_SECRET = {{tt_secret|repr}}
+
+DISCORD_WIDGET_URL = {{site_discord_widget_url|repr}}
+DISCORD_INVITE_LINK = {{site_discord_invite_link|repr}}
+
+POST_SERVICE_ENABLE_MESSAGE_SENDER = {{site_post_service_enable_message_sender|repr}}

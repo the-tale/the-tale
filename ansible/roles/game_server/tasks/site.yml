@@ -1,0 +1,12 @@
+
+- name: Ensure site configs directory exists
+  file:
+    dest: "{{current_configs_docker}}/{{item}}"
+    state: directory
+  loop:
+    - the_tale
+
+- name: Render the_tale settings_local.py
+  template:
+    src: ../templates/the_tale_settings_local.py.j2
+    dest: "{{current_configs_docker}}/the_tale/settings_local.py"

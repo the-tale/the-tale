@@ -1,0 +1,25 @@
+#!/bin/sh
+
+defaults_dir=/default_certificates
+certbot_dir=/etc/letsencrypt/live
+
+for domain in $TT_DOMAINS
+do
+    certs_dir=/etc/nginx/certificates/$domain
+
+    real_certs=$certbot_dir/$domain
+
+    mkdir -p $certs_dir
+
+    if [ -d $real_certs ];
+    then
+        cp -rL $real_certs/* $certs_dir
+    else
+        cp -rL $defaults_dir/* $certs_dir
+    fi
+done
+
+if [ -f /var/run/nginx.pid ];
+then
+    nginx -s reload
+fi

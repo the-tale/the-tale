@@ -1,0 +1,18 @@
+{
+    "database": {"name": "{{tt_service}}",
+                 "user": "{{tt_service}}",
+                 "password": "{{tt_service}}",
+                 "host": "{{postgresql_host}}",
+                 "port": 5432,
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
+
+    "log": {"level": "{{tt_log_level}}"},
+
+    "service": {"port": 80},
+
+    "django": {{tt_config.get('django')|to_nice_json}},
+
+    "custom": {{tt_config.get('custom')|to_nice_json}}
+}

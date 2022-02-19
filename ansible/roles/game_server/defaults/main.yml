@@ -1,0 +1,236 @@
+
+tt_domain: example.com
+tt_secret: null
+tt_version: null
+
+actual_configs: /root/the_tale/actual
+latest_configs: /root/the_tale/latest
+
+versions_configs: /root/the_tale/versions
+
+project_root: ../../../../
+
+release_version: "{{tt_version}}"
+full_version: "{{release_version}}.{{ansible_date_time.iso8601.replace(':', '-')}}"
+
+current_configs: "{{versions_configs}}/{{full_version}}"
+current_configs_docker: "{{current_configs}}/docker"
+current_configs_bin: "{{current_configs}}/bin"
+
+real_cron: /etc/cron.d/tt_cron
+actual_cron: "{{actual_configs}}/tt_cron"
+current_cron: "{{current_configs}}/tt_cron"
+
+tt_service_diary: {}
+tt_service_personal_messages: {}
+tt_service_storage: {}
+tt_service_market: {}
+tt_service_players_timers: {}
+tt_service_personal_impacts: {}
+tt_service_crowd_impacts: {}
+tt_service_job_impacts: {}
+tt_service_fame_impacts: {}
+tt_service_game_chronicle: {}
+tt_service_clans_chronicle: {}
+tt_service_money_spendings: {}
+tt_service_players_properties: {}
+tt_service_clans_properties: {}
+tt_service_matchmaker: {}
+tt_service_clans_currencies: {}
+tt_service_emissaries_impacts: {}
+tt_service_places_effects: {}
+tt_service_emissaries_events_currencies: {}
+tt_service_emissaries_events_uniquer: {}
+tt_service_discord: {}
+tt_service_data_protector: {}
+tt_service_xsolla: {}
+
+tt_services_configs_names: "{{ query('varnames', '^tt_service_.+') }}"
+
+tt_log_level: info
+
+postgresql_host: core-postgresql
+postgresql_maintenance_work_mem: 1024MB
+postgresql_max_worker_processes: 2
+
+rabbitmq_users: []
+
+
+site_xsolla_secret_key: ''
+
+site_payments_enable_real_payments: false
+
+site_payments_xsolla_enabled: false
+site_payments_xsolla_theme: 101
+site_payments_xsolla_project: null
+site_payments_xsolla_pid: null
+
+site_payments_xsolla_marketplace: 'paydesk'
+site_payments_xsolla_base_link: 'https://secure.xsolla.com/paystation2/'
+site_payments_xsolla_id_theme: 'theme'
+
+site_cdn_enabled: true
+
+site_social_vk_group_url: null
+site_social_twitter_group_url: null
+site_social_facebook_group_url: null
+
+site_social_developer_blog: null
+
+site_community_projects: []
+
+site_cards_tutorial: null
+
+site_owner: null
+
+site_secret_key: null
+
+site_ga_code: null
+site_mail_ru: null
+
+site_email_noreply: null
+site_email_support: null
+site_email_support_short: null
+
+site_sentry_raven_config: null
+
+site_discord_widget_url: null
+site_discord_invite_link: null
+
+
+backup_aws_region: null
+backup_aws_access_key_id: null
+backup_aws_secret_access_key: null
+backup_aws_s3_backet: null
+
+certbot_email: null
+
+postgresql_password: null
+
+datadog_api_key: null
+datadog_postgresql_password: null
+
+datadog_conf:
+  disk:
+    init_config: {}
+    instances:
+      - use_mount: false
+        include_allevices: false
+
+  nginx:
+    init_config: {}
+    instances:
+      - nginx_status_url: http://core-nginx:8888/nginx-status/
+
+  redisdb:
+    ad_identifiers:
+      - core-redis
+    init_config: {}
+    instances:
+      - host: core-redis
+        port: 6379
+
+  postgres:
+    init_config: {}
+    instances:
+      - host: core-postgresql
+        port: 5432
+        username: datadog
+        password: "{{datadog_postgres_password}}"
+
+  # postfix:
+  #   init_config: {}
+  #   instances:
+  #     - directory: /var/spool/postfix
+  #       queues:
+  #         - incoming
+  #         - active
+  #         - deferred
+
+  rabbitmq:
+    init_config: {}
+    instances:
+      - rabbitmq_api_url: http://core-rabbitmq:15672/api/
+        username: the_tale
+        password: "{{datadog_rabbitmq_password}}"
+
+
+ofelia_config:
+  job_run:
+    - schedule: "0 0 * * * *"
+      base_service: tasks-site-clans-sync-statistics
+
+    - schedule: "0 0 * * * *"
+      base_service: tasks-site-clans-give-points
+
+    - schedule: "0 0 0 * * *"
+      base_service: tasks-site-clans-reset-free-quests
+
+    - schedule: "0 1 * * * *"
+      base_service: tasks-site-emissaries-step
+
+    - schedule: "0 10 * * * *"
+      base_service: tasks-site-emissaries-remove-orphan-effects
+
+    - schedule: "0 */5 * * * *"
+      base_service: tasks-site-emissaries-monitoring
+
+    - schedule: "0 2 0 * * *"
+      base_service: tasks-site-emissaries-process-day
+
+    - schedule: "0 */10 * * * *"
+      base_service: tasks-site-bills-apply
+
+    - schedule: "0 0 * * * *"
+      base_service: tasks-site-game-highlevel-step
+
+    - schedule: "0 0 1 * * *"
+      base_service: tasks-site-portal-clean
+
+    - schedule: "0 0 2 * * *"
+      base_service: tasks-site-clearsessions
+
+    - schedule: "0 0 3 * * *"
+      base_service: tasks-site-personal-messages-remove-system-messages
+
+    - schedule: "0 0 4 * * *"
+      base_service: tasks-site-linguistics-clean-removed-templates
+
+    - schedule: "0 0 * * * *"
+      base_service: tasks-site-third-party-remove-expired-access-tokens
+
+    - schedule: "0 0 5 * * *"
+      base_service: tasks-site-statistics-complete
+
+    - schedule: "0 0 */4 * * *"
+      base_service: tasks-site-portal-refresh-cdns
+
+    - schedule: "0 0 6 * * *"
+      base_service: tasks-site-accounts-calculate-might
+
+    - schedule: "0 0 7 * * *"
+      base_service: tasks-site-ratings-recalculate-ratings
+
+    - schedule: "0 0 8 * * *"
+      base_service: tasks-site-portal-new-day-actions
+
+    - schedule: "0 30 * * * *"
+      base_service: tasks-site-accounts-send-premium-expired-notifications
+
+    - schedule: "0 3 * * * *"
+      base_service: tasks-site-places-monitor-protectorates
+
+    - schedule: "0 0 * * * *"
+      base_service: tasks-tt-personal-messages-clean
+
+    - schedule: "0 */5 * * * *"
+      base_service: tasks-tt-data-protector-process-tasks
+
+    - schedule: "0 0 * * * *"
+      base_service: tasks-tt-clans-currencies-rollback-hanged-transactions
+
+    - schedule: "0 0 3 * * *"
+      base_service: tasks-postgresql-backup-make-upload-cleanup
+
+    - schedule: "0 0 4 * * *"
+      base_service: tasks-certbot-create-or-renew-certificates

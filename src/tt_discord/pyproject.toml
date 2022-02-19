@@ -9,7 +9,12 @@ license = "BSD-3"
 [tool.poetry.dependencies]
 python = "^3.10"
 
-"discord.py" = "1.7.3"
+py-cord = "1.7.3"
+# nextcord = "2.0.0a3"
 
 tt_web = { path = "../tt_web/", develop = true }
 tt_protocol = { path = "../tt_protocol/", develop = true }
+
+[tool.poetry.extras]
+py-cord = ["speed"]
+# nextcord = ["speed"]

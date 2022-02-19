@@ -1,0 +1,33 @@
+- name: Copy compose configs
+  copy:
+    src: "{{project_root}}/docker/{{item}}"
+    dest: "{{current_configs_docker}}/{{item}}"
+  loop:
+    - docker-compose.templates.yml
+    - docker-compose.base.yml
+    - docker-compose.prod.yml
+    - .env
+
+- name: Copy base utilities
+  copy:
+    src: "{{project_root}}/bin/{{item}}"
+    dest: "{{current_configs_bin}}/{{item}}"
+    mode: u+rwx
+  loop:
+    - docker_compose.sh
+    - docker_compose_pull.sh
+    - check_and_info.sh
+    - defaults.env
+
+- name: Copy utilities
+  copy:
+    src: "{{item}}"
+    dest: "{{current_configs_bin}}/{{item|basename}}"
+    mode: u+rwx
+  with_fileglob:
+    - "{{project_root}}/bin/tt_*"
+
+- name: Render redefined variables
+  template:
+    src: ../templates/variables.env.j2
+    dest: "{{current_configs_bin}}/variables.env"

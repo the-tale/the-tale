@@ -1,0 +1,37 @@
+
+- name: Search services configs
+  set_fact:
+    tt_services_configs: "{{ tt_services_configs|default({}) | combine( {item.replace('tt_service_', 'tt_'): lookup('vars', item)} ) }}"
+  with_items: "{{ tt_services_configs_names }}"
+
+- name: Ensure tt services configs directories exists
+  file:
+    dest: "{{current_configs_docker}}/{{item}}"
+    state: directory
+  loop: "{{tt_services_configs.keys()}}"
+
+- name: Render tt service configs
+  template:
+    src: ../templates/json.j2
+    dest: "{{current_configs_docker}}/{{item}}/config.json"
+  loop: "{{tt_services_configs.keys()}}"
+  vars:
+    tt_service: "{{item}}"
+    tt_config: "{{tt_services_configs[item]}}"
+
+    full_json:
+      database:
+        name: "{{tt_service}}"
+        user: "{{tt_service}}"
+        password: "{{tt_service}}"
+        host: "{{postgresql_host}}"
+        port: 5432
+        minsize: 2
+        maxsize: 5
+        timeout: 60
+      log:
+        level: "{{tt_log_level}}"
+      service:
+        port: 80
+      django: "{{tt_config.get('django', {})}}"
+      custom: "{{tt_config.get('custom', {})}}"

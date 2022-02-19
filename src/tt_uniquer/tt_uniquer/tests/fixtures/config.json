@@ -2,7 +2,7 @@
     "database": {"name": "<replace>",
                  "user": "<replace>",
                  "password": "<replace>",
-                 "host": "core_postgresql",
+                 "host": "core-postgresql",
                  "port": 5432,
                  "minsize": 1,
                  "maxsize": 2,

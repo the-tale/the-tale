@@ -1,533 +1,302 @@
 version: "3.9"
 
-x-tt-service:
-  &default-tt-service
-
-  build:
-    &default-tt-service-build
-    context: ../
-    dockerfile: ./docker/tt_service/Dockerfile
-
-  ports:
-    - "80"
-
-  command: tt_run_service
-
-  stop_grace_period: 1s
-
-  environment:
-    TT_WAIT_TIMEOUT: $TT_WAIT_TIMEOUT
-
-  volumes:
-    - ${PWD}:/home/tt_service/repository
-
-  depends_on:
-    - core_postgresql
-
-  profiles:
-    - services
-
-  networks:
-    tt_network: {}
-
-x-the-tale:
-  &default-the-tale
-
-  build:
-    context: ../
-    dockerfile: ./docker/the_tale/Dockerfile
-
-  stop_grace_period: 1s
-
-  environment:
-    TT_WAIT_TIMEOUT: $TT_WAIT_TIMEOUT
-
-  volumes:
-    - ${PWD}:/home/tt_service/repository
-
-  image: the-tale/the-tale:latest
-
-  depends_on:
-    - core_postgresql
-    - core_redis
-    - core_rabbitmq
-
-  networks:
-    tt_network: {}
-
-x-the-tale-worker:
-  &default-the-tale-worker
-  << : *default-the-tale
-  command: tt_worker
-
-  stop_grace_period: 10s
-
-  profiles:
-    - workers
-
-  depends_on:
-    - site_migrations
-
-
 networks:
   tt_network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/16
 
 
 volumes:
-  tt_nginx_sertificates: {}
+  tt_site_static: {}
+  tt_certbot_well_known: {}
+  tt_certbot_storage: {}
 
 
 services:
 
-  core_postgresql:
-
-    build:
-      context: ./postgresql
-
-    image: the-tale/postgresql:latest
+  core-postgresql:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/core-postgresql:$TT_RELEASE_VERSION
 
     volumes:
-       - ${PWD}/docker/postgresql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
-       - ${PWD}/docker/postgresql/postgresql.$TT_ENV.conf:/etc/postgresql/postgresql.conf:ro
-
-    ports:
-      - "5432"
-
-    stop_grace_period: 1m
+       - $TT_CONFIGS_ROOT/postgresql/postgresql.$TT_ENV.conf:/etc/postgresql/postgresql.conf:ro
 
     environment:
-      TT_DATABASES: $TT_DATABASES
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: $TT_DB_ROOT_PASSWORD
+
+    labels:
+      com.datadoghq.tags.service: core-postgresql
 
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
 
-    networks:
-      tt_network: {}
+  core-redis:
 
-  utils_backup:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/core-redis:$TT_RELEASE_VERSION
 
-    build:
-      context: ./utils_backup
+    labels:
+      com.datadoghq.tags.service: core-redis
 
-    volumes:
-       - ${PWD}/docker/utils_backup/aws.config:/root/aws.config:ro
-       - ${PWD}/.backups:/backups/
+  core-rabbitmq:
 
-    stop_grace_period: 1m
-
-    environment:
-      TT_DATABASES: $TT_DATABASES
-      TT_S3_BACKET: "s3 backet name"
-
-    depends_on:
-      - core_postgresql
-
-    networks:
-      tt_network: {}
-
-    profiles:
-      - utils
-
-  core_redis:
-
-    build:
-      context: ./redis
-
-    stop_grace_period: 1m
-
-    ports:
-      - "6379"
-
-    networks:
-      tt_network: {}
-
-  core_rabbitmq:
-
-    build:
-      context: ./rabbitmq
-
-    stop_grace_period: 1m
-
-    ports:
-      - "5672"
+    image: $TT_CONTAINERS_REGISTRY/the-tale/core-rabbitmq:$TT_RELEASE_VERSION
 
     volumes:
-       - ${PWD}/docker/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
-       - ${PWD}/docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+       - $TT_CONFIGS_ROOT/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
 
-    networks:
-      tt_network: {}
+    labels:
+      com.datadoghq.tags.service: core-rabbitmq
 
-  core_nginx:
+  core-nginx:
 
-    build:
-      context: ./nginx
-
-    environment:
-      TT_SERVERS: "site temp_informer xsolla localhost"
+    image: $TT_CONTAINERS_REGISTRY/the-tale/core-nginx:$TT_RELEASE_VERSION
 
     stop_grace_period: 1s
 
-    volumes:
-      - ${PWD}/docker/nginx/templates:/nginx-config-templates:ro
-      - ${PWD}/docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ${PWD}/docker/nginx/config.$TT_ENV.json:/root/nginx_config.json
-      - tt_nginx_sertificates:/etc/nginx/certificates/
+    labels:
+      com.datadoghq.tags.service: core-nginx
 
-    # command: [nginx-debug, '-g', 'daemon off;']
+    volumes:
+      - $TT_CONFIGS_ROOT/nginx/config.$TT_ENV.json:/root/nginx_config.json:ro
+      - tt_certbot_well_known:/var/www/certbot/:ro
+      - tt_certbot_storage:/etc/letsencrypt/:ro
+      - tt_site_static:/var/www/site/:ro
 
     ports:
       - "80:80"
       - "443:443"
 
-    networks:
-      tt_network: {}
+  core-datadog:
+    image: gcr.io/datadoghq/agent:7
 
-  # base image for tt services
-  tt_base:
-    build:
-      context: ../
-      dockerfile: ./docker/common/Dockerfile
+  core-postfix:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/core-postfix:$TT_RELEASE_VERSION
 
-    image: the-tale/tt-base:latest
+  utils-postgresql: {}
 
-    entrypoint: []
+  utils-certbot: {}
 
+  utils-regenerate-protocol:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-regenerate-protocol:$TT_RELEASE_VERSION
+    command: tt_regenerate_protocol
+
+  utils-site-migrations:
     profiles:
-      - base_images
-
-    networks:
-      tt_network: {}
-
-  tt_diary:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_diary
-        - TT_PACKAGE=tt_diary
-
-  tt_personal_messages:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_personal_messages
-        - TT_PACKAGE=tt_personal_messages
-
-  tt_storage:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_storage
-        - TT_PACKAGE=tt_storage
-
-  tt_market:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_market
-        - TT_PACKAGE=tt_market
-
-  tt_players_timers:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_players_timers
-        - TT_PACKAGE=tt_timers
-
-  tt_personal_impacts:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_personal_impacts
-        - TT_PACKAGE=tt_impacts
-
-  tt_crowd_impacts:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_crowd_impacts
-        - TT_PACKAGE=tt_impacts
-
-  tt_job_impacts:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_job_impacts
-        - TT_PACKAGE=tt_impacts
-
-  tt_fame_impacts:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_fame_impacts
-        - TT_PACKAGE=tt_impacts
-
-  tt_game_chronicle:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_game_chronicle
-        - TT_PACKAGE=tt_events_log
-
-  tt_clans_chronicle:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_clans_chronicle
-        - TT_PACKAGE=tt_events_log
-
-  tt_money_spendings:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_money_spendings
-        - TT_PACKAGE=tt_impacts
-
-  tt_emissaries_impacts:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_emissaries_impacts
-        - TT_PACKAGE=tt_impacts
-
-  tt_players_properties:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_players_properties
-        - TT_PACKAGE=tt_properties
-
-  tt_clans_properties:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_clans_properties
-        - TT_PACKAGE=tt_properties
-
-  tt_matchmaker:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_matchmaker
-        - TT_PACKAGE=tt_matchmaker
-
-  tt_places_effects:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_places_effects
-        - TT_PACKAGE=tt_effects
-
-  tt_clans_currencies:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_clans_currencies
-        - TT_PACKAGE=tt_bank
-
-  tt_emissaries_events_currencies:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_emissaries_events_currencies
-        - TT_PACKAGE=tt_bank
-
-  tt_emissaries_events_uniquer:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_emissaries_events_uniquer
-        - TT_PACKAGE=tt_uniquer
-
-  tt_discord:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_discord
-        - TT_PACKAGE=tt_discord
-
-  tt_data_protector:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_data_protector
-        - TT_PACKAGE=tt_data_protector
-
-  tt_xsolla:
-    << : *default-tt-service
-
-    build:
-      << : *default-tt-service-build
-      args:
-        - TT_SERVICE=tt_xsolla
-        - TT_PACKAGE=tt_xsolla
-
-  site_migrations:
-    << : *default-the-tale
+      - workers
+      - site
 
     command: tt_django migrate
 
+  utils-site: {}
+
+  utils-site-generate-static:
+    command: tt_generate_static
+
+  tasks-manager-ofelia:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tasks-ofelia:$TT_RELEASE_VERSION
+
+    labels:
+      com.datadoghq.tags.service: tasks-ofelia
+
+    volumes:
+      - $TT_CONFIGS_ROOT/ofelia/config.ini:/etc/ofelia/config.ini:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  tt-diary:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-diary:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_diary/config.json:/home/tt_service/config.json
+
+  tt-personal-messages: {}
+
+  tt-storage:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-storage:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_storage/config.json:/home/tt_service/config.json
+
+  tt-market:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-market:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_market/config.json:/home/tt_service/config.json
+
+  tt-players-timers:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-timers:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_players_timers/config.json:/home/tt_service/config.json
+
+  tt-personal-impacts:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_personal_impacts/config.json:/home/tt_service/config.json
+
+  tt-crowd-impacts:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_crowd_impacts/config.json:/home/tt_service/config.json
+
+  tt-job-impacts:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_job_impacts/config.json:/home/tt_service/config.json
+
+  tt-fame-impacts:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_fame_impacts/config.json:/home/tt_service/config.json
+
+  tt-game-chronicle:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-events-log:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_game_chronicle/config.json:/home/tt_service/config.json
+
+  tt-clans-chronicle:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-events-log:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_clans_chronicle/config.json:/home/tt_service/config.json
+
+  tt-money-spendings:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_money_spendings/config.json:/home/tt_service/config.json
+
+  tt-emissaries-impacts:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_emissaries_impacts/config.json:/home/tt_service/config.json
+
+  tt-players-properties:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-properties:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_players_properties/config.json:/home/tt_service/config.json
+
+  tt-clans-properties:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-properties:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_clans_properties/config.json:/home/tt_service/config.json
+
+  tt-matchmaker:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-matchmaker:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_matchmaker/config.json:/home/tt_service/config.json
+
+  tt-places-effects:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-effects:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_places_effects/config.json:/home/tt_service/config.json
+
+  tt-clans-currencies: {}
+
+  tt-emissaries-events-currencies:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-bank:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_emissaries_events_currencies/config.json:/home/tt_service/config.json
+
+  tt-emissaries-events-uniquer:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-uniquer:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_emissaries_events_uniquer/config.json:/home/tt_service/config.json
+
+  tt-discord:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-discord:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_discord/config.json:/home/tt_service/config.json
+
+  tt-data-protector: {}
+
+  tt-xsolla:
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-xsolla:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_xsolla/config.json:/home/tt_service/config.json
+
   site:
-    << : *default-the-tale
-
     command: tt_site -b 0.0.0.0:80 -w 4
-
-    ports:
-      - "80"
 
     profiles:
       - site
 
-    depends_on:
-      - core_nginx
-      - site_migrations
+    labels:
+      org.the-tale.group: site
 
-  utils_site:
-    << : *default-the-tale
-
-    profiles:
-      - utils
-
-    depends_on:
-      - site_migrations
-
-  utils_regenerate_protocol:
-
-    build:
-      context: ../
-      dockerfile: ./docker/utils_regenerate_protocol/Dockerfile
-
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-    command: tt_regenerate_protocol
-
-    networks:
-      tt_network: {}
-
-    profiles:
-      - utils
-
-  worker_bank_processor:
-    << : *default-the-tale-worker
+  worker-bank-processor:
     environment:
       TT_WORKER: bank_processor
 
-  worker_xsolla_banker:
-    << : *default-the-tale-worker
+  worker-xsolla-banker:
     environment:
       TT_WORKER: xsolla_banker
 
-  worker_refrigerator:
-    << : *default-the-tale-worker
+  worker-refrigerator:
     environment:
       TT_WORKER: refrigerator
 
-  worker_message_sender:
-    << : *default-the-tale-worker
+  worker-message-sender:
     environment:
       TT_WORKER: message_sender
 
-  worker_items_manager:
-    << : *default-the-tale-worker
+  worker-items-manager:
     environment:
       TT_WORKER: items_manager
 
-  worker_linguistics_manager:
-    << : *default-the-tale-worker
+  worker-linguistics-manager:
     environment:
       TT_WORKER: linguistics_manager
 
-  worker_achievements_manager:
-    << : *default-the-tale-worker
+  worker-achievements-manager:
     environment:
       TT_WORKER: achievements_manager
 
     depends_on:
-      - worker_items_manager
+      - worker-items-manager
 
-  worker_turns_loop:
-    << : *default-the-tale-worker
+  worker-turns-loop:
     environment:
       TT_WORKER: turns_loop
 
-  worker_logic_1:
-    << : *default-the-tale-worker
+  worker-logic-1:
     environment:
       TT_WORKER: logic_1
 
     # service can be stopped only by worker_supervisor
     stop_grace_period: 8760h
 
-  worker_logic_2:
-    << : *default-the-tale-worker
+  worker-logic-2:
     environment:
       TT_WORKER: logic_2
 
     # service can be stopped only by worker_supervisor
     stop_grace_period: 8760h
 
-  worker_quests_generator:
-    << : *default-the-tale-worker
+  worker-quests-generator:
     environment:
       TT_WORKER: quests_generator
 
-  worker_quests_generator:
-    << : *default-the-tale-worker
-    environment:
-      TT_WORKER: quests_generator
-
-  worker_supervisor:
-    << : *default-the-tale-worker
+  worker-supervisor:
     environment:
       TT_WORKER: supervisor
 
     stop_grace_period: 1h
 
     depends_on:
-      - worker_logic_1
-      - worker_logic_2
+      - worker-logic-1
+      - worker-logic-2

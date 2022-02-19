@@ -37,7 +37,7 @@ DATABASES = {
         'NAME': 'the_tale',
         'USER': 'the_tale',
         'PASSWORD': 'the_tale',
-        'HOST': 'core_postgresql',
+        'HOST': 'core-postgresql',
         'PORT': '',
         'CONN_MAX_AGE': 60 * 60  # close connection after an hour
     }
@@ -75,9 +75,16 @@ CARDS_TUTORIAL = None
 X_FRAME_OPTIONS = 'DENY'
 
 ALLOWED_HOSTS = ['localhost',
-                 'site',  # host name in docker environment
+
                  'the-tale.org',
-                 '.the-tale.org']
+                 '.the-tale.org',
+
+                 # docker network
+                 'site',
+
+                 # test server
+                 'the-tale.com',
+                 '.the-tale.com']
 
 AUTH_USER_MODEL = 'accounts.Account'
 
@@ -271,7 +278,7 @@ else:
 # AMQP
 ###############################
 
-AMQP_BROKER_HOST = 'core_rabbitmq'
+AMQP_BROKER_HOST = 'core-rabbitmq'
 AMQP_BROKER_USER = 'the_tale'
 AMQP_BROKER_PASSWORD = 'the_tale'
 AMQP_BROKER_VHOST = '/the_tale'
@@ -289,13 +296,10 @@ if TESTS_RUNNING:
 ################
 
 CACHES = {'default': {'BACKEND': 'django_redis.cache.RedisCache',
-                      'LOCATION': 'redis://core_redis',
+                      'LOCATION': 'redis://core-redis',
                       'OPTIONS': {
                           'CLIENT_CLASS': 'django_redis.client.DefaultClient',
                           'SERIALIZER': 'django_redis.serializers.json.JSONSerializer'}}}
-
-
-MAINTENANCE_FILE = '/var/www/the_tale/maintenance.html'
 
 
 try:
@@ -342,7 +346,7 @@ STATICFILES_DIRS = [os.path.join(PROJECT_DIR, 'static')]
 
 STATIC_URL = '/static/%s/' % GAME_VERSION
 
-STATIC_ROOT = '/var/www/the_tale/static/%s/' % GAME_VERSION
+STATIC_ROOT = os.path.join(os.environ['TT_SITE_STATIC_DIR'], 'static', GAME_VERSION)
 
 CDN_DOMAIN = globals().get('CDN_DOMAIN', 'static.the-tale.org')
 
@@ -351,7 +355,7 @@ STATIC_CDN = '//%s/static/%s/' % (CDN_DOMAIN, GAME_VERSION)
 ADMIN_MEDIA_PREFIX = '%sadmin/' % STATIC_URL
 
 LESS_FILES_DIR = os.path.join(PROJECT_DIR, 'less')
-LESS_DEST_DIR = os.path.join(PROJECT_DIR, 'static', 'css')
+LESS_OUTPUT_DIR = os.path.join(STATIC_ROOT, 'css')
 
 CDNS_ENABLED = globals().get('CDNS_ENABLED', False)
 
@@ -363,6 +367,9 @@ CDNS = (('STATIC_TWITTER_BOOTSTRAP',
          STATIC_URL, STATIC_CDN,
          lambda: 'https:%simages/rss.png?_=%f' % (STATIC_CDN, time.time())),  # prevent url from caching for cases, when portal closed to 503
         )
+
+MAINTENANCE_PREDEFINED_FILE = os.path.join(PROJECT_DIR, 'static', 'maintenance.html')
+MAINTENANCE_FILE = '/var/www/site/maintenance.html'
 
 
 ############################

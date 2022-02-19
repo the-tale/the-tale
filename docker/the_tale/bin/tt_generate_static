@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+trap 'echo "\"${last_command}\" command failed with exit code $?."' ERR
+
+tt_wait_for_core
+
+# run before collectstatic
+tt_django game_generate_js --ignore-lock portal_commands
+
+tt_django collectstatic --clear --noinput
+
+tt_django less_generate_css --ignore-lock portal_commands

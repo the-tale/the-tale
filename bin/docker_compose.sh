@@ -1,9 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ "$TT_ENV" != "tests" ] && [ "$TT_ENV" != "stage" ];
+# load redefined variables, for example, in production environment
+if [ -f ./bin/variables.env ];
 then
-    echo "TT_ENV variable has wrong value: " $TT_ENV
-    exit 1
+    source ./bin/variables.env
 fi;
 
-DOCKER_BUILDKIT=1 docker-compose -f ./docker/docker-compose.base.yml -f ./docker/docker-compose.$TT_ENV.yml $@
+source ./bin/defaults.env
+
+./bin/check_and_info.sh
+
+docker compose -f ./docker/docker-compose.templates.yml \
+               -f ./docker/docker-compose.base.yml \
+               -f ./docker/docker-compose.$TT_ENV.yml \
+               $@

@@ -1,0 +1,38 @@
+
+- name: update packages
+  become: yes
+  apt:
+    update_cache: yes
+    upgrade: yes
+    autoremove: yes
+
+- name: bootstrap absolutely required packages
+  become: yes
+  apt:
+    name: "{{prerequired_packages}}"
+    state: latest
+
+- name: remove packages
+  become: yes
+  apt:
+    name: "{{removed_packages}}"
+    state: absent
+    purge: yes
+
+- name: install always required packages
+  become: yes
+  apt:
+    name: "{{required_packages}}"
+    state: latest
+
+- name: install additional packages
+  become: yes
+  apt:
+    name: "{{additional_packages}}"
+    state: latest
+
+- name: clean packages
+  become: yes
+  apt:
+    autoclean: yes
+    autoremove: yes

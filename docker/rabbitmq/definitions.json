@@ -13,6 +13,6 @@
               "limits":{},
               "name":"the_tale",
               "password_hash":"aKAD0UKdT0G82l7dMUiQWviLykjp7AzBCRg+LD42geY7NIb1",
-              "tags":[]}],
+              "tags":["monitoring"]}],
     "vhosts":[{"limits":[],"metadata":{"description":"","tags":[]},"name":"/the_tale"}]
 }

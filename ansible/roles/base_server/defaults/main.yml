@@ -1,0 +1,27 @@
+prerequired_packages:
+  - aptitude
+  - apt-transport-https
+
+required_packages:
+  - python3-pip # requred by Ubuntu, usage of other pip installation can potentialy broke system
+
+removed_packages: []
+
+additional_packages:
+  - screen
+  - emacs
+
+base_packages_enabled: yes
+
+configure_system_enabled: yes
+
+docker_enabled: yes
+docker_key: https://download.docker.com/linux/ubuntu/gpg
+docker_repository: https://download.docker.com/linux/ubuntu
+docker_compose_version: v2.1.1
+docker_compose_binary_url: "https://github.com/docker/compose/releases/download/{{docker_compose_version}}/docker-compose-linux-x86_64"
+docker_compose_binary_path: /usr/libexec/docker/cli-plugins/docker-compose
+
+postgresql_password: null
+
+configure_environment_enabled: yes

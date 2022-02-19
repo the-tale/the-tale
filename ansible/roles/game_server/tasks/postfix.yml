@@ -1,0 +1,15 @@
+- name: Ensure postfix configs directory exists
+  file:
+    dest: "{{current_configs_docker}}/{{item}}"
+    state: directory
+  loop:
+    - postfix
+
+- name: Render postfix configs
+  template:
+    src: ../templates/json.j2
+    dest: "{{current_configs_docker}}/postfix/config.prod.json"
+  vars:
+    full_json:
+      domain: "{{tt_domain}}"
+      virtual_aliases: {}

@@ -2,7 +2,7 @@
     "database": {"name": "tt_personal_messages",
                  "user": "tt_personal_messages",
                  "password": "tt_personal_messages",
-                 "host": "core_postgresql",
+                 "host": "core-postgresql",
                  "port": 5432,
                  "minsize": 2,
                  "maxsize": 5,

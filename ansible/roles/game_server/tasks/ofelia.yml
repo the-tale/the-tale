@@ -1,0 +1,12 @@
+- name: Ensure ofeila configs directories exists
+  file:
+    dest: "{{current_configs_docker}}/{{item}}"
+    state: directory
+  loop:
+    - ofelia
+
+
+- name: Render ofeila config
+  template:
+    src: ../templates/ofelia.ini.j2
+    dest: "{{current_configs_docker}}/ofelia/config.ini"

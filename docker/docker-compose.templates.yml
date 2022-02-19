@@ -1,0 +1,428 @@
+# define services sceletons with help of yaml templating
+
+version: "3.9"
+
+
+x-site-image: &default-site-image
+  image: $TT_CONTAINERS_REGISTRY/the-tale/site:$TT_RELEASE_VERSION
+
+
+x-common: &default-common
+
+  environment: &default-common-environment
+    TT_WAIT_TIMEOUT: $TT_WAIT_TIMEOUT
+    TT_SITE_STATIC_DIR: $TT_SITE_STATIC_DIR
+    TT_SERVERS: $TT_SERVERS
+    TT_DOMAINS: $TT_DOMAINS
+
+  networks:
+    tt_network: {}
+
+x-core: &default-core
+  << : *default-common
+
+  labels:
+    org.the-tale.group: core
+    com.datadoghq.tags.env: $TT_ENV
+    com.datadoghq.tags.version: $TT_VERSION
+
+  stop_grace_period: 1m
+
+  profiles:
+    - core
+
+x-utils: &default-utils
+  << : *default-common
+
+  stop_grace_period: 1m
+
+  labels:
+    org.the-tale.group: utils
+    com.datadoghq.tags.env: $TT_ENV
+    com.datadoghq.tags.version: $TT_VERSION
+
+  volumes:
+    # all utils containers must has access to static files foulder
+    # they determine maintenance mode with its help
+    - tt_site_static:/var/www/site/
+
+  profiles:
+    - utils
+
+x-tt-service: &default-tt-service
+  << : *default-common
+
+  labels:
+    org.the-tale.group: services
+
+  command: tt_run_service
+
+  stop_grace_period: 1s
+
+  profiles:
+    - services
+
+x-the-tale: &default-the-tale
+  << : *default-common
+  << : *default-site-image
+
+  stop_grace_period: 1s
+
+  volumes:
+    # all site containers must has access to static files foulder
+    # they determine maintenance mode with its help
+    - tt_site_static:/var/www/site/
+    - $TT_CONFIGS_ROOT/the_tale/settings_local.py:/home/tt_service/repository/src/the_tale/the_tale/settings_local.py
+
+x-the-tale-worker: &default-the-tale-worker
+  << : *default-the-tale
+
+  command: tt_worker
+
+  stop_grace_period: 10s
+
+  profiles:
+    - workers
+
+  labels:
+    org.the-tale.group: workers
+
+  depends_on:
+    - utils-site-migrations
+
+
+x-tasks: &default-tasks-manager
+  << : *default-common
+
+  stop_grace_period: 24h
+
+  labels:
+    org.the-tale.group: tasks
+    com.datadoghq.tags.env: $TT_ENV
+    com.datadoghq.tags.version: $TT_VERSION
+
+  profiles:
+    - tasks-manager
+
+
+x-tasks: &default-tasks
+  << : *default-common
+
+  stop_grace_period: 24h
+
+  labels:
+    org.the-tale.group: tasks
+    com.datadoghq.tags.env: $TT_ENV
+    com.datadoghq.tags.version: $TT_VERSION
+
+  profiles:
+    - tasks
+
+
+x-tasks-site: &default-tasks-site
+  << : *default-tasks
+  << : *default-site-image
+
+  volumes:
+    # all utils containers must has access to static files foulder
+    # they determine maintenance mode with its help
+    - tt_site_static:/var/www/site/
+
+
+x-tt-personal-messages: &default-tt-personal-messages
+  image: $TT_CONTAINERS_REGISTRY/the-tale/tt-personal-messages:$TT_RELEASE_VERSION
+
+  volumes:
+    - $TT_CONFIGS_ROOT/tt_personal_messages/config.json:/home/tt_service/config.json
+
+
+x-tt-clans-currencies: &default-tt-clans-currencies
+    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-bank:$TT_RELEASE_VERSION
+
+    volumes:
+      - $TT_CONFIGS_ROOT/tt_clans_currencies/config.json:/home/tt_service/config.json
+
+
+x-tt-data-protector: &default-tt-data-protector
+  image: $TT_CONTAINERS_REGISTRY/the-tale/tt-data-protector:$TT_RELEASE_VERSION
+
+  volumes:
+    - $TT_CONFIGS_ROOT/tt_data_protector/config.json:/home/tt_service/config.json
+
+
+x-utils-postgresql: &default-utils-postgresql
+    << : *default-utils
+
+    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-postgresql:$TT_RELEASE_VERSION
+
+    volumes:
+       - $TT_CONFIGS_ROOT/utils_postgresql/aws.config:/root/aws.config:ro
+
+    environment:
+      << : *default-common-environment
+
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: $TT_DB_ROOT_PASSWORD
+      TT_DATABASES: $TT_DATABASES
+      TT_S3_BACKET: $TT_BACKUP_S3_BACKET
+      TT_DATADOG_POSTGRESQL_USER: $TT_DATADOG_POSTGRESQL_USER
+      TT_DATADOG_POSTGRESQL_PASSWORD: $TT_DATADOG_POSTGRESQL_PASSWORD
+
+
+# https://mindsers.blog/post/https-using-nginx-certbot-docker/
+x-utils-certbot: &default-utils-certbot
+    << : *default-utils
+
+    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-certbot:$TT_RELEASE_VERSION
+
+    volumes:
+      - tt_certbot_well_known:/var/www/certbot/
+      - tt_certbot_storage:/etc/letsencrypt/
+      - $TT_CONFIGS_ROOT/utils_certbot/cli.ini:/etc/letsencrypt/cli.ini:ro
+
+
+services:
+
+  core-postgresql:
+    << : *default-core
+
+  core-redis:
+    << : *default-core
+
+  core-rabbitmq:
+    << : *default-core
+
+  core-nginx:
+    << : *default-core
+
+  core-postfix:
+    << : *default-core
+
+  core-datadog:
+    << : *default-core
+
+  tasks-manager-ofelia:
+    << : *default-tasks-manager
+
+  utils-postgresql:
+    << : *default-utils-postgresql
+
+  utils-certbot:
+    << : *default-utils-certbot
+
+  utils-site:
+    << : *default-utils
+    << : *default-site-image
+
+  utils-site-migrations:
+    << : *default-utils
+    << : *default-site-image
+
+  utils-site-generate-static:
+    << : *default-utils
+    << : *default-site-image
+
+  utils-regenerate-protocol:
+    << : *default-utils
+
+  tt-diary:
+    << : *default-tt-service
+
+  tt-personal-messages:
+    << : *default-tt-service
+    << : *default-tt-personal-messages
+
+  tt-storage:
+    << : *default-tt-service
+
+  tt-market:
+    << : *default-tt-service
+
+  tt-players-timers:
+    << : *default-tt-service
+
+  tt-personal-impacts:
+    << : *default-tt-service
+
+  tt-crowd-impacts:
+    << : *default-tt-service
+
+  tt-job-impacts:
+    << : *default-tt-service
+
+  tt-fame-impacts:
+    << : *default-tt-service
+
+  tt-game-chronicle:
+    << : *default-tt-service
+
+  tt-clans-chronicle:
+    << : *default-tt-service
+
+  tt-money-spendings:
+    << : *default-tt-service
+
+  tt-emissaries-impacts:
+    << : *default-tt-service
+
+  tt-players-properties:
+    << : *default-tt-service
+
+  tt-clans-properties:
+    << : *default-tt-service
+
+  tt-matchmaker:
+    << : *default-tt-service
+
+  tt-places-effects:
+    << : *default-tt-service
+
+  tt-clans-currencies:
+    << : *default-tt-service
+    << : *default-tt-clans-currencies
+
+  tt-emissaries-events-currencies:
+    << : *default-tt-service
+
+  tt-emissaries-events-uniquer:
+    << : *default-tt-service
+
+  tt-discord:
+    << : *default-tt-service
+
+  tt-data-protector:
+    << : *default-tt-service
+    << : *default-tt-data-protector
+
+  tt-xsolla:
+    << : *default-tt-service
+
+  site:
+    << : *default-the-tale
+
+  worker-bank-processor:
+    << : *default-the-tale-worker
+
+  worker-xsolla-banker:
+    << : *default-the-tale-worker
+
+  worker-refrigerator:
+    << : *default-the-tale-worker
+
+  worker-message-sender:
+    << : *default-the-tale-worker
+
+  worker-items-manager:
+    << : *default-the-tale-worker
+
+  worker-linguistics-manager:
+    << : *default-the-tale-worker
+
+  worker-achievements-manager:
+    << : *default-the-tale-worker
+
+  worker-turns-loop:
+    << : *default-the-tale-worker
+
+  worker-logic-1:
+    << : *default-the-tale-worker
+
+  worker-logic-2:
+    << : *default-the-tale-worker
+
+  worker-quests-generator:
+    << : *default-the-tale-worker
+
+  worker-supervisor:
+    << : *default-the-tale-worker
+
+  tasks-site-clans-sync-statistics:
+    << : *default-tasks-site
+
+  tasks-site-clans-give-points:
+    << : *default-tasks-site
+
+  tasks-site-clans-reset-free-quests:
+    << : *default-tasks-site
+
+  tasks-site-emissaries-step:
+    << : *default-tasks-site
+
+  tasks-site-emissaries-remove-orphan-effects:
+    << : *default-tasks-site
+
+  tasks-site-emissaries-monitoring:
+    << : *default-tasks-site
+
+  tasks-site-emissaries-process-day:
+    << : *default-tasks-site
+
+  tasks-site-bills-apply:
+    << : *default-tasks-site
+
+  tasks-site-game-highlevel-step:
+    << : *default-tasks-site
+
+  tasks-site-portal-clean:
+    << : *default-tasks-site
+
+  tasks-site-clearsessions:
+    << : *default-tasks-site
+
+  tasks-site-personal-messages-remove-system-messages:
+    << : *default-tasks-site
+
+  tasks-site-linguistics-clean-removed-templates:
+    << : *default-tasks-site
+
+  tasks-site-third-party-remove-expired-access-tokens:
+    << : *default-tasks-site
+
+  tasks-site-statistics-complete:
+    << : *default-tasks-site
+
+  tasks-site-portal-refresh-cdns:
+    << : *default-tasks-site
+
+  tasks-site-accounts-calculate-might:
+    << : *default-tasks-site
+
+  tasks-site-ratings-recalculate-ratings:
+    << : *default-tasks-site
+
+  tasks-site-portal-new-day-actions:
+    << : *default-tasks-site
+
+  tasks-site-accounts-send-premium-expired-notifications:
+    << : *default-tasks-site
+
+  tasks-site-places-monitor-protectorates:
+    << : *default-tasks-site
+
+  tasks-tt-personal-messages-clean:
+    << : *default-tasks
+    << : *default-tt-personal-messages
+
+  tasks-tt-data-protector-process-tasks:
+    << : *default-tasks
+    << : *default-tt-data-protector
+
+  tasks-tt-clans-currencies-rollback-hanged-transactions:
+    << : *default-tasks
+    << : *default-tt-clans-currencies
+
+  tasks-postgresql-backup-make-upload-cleanup:
+    << : *default-tasks
+    << : *default-utils-postgresql
+
+    profiles:
+      - tasks
+      - utils
+
+  tasks-certbot-create-or-renew-certificates:
+    << : *default-tasks
+    << : *default-utils-certbot
+
+    profiles:
+      - tasks
+      - utils

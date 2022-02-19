@@ -1,0 +1,12 @@
+
+- name: Ensure cerbot configs directory exists
+  file:
+    dest: "{{current_configs_docker}}/{{item}}"
+    state: directory
+  loop:
+    - utils_certbot
+
+- name: Render certbot config
+  template:
+    src: ../templates/certbot_cli.ini.j2
+    dest: "{{current_configs_docker}}/utils_certbot/cli.ini"

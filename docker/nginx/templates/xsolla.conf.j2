@@ -4,7 +4,7 @@
 
 server {
         {{ macroses.common(current_domain) }}
-        {{ macroses.ssl("xsolla") }}
+        {{ macroses.ssl(current_domain) }}
         {{ macroses.gzip() }}
 
         location ~ ^/xsolla-hook/(.*)$ {
@@ -14,4 +14,6 @@ server {
             allow 185.30.21.0/24;
             deny  all;
         }
+
+        {{ macroses.location_certbot() }}
 }

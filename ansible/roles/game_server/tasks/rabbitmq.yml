@@ -1,0 +1,25 @@
+- name: Ensure rabbitmq configs directory exists
+  file:
+    dest: "{{current_configs_docker}}/{{item}}"
+    state: directory
+  loop:
+    - rabbitmq
+
+- name: Render rabbitmq destinations
+  template:
+    src: ../templates/json.j2
+    dest: "{{current_configs_docker}}/rabbitmq/definitions.json"
+  vars:
+    full_json:
+      rabbit_version: "3.9.7"
+      rabbitmq_version: "3.9.7"
+      bindings: []
+      exchanges: []
+      global_parameters: []
+      parameters: []
+      permissions: [{"configure":".*","read":".*","user":"the_tale","vhost":"/the_tale","write":".*"}]
+      policies: []
+      queues: []
+      topic_permissions: []
+      users: "{{rabbitmq_users}}"
+      vhosts: [{"limits":[],"metadata":{"description":"","tags":[]},"name":"/the_tale"}]

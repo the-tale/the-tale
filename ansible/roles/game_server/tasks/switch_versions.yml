@@ -1,0 +1,44 @@
+
+- name: Check if new configs exist
+  stat:
+    path: "{{current_configs}}"
+  register: current_configs_dir_info
+
+- name: Check if we can switch versions
+  fail:
+    msg: "No configs found at: {{current_configs}}"
+  when: not current_configs_dir_info.stat.exists
+
+- name: Check if actual configs exist
+  stat:
+    path: "{{actual_configs}}"
+  register: actual_configs_dir_info
+
+- name: Ensure, that core services running (required for maintanance mode)
+  shell: "cd '{{actual_configs}}' && ./bin/tt_infrastructure_start"
+  when: actual_configs_dir_info.stat.exists
+
+- name: Turn on maintainance
+  shell: "cd '{{actual_configs}}' && ./bin/tt_maintenance_on"
+  when: actual_configs_dir_info.stat.exists
+
+- name: Stop game
+  shell: "cd '{{actual_configs}}' && ./bin/tt_game_stop"
+  when: actual_configs_dir_info.stat.exists
+
+- name: Stop infrasturcture
+  shell: "cd '{{actual_configs}}' && ./bin/tt_infrastructure_stop"
+  when: actual_configs_dir_info.stat.exists
+
+- name: Switch actual configs version
+  file:
+    src: "{{current_configs}}"
+    dest: "{{actual_configs}}"
+    state: link
+
+- name: Up game infrastructure
+  shell: "cd '{{actual_configs}}' && ./bin/tt_infrastructure_start"
+
+- name: Warn about stopped game
+  debug:
+    msg: Game is stopped and on maintainance, you MUST start it manually and turn maintenance off

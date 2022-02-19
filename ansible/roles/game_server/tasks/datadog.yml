@@ -1,0 +1,22 @@
+
+- name: Ensure datadog configs directories exists
+  file:
+    dest: "{{current_configs_docker}}/{{item}}"
+    state: directory
+  loop:
+    - datadog
+    - datadog/conf.d
+
+- name: Prepare datadog configs directories
+  file:
+    dest: "{{current_configs_docker}}/datadog/conf.d/{{item}}.d"
+    state: directory
+  loop: "{{datadog_conf.keys()}}"
+
+- name: Render datadog configs
+  template:
+    src: ../templates/yaml.j2
+    dest: "{{current_configs_docker}}/datadog/conf.d/{{item[0]}}.d/conf.yaml"
+  loop: "{{datadog_conf.items()}}"
+  vars:
+    full_json: "{{item[1]}}"

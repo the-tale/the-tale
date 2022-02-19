@@ -2,7 +2,7 @@
     "database": {"name": "tt_emissaries_events_uniquer",
                  "user": "tt_emissaries_events_uniquer",
                  "password": "tt_emissaries_events_uniquer",
-                 "host": "core_postgresql",
+                 "host": "core-postgresql",
                  "port": 5432,
                  "minsize": 2,
                  "maxsize": 5,

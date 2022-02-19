@@ -1,0 +1,14 @@
+- hosts: all
+
+  roles:
+    - role: geerlingguy.firewall
+      vars:
+        firewall_allowed_tcp_ports:
+          - "22"   # ssh
+          - "25"   # postfix (incoming mail)
+          - "80"   # http
+          - "443"  # https
+
+        firewall_allowed_udp_ports: []
+
+    - base_server

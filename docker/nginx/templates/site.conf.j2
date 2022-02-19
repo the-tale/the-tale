@@ -4,7 +4,7 @@
 
 server {
         {{ macroses.common(tt_domain) }}
-        {{ macroses.ssl("site") }}
+        {{ macroses.ssl(tt_domain) }}
         {{ macroses.gzip() }}
 
         if ($host != "{{tt_domain}}") {
@@ -19,21 +19,19 @@ server {
         # TODO: change proxy_pass logic
         #       regular expressions — not fastest way to rout requests
         location ~ ^/(.*)$ {
-            # TODO: change maintenance logic
-            if (-f /var/www/the_tale/maintenance.html) {
+            if (-f /var/www/site/maintenance.html) {
                    return 503;
             }
 
             {{ macroses.proxy_config("site", "/") }}
         }
 
-        # TODO: rewrite paths
         {% if not tt_test_enviroment %}
-        location /static/ {
-            if (-f /var/www/the_tale/maintenance.html) {
+        location ^~ /static/ {
+            if (-f /var/www/site/maintenance.html) {
                    return 503;
             }
-            root         /var/www/the_tale/;
+            root         /var/www/site/;
             access_log   off;
             expires      30d;
         }
@@ -41,10 +39,11 @@ server {
 
         {{ macroses.location_robots_txt() }}
 
-         # TODO: change maintenance logic
+        {{ macroses.location_certbot() }}
+
         error_page 503 /maintenance.html;
-        location =/maintenance.html {
-            root /var/www/the_tale;
+        location = /maintenance.html {
+            root /var/www/site;
             internal;
         }
 }

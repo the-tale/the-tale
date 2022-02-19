@@ -1,0 +1,16 @@
+listen_addresses = '*'
+max_connections = 200
+
+superuser_reserved_connections = 3
+
+shared_buffers = {{(ansible_memtotal_mb*0.1)|int}}MB  # 10% of RAM
+
+work_mem = 32MB
+
+maintenance_work_mem = {{postgresql_maintenance_work_mem}}
+max_worker_processes = {{postgresql_max_worker_processes}}
+
+fsync = on
+
+synchronous_commit = off
+max_wal_size = 4GB
