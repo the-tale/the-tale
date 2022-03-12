@@ -90,7 +90,7 @@ python-versions = ">=3.6,<4.0"
 
 [[package]]
 name = "django"
-version = "3.2.9"
+version = "3.2.12"
 description = "A high-level Python Web framework that encourages rapid development and clean, pragmatic design."
 category = "main"
 optional = false
@@ -510,7 +510,7 @@ test = ["pytest", "pytest-cov"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "8faa463f2939493ff9265961814a1ce4ef7a66875d98cb41aa36142b2b765a82"
+content-hash = "15314800edd003ef8562675e91e1a3a4946adb83f8291488dcf812235cda1681"
 
 [metadata.files]
 amqp = [
@@ -603,8 +603,8 @@ deworld = [
     {file = "deworld-0.2.3.tar.gz", hash = "sha256:3efdc365068d8ae7e4b7796112f97578cdd1f166a8780973063073e41f0583d6"},
 ]
 django = [
-    {file = "Django-3.2.9-py3-none-any.whl", hash = "sha256:e22c9266da3eec7827737cde57694d7db801fedac938d252bf27377cec06ed1b"},
-    {file = "Django-3.2.9.tar.gz", hash = "sha256:51284300f1522ffcdb07ccbdf676a307c6678659e1284f0618e5a774127a6a08"},
+    {file = "Django-3.2.12-py3-none-any.whl", hash = "sha256:9b06c289f9ba3a8abea16c9c9505f25107809fb933676f6c891ded270039d965"},
+    {file = "Django-3.2.12.tar.gz", hash = "sha256:9772e6935703e59e993960832d66a614cf0233a1c5123bc6224ecc6ad69e41e2"},
 ]
 django-redis = [
     {file = "django-redis-5.0.0.tar.gz", hash = "sha256:048f665bbe27f8ff2edebae6aa9c534ab137f1e8fa7234147ef470df3f3aa9b8"},
