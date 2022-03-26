@@ -106,7 +106,6 @@ SECRET_KEY = 'test secret key, must be replaced'
 TT_SECRET = 'test.secret'
 
 GA_CODE = None
-MAIL_RU = None
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
