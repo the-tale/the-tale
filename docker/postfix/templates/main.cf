@@ -45,4 +45,4 @@ local_recipient_maps =
 virtual_alias_domains = $mydomain
 virtual_alias_maps = hash:/etc/postfix/virtual
 
-smtpd_relay_restrictions = permit_mynetworks, reject
+smtpd_relay_restrictions = permit_auth_destination, permit_mynetworks, reject
