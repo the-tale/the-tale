@@ -10,6 +10,4 @@
     src: ../templates/json.j2
     dest: "{{current_configs_docker}}/postfix/config.prod.json"
   vars:
-    full_json:
-      domain: "{{tt_domain}}"
-      virtual_aliases: {}
+    full_json: "{{postfix_config}}"

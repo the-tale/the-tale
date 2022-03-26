@@ -110,6 +110,10 @@ postgresql_password: null
 datadog_api_key: null
 datadog_postgresql_password: null
 
+postfix_config:
+  domain: "{{tt_domain}}"
+  virtual_aliases: []
+
 datadog_conf:
   disk:
     init_config: {}

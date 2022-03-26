@@ -6,6 +6,7 @@ SERVER_EMAIL = 'admin@{{tt_domain}}'
 ADMINS = (('Администратор', SERVER_EMAIL),)
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'core-postfix'
 
 EMAIL_HOST_USER = 'no-reply@{{tt_domain}}'
 
@@ -48,7 +49,6 @@ OWNER = {{site_owner|repr}}
 SECRET_KEY = {{site_secret_key|repr}}
 
 GA_CODE = {{site_ga_code|repr}}
-MAIL_RU = {{site_mail_ru|repr}}
 
 # падает sentry, если указать такую почту
 # SERVER_EMAIL = '«Сказка»: системное сообщение <no-reply@the-tale.org>'
