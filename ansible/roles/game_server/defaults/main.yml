@@ -69,6 +69,8 @@ site_payments_xsolla_marketplace: 'paydesk'
 site_payments_xsolla_base_link: 'https://secure.xsolla.com/paystation2/'
 site_payments_xsolla_id_theme: 'theme'
 
+site_payments_xsolla_sandbox: true
+
 site_cdn_enabled: true
 
 site_social_vk_group_url: null

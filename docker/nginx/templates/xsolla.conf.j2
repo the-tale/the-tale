@@ -7,8 +7,8 @@ server {
         {{ macroses.ssl(current_domain) }}
         {{ macroses.gzip() }}
 
-        location ~ ^/xsolla-hook/(.*)$ {
-            {{ macroses.proxy_config("tt_xsolla", "/xsolla-hook/") }}
+        location /xsolla-hook {
+            {{ macroses.proxy_config("tt-xsolla", "/xsolla-hook") }}
 
             allow 185.30.20.0/24;
             allow 185.30.21.0/24;
