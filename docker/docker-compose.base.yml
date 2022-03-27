@@ -73,6 +73,9 @@ services:
   core-postfix:
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-postfix:$TT_RELEASE_VERSION
 
+    ports:
+      - "25:25"
+
   utils-postgresql: {}
 
   utils-certbot: {}

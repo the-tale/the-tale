@@ -45,6 +45,7 @@ x-utils: &default-utils
     # all utils containers must has access to static files foulder
     # they determine maintenance mode with its help
     - tt_site_static:/var/www/site/
+    - $TT_CONFIGS_ROOT/the_tale/settings_local.py:/home/tt_service/repository/src/the_tale/the_tale/settings_local.py
 
   profiles:
     - utils

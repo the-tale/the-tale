@@ -57,7 +57,9 @@ server {
 {% macro proxy_config(domain, location, port=80) %}
             resolver 127.0.0.11 valid=1s;
 
-            set $tt_var_{{domain}} {{domain}};
+            {% set domain_var = "$tt_var_" + domain.replace("-", "_") %}
+
+            set {{domain_var}} {{domain}};
 
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto https;
@@ -67,7 +69,7 @@ server {
             proxy_redirect off;
 
             # TODO: change proxy_pass logic
-            proxy_pass http://$tt_var_{{domain}}:{{port}}{{location}}$1$is_args$args;
+            proxy_pass http://{{domain_var}}:{{port}}{{location}}$1$is_args$args;
 {% endmacro %}
 
 
