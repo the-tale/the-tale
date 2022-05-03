@@ -56,7 +56,7 @@ def quest_result_formatter(value):
 
     for change, direction in value.items():
         if change == questgen_quests_base_quest.RESULTS.SUCCESSED:
-            changes.append(('усех', direction.text))
+            changes.append(('успех', direction.text))
             continue
 
         if change == questgen_quests_base_quest.RESULTS.FAILED:
@@ -111,7 +111,7 @@ class ATTRIBUTE(game_attributes.ATTRIBUTE):
                                     apply=lambda a, b: (a.update(b) or a),
                                     formatter=quest_result_formatter,
                                     serializer=quest_result_serialize, deserializer=quest_result_deserialize),
-               game_attributes.attr('TERRAIN_POWER', 1, 'сила влияния на ланшафт',
+               game_attributes.attr('TERRAIN_POWER', 1, 'сила влияния на ландшафт',
                                     verbose_units='%', formatter=game_attributes.percents_formatter),
                game_attributes.attr('TERRAIN_RADIUS_BONUS', 2, 'бонус к радиусу влияния города на ландшафт'),
                game_attributes.attr('PLACES_HELP_AMOUNT', 3, 'известность за задания',
@@ -121,9 +121,9 @@ class ATTRIBUTE(game_attributes.ATTRIBUTE):
                                     description='дополнительное влияние, если герой выполнил задание в пользу Мастера. Все бонусы к влиянию суммируются и применяются как модификатор к влиянию от задания.'),
                game_attributes.attr('EXPERIENCE_BONUS', 5, 'бонус к опыту',
                                     verbose_units='%', formatter=game_attributes.percents_formatter),
-               game_attributes.attr('ON_PROFITE_REWARD_BONUS', 6, 'бонус к наградами за задания',
+               game_attributes.attr('ON_PROFITE_REWARD_BONUS', 6, 'бонус к наградам за задания',
                                     verbose_units='%', formatter=game_attributes.percents_formatter,
-                                    description='Бонус к наградами за задания, если Мастер получает выгоду.'),
+                                    description='Бонус к наградам за задания, если Мастер получает выгоду.'),
                game_attributes.attr('FRIENDS_QUESTS_PRIORITY_BONUS', 7,
                                     'бонус к вероятности соратникам получить задание, связанное с Мастером',
                                     verbose_units='%', formatter=game_attributes.percents_formatter),
@@ -133,7 +133,7 @@ class ATTRIBUTE(game_attributes.ATTRIBUTE):
                game_attributes.attr('POLITIC_RADIUS_BONUS', 9, 'бонус к радиусу влияния города'),
                game_attributes.attr('STABILITY_BONUS', 10, 'бонус к стабильности в городе',
                                     verbose_units='%', formatter=game_attributes.percents_formatter),
-               game_attributes.attr('BUILDING_SUPPORT_COST', 11, 'стоимость поддержи здания Мастера городом'),
+               game_attributes.attr('BUILDING_SUPPORT_COST', 11, 'стоимость поддержки здания Мастера городом'),
                game_attributes.attr('RESET_RELIGION_CEREMONY_TIMEOUT_ON_REWARD', 12, 'обряд в честь Хранителя',
                                     description='Вероятность провести обряд в честь Хранителя, если Мастер получает выгоду'),
                game_attributes.attr('JOB_POWER_BONUS', 13, 'бонус к эффекту проектов Мастера',
@@ -142,9 +142,9 @@ class ATTRIBUTE(game_attributes.ATTRIBUTE):
                                     default=dict, apply=lambda a, b: (a.update(b) or a),
                                     formatter=job_group_priority_formatter,
                                     serializer=job_group_priority_serialize, deserializer=job_group_priority_deserialize),
-               game_attributes.attr('SOCIAL_RELATIONS_PARTNERS_POWER_MODIFIER', 15, 'бонус к влияния для партнёров',
+               game_attributes.attr('SOCIAL_RELATIONS_PARTNERS_POWER_MODIFIER', 15, 'бонус к влиянию для партнёров',
                                     verbose_units='%', formatter=game_attributes.percents_formatter),
-               game_attributes.attr('SOCIAL_RELATIONS_CONCURRENTS_POWER_MODIFIER', 16, 'бонус к влияюнию для конкурентов',
+               game_attributes.attr('SOCIAL_RELATIONS_CONCURRENTS_POWER_MODIFIER', 16, 'бонус к влиянию для конкурентов',
                                     verbose_units='%', formatter=game_attributes.percents_formatter),
                game_attributes.attr('DEMOGRAPHICS_PRESSURE', 17, 'демографическое давление',
                                     verbose_units='%', formatter=game_attributes.percents_formatter))

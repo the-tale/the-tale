@@ -135,7 +135,7 @@ KEYS = [('QUEST_SPYING_ACTION_ARRIVED_TO_TARGET', 560000, 'Активность:
          [V.DATE, V.TIME, V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION], None),
 
         ('QUEST_SPYING_DIARY_WITNESS_FAILED', 560033, 'Дневник: свидетель ушёл от погони (герой убит)', relations.LEXICON_GROUP.QUEST_SPYING,
-         'Свидетель скрылся и шпионаж становится беспользеным.',
+         'Свидетель скрылся и шпионаж становится бесполезным.',
          [V.DATE, V.TIME, V.INITIATOR, V.HERO, V.ARTIFACT, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION], None),
 
         ('QUEST_SPYING_JOURNAL_ARRIVED_TO_TARGET', 560034, 'Журнал: шпионаж', relations.LEXICON_GROUP.QUEST_SPYING,
