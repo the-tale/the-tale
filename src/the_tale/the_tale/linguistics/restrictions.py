@@ -58,7 +58,7 @@ class GROUP(rels_django.DjangoEnum):
                ('REAL_FEAST', 34, 'праздники из реального мира', tt_calendar.REAL_FEAST, True),
                ('CALENDAR_DATE', 35, 'важные даты календаря', tt_calendar.DATE, True),
                ('PHYSICS_DATE', 36, 'важные даты для физического мира', tt_calendar.PHYSICS_DATE, False),
-               ('DAY_TIME', 37, 'время дня', tt_calendar.DAY_TIME, False),
+               ('DAY_TIME', 37, 'время суток', tt_calendar.DAY_TIME, False),
                ('MONTH', 38, 'месяц', tt_calendar.MONTH, False),
                ('QUINT', 39, 'квинт', tt_calendar.QUINT, False),
                ('QUINT_DAY', 40, 'день квинта', tt_calendar.QUINT_DAY, False),
