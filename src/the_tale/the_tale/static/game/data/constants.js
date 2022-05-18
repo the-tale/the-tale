@@ -740,7 +740,7 @@ pgf.game.constants.linguistics_formatters = {
     
     "580004": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span>",
     
-    "580005": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!coins!♥</span>",
+    "580005": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
     
     "580006": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion_owner!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
     
