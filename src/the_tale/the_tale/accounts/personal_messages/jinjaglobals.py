@@ -13,7 +13,7 @@ def sorted_recipients(recipients_ids, accounts):
 
 @utils_jinja2.jinjaglobal
 def new_messages_number_url():
-    return logic.new_messages_number_url()
+    return utils_jinja2.Markup(logic.new_messages_number_url())
 
 
 @utils_jinja2.jinjaglobal
