@@ -10,7 +10,7 @@ exclude = ["docs", "the_tale/dcont"]
 [tool.poetry.dependencies]
 python = "^3.10"
 
-Django = '3.2.13'
+Django = '3.2.14'
 argon2_cffi = "21.1.0"
 Jinja2 = "3.0.2"
 psycopg2 = "2.9.1"
