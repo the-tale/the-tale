@@ -107,7 +107,7 @@ class TokensResource(utils_resources.Resource):
             data['account_id'] = None
             data['account_name'] = None
 
-        data['session_expire_at'] = accounts_logic.get_session_expire_at_timestamp(self.request)
+        data['session_expire_at'] = self.request.session[conf.settings.SESSION_EXPIRE]
 
         if conf.settings.ACCESS_TOKEN_SESSION_KEY not in self.request.session:
             data['state'] = relations.AUTHORISATION_STATE.NOT_REQUESTED.value

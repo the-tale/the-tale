@@ -28,6 +28,11 @@ class ThirdPartyMiddleware(object):
 
         access_token_uid = request.session[conf.settings.ACCESS_TOKEN_SESSION_KEY]
 
+        session_expire = accounts_logic.get_session_expire_at_timestamp(request)
+
+        # put new info to session to prolong its life
+        request.session[conf.settings.SESSION_EXPIRE] = session_expire
+
         cache_key = conf.settings.ACCESS_TOKEN_CACHE_KEY % access_token_uid
         cached_data = utils_cache.get(cache_key)
 
@@ -38,6 +43,8 @@ class ThirdPartyMiddleware(object):
                 if request.user.is_authenticated:
                     accounts_logic.logout_user(request)
                     request.session[conf.settings.ACCESS_TOKEN_SESSION_KEY] = access_token_uid
+                    request.session[conf.settings.SESSION_EXPIRE] = session_expire
+
                     return HANDLE_THIRD_PARTY_RESULT.ACCESS_TOKEN_REJECTED__LOGOUT
                 else:
                     return HANDLE_THIRD_PARTY_RESULT.ACCESS_TOKEN_REJECTED
@@ -53,6 +60,7 @@ class ThirdPartyMiddleware(object):
                 accounts_logic.logout_user(request)
                 # resave token, since it will be removed on logout
                 request.session[conf.settings.ACCESS_TOKEN_SESSION_KEY] = access_token_uid
+                request.session[conf.settings.SESSION_EXPIRE] = session_expire
 
             return HANDLE_THIRD_PARTY_RESULT.ACCESS_TOKEN_NOT_ACCEPTED_YET
 
@@ -62,6 +70,7 @@ class ThirdPartyMiddleware(object):
 
             # resave token, since it will be removed on login
             request.session[conf.settings.ACCESS_TOKEN_SESSION_KEY] = access_token_uid
+            request.session[conf.settings.SESSION_EXPIRE] = session_expire
 
             return HANDLE_THIRD_PARTY_RESULT.ACCESS_TOKEN_ACCEPTED__USER_LOGED_IN
 
