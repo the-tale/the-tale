@@ -79,7 +79,7 @@ class TokensResource(utils_resources.Resource):
 
         return self.json_ok()
 
-    @utils_api.handler(versions=('1.0',))
+    @utils_api.handler(versions=('1.0', '1.1',))
     @old_views.handler('api', 'request-authorisation', name='request-authorisation', method='post')
     def api_request_authorisation(self, api_version=None):
         form = forms.RequestAccessForm(self.request.POST)
@@ -93,9 +93,14 @@ class TokensResource(utils_resources.Resource):
 
         self.request.session[conf.settings.ACCESS_TOKEN_SESSION_KEY] = token.uid
 
-        return self.json_ok(data={'authorisation_page': utils_urls.url('accounts:third-party:tokens:show', token.uid)})
+        data = {'authorisation_page': utils_urls.url('accounts:third-party:tokens:show', token.uid)}
 
-    @utils_api.handler(versions=('1.0',))
+        if api_version == '1.1':
+            data['token'] = token.uid
+
+        return self.json_ok(data=data)
+
+    @utils_api.handler(versions=('1.0', '1.1',))
     @old_views.handler('api', 'authorisation-state', name='authorisation-state', method='get')
     def api_authorisation_state(self, api_version):
         data = {}
@@ -106,6 +111,9 @@ class TokensResource(utils_resources.Resource):
         else:
             data['account_id'] = None
             data['account_name'] = None
+
+        if api_version == '1.1':
+            data['token'] = None
 
         data['session_expire_at'] = accounts_logic.get_session_expire_at_timestamp(self.request)
 
@@ -123,5 +131,8 @@ class TokensResource(utils_resources.Resource):
             data['state'] = relations.AUTHORISATION_STATE.ACCEPTED.value
         else:
             raise exceptions.UnkwnownAuthorisationStateError(state=token.state)
+
+        if api_version == '1.1' and token is not None:
+            data['token'] = token.uid
 
         return self.json_ok(data=data)

@@ -23,10 +23,12 @@ class ThirdPartyMiddleware(object):
 
     def handle_third_party(self, request):
 
-        if conf.settings.ACCESS_TOKEN_SESSION_KEY not in request.session:
+        if conf.settings.ACCESS_TOKEN_HEADER_KEY in request.headers:
+            access_token_uid = request.headers.get(conf.settings.ACCESS_TOKEN_HEADER_KEY)
+        elif conf.settings.ACCESS_TOKEN_SESSION_KEY in request.session:
+            access_token_uid = request.session[conf.settings.ACCESS_TOKEN_SESSION_KEY]
+        else:
             return HANDLE_THIRD_PARTY_RESULT.NO_ACCESS_TOKEN
-
-        access_token_uid = request.session[conf.settings.ACCESS_TOKEN_SESSION_KEY]
 
         cache_key = conf.settings.ACCESS_TOKEN_CACHE_KEY % access_token_uid
         cached_data = utils_cache.get(cache_key)
