@@ -272,7 +272,7 @@ def delete_conversation(context):
     return utils_views.AjaxOk()
 
 
-@utils_api.Processor(versions=(conf.settings.NEW_MESSAGES_NUMNER_API_VERSION,))
+@utils_api.Processor(versions=(conf.settings.NEW_MESSAGES_NUMBER_API_VERSION,))
 @resource('api', 'new-messages-number', name='api-new-messages-number')
 def api_new_messages(context):
     return utils_views.AjaxOk(content={'number': tt_services.personal_messages.cmd_new_messages_number(context.account.id)})

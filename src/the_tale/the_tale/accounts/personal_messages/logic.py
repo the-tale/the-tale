@@ -10,7 +10,7 @@ def notify_post_service(answer, recipients_ids):
 
 
 def new_messages_number_url():
-    arguments = {'api_version': conf.settings.NEW_MESSAGES_NUMNER_API_VERSION,
+    arguments = {'api_version': conf.settings.NEW_MESSAGES_NUMBER_API_VERSION,
                  'api_client': django_settings.API_CLIENT}
 
     return utils_urls.url('accounts:messages:api-new-messages-number', **arguments)
