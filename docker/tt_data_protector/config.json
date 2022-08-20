@@ -24,22 +24,22 @@
                 "secret": "test.secret"},
             "tt_personal_messages": {
                 "plugin": "tt_data_protector.plugins.internal",
-                "report_url": "http://tt_personal_messages:80/data-protection-collect-data",
-                "deletion_url": "http://tt_personal_messages:80/data-protection-delete-data",
+                "report_url": "http://tt-personal-messages:80/data-protection-collect-data",
+                "deletion_url": "http://tt-personal-messages:80/data-protection-delete-data",
                 "secret": "test.secret"},
             "tt_discord": {
                 "plugin": "tt_data_protector.plugins.internal",
-                "report_url": "http://tt_discord:80/data-protection-collect-data",
-                "deletion_url": "http://tt_discord:80/data-protection-delete-data",
+                "report_url": "http://tt-discord:80/data-protection-collect-data",
+                "deletion_url": "http://tt-discord:80/data-protection-delete-data",
                 "secret": "test.secret"},
             "tt_players_properties": {
                 "plugin": "tt_data_protector.plugins.internal",
-                "report_url": "http://tt_players_properties:80/data-protection-collect-data",
-                "deletion_url": "http://tt_players_properties:80/data-protection-delete-data",
+                "report_url": "http://tt-players-properties:80/data-protection-collect-data",
+                "deletion_url": "http://tt-players-properties:80/data-protection-delete-data",
                 "secret": "test.secret"},
             "tt_xsolla": {
                 "plugin": "tt_data_protector.plugins.internal",
-                "report_url": "http://tt_xsolla:80/data-protection-collect-data",
-                "deletion_url": "http://tt_xsolla:80/data-protection-delete-data",
+                "report_url": "http://tt-xsolla:80/data-protection-collect-data",
+                "deletion_url": "http://tt-xsolla:80/data-protection-delete-data",
                 "secret": "test.secret"}}}
 }
