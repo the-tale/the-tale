@@ -163,11 +163,18 @@ class Worker(utils_workers.BaseWorker):
                 del self.accounts_queues[account_id]
 
     def send_release_account_cmd(self, account_id):
-        account_owner = self.accounts_owners[account_id]
+        account_owner = self.accounts_owners.get(account_id)
+
         if account_owner is not None:
             self.logic_workers[account_owner].cmd_release_account(account_id)
             self.logic_accounts_number[account_owner] -= 1
             self.accounts_owners[account_id] = None
+            return
+
+        # emulate save of account to allow deletion of heroes
+        # see game.heroes.data_protection.before_remove_data `hero.saved_at <= account.removed_at`
+        hero = heroes_logic.load_hero(account_id=account_id)
+        heroes_logic.save_hero(hero)
 
     def dispatch_logic_cmd(self, account_id, cmd_name, kwargs):
         if account_id in self.accounts_owners and self.accounts_owners[account_id] in self.logic_workers:

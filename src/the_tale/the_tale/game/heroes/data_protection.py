@@ -28,6 +28,8 @@ def before_remove_data(account_id):
     if account.removed_at is None:
         raise NotImplementedError('account MUST be marked for deletion')
 
+    # TODO: potential bug, because we do not check bundles of heroes
+    #       this is weak protection
     if now - account.removed_at < datetime.timedelta(seconds=conf.settings.REMOVE_HERO_DELAY):
         request_hero_release(account_id)
         return False

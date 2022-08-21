@@ -10,7 +10,7 @@ class Command(utilities_base.Command):
 
     LOCKS = ['game_commands', 'portal_commands']
 
-    GAME_MUST_BE_STOPPED = True
+    GAME_MUST_BE_STOPPED = False
 
     requires_model_validation = False
 
