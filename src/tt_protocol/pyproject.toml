@@ -10,7 +10,7 @@ include = ["*.proto"]
 [tool.poetry.dependencies]
 python = "^3.10"
 
-protobuf = "3.19.1"
+protobuf = "3.19.5"
 
 [tool.poetry.scripts]
 tt_regenerate_protocol = "tt_protocol.commands.tt_regenerate_protocol:main"
