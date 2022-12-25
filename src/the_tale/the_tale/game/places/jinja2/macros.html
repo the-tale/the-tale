@@ -21,13 +21,24 @@
 
 {% macro clan_region_description(region) %}
   {% if region.clan_id is none %}
-  <span rel="tooltip"
-        title="Ни одна гильдия не сделала этот город своим протекторатом"
-        style="cursor: default;">
-    Свободный город
-  </span>
+    <span rel="tooltip"
+          title="Ни одна гильдия не сделала этот город своим протекторатом"
+          style="cursor: default;">
+      Свободный город
+    </span>
   {% else %}
-  Протекторат размера {{clan_region_badge(region)}} гильдии {{clans_macros.clan_link(region.clan_info()) }}
+    Протекторат размера {{clan_region_badge(region)}} гильдии {{clans_macros.clan_link(region.clan_info()) }}
+  {% endif %}
+
+{% endmacro %}
+
+
+{% macro clan_region_short(place_id) %}
+  {% set region = region_for_place(place_id) %}
+  {% if region.clan_id is none %}
+    —
+  {% else %}
+    {{clan_region_badge(region)}} {{clans_macros.clan_link(region.clan_info()) }}
   {% endif %}
 
 {% endmacro %}

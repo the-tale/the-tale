@@ -12,3 +12,8 @@ def all_places():
 @utils_jinja2.jinjaglobal
 def hero_popularity(hero_id):
     return logic.get_hero_popularity(hero_id)
+
+
+@utils_jinja2.jinjaglobal
+def region_for_place(place_id):
+    return places_storage.clans_regions.region_for_place(place_id)

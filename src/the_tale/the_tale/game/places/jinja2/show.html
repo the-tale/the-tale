@@ -438,6 +438,7 @@
               <th width="25px">№</th>
               <th width="150px">город</th>
               <th width="150px">расстояние (клеток)</th>
+              <th width="150px">протекторат</th>
               <th>дорога</th>
             </tr>
           </thead>
@@ -447,6 +448,7 @@
               <td>{{loop.index}}</td>
               <td><a href="{{url('game:places:show', place_id)}}">{{places_storage[place_id].name}}</a></td>
               <td>{{distance}}</td>
+              <td>{{places_macros.clan_region_short(place_id)}}</td>
               <td>
                 {% if place_id not in roads %}
                 —
