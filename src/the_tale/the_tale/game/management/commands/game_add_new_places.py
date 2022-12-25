@@ -62,29 +62,30 @@ class Command(utilities_base.Command):
     @django_transaction.atomic
     def _handle(self, *args, **options):
 
-        # https://the-tale.org/folklore/posts/1113
-        create_place_and_person(self.logger, x=49, y=7,
-                                place_name=lexicon_dictionary.noun(['Теалор', 'Теалора', 'Теалору', 'Теалор', 'Теалором', 'Теалоре',
-                                                                    'Теалоры', 'Теалоров', 'Теалорам', 'Теалоров', 'Теалорами', 'Теалорах'],
+        # https://the-tale.org/folklore/posts/1127
+        create_place_and_person(self.logger, x=62, y=23,
+                                place_name=lexicon_dictionary.noun(['Гоганбуко', 'Гоганбуко', 'Гоганбуко', 'Гоганбуко', 'Гоганбуко', 'Гоганбуко',
+                                                                    'Гоганбуко', 'Гоганбуко', 'Гоганбуко', 'Гоганбуко', 'Гоганбуко', 'Гоганбуко'],
                                                                     'но,мр').word,
-                                person_name=lexicon_dictionary.noun(['Любомудр', 'Любомудра', 'Любомудру', 'Любомудра', 'Любомудром', 'Любомудре',
-                                                                     'Любомудры', 'Любомудров', 'Любомудрам', 'Любомудров', 'Любомудрами', 'Любомудрах'],
+                                person_name=lexicon_dictionary.noun(['Гоггерим', 'Гоггерима', 'Гоггериму', 'Гоггерима', 'Гоггеримом', 'Гоггериме',
+                                                                     'Гоггеримы', 'Гоггеримов', 'Гоггеримам', 'Гоггеримов', 'Гоггеримами', 'Гоггеримах'],
                                                                      'од,мр').word,
-                                race=game_relations.RACE.HUMAN,
-                                profession=persons_relations.PERSON_TYPE.PHYSICIAN,
-                                personality_practical=persons_relations.PERSONALITY_PRACTICAL.ACTIVE)
+                                race=game_relations.RACE.DWARF,
+                                profession=persons_relations.PERSON_TYPE.CARPENTER,
+                                personality_practical=persons_relations.PERSONALITY_PRACTICAL.ORDERLY,
+                                personality_cosmetic=persons_relations.PERSONALITY_COSMETIC.RECLUSE)
 
-        # https://the-tale.org/folklore/posts/1097
-        create_place_and_person(self.logger, x=39, y=1,
-                                place_name=lexicon_dictionary.noun(['Миориель', 'Миориеля', 'Миориелю', 'Миориель', 'Миориелем', 'Миориеле',
-                                                                    'Миориели', 'Миориелей', 'Миориелям', 'Миориели', 'Миориелями', 'Миориелях'],
-                                                                   'но,мр').word,
-                                person_name=lexicon_dictionary.noun(['Ронборг', 'Ронборга', 'Ронборгу', 'Ронборг', 'Ронборгом', 'Ронборге',
-                                                                     'Ронборги', 'Ронборгов', 'Ронборгам', 'Ронборгов', 'Ронборгами', 'Ронборгах'],
-                                                                    'од,мр').word,
-                                race=game_relations.RACE.HUMAN,
-                                profession=persons_relations.PERSON_TYPE.MAGOMECHANIC,
-                                personality_practical=persons_relations.PERSONALITY_PRACTICAL.INFLUENTIAL)
+
+        # https://the-tale.org/folklore/posts/1119#m267004
+        create_place_and_person(self.logger, x=34, y=57,
+                                place_name=lexicon_dictionary.noun(['Хинарин', 'Хинарина', 'Хинарину', 'Хинарин', 'Хинарином', 'Хинарине',
+                                                                    'Хинарины', 'Хинаринов', 'Хинаринам', 'Хинарины', 'Хинаринами', 'Хинаринах'],
+                                                                    'но,мр').word,
+                                person_name=lexicon_dictionary.noun(['Грегор', 'Грегора', 'Грегору', 'Грегора', 'Грегором', 'Грегоре',
+                                                                     'Грегоры', 'Грегоров', 'Грегорам', 'Грегоров', 'Грегорами', 'Грегорах'],
+                                                                     'од,мр').word,
+                                race=game_relations.RACE.DWARF,
+                                profession=persons_relations.PERSON_TYPE.PHYSICIAN)
 
         # сдвигаем фронтир
         # places_storage.places[?].is_frontier = False
