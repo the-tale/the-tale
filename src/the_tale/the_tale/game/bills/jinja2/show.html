@@ -105,21 +105,12 @@
 
 {% set folclor_objects = posts_about(bill_meta_object) %}
 
+<h3>Произведения о событии</h3>
+
 {% if folclor_objects %}
-  <h4><a href="{{folclor_objects[0].url}}" target="_blank">{{folclor_objects[0].caption}}</a></h4>
-
-  {{folclor_objects[0].object.text_html|safe}}
-
-  {% if folclor_objects|length > 1 %}
-    <br/>
-    <br/>
-
-    <h4>Прочие произведения</h4>
-
-    {{ blogs_macros.meta_posts_list(folclor_objects) }}
-
-  {% endif %}
-
+  {{ blogs_macros.meta_posts_list(folclor_objects) }}
+{% else %}
+  <p class="alert alert-info pgf-no-folclor">В настоящее время нет произведений о событии.</p>
 {% endif %}
 
 {{ thread_page.thread_page(thread_data) }}
