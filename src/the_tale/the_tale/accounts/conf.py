@@ -42,18 +42,6 @@ settings = utils_app_settings.app_settings('ACCOUNTS',
                                            PREMIUM_EXPIRED_NOTIFICATION_IN=datetime.timedelta(days=3),
                                            PREMIUM_INFINIT_TIMEOUT=datetime.timedelta(days=100 * 365),
 
-                                           INFORMER_SHOW=True,
-                                           INFORMER_LINK='https://informer.the-tale.org/?id=%(account_id)d&type=4',
-                                           INFORMER_CREATOR_ID=2557,
-                                           INFORMER_CREATOR_NAME='Yashko',
-                                           INFORMER_WIDTH=400,
-                                           INFORMER_HEIGHT=50,
-                                           INFORMER_FORUM_THREAD=515,
-
-                                           INFORMER_2_CREATOR_ID=6901,
-                                           INFORMER_2_CREATOR_NAME='Нико д`Лас',
-                                           INFORMER_2_FORUM_THREAD=4422,
-
                                            NICK_REGEX=r'^[a-zA-Z0-9\-\ _а-яА-Я]+$',
                                            NICK_MIN_LENGTH=3,
                                            NICK_MAX_LENGTH=30,

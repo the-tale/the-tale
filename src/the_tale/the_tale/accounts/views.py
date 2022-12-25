@@ -253,7 +253,6 @@ def show(context):
                                      'RATING_TYPE': ratings_relations.RATING_TYPE,
                                      'resource': context.resource,
                                      'ratings_on_page': ratings_conf.settings.ACCOUNTS_ON_PAGE,
-                                     'informer_link': conf.settings.INFORMER_LINK % {'account_id': context.master_account.id},
                                      'friendship': friendship,
                                      'bills_count': bills_count,
                                      'templates_count': templates_count,
