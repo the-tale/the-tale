@@ -20,6 +20,15 @@ class HeroDescriptionTests(utils_testcase.TestCase):
     def test_no_description(self):
         self.assertEqual(logic.get_hero_description(self.hero.id), '')
 
+    def test_banned_acc_hero_description(self):
+        logic.set_hero_description(self.hero.id, 'bla-bla')
+        self.assertFalse(account.is_ban_game)
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_sync_hero_required') as cmd_sync_hero_required:
+            account.ban_game(days=1)
+        self.assertEqual(cmd_sync_hero_required.call_count, 1)
+        self.assertTrue(account.is_ban_game)
+        self.assertEqual(logic.get_hero_description(self.hero.id), '')
+
     def test_has_description(self):
         logic.set_hero_description(self.hero.id, 'bla-bla')
         self.assertEqual(logic.get_hero_description(self.hero.id), 'bla-bla')

@@ -361,10 +361,13 @@ def get_heroes_to_accounts_map(heroes_ids):
 
 
 def get_hero_description(hero_id):
+    account = accounts_prototypes.AccountPrototype.get_by_id(hero_id)
+    if account.is_ban_any:
+        return ''
     try:
         return models.HeroDescription.objects.get(hero_id=hero_id).text
     except models.HeroDescription.DoesNotExist:
-        return ''
+                return ''
 
 
 def set_hero_description(hero_id, text):

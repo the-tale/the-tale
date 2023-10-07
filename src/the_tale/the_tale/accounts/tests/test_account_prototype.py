@@ -1,6 +1,6 @@
 
 import smart_imports
-
+from accounts import prototypes 
 smart_imports.all()
 
 
@@ -166,6 +166,19 @@ class AccountPrototypeTests(utils_testcase.TestCase, personal_messages_helpers.M
         self.account._model.ban_forum_end_at = datetime.datetime.now()
         self.assertFalse(self.account.is_ban_forum)
 
+    def test_banned_acc_description(self):
+        self.account.description = "bla-bla"
+        self.assertFalse(self.account.is_ban_game)
+        with mock.patch('the_tale.accounts.prototypes.AccountPrototype.cmd_update_hero') as cmd_update_hero:
+            self.account.ban_game(2)
+
+        self.assertEqual(cmd_update_hero.call_count, 1)
+        self.assertTrue(self.account.is_ban_game)
+
+        self.account.reload()
+
+        self.assertEqual(self.account.description_html, '')
+
     def test_bank_account__not_created(self):
         bank_account = self.account.bank_account
 
@@ -289,3 +302,6 @@ class AccountPrototypeBanTests(utils_testcase.TestCase):
         self.assertFalse(self.account.is_ban_game)
 
         self.assertTrue(self.account._model.ban_forum_end_at < datetime.datetime.now())
+
+
+
