@@ -367,7 +367,7 @@ def get_hero_description(hero_id):
     try:
         return models.HeroDescription.objects.get(hero_id=hero_id).text
     except models.HeroDescription.DoesNotExist:
-                return ''
+        return ''
 
 
 def set_hero_description(hero_id, text):
