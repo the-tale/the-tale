@@ -6,7 +6,7 @@
 
   {% set description = value('the_tale.game.heroes.logic').get_hero_description(master_account.id) %}
 
-  {% if description %}
+  {% if description and not master_account.is_ban_any%}
 
   {{description|bb}}
 
