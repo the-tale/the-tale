@@ -105,6 +105,12 @@ jQuery(document).ready(function(){
 
           {% if message.sender_id != master_account.id %}
           <td style="width: 4em;">
+            <a class="pgf-new-message" data-recipient="{{message.sender_id}}" href="#">Написать</a><br/>
+          </td>
+          {% endif %}
+
+          {% if message.sender_id != master_account.id %}
+          <td style="width: 4em;">
             <a class="pgf-new-message" data-recipient="{{message.sender_id}}" data-answer-to="{{message.id}}" href="#">ответить</a><br/>
           </td>
 
