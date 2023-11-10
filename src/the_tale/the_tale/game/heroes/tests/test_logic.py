@@ -31,7 +31,7 @@ class HeroDescriptionTests(utils_testcase.TestCase):
         account.ban_game(days=1)
         self.assertTrue(account.is_ban_game)
         self.check_html_ok(self.request_html(django_reverse('game:heroes:show', args=[account.id])),
-                           texts="")
+                           texts="pgf-about-container")
 
     def test_update_description(self):
         logic.set_hero_description(self.hero.id, 'bla-bla')
