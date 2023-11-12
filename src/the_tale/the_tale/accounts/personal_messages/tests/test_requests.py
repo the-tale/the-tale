@@ -88,6 +88,16 @@ class SentRequestsTests(BaseRequestsTests):
         logic.send_message(self.account_3.id, [self.account_1.id], 'message_3_1 1')
         logic.send_message(self.account_3.id, [self.account_2.id], 'message_3_2 1')
 
+
+    def test_sent_message_from_fast_account(self):
+        self.request_login(self.account_1.email)
+        self.account_1.is_fast = True
+        self.account_1.save()
+        logic.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 test1')
+        texts = ['pgf-new-message']
+        self.check_html_ok(self.request_html(utils_urls.url('accounts:messages:sent')), texts=texts)
+        self.request_logout()
+
     def test_fast_account(self):
         self.request_login(self.account_1.email)
         self.account_1.is_fast = True

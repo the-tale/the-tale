@@ -105,12 +105,6 @@ jQuery(document).ready(function(){
 
           {% if message.sender_id != master_account.id %}
           <td style="width: 4em;">
-            <a class="pgf-new-message" data-recipient="{{message.sender_id}}" href="#">Написать</a><br/>
-          </td>
-          {% endif %}
-
-          {% if message.sender_id != master_account.id %}
-          <td style="width: 4em;">
             <a class="pgf-new-message" data-recipient="{{message.sender_id}}" data-answer-to="{{message.id}}" href="#">ответить</a><br/>
           </td>
 
@@ -121,6 +115,11 @@ jQuery(document).ready(function(){
           {% endif %}
           {% else %}
           {% if page!="contacts" %}
+          
+          <td style="width: 4em;">
+            <a class="pgf-new-message" data-recipient="{{message.recipients_ids[0]}}" href="#">написать</a><br/>
+          </td>
+
           <td style="width: 6em;">
             <a href="{{ url('accounts:messages:conversation', contact=message.recipients_ids[0]) }}">к переписке</a><br/>
           </td>
