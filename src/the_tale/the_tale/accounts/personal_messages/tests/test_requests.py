@@ -91,10 +91,8 @@ class SentRequestsTests(BaseRequestsTests):
 
     def test_sent_message_from_fast_account(self):
         self.request_login(self.account_1.email)
-        self.account_1.is_fast = True
-        self.account_1.save()
         logic.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 test1')
-        texts = ['pgf-new-message']
+        texts = ['pgf-new-message-button-on-outgoing-message']
         self.check_html_ok(self.request_html(utils_urls.url('accounts:messages:sent')), texts=texts)
         self.request_logout()
 
