@@ -115,6 +115,11 @@ jQuery(document).ready(function(){
           {% endif %}
           {% else %}
           {% if page!="contacts" %}
+          
+          <td style="width: 4em;">
+            <a class="pgf-new-message pgf-new-message-button-on-outgoing-message" data-recipient="{{message.recipients_ids[0]}}" href="#">написать</a><br/>
+          </td>
+
           <td style="width: 6em;">
             <a href="{{ url('accounts:messages:conversation', contact=message.recipients_ids[0]) }}">к переписке</a><br/>
           </td>
