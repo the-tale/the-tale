@@ -57,7 +57,10 @@ class AccountPrototype(utils_prototypes.BasePrototype):
         return self.id in conf.settings.MODERATORS_IDS
 
     @property
-    def description_html(self): return bbcode_renderers.default.render(self.description)
+    def description_html(self):
+        if not self.is_ban_any:
+            return bbcode_renderers.default.render(self.description)
+        return bbcode_renderers.default.render('')
 
     @utils_decorators.lazy_property
     def permanent_purchases(self):

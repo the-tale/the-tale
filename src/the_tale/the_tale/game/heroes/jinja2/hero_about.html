@@ -6,13 +6,15 @@
 
   {% set description = value('the_tale.game.heroes.logic').get_hero_description(master_account.id) %}
 
-  {% if description %}
+  {% if description and not master_account.is_ban_any%}
 
   {{description|bb}}
 
   {% else %}
 
-  <p>Хранитель пока ничего не рассказал о герое.</p>
+  <p class="test-no-hero-description-message">
+    Хранитель пока ничего не рассказал о герое.
+  </p>
 
   {% if is_owner %}
   <p class="alert alert-info">

@@ -24,6 +24,15 @@ class HeroDescriptionTests(utils_testcase.TestCase):
         logic.set_hero_description(self.hero.id, 'bla-bla')
         self.assertEqual(logic.get_hero_description(self.hero.id), 'bla-bla')
 
+    def test_banned_account_hero_description(self):
+        account = accounts_prototypes.AccountPrototype.get_by_id(self.hero.id)
+        logic.set_hero_description(self.hero.id, "bla-bla")
+        self.assertFalse(account.is_ban_game)
+        account.ban_game(days=1)
+        self.assertTrue(account.is_ban_game)
+        self.check_html_ok(self.request_html(django_reverse('game:heroes:show', args=[account.id])),
+                           texts=["test-no-hero-description-message"])
+
     def test_update_description(self):
         logic.set_hero_description(self.hero.id, 'bla-bla')
         logic.set_hero_description(self.hero.id, 'new description')
