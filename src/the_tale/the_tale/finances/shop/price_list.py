@@ -1,6 +1,7 @@
 
 import smart_imports
 
+
 smart_imports.all()
 
 SUBSCRIPTION_INFINIT_UID = 'subscription-infinit'
@@ -57,12 +58,12 @@ SUBSCRIPTIONS = [goods.PremiumDays(uid='subscription-15',
                                    description=PREMIUM_DAYS_DESCRIPTION,
                                    cost=750,
                                    days=90,
-                                   transaction_description='Продление подписки на 90 дней.'),
+                                   transaction_description='Продление подписки на 90 дней.')]
 
-                 permanent_purchase(uid=SUBSCRIPTION_INFINIT_UID,
-                                    purchase_type=relations.PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION,
-                                    cost=6000,
-                                    transaction_description='Приобретение вечной подписки.')]
+                 # permanent_purchase(uid=SUBSCRIPTION_INFINIT_UID,
+                 #                    purchase_type=relations.PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION,
+                 #                    cost=6000,
+                 #                    transaction_description='Приобретение вечной подписки.')]
 
 
 PURCHASES_BY_UID = {}
