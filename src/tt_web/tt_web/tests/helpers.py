@@ -2,21 +2,14 @@
 import asyncio
 import contextlib
 
-from aiohttp import web
-from aiohttp import test_utils
-
-from tt_web import postgresql as db
-
+from aiohttp import test_utils, web
 from tt_protocol.protocol import base_pb2
+from tt_web import postgresql as db
 
 from .. import log
 
 
 class BaseTests(test_utils.AioHTTPTestCase):
-
-    def setUp(self):
-        super().setUp()
-        asyncio.set_event_loop(self.loop)
 
     def get_app(self):
         application = self.create_application()
