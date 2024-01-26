@@ -3,9 +3,7 @@ import os
 from tt_web import utils
 from tt_web.tests import helpers as web_helpers
 
-from .. import logic
-from .. import service
-from .. import operations
+from .. import logic, operations, service
 
 
 class BaseTests(web_helpers.BaseTests):
