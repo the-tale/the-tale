@@ -8,6 +8,6 @@ trap 'echo "\"${last_command}\" command failed with exit code $?."' ERR
 
 ./bin/docker_compose.sh --profile workers stop `./bin/docker_compose.sh --profile workers ps --services | grep "^worker-"`
 
-./bin/docker_compose.sh --profile site stop `./bin/docker_compose.sh --profile site ps --services | grep "^site$"`
+./bin/docker_compose.sh --profile utils --profile site stop `./bin/docker_compose.sh --profile site ps --services | grep "^site$"`
 
 ./bin/docker_compose.sh --profile services stop `./bin/docker_compose.sh --profile services ps --services | grep "^tt-"`
