@@ -6,9 +6,12 @@ SERVER_EMAIL = 'admin@{{tt_domain}}'
 ADMINS = (('Администратор', SERVER_EMAIL),)
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'core-postfix'
-
+EMAIL_HOST = {{site_email_host|repr}}
 EMAIL_HOST_USER = 'no-reply@{{tt_domain}}'
+EMAIL_HOST_PASSWORD = {{site_email_host_password|repr}}
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 
 # payments
 XSOLLA_SECRET_KEY = {{site_xsolla_secret_key|repr}}
