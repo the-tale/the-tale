@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
 
   core-postgresql:
@@ -14,10 +12,6 @@ services:
       - $TT_CONFIGS_ROOT/nginx/templates:/nginx-config-templates:ro
 
   core-postfix:
-    entrypoint: bash -c
-    command: echo "turned off"
-
-  core-datadog:
     entrypoint: bash -c
     command: echo "turned off"
 
