@@ -300,6 +300,7 @@ CACHES = {'default': {'BACKEND': 'django_redis.cache.RedisCache',
                           'CLIENT_CLASS': 'django_redis.client.DefaultClient',
                           'SERIALIZER': 'django_redis.serializers.json.JSONSerializer'}}}
 
+STOP_GAME_LINK = "https://the-tale.org/forum/threads/10968"
 
 try:
     from the_tale.settings_local import *  # pylint: disable=W0403,W0401,W0614
