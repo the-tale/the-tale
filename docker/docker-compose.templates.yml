@@ -64,7 +64,7 @@ x-tt-service: &default-tt-service
     - services
 
 x-the-tale: &default-the-tale
-  << : [*default-common, *default-site-image]
+  << : [*default-site-image, *default-common]
 
   stop_grace_period: 1s
 
@@ -120,7 +120,7 @@ x-tasks: &default-tasks
 
 
 x-tasks-site: &default-tasks-site
-  << : [*default-tasks, *default-site-image]
+  << : [*default-site-image, *default-tasks]
 
   volumes:
     # all utils containers must has access to static files foulder
@@ -210,13 +210,13 @@ services:
     << : *default-utils-certbot
 
   utils-site:
-    << : [*default-utils, *default-site-image]
+    << : [*default-site-image, *default-utils]
 
   utils-site-migrations:
-    << : [*default-utils, *default-site-image]
+    << : [*default-site-image, *default-utils]
 
   utils-site-generate-static:
-    << : [*default-utils, *default-site-image]
+    << : [*default-site-image, *default-utils]
 
   utils-regenerate-protocol:
     << : *default-utils
@@ -225,7 +225,7 @@ services:
     << : *default-tt-service
 
   tt-personal-messages:
-    << : [*default-tt-service, *default-tt-personal-messages]
+    << : [*default-tt-personal-messages, *default-tt-service]
 
   tt-storage:
     << : *default-tt-service
@@ -273,7 +273,7 @@ services:
     << : *default-tt-service
 
   tt-clans-currencies:
-    << : [*default-tt-service, *default-tt-clans-currencies]
+    << : [*default-tt-clans-currencies, *default-tt-service]
 
   tt-emissaries-events-currencies:
     << : *default-tt-service
@@ -285,7 +285,7 @@ services:
     << : *default-tt-service
 
   tt-data-protector:
-    << : [*default-tt-service, *default-tt-data-protector]
+    << : [*default-tt-data-protector, *default-tt-service]
 
   tt-xsolla:
     << : *default-tt-service
@@ -393,23 +393,23 @@ services:
     << : *default-tasks-site
 
   tasks-tt-personal-messages-clean:
-    << : [*default-tasks, *default-tt-personal-messages]
+    << : [*default-tt-personal-messages, *default-tasks]
 
   tasks-tt-data-protector-process-tasks:
-    << : [*default-tasks, *default-tt-data-protector]
+    << : [*default-tt-data-protector, *default-tasks]
 
   tasks-tt-clans-currencies-rollback-hanged-transactions:
-    << : [*default-tasks, *default-tt-clans-currencies]
+    << : [*default-tt-clans-currencies, *default-tasks]
 
   tasks-postgresql-backup-make-upload-cleanup:
-    << : [*default-tasks, *default-utils-postgresql]
+    << : [*default-utils-postgresql, *default-tasks]
 
     profiles:
       - tasks
       - utils
 
   tasks-certbot-create-or-renew-certificates:
-    << : [*default-tasks, *default-utils-certbot]
+    << : [*default-utils-certbot, *default-tasks]
 
     profiles:
       - tasks
