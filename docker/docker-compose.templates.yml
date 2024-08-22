@@ -1,8 +1,5 @@
 # define services sceletons with help of yaml templating
 
-version: "3.9"
-
-
 x-site-image: &default-site-image
   image: $TT_CONTAINERS_REGISTRY/the-tale/site:$TT_RELEASE_VERSION
 
