@@ -26,17 +26,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: $TT_DB_ROOT_PASSWORD
 
-    labels:
-      com.datadoghq.tags.service: core-postgresql
-
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
 
   core-redis:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-redis:$TT_RELEASE_VERSION
-
-    labels:
-      com.datadoghq.tags.service: core-redis
 
   core-rabbitmq:
 
@@ -45,17 +39,11 @@ services:
     volumes:
        - $TT_CONFIGS_ROOT/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
 
-    labels:
-      com.datadoghq.tags.service: core-rabbitmq
-
   core-nginx:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-nginx:$TT_RELEASE_VERSION
 
     stop_grace_period: 1s
-
-    labels:
-      com.datadoghq.tags.service: core-nginx
 
     volumes:
       - $TT_CONFIGS_ROOT/nginx/config.$TT_ENV.json:/root/nginx_config.json:ro
@@ -66,9 +54,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-
-  core-datadog:
-    image: gcr.io/datadoghq/agent:7
 
   core-postfix:
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-postfix:$TT_RELEASE_VERSION
@@ -98,9 +83,6 @@ services:
 
   tasks-manager-ofelia:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tasks-ofelia:$TT_RELEASE_VERSION
-
-    labels:
-      com.datadoghq.tags.service: tasks-ofelia
 
     volumes:
       - $TT_CONFIGS_ROOT/ofelia/config.ini:/etc/ofelia/config.ini:ro

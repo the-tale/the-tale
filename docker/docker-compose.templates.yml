@@ -23,8 +23,6 @@ x-core: &default-core
 
   labels:
     org.the-tale.group: core
-    com.datadoghq.tags.env: $TT_ENV
-    com.datadoghq.tags.version: $TT_VERSION
 
   stop_grace_period: 1m
 
@@ -38,8 +36,6 @@ x-utils: &default-utils
 
   labels:
     org.the-tale.group: utils
-    com.datadoghq.tags.env: $TT_ENV
-    com.datadoghq.tags.version: $TT_VERSION
 
   volumes:
     # all utils containers must has access to static files foulder
@@ -98,8 +94,6 @@ x-tasks-manager: &default-tasks-manager
 
   labels:
     org.the-tale.group: tasks
-    com.datadoghq.tags.env: $TT_ENV
-    com.datadoghq.tags.version: $TT_VERSION
 
   profiles:
     - tasks-manager
@@ -112,8 +106,6 @@ x-tasks: &default-tasks
 
   labels:
     org.the-tale.group: tasks
-    com.datadoghq.tags.env: $TT_ENV
-    com.datadoghq.tags.version: $TT_VERSION
 
   profiles:
     - tasks
@@ -164,8 +156,6 @@ x-utils-postgresql: &default-utils-postgresql
       POSTGRES_PASSWORD: $TT_DB_ROOT_PASSWORD
       TT_DATABASES: $TT_DATABASES
       TT_S3_BACKET: $TT_BACKUP_S3_BACKET
-      TT_DATADOG_POSTGRESQL_USER: $TT_DATADOG_POSTGRESQL_USER
-      TT_DATADOG_POSTGRESQL_PASSWORD: $TT_DATADOG_POSTGRESQL_PASSWORD
 
 
 # https://mindsers.blog/post/https-using-nginx-certbot-docker/
@@ -195,9 +185,6 @@ services:
     << : *default-core
 
   core-postfix:
-    << : *default-core
-
-  core-datadog:
     << : *default-core
 
   tasks-manager-ofelia:

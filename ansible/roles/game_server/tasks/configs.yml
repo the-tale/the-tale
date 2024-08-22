@@ -36,9 +36,6 @@
 - name: Upload site configs
   import_tasks: site.yml
 
-- name: Upload datadog configs
-  import_tasks: datadog.yml
-
 - name: Upload certbot configs
   import_tasks: cetbot.yml
 

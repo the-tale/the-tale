@@ -20,22 +20,8 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/postfix/config.$TT_ENV.json:/root/postfix_config.json:ro
 
-    labels:
-      com.datadoghq.tags.service: core-postfix
-
     ports:
       - "25:25"
-
-  core-datadog:
-
-    environment:
-      DD_API_KEY: $TT_DATADOG_API_KEY
-
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /proc/:/host/proc/:ro
-      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
-      - $TT_CONFIGS_ROOT/datadog/conf.d:/conf.d:ro
 
   site:
 
