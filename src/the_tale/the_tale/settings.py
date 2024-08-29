@@ -119,8 +119,6 @@ SERVER_EMAIL = '«Сказка»: системное сообщение <no-repl
 ADMINS = ()
 
 EMAIL_NOREPLY = '«Сказка» <no-reply@example.com>'
-EMAIL_SUPPORT = '«Сказка» <support@example.com>'
-EMAIL_SUPPORT_SHORT = 'support@example.com'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = '/tmp/emails'
