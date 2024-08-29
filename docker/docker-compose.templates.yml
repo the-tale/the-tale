@@ -271,16 +271,10 @@ services:
   tt-data-protector:
     << : [*default-tt-data-protector, *default-tt-service]
 
-  tt-xsolla:
-    << : *default-tt-service
-
   site:
     << : *default-the-tale
 
   worker-bank-processor:
-    << : *default-the-tale-worker
-
-  worker-xsolla-banker:
     << : *default-the-tale-worker
 
   worker-refrigerator:

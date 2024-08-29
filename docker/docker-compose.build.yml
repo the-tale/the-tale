@@ -283,20 +283,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-  tt-xsolla:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-xsolla:$TT_RELEASE_VERSION
-
-    build:
-      context: ../
-      dockerfile: ./docker/tt_service/Dockerfile
-      args:
-        TT_PACKAGE: tt_xsolla
-        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
-        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
   site:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/site:$TT_RELEASE_VERSION

@@ -129,7 +129,7 @@ def collect_full_data(account_id):
 
     data.extend(bank_data_protection.collect_data(account_id))
 
-    data.extend(xsolla_data_protection.collect_data(account_id))
+    # data.extend(xsolla_data_protection.collect_data(account_id))
 
     return [(name, postprocess_value(value)) for name, value in data]
 
@@ -188,7 +188,7 @@ def verbose(name):
             'currency': 'валюта',
             'description_for_sender': 'описание для отправителя',
             'description_for_recipient': 'описание для получателя',
-            'xsolla_invoice': 'платёж в XSolla',
+            # 'xsolla_invoice': 'платёж в XSolla',
             'id': 'идентификатор',
             'pay_result': 'результат платежа',
             'date': 'дата',
@@ -212,7 +212,8 @@ def verbose(name):
             'property': 'свойство',
             'value': 'значение',
 
-            'tt_xsolla': 'Платежи XSolla'}.get(name, name)
+            # 'tt_xsolla': 'Платежи XSolla'
+            }.get(name, name)
 
 
 #############
@@ -284,7 +285,7 @@ def remove_data(account_id):
     third_party_data_protection.remove_data(account_id)
 
     bank_data_protection.remove_data(account_id)
-    xsolla_data_protection.remove_data(account_id)
+    # xsolla_data_protection.remove_data(account_id)
 
     return True
 
@@ -311,4 +312,5 @@ def ids_list(account):
             ('tt_players_properties', account.id),
             ('tt_personal_messages', account.id),
             ('tt_discord', account.id),
-            ('tt_xsolla', account.id)]
+            # ('tt_xsolla', account.id)
+            ]

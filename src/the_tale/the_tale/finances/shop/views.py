@@ -15,6 +15,7 @@ class XsollaEnabledProcessor(utils_views.BaseViewProcessor):
                                   context.account.id in conf.settings.ALWAYS_ALLOWED_ACCOUNTS))
 
         context.xsolla_enabled = real_payments_enabled and conf.settings.XSOLLA_ENABLED
+        context.xsolla_support = conf.settings.XSOLLA_SUPPORT
 
 
 class PurchaseProcessor(utils_views.ArgumentProcessor):

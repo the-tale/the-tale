@@ -6,7 +6,8 @@ smart_imports.all()
 
 settings = utils_app_settings.app_settings('PAYMENTS',
                                            PREMIUM_CURRENCY_FOR_DOLLAR=100,
-                                           ENABLE_REAL_PAYMENTS=False if not django_settings.TESTS_RUNNING else True,
+                                           # ENABLE_REAL_PAYMENTS=False if not django_settings.TESTS_RUNNING else True,
+                                           ENABLE_REAL_PAYMENTS=False,
                                            SETTINGS_ALLOWED_KEY='payments allowed',
 
                                            ALWAYS_ALLOWED_ACCOUNTS=[],
@@ -21,7 +22,8 @@ settings = utils_app_settings.app_settings('PAYMENTS',
                                            TT_MARKET_ENTRY_POINT='http://tt-market:80/',
                                            TT_XSOLLA_ENTRY_POINT='http://tt-xsolla:80/',
 
-                                           XSOLLA_ENABLED=False if not django_settings.TESTS_RUNNING else True,
+                                           # XSOLLA_ENABLED=False if not django_settings.TESTS_RUNNING else True,
+                                           XSOLLA_ENABLED=False,
                                            XSOLLA_PAY_STATION_VERSION=3,
                                            XSOLLA_SUPPORT='https://www.xsolla.com/modules/support/',
 
