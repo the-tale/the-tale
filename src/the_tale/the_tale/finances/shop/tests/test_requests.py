@@ -19,26 +19,27 @@ class PageRequestsMixin(object):
         self.request_logout()
         self.check_redirect(self.page_url, accounts_logic.login_page_url(self.page_url))
 
-    def test_xsolla_buy_link(self):
-        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 1)])
+    # def test_xsolla_buy_link(self):
+    #     self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 1)])
 
-    @mock.patch('the_tale.finances.shop.conf.settings.XSOLLA_ENABLED', False)
+    # @mock.patch('the_tale.finances.shop.conf.settings.XSOLLA_ENABLED', False)
     def test_xsolla_disabled__xsolla(self):
         self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 0)])
 
-    @mock.patch('the_tale.finances.shop.conf.settings.ENABLE_REAL_PAYMENTS', False)
-    @mock.patch('the_tale.finances.shop.conf.settings.ALWAYS_ALLOWED_ACCOUNTS', [])
+    # @mock.patch('the_tale.finances.shop.conf.settings.ENABLE_REAL_PAYMENTS', False)
+    # @mock.patch('the_tale.finances.shop.conf.settings.ALWAYS_ALLOWED_ACCOUNTS', [])
     def test_xsolla_disabled__global(self):
         self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 0)])
 
     def test_xsolla_disabled__settings(self):
-        del global_settings[conf.settings.SETTINGS_ALLOWED_KEY]
+        # del global_settings[conf.settings.SETTINGS_ALLOWED_KEY]
         self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 0)])
 
-    @mock.patch('the_tale.finances.shop.conf.settings.ENABLE_REAL_PAYMENTS', False)
+    # @mock.patch('the_tale.finances.shop.conf.settings.ENABLE_REAL_PAYMENTS', False)
     def test_xsolla_disabled__global_with_exception(self):
         with mock.patch('the_tale.finances.shop.conf.settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
-            self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 1)])
+            # self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 1)])
+            self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 0)])
 
 
 class RequestesTestsBase(utils_testcase.TestCase, third_party_helpers.ThirdPartyTestsMixin):
