@@ -149,18 +149,16 @@ jQuery(document).ready(function(e){
 {% if page_type == 'shop' %}
 
 {% if payment_successed %}
-<p class="alert alert-success pgf-successed-payment-message">
-  Спасибо! Ваши печеньки уже начислены.
-</p>
+  <p class="alert alert-success pgf-successed-payment-message">
+    Спасибо! Ваши печеньки уже начислены.
+  </p>
 {% endif %}
 
 {% if payment_failed %}
-<p class="alert alert-danger pgf-failed-payment-message">
-  При обработке вашего платежа произошла ошибка.<br/>
+  <p class="alert alert-danger pgf-failed-payment-message">
+    При обработке вашего платежа произошла ошибка.<br/>
 
-  {% set xsolla_support = value("the_tale.finances.shop.conf", "settings").XSOLLA_SUPPORT %}
-
-  Пожалуйста, обратитесь в поддержку Xsolla <a href="{{xsolla_support}}">{{xsolla_support}}</a> или в поддержку нашей игры: <a href="mailto:{{ settings.EMAIL_SUPPORT }}">{{ settings.EMAIL_SUPPORT_SHORT }}</a>.
+    Пожалуйста, обратитесь в поддержку Xsolla <a href="{{xsolla_support}}">{{xsolla_support}}</a> или на наш канал в <a href="{{settings.DISCORD_INVITE_LINK}}">Discord</a>.
 </p>
 {% endif %}
 
