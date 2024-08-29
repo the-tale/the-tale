@@ -36,10 +36,5 @@
                 "plugin": "tt_data_protector.plugins.internal",
                 "report_url": "http://tt-players-properties:80/data-protection-collect-data",
                 "deletion_url": "http://tt-players-properties:80/data-protection-delete-data",
-                "secret": "test.secret"},
-            "tt_xsolla": {
-                "plugin": "tt_data_protector.plugins.internal",
-                "report_url": "http://tt-xsolla:80/data-protection-collect-data",
-                "deletion_url": "http://tt-xsolla:80/data-protection-delete-data",
                 "secret": "test.secret"}}}
 }

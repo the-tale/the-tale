@@ -107,10 +107,6 @@ services:
     volumes:
       - ${PWD}:/home/tt_service/repository
 
-  tt-xsolla:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
   site:
     volumes:
       - ${PWD}:/home/tt_service/repository
@@ -124,10 +120,6 @@ services:
       - ${PWD}:/home/tt_service/repository
 
   worker-bank-processor:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  worker-xsolla-banker:
     volumes:
       - ${PWD}:/home/tt_service/repository
 

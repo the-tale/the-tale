@@ -206,12 +206,6 @@ services:
 
   tt-data-protector: {}
 
-  tt-xsolla:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-xsolla:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_xsolla/config.json:/home/tt_service/config.json
-
   site:
     command: tt_site -b 0.0.0.0:80 -w 4
 
@@ -224,10 +218,6 @@ services:
   worker-bank-processor:
     environment:
       TT_WORKER: bank_processor
-
-  worker-xsolla-banker:
-    environment:
-      TT_WORKER: xsolla_banker
 
   worker-refrigerator:
     environment:
