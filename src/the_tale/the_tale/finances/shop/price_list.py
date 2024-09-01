@@ -72,10 +72,3 @@ for purchase in SUBSCRIPTIONS:
     if purchase.uid in PURCHASES_BY_UID:
         raise exceptions.DuplicateUIDsInPriceListError()
     PURCHASES_BY_UID[purchase.uid] = purchase
-
-
-stage_1_inifinit_subscription_gift = permanent_purchase(
-                 uid='stage-1-inifinit-subscription-gift',
-                 purchase_type=relations.PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION,
-                 cost=0,
-                 transaction_description='Подарок от разработчиков: вечная подписка, чтобы весело проводить Сказку.')

@@ -6,7 +6,7 @@ smart_imports.all()
 
 class Command(utilities_base.Command):
 
-    help = 'gift infinit subscription to all payers and users with might > 100'
+    help = 'gift money to all payers and users with might > 100 or who made a purchase'
 
     LOCKS = ['portal_commands']
 
@@ -24,17 +24,18 @@ class Command(utilities_base.Command):
 
         self.logger.info(f'found {len(ids)} accounts')
 
-        # gift infinit subscription
+        # gift money
+
+        game_master = accounts_prototypes.AccountPrototype.get_by_id(1)
 
         for i, account_id in enumerate(ids):
             self.logger.info(f'process account {account_id} [{i}/{len(ids)}]')
 
             account = accounts_prototypes.AccountPrototype.get_by_id(account_id)
 
-            if shop_price_list.stage_1_inifinit_subscription_gift.purchase_type in account.permanent_purchases:
-                self.logger.info(f'skip account {account_id} [{i}/{len(ids)}]')
-                continue
-
-            shop_price_list.stage_1_inifinit_subscription_gift.buy(account=account)
+            shop_logic.transaction_gm(account=account,
+                                      amount=1500,
+                                      description="Подарок от разработчиков, чтобы весело проводить Сказку.",
+                                      game_master=game_master)
 
         self.logger.info('process completed')
