@@ -1,0 +1,42 @@
+
+* Choose licence
+
+** some table-top RGPs licence?
+
+** standart open licence?
+
+** what with revenue sharing?
+
+* Export
+
+** TODO Texts
+
+*** TODO Folclore
+
+*** TODO Mobs descriptions
+
+*** TODO Artifacts descriptions
+
+*** TODO Companions descriptions
+
+*** TODO Achievements descriptions
+
+*** TODO Пройтись по путеводителю и вручную докопировать части описательных текстов
+
+** TODO List of mobs
+
+** TODO List of artifacts
+
+** TODO List of companions
+
+** TODO Вспомогательные таблица
+
+*** TODO hero/mobs abitilities
+
+** TODO Comix
+
+*** Authorship
+
+** TODO Game resources
+
+*** https://the-tale.org/guide/game-resources
