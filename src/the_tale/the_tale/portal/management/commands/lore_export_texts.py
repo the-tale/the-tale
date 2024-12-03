@@ -11,42 +11,29 @@ from markdownify import markdownify as md
 smart_imports.all()
 
 
-class Source(str, enum.Enum):
-    monsters = 'монстры'
-
-
-class FictionalAuthor(str, enum.Enum):
-    Pereyar = 'Переяр'
-    Percunos = 'Перкунос Седой'
-
-
 def id_mob_text(mob_id):
     return f'mob_text_{mob_id}'
 
 
 def detect_fictional_author(text_id, text):
-    text_to_links = {'Виен-Нгуен': 'https://www.notion.so/1510547f58b880a4a39ffa63683b9604',
-                     'Каиниллин': 'https://www.notion.so/1510547f58b880868d8fca5e1eaef1ce',
-                     'Куанг': 'https://www.notion.so/1510547f58b880c58306fe3506e23db1',
-                     'Лялислав Бездомный': 'https://www.notion.so/1510547f58b880269315e389698acf4a',
-                     'Очирбат и Йорл': 'https://www.notion.so/1510547f58b88090b371eb37c410b022',
-                     'Переяр': 'https://www.notion.so/1510547f58b8803ea05bff71ada1b477',
-                     'Перкунос Седой': 'https://www.notion.so/1510547f58b880e19346c9d3cc10eca0',
-                     'Перкунос  Седой': 'https://www.notion.so/1510547f58b880e19346c9d3cc10eca0',
-                     'Хан и Туан': 'https://www.notion.so/1510547f58b8805ea68ddec1b9b3efd6',
-                     'Большая энциклопедия Хана и Туана': 'https://www.notion.so/1510547f58b8805ea68ddec1b9b3efd6',
-                     'Эрмид Тёмный': 'https://www.notion.so/1510547f58b880d08930d19352290d49',
-                     'Дневник Светозара сына Креслава': 'https://www.notion.so/1510547f58b880b48dd7d2cea69813da',
-                     'бестиарий Йодгара Шлезвига': 'https://www.notion.so/1510547f58b88077bed0d92d360b0991',
-                     'Гро-Мунха': 'https://www.notion.so/1510547f58b880e0be42c458a6c8c239',
-                     'Шимшона': 'https://www.notion.so/1510547f58b880d09103eaca56f7d9e6'}
+    text_to_links = {'Виен-Нгуен': 'Виен-Нгуен и Эллунир',
+                     'Каиниллин': 'Каиниллин',
+                     'Куанг': 'Куанг',
+                     'Лялислав Бездомный': 'Лялислав Бездомный',
+                     'Очирбат и Йорл': 'Очирбат и Йорл',
+                     'Переяр': 'Переяр',
+                     'Перкунос Седой': 'Перкунос Седой',
+                     'Перкунос  Седой': 'Перкунос Седой',
+                     'Хан и Туан': 'Хан и Туан',
+                     'Большая энциклопедия Хана и Туана': 'Хан и Туан',
+                     'Эрмид Тёмный': 'Эрмид Тёмный',
+                     'Дневник Светозара сына Креслава': 'Светозар сын Креслава',
+                     'бестиарий Йодгара Шлезвига': 'Йодгар Шлезвиг',
+                     'Гро-Мунха': 'Гро-Мунх',
+                     'Шимшона': 'Шимшон'}
 
     if text_id in ('mob_text_13', 'mob_text_87', 'mob_text_32'):
         return text_to_links['Хан и Туан']
-
-    # if text_id == 'mob_text_50':
-    #     print(text)
-    #     print('Перкунос Седой' in text)
 
     candidates = []
 
@@ -64,7 +51,7 @@ def detect_fictional_author(text_id, text):
 
 
 @dataclass
-class Record:
+class MobRecord:
     id: str
     title: str
     real_author: str
@@ -72,12 +59,27 @@ class Record:
     fictional_author: str
     text: str
 
+    level: int
+    type: str
+    archetype: str
+    intellect: str
+    communication: list[str]
+    structure: str
+    decorations: list[str]
+    body: list[str]
+    weapons: list[str]
+
     @classmethod
     def to_header(cls):
-        return ['id', 'Название', 'Автор', 'Источник', 'Вымышленный автор', 'Текст']
+        return ['Название', 'Вымышленный автор', 'Автор',
+                'Уровень', 'Тип', 'Архетип', 'Интеллект', 'Общение', 'Структура', 'Украшения', 'Тело', 'Оружие',
+                'Текст', 'id']
 
     def to_row(self):
-        return [self.id, self.title, self.real_author, self.real_source, self.fictional_author, self.text]
+        return [self.title, self.fictional_author, self.real_author,
+                self.level, self.type, self.archetype, self.intellect, ', '.join(self.communication), self.structure,
+                ', '.join(self.decorations), ', '.join(self.body), ', '.join(self.weapons),
+                self.text, self.id]
 
 
 def remove_italic_from_quotes(text):
