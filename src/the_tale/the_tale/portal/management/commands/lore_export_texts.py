@@ -75,12 +75,16 @@ class MobRecord:
     abilities: list[str]
     terrain: list[str]
 
+    loot: list[str]
+
     @classmethod
     def to_header(cls):
         return ['Название', 'Вымышленный автор', 'Автор',
                 'Уровень', 'Тип', 'Архетип', 'Интеллект', 'Общение', 'Структура', 'Особенности',
                 'Передвижение', 'Форма тела', 'Размер тела', 'Положение тела',
-                'Оружие', 'Способности', 'Территория', 'URL в игре',
+                'Оружие', 'Способности', 'Территория',
+                'Добыча',
+                'URL в игре',
                 'Текст']
 
     def to_row(self):
@@ -90,6 +94,7 @@ class MobRecord:
                 self.movement_type, self.body_form, self.body_size, self.body_orientation,
                 quote_list(self.weapons),
                 quote_list(self.abilities), quote_list(self.terrain),
+                quote_list(self.loot),
                 self.game_url, self.text]
 
 
@@ -137,6 +142,14 @@ def collect_mobs_descriptions():  # noqa
         if mob.communication_telepathic == tt_beings_relations.COMMUNICATION_TELEPATHIC.CAN:
             communication.append('телепатическое')
 
+        loot = []
+
+        for artifact in mob.artifacts:
+            loot.append(artifact.name)
+
+        for artifact in mob.loot:
+            loot.append(artifact.name)
+
         record = MobRecord(title=mob.name[0].upper() + mob.name[1:],
                            fictional_author=detect_fictional_author(game_url, mob.description),
                            real_author='Александр и Елена',
@@ -158,6 +171,8 @@ def collect_mobs_descriptions():  # noqa
 
                            abilities=[heroes_abilities.ABILITIES[ability_id].NAME for ability_id in mob.abilities],
                            terrain=[t.text for t in mob.terrains],
+
+                           loot=loot,
 
                            text=clean_bb_text(mob.description),
                            game_url=game_url)
