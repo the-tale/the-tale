@@ -9,11 +9,11 @@ from dataclasses import dataclass
 smart_imports.all()
 
 
-class Source(enum.StrEnum):
+class Source(str, enum.Enum):
     monsters = 'монстры'
 
 
-class FictionalAuthor(enum.StrEnum):
+class FictionalAuthor(str, enum.Enum):
     Pereyar = 'Переяр'
     Percunos = 'Перкунос Седой'
 
@@ -30,14 +30,27 @@ def detect_fictional_author(text_id, text):
                      'Очирбат и Йорл': 'https://www.notion.so/1510547f58b88090b371eb37c410b022',
                      'Переяр': 'https://www.notion.so/1510547f58b8803ea05bff71ada1b477',
                      'Перкунос Седой': 'https://www.notion.so/1510547f58b880e19346c9d3cc10eca0',
+                     'Перкунос  Седой': 'https://www.notion.so/1510547f58b880e19346c9d3cc10eca0',
                      'Хан и Туан': 'https://www.notion.so/1510547f58b8805ea68ddec1b9b3efd6',
-                     'Эрмид Тёмный': 'https://www.notion.so/1510547f58b880d08930d19352290d49'}
+                     'Большая энциклопедия Хана и Туана': 'https://www.notion.so/1510547f58b8805ea68ddec1b9b3efd6',
+                     'Эрмид Тёмный': 'https://www.notion.so/1510547f58b880d08930d19352290d49',
+                     'Дневник Светозара сына Креслава': 'https://www.notion.so/1510547f58b880b48dd7d2cea69813da',
+                     'бестиарий Йодгара Шлезвига': 'https://www.notion.so/1510547f58b88077bed0d92d360b0991',
+                     'Гро-Мунха': 'https://www.notion.so/1510547f58b880e0be42c458a6c8c239',
+                     'Шимшона': 'https://www.notion.so/1510547f58b880d09103eaca56f7d9e6'}
+
+    if text_id in ('mob_text_13', 'mob_text_87', 'mob_text_32'):
+        return text_to_links['Хан и Туан']
+
+    # if text_id == 'mob_text_50':
+    #     print(text)
+    #     print('Перкунос Седой' in text)
 
     candidates = []
 
     for name, link in text_to_links.items():
         if name in text:
-            candidates.append((name, link))
+            candidates.append(link)
 
     if not candidates:
         raise Exception(f'No fictional author found in text: {text_id}')
@@ -58,7 +71,7 @@ class Record:
     text: str
 
     def to_row(self):
-        return [self.id, self.title, self.real_author, self.real_source, self.fictional_author, self.fictional_source, self.text]
+        return [self.id, self.title, self.real_author, self.real_source, self.fictional_author, self.text]
 
 
 def collect_mobs_descriptions():
@@ -66,11 +79,13 @@ def collect_mobs_descriptions():
         if mob.state != mobs_relations.MOB_RECORD_STATE.ENABLED:
             continue
 
-        yield Record(id=id_mob_text(mob.id),
-                     title=mob.name,
+        text_id = id_mob_text(mob.id)
+
+        yield Record(id=text_id,
+                     title=mob.name[0].upper() + mob.name[1:],
                      real_author='Александр и Елена',
                      real_source=Source.monsters,
-                     fictional_author=detect_fictional_author(mob.description),
+                     fictional_author=detect_fictional_author(text_id, mob.description),
                      text=mob.description)
 
 
@@ -94,7 +109,7 @@ class Command(utilities_base.Command):
 
     def _handle(self, *args, **options):
 
-        directory = pathlib.Path('./lore')
+        directory = pathlib.Path('./repository/docs/lore')
 
         if not directory.exists():
             directory.mkdir()

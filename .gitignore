@@ -16,3 +16,4 @@ ansible.log
 __pycache__
 .smart_imports
 .backups
+lore
