@@ -1,10 +1,12 @@
 
 import smart_imports
 
+import re
 import enum
 import csv
 import pathlib
 from dataclasses import dataclass
+from markdownify import markdownify as md
 
 smart_imports.all()
 
@@ -74,6 +76,30 @@ class Record:
         return [self.id, self.title, self.real_author, self.real_source, self.fictional_author, self.text]
 
 
+def remove_italic_from_quotes(text):
+    text = text.replace('> *', '> ')
+
+    lines = []
+
+    for line in text.split('\n'):
+        if line.startswith('>') and line.endswith('*'):
+            line = line[:-1]
+
+        lines.append(line)
+
+    return '\n'.join(lines)
+
+
+def clean_bb_text(text):
+    text = bbcode_renderers.default.render(text)
+    text = md(text)
+
+    if '> *' in text:
+        text = remove_italic_from_quotes(text)
+
+    return text
+
+
 def collect_mobs_descriptions():
     for mob in mobs_storage.mobs.all():
         if mob.state != mobs_relations.MOB_RECORD_STATE.ENABLED:
@@ -86,7 +112,7 @@ def collect_mobs_descriptions():
                      real_author='Александр и Елена',
                      real_source=Source.monsters,
                      fictional_author=detect_fictional_author(text_id, mob.description),
-                     text=mob.description)
+                     text=clean_bb_text(mob.description))
 
 
 def collect_texts(filename: str):
@@ -101,6 +127,7 @@ def collect_texts(filename: str):
             writer.writerow(text.to_row())
 
 
+# tt_django lore_export_texts
 class Command(utilities_base.Command):
 
     help = 'export lore texts from DB to CSV'

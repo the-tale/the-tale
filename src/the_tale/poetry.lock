@@ -1,6 +1,6 @@
 [[package]]
 name = "amqp"
-version = "5.2.0"
+version = "5.3.1"
 description = "Low-level AMQP client for Python (fork of amqplib)."
 category = "main"
 optional = false
@@ -27,11 +27,11 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pytest"]
 
 [[package]]
 name = "asgiref"
-version = "3.7.2"
+version = "3.8.1"
 description = "ASGI specs, helper code, and adapters"
 category = "main"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 
 [package.dependencies]
 typing-extensions = {version = ">=4", markers = "python_version < \"3.11\""}
@@ -41,15 +41,33 @@ tests = ["pytest", "pytest-asyncio", "mypy (>=0.800)"]
 
 [[package]]
 name = "async-timeout"
-version = "4.0.3"
+version = "5.0.1"
 description = "Timeout context manager for asyncio programs"
 category = "main"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
+
+[[package]]
+name = "beautifulsoup4"
+version = "4.12.3"
+description = "Screen-scraping library"
+category = "dev"
+optional = false
+python-versions = ">=3.6.0"
+
+[package.dependencies]
+soupsieve = ">1.2"
+
+[package.extras]
+cchardet = ["cchardet"]
+chardet = ["chardet"]
+charset-normalizer = ["charset-normalizer"]
+html5lib = ["html5lib"]
+lxml = ["lxml"]
 
 [[package]]
 name = "certifi"
-version = "2023.11.17"
+version = "2024.8.30"
 description = "Python package for providing Mozilla's CA Bundle."
 category = "main"
 optional = false
@@ -57,7 +75,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "cffi"
-version = "1.16.0"
+version = "1.17.1"
 description = "Foreign Function Interface for Python calling C code."
 category = "main"
 optional = false
@@ -146,11 +164,14 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "idna"
-version = "3.6"
+version = "3.10"
 description = "Internationalized Domain Names in Applications (IDNA)"
 category = "main"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.6"
+
+[package.extras]
+all = ["ruff (>=0.6.2)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "flake8 (>=7.1.1)"]
 
 [[package]]
 name = "jinja2"
@@ -206,6 +227,18 @@ python-versions = ">=3.6"
 testing = ["coverage", "pyyaml"]
 
 [[package]]
+name = "markdownify"
+version = "0.14.1"
+description = "Convert HTML to markdown."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+beautifulsoup4 = ">=4.9,<5"
+six = ">=1.15,<2"
+
+[[package]]
 name = "markupsafe"
 version = "2.0.1"
 description = "Safely add untrusted strings to HTML/XML markup."
@@ -250,11 +283,11 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "pycparser"
-version = "2.21"
+version = "2.22"
 description = "C parser in Python"
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+python-versions = ">=3.8"
 
 [[package]]
 name = "pynames"
@@ -269,7 +302,7 @@ unicodecsv = ">=0.14,<0.15"
 
 [[package]]
 name = "pytz"
-version = "2023.3.post1"
+version = "2024.2"
 description = "World timezone definitions, modern and historical"
 category = "main"
 optional = false
@@ -285,18 +318,18 @@ python-versions = ">=3.6,<4.0"
 
 [[package]]
 name = "redis"
-version = "5.0.1"
+version = "5.2.0"
 description = "Python client for Redis database and key-value store"
 category = "main"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 
 [package.dependencies]
-async-timeout = {version = ">=4.0.2", markers = "python_full_version <= \"3.11.2\""}
+async-timeout = {version = ">=4.0.3", markers = "python_full_version < \"3.11.3\""}
 
 [package.extras]
-hiredis = ["hiredis (>=1.0.0)"]
-ocsp = ["cryptography (>=36.0.1)", "pyopenssl (==20.0.1)", "requests (>=2.26.0)"]
+hiredis = ["hiredis (>=3.0.0)"]
+ocsp = ["cryptography (>=36.0.1)", "pyopenssl (==23.2.1)", "requests (>=2.31.0)"]
 
 [[package]]
 name = "rels"
@@ -354,6 +387,14 @@ sqlalchemy = ["sqlalchemy (>=1.2)"]
 tornado = ["tornado (>=5)"]
 
 [[package]]
+name = "six"
+version = "1.16.0"
+description = "Python 2 and 3 compatibility utilities"
+category = "dev"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
+
+[[package]]
 name = "smart-imports"
 version = "0.2.7"
 description = "Automatic importing for Python modules."
@@ -362,17 +403,24 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
+name = "soupsieve"
+version = "2.6"
+description = "A modern CSS selector implementation for Beautiful Soup."
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
 name = "sqlparse"
-version = "0.4.4"
+version = "0.5.2"
 description = "A non-validating SQL parser."
 category = "main"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.8"
 
 [package.extras]
-dev = ["flake8", "build"]
+dev = ["build", "hatch"]
 doc = ["sphinx"]
-test = ["pytest", "pytest-cov"]
 
 [[package]]
 name = "tt-calendar"
@@ -430,7 +478,7 @@ test = ["pytest", "typing-extensions", "mypy"]
 
 [[package]]
 name = "typing-extensions"
-version = "4.9.0"
+version = "4.12.2"
 description = "Backported and Experimental Type Hints for Python 3.8+"
 category = "main"
 optional = false
@@ -446,11 +494,11 @@ python-versions = "*"
 
 [[package]]
 name = "urllib3"
-version = "1.26.18"
+version = "1.26.20"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
 
 [package.extras]
 brotli = ["brotlicffi (>=0.8.0)", "brotli (==1.0.9)", "brotlipy (>=0.6.0)", "brotli (>=1.0.9)"]
@@ -489,13 +537,14 @@ test = ["pytest", "pytest-cov"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "75a79dbc2886a5b137e25cc1e1ca8a5720dfb0be6c1ac7e0cc725ba248ea25b3"
+content-hash = "748f5a3ccfd75a6b07fe0a974fa7e4de91e36270559937800f75517c28e39acd"
 
 [metadata.files]
 amqp = []
 argon2-cffi = []
 asgiref = []
 async-timeout = []
+beautifulsoup4 = []
 certifi = []
 cffi = []
 charset-normalizer = []
@@ -509,6 +558,7 @@ idna = []
 jinja2 = []
 kombu = []
 markdown = []
+markdownify = []
 markupsafe = []
 postmarkup = []
 protobuf = []
@@ -522,7 +572,9 @@ redis = []
 rels = []
 requests = []
 sentry-sdk = []
+six = []
 smart-imports = []
+soupsieve = []
 sqlparse = []
 tt-calendar = []
 tt-logic = []

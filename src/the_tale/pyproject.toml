@@ -42,3 +42,4 @@ tt_calendar = { path = "../tt_calendar/", develop = true }
 [tool.poetry.dev-dependencies]
 django-test-without-migrations = "^0.6"
 typeguard = "2.13.0"
+markdownify = "0.14.1"
