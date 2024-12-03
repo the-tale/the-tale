@@ -73,6 +73,8 @@
 
 *** TODO hero/mobs abitilities
 
+*** TODO пройтись по всем колонкам больших списков и добавить недостающие таблицы
+
 ** TODO Comix
 
 *** Authorship
