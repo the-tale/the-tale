@@ -72,6 +72,10 @@ class Record:
     fictional_author: str
     text: str
 
+    @classmethod
+    def to_header(cls):
+        return ['id', 'Название', 'Автор', 'Источник', 'Вымышленный автор', 'Текст']
+
     def to_row(self):
         return [self.id, self.title, self.real_author, self.real_source, self.fictional_author, self.text]
 
@@ -122,6 +126,8 @@ def collect_texts(filename: str):
 
     with open(filename, 'w', newline='', encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
+
+        writer.writerow(Record.to_header())
 
         for text in texts:
             writer.writerow(text.to_row())
