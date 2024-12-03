@@ -1,4 +1,3 @@
-
 import smart_imports
 
 import re
@@ -55,7 +54,6 @@ class MobRecord:
     id: str
     title: str
     real_author: str
-    real_source: Source
     fictional_author: str
     text: str
 
@@ -66,19 +64,28 @@ class MobRecord:
     communication: list[str]
     structure: str
     decorations: list[str]
-    body: list[str]
+
+    movement_type: str
+    body_form: str
+    body_size: str
+    body_orientation: str
+
     weapons: list[str]
 
     @classmethod
     def to_header(cls):
         return ['Название', 'Вымышленный автор', 'Автор',
-                'Уровень', 'Тип', 'Архетип', 'Интеллект', 'Общение', 'Структура', 'Украшения', 'Тело', 'Оружие',
+                'Уровень', 'Тип', 'Архетип', 'Интеллект', 'Общение', 'Структура', 'Украшения',
+                'Передвижение', 'Форма тела', 'Размер тела', 'Положение тела',
+                'Оружие',
                 'Текст', 'id']
 
     def to_row(self):
         return [self.title, self.fictional_author, self.real_author,
                 self.level, self.type, self.archetype, self.intellect, ', '.join(self.communication), self.structure,
-                ', '.join(self.decorations), ', '.join(self.body), ', '.join(self.weapons),
+                ', '.join(self.decorations),
+                self.movement_type, self.body_form, self.body_size, self.body_orientation,
+                ', '.join(self.weapons),
                 self.text, self.id]
 
 
@@ -106,33 +113,61 @@ def clean_bb_text(text):
     return text
 
 
-def collect_mobs_descriptions():
+def collect_mobs_descriptions():  # noqa
+    mobs = []
+
     for mob in mobs_storage.mobs.all():
         if mob.state != mobs_relations.MOB_RECORD_STATE.ENABLED:
             continue
 
         text_id = id_mob_text(mob.id)
 
-        yield Record(id=text_id,
-                     title=mob.name[0].upper() + mob.name[1:],
-                     real_author='Александр и Елена',
-                     real_source=Source.monsters,
-                     fictional_author=detect_fictional_author(text_id, mob.description),
-                     text=clean_bb_text(mob.description))
+        communication = []
+
+        if mob.communication_verbal:
+            communication.append('вербальное')
+
+        if mob.communication_gestures:
+            communication.append('жестовое')
+
+        if mob.communication_telepathic:
+            communication.append('телепатическое')
+
+        record = MobRecord(title=mob.name[0].upper() + mob.name[1:],
+                           fictional_author=detect_fictional_author(text_id, mob.description),
+                           real_author='Александр и Елена',
+
+                           level=mob.level,
+                           type=mob.type,
+                           archetype=mob.archetype,
+                           intellect=mob.intellect_level,
+                           communication=communication,
+                           structure=mob.structure,
+                           decorations=mob.features,
+
+                           movement_type=mob.movement,
+                           body_form=mob.body,
+                           body_size=mob.size,
+                           body_orientation=mob.orientation,
+
+                           weapons=mob.weapons,
+
+                           text=clean_bb_text(mob.description),
+                           id=text_id)
+
+        mobs.append(record)
+
+    return mobs
 
 
-def collect_texts(filename: str):
-    texts = []
-
-    texts.extend(collect_mobs_descriptions())
-
+def export_to_csv(filename: str, records):
     with open(filename, 'w', newline='', encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
 
-        writer.writerow(Record.to_header())
+        writer.writerow(records[0].to_header())
 
-        for text in texts:
-            writer.writerow(text.to_row())
+        for record in records:
+            writer.writerow(record.to_row())
 
 
 # tt_django lore_export_texts
@@ -149,4 +184,4 @@ class Command(utilities_base.Command):
         if not directory.exists():
             directory.mkdir()
 
-        collect_texts(directory / 'texts.csv')
+        export_to_csv(directory / 'mobs.csv', collect_mobs_descriptions())
