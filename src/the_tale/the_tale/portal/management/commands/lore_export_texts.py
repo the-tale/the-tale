@@ -10,10 +10,6 @@ from markdownify import markdownify as md
 smart_imports.all()
 
 
-def id_mob_text(mob_id):
-    return f'mob_text_{mob_id}'
-
-
 def detect_fictional_author(text_id, text):
     text_to_links = {'Виен-Нгуен': 'Виен-Нгуен и Эллунир',
                      'Каиниллин': 'Каиниллин',
@@ -31,7 +27,7 @@ def detect_fictional_author(text_id, text):
                      'Гро-Мунха': 'Гро-Мунх',
                      'Шимшона': 'Шимшон'}
 
-    if text_id in ('mob_text_13', 'mob_text_87', 'mob_text_32'):
+    if text_id in ('https://the-tale.org/guide/mobs/13', 'https://the-tale.org/guide/mobs/87', 'https://the-tale.org/guide/mobs/32'):
         return text_to_links['Хан и Туан']
 
     candidates = []
@@ -49,9 +45,13 @@ def detect_fictional_author(text_id, text):
     return candidates[0]
 
 
+def quote_list(texts):
+    return ','.join(text for text in texts)
+
+
 @dataclass
 class MobRecord:
-    id: str
+    game_url: str
     title: str
     real_author: str
     fictional_author: str
@@ -72,21 +72,25 @@ class MobRecord:
 
     weapons: list[str]
 
+    abilities: list[str]
+    terrain: list[str]
+
     @classmethod
     def to_header(cls):
         return ['Название', 'Вымышленный автор', 'Автор',
-                'Уровень', 'Тип', 'Архетип', 'Интеллект', 'Общение', 'Структура', 'Украшения',
+                'Уровень', 'Тип', 'Архетип', 'Интеллект', 'Общение', 'Структура', 'Особенности',
                 'Передвижение', 'Форма тела', 'Размер тела', 'Положение тела',
-                'Оружие',
-                'Текст', 'id']
+                'Оружие', 'Способности', 'Территория', 'URL в игре',
+                'Текст']
 
     def to_row(self):
         return [self.title, self.fictional_author, self.real_author,
-                self.level, self.type, self.archetype, self.intellect, ', '.join(self.communication), self.structure,
-                ', '.join(self.decorations),
+                self.level, self.type, self.archetype, self.intellect, quote_list(self.communication), self.structure,
+                quote_list(self.decorations),
                 self.movement_type, self.body_form, self.body_size, self.body_orientation,
-                ', '.join(self.weapons),
-                self.text, self.id]
+                quote_list(self.weapons),
+                quote_list(self.abilities), quote_list(self.terrain),
+                self.game_url, self.text]
 
 
 def remove_italic_from_quotes(text):
@@ -120,40 +124,43 @@ def collect_mobs_descriptions():  # noqa
         if mob.state != mobs_relations.MOB_RECORD_STATE.ENABLED:
             continue
 
-        text_id = id_mob_text(mob.id)
+        game_url = f'https://the-tale.org/guide/mobs/{mob.id}'
 
         communication = []
 
-        if mob.communication_verbal:
+        if mob.communication_verbal == tt_beings_relations.COMMUNICATION_VERBAL.CAN:
             communication.append('вербальное')
 
-        if mob.communication_gestures:
+        if mob.communication_gestures == tt_beings_relations.COMMUNICATION_GESTURES.CAN:
             communication.append('жестовое')
 
-        if mob.communication_telepathic:
+        if mob.communication_telepathic == tt_beings_relations.COMMUNICATION_TELEPATHIC.CAN:
             communication.append('телепатическое')
 
         record = MobRecord(title=mob.name[0].upper() + mob.name[1:],
-                           fictional_author=detect_fictional_author(text_id, mob.description),
+                           fictional_author=detect_fictional_author(game_url, mob.description),
                            real_author='Александр и Елена',
 
                            level=mob.level,
-                           type=mob.type,
-                           archetype=mob.archetype,
-                           intellect=mob.intellect_level,
+                           type=mob.type.text,
+                           archetype=mob.archetype.text,
+                           intellect=mob.intellect_level.text,
                            communication=communication,
-                           structure=mob.structure,
-                           decorations=mob.features,
+                           structure=mob.structure.text,
+                           decorations=[f.text for f in mob.features],
 
-                           movement_type=mob.movement,
-                           body_form=mob.body,
-                           body_size=mob.size,
-                           body_orientation=mob.orientation,
+                           movement_type=mob.movement.text,
+                           body_form=mob.body.text,
+                           body_size=mob.size.text,
+                           body_orientation=mob.orientation.text,
 
-                           weapons=mob.weapons,
+                           weapons=[w.verbose() for w in mob.weapons],
+
+                           abilities=[heroes_abilities.ABILITIES[ability_id].NAME for ability_id in mob.abilities],
+                           terrain=[t.text for t in mob.terrains],
 
                            text=clean_bb_text(mob.description),
-                           id=text_id)
+                           game_url=game_url)
 
         mobs.append(record)
 
