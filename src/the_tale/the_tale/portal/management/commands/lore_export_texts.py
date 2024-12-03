@@ -25,10 +25,20 @@ def detect_fictional_author(text_id, text):
                      'Дневник Светозара сына Креслава': 'Светозар сын Креслава',
                      'бестиарий Йодгара Шлезвига': 'Йодгар Шлезвиг',
                      'Гро-Мунха': 'Гро-Мунх',
-                     'Шимшона': 'Шимшон'}
+                     'Шимшона': 'Шимшон',
+                     'Вегуса': 'Вегус'}
 
-    if text_id in ('https://the-tale.org/guide/mobs/13', 'https://the-tale.org/guide/mobs/87', 'https://the-tale.org/guide/mobs/32'):
+    if text_id in ('https://the-tale.org/guide/mobs/13', 'https://the-tale.org/guide/mobs/87', 'https://the-tale.org/guide/mobs/32', 'https://the-tale.org/guide/artifacts/99'):
         return text_to_links['Хан и Туан']
+
+    if text_id in ['https://the-tale.org/guide/artifacts/133']:
+        return text_to_links['Переяр']
+
+    if text_id in ['https://the-tale.org/guide/artifacts/398', 'https://the-tale.org/guide/artifacts/387', 'https://the-tale.org/guide/artifacts/373']:
+        return text_to_links['Очирбат и Йорл']
+
+    if text_id in ['https://the-tale.org/guide/artifacts/340', 'https://the-tale.org/guide/artifacts/343', 'https://the-tale.org/guide/artifacts/341', 'https://the-tale.org/guide/artifacts/344', 'https://the-tale.org/guide/artifacts/342', 'https://the-tale.org/guide/artifacts/401', 'https://the-tale.org/guide/artifacts/248']:
+        return 'нет'
 
     candidates = []
 
@@ -52,7 +62,7 @@ def quote_list(texts):
 @dataclass
 class MobRecord:
     game_url: str
-    title: str
+    name: str
     real_author: str
     fictional_author: str
     text: str
@@ -88,7 +98,7 @@ class MobRecord:
                 'Текст']
 
     def to_row(self):
-        return [self.title, self.fictional_author, self.real_author,
+        return [self.name, self.fictional_author, self.real_author,
                 self.level, self.type, self.archetype, self.intellect, quote_list(self.communication), self.structure,
                 quote_list(self.decorations),
                 self.movement_type, self.body_form, self.body_size, self.body_orientation,
@@ -96,6 +106,38 @@ class MobRecord:
                 quote_list(self.abilities), quote_list(self.terrain),
                 quote_list(self.loot),
                 self.game_url, self.text]
+
+
+@dataclass
+class ArtifactRecord:
+    game_url: str
+    name: str
+    real_author: str
+    fictional_author: str
+    mobs: list[str]
+    level: int
+    type: str
+    power: str
+    material: str
+    weapon: str
+    text: str
+
+    @classmethod
+    def to_header(cls):
+        return ['Название', 'Вымышленный автор', 'Автор', 'Монстры', 'Уровень', 'Тип', 'Сила', 'Материал', 'Оружие', 'URL в игре', 'Текст']
+
+    def to_row(self):
+        return [self.name,
+                self.fictional_author,
+                self.real_author,
+                quote_list(self.mobs),
+                self.level,
+                self.type,
+                self.power,
+                self.material,
+                self.weapon,
+                self.game_url,
+                self.text]
 
 
 def remove_italic_from_quotes(text):
@@ -150,7 +192,7 @@ def collect_mobs_descriptions():  # noqa
         for artifact in mob.loot:
             loot.append(artifact.name)
 
-        record = MobRecord(title=mob.name[0].upper() + mob.name[1:],
+        record = MobRecord(name=mob.name[0].upper() + mob.name[1:],
                            fictional_author=detect_fictional_author(game_url, mob.description),
                            real_author='Александр и Елена',
 
@@ -182,6 +224,37 @@ def collect_mobs_descriptions():  # noqa
     return mobs
 
 
+def collect_artifacts_descriptions():  # noqa
+    artifacts = []
+
+    for artifact in artifacts_storage.artifacts.all():
+        if artifact.state != artifacts_relations.ARTIFACT_RECORD_STATE.ENABLED:
+            continue
+
+        game_url = f'https://the-tale.org/guide/artifacts/{artifact.id}'
+
+        if artifact.weapon_type == tt_artifacts_relations.WEAPON_TYPE.NONE:
+            weapon = 'нет'
+        else:
+            weapon = f'{artifact.weapon_type.text} (урон: { artifact.damage_types_verbose() })'
+
+        record = ArtifactRecord(game_url=game_url,
+                                name=artifact.name[0].upper() + artifact.name[1:],
+                                fictional_author=detect_fictional_author(game_url, artifact.description),
+                                real_author='Александр и Елена',
+                                mobs=[mobs_storage.mobs[artifact.mob_id].name] if artifact.mob_id else [],
+                                level=artifact.level,
+                                type=artifact.type.text,
+                                power=artifact.power_type.text,
+                                material=artifact.material.text,
+                                weapon=weapon,
+                                text=clean_bb_text(artifact.description))
+
+        artifacts.append(record)
+
+    return artifacts
+
+
 def export_to_csv(filename: str, records):
     with open(filename, 'w', newline='', encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
@@ -207,3 +280,4 @@ class Command(utilities_base.Command):
             directory.mkdir()
 
         export_to_csv(directory / 'mobs.csv', collect_mobs_descriptions())
+        export_to_csv(directory / 'artifacts.csv', collect_artifacts_descriptions())
