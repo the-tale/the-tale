@@ -11,15 +11,7 @@
 
 ** TODO Texts
 
-*** TODO Folclore
-
-*** TODO Mobs descriptions
-
-*** TODO Artifacts descriptions
-
-*** TODO Companions descriptions
-
-*** TODO Achievements descriptions
+*** DONE Folclore
 
 *** TODO Пройтись по путеводителю и вручную докопировать части описательных текстов
 
