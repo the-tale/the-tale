@@ -199,6 +199,21 @@ class AbilityRecord:
         return [self.name, quote_list(self.properties), self.text]
 
 
+@dataclass
+class CollectionItemRecord:
+    name: str
+    text: str
+    book: str
+    section: str
+
+    @classmethod
+    def to_header(cls):
+        return ['Название', 'Книга', 'Раздел', 'Текст']
+
+    def to_row(self):
+        return [self.name, self.book, self.section, self.text]
+
+
 def remove_italic_from_quotes(text):
     text = text.replace('> *', '> ')
 
@@ -380,6 +395,24 @@ def collect_abilities():
     return records
 
 
+def collect_collection_items():
+    records = []
+
+    for item in collections_storage.items.all():
+        if not item.approved:
+            continue
+
+        kit = collections_storage.kits[item.kit_id]
+        collection = collections_storage.collections[kit.collection_id]
+
+        records.append(CollectionItemRecord(name=item.caption,
+                                            text=clean_bb_text(item.text),
+                                            book=collection.caption,
+                                            section=kit.caption))
+
+    return records
+
+
 def export_to_csv(filename: str, records):
     with open(filename, 'w', newline='', encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
@@ -408,3 +441,4 @@ class Command(utilities_base.Command):
         export_to_csv(directory / 'artifacts.csv', collect_artifacts_descriptions())
         export_to_csv(directory / 'companions.csv', collect_companions_descriptions())
         export_to_csv(directory / 'abilities.csv', collect_abilities())
+        export_to_csv(directory / 'collection_items.csv', collect_collection_items())
