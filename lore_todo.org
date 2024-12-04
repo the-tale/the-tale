@@ -68,11 +68,6 @@
 *** TODO hero/mobs abitilities
 
 *** TODO пройтись по всем колонкам больших списков и добавить недостающие таблицы
-
-** TODO Comix
-
-*** Authorship
-
 ** TODO Game resources
 
 *** https://the-tale.org/guide/game-resources
