@@ -185,6 +185,20 @@ class CompanionRecord:
                 self.game_url, self.text]
 
 
+@dataclass
+class AbilityRecord:
+    name: str
+    text: str
+    properties: list[str]
+
+    @classmethod
+    def to_header(cls):
+        return ['Название', 'Свойства', 'Описание']
+
+    def to_row(self):
+        return [self.name, quote_list(self.properties), self.text]
+
+
 def remove_italic_from_quotes(text):
     text = text.replace('> *', '> ')
 
@@ -352,6 +366,20 @@ def collect_companions_descriptions():  # noqa
     return companions
 
 
+def collect_abilities():
+    records = []
+
+    for ability in heroes_abilities.ABILITIES.values():
+        properties = [ability.ACTIVATION_TYPE.text, ability.TYPE.text]
+
+        record = AbilityRecord(name=ability.NAME,
+                               properties=properties,
+                               text=ability.DESCRIPTION)
+        records.append(record)
+
+    return records
+
+
 def export_to_csv(filename: str, records):
     with open(filename, 'w', newline='', encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
@@ -379,3 +407,4 @@ class Command(utilities_base.Command):
         export_to_csv(directory / 'mobs.csv', collect_mobs_descriptions())
         export_to_csv(directory / 'artifacts.csv', collect_artifacts_descriptions())
         export_to_csv(directory / 'companions.csv', collect_companions_descriptions())
+        export_to_csv(directory / 'abilities.csv', collect_abilities())
