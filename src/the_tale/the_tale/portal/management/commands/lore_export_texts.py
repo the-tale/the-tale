@@ -140,6 +140,51 @@ class ArtifactRecord:
                 self.text]
 
 
+@dataclass
+class CompanionRecord:
+    game_url: str
+    name: str
+    real_author: str
+    fictional_author: str
+    rarity: str
+    type: str
+    archetype: str
+    communication: list[str]
+    intellect: str
+    dedication: str
+    health: int
+    abilities: list[str]
+
+    structure: str
+    decorations: list[str]
+
+    movement_type: str
+    body_form: str
+    body_size: str
+    body_orientation: str
+
+    weapons: list[str]
+    text: str
+
+    @classmethod
+    def to_header(cls):
+        return ['Название', 'Вымышленный автор', 'Автор', 'Редкость',
+                'Тип', 'Архетип', 'Общение', 'Интеллект', 'Самоотверженность', 'Здоровье', 'Способности',
+                'Структура', 'Особенности',
+                'Передвижение', 'Форма тела', 'Размер тела', 'Положение тела',
+                'Оружие',
+                'URL в игре',
+                'Текст']
+
+    def to_row(self):
+        return [self.name, self.fictional_author, self.real_author, self.rarity,
+                self.type, self.archetype, quote_list(self.communication), self.intellect, self.dedication, self.health, quote_list(self.abilities),
+                self.structure, quote_list(self.decorations),
+                self.movement_type, self.body_form, self.body_size, self.body_orientation,
+                quote_list(self.weapons),
+                self.game_url, self.text]
+
+
 def remove_italic_from_quotes(text):
     text = text.replace('> *', '> ')
 
@@ -255,6 +300,58 @@ def collect_artifacts_descriptions():  # noqa
     return artifacts
 
 
+def collect_companions_descriptions():  # noqa
+    companions = []
+
+    for companion in companions_storage.companions.all():
+        if companion.state != companions_relations.STATE.ENABLED:
+            continue
+
+        game_url = f'https://the-tale.org/guide/companions/{companion.id}'
+
+        communication = []
+
+        if companion.communication_verbal == tt_beings_relations.COMMUNICATION_VERBAL.CAN:
+            communication.append('вербальное')
+
+        if companion.communication_gestures == tt_beings_relations.COMMUNICATION_GESTURES.CAN:
+            communication.append('жестовое')
+
+        if companion.communication_telepathic == tt_beings_relations.COMMUNICATION_TELEPATHIC.CAN:
+            communication.append('телепатическое')
+
+        record = CompanionRecord(name=companion.name[0].upper() + companion.name[1:],
+                                 fictional_author='нет',
+                                 real_author='Александр и Елена',
+
+                                 rarity=companion.rarity.text,
+                                 type=companion.type.text,
+                                 archetype=companion.archetype.text,
+                                 intellect=companion.intellect_level.text,
+                                 communication=communication,
+                                 structure=companion.structure.text,
+                                 decorations=[f.text for f in companion.features],
+
+                                 dedication=companion.dedication.text,
+                                 health=companion.max_health,
+
+                                 movement_type=companion.movement.text,
+                                 body_form=companion.body.text,
+                                 body_size=companion.size.text,
+                                 body_orientation=companion.orientation.text,
+
+                                 weapons=[w.verbose() for w in companion.weapons],
+
+                                 abilities=[a[1].text for a in companion.abilities.all_abilities],
+
+                                 text=clean_bb_text(companion.description),
+                                 game_url=game_url)
+
+        companions.append(record)
+
+    return companions
+
+
 def export_to_csv(filename: str, records):
     with open(filename, 'w', newline='', encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
@@ -281,3 +378,4 @@ class Command(utilities_base.Command):
 
         export_to_csv(directory / 'mobs.csv', collect_mobs_descriptions())
         export_to_csv(directory / 'artifacts.csv', collect_artifacts_descriptions())
+        export_to_csv(directory / 'companions.csv', collect_companions_descriptions())
