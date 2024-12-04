@@ -283,7 +283,7 @@ def collect_mobs_descriptions():  # noqa
                            body_size=mob.size.text,
                            body_orientation=mob.orientation.text,
 
-                           weapons=[w.verbose() for w in mob.weapons],
+                           weapons=[w.verbose().replace(', ', ' / ') for w in mob.weapons],
 
                            abilities=[heroes_abilities.ABILITIES[ability_id].NAME for ability_id in mob.abilities],
                            terrain=[t.text for t in mob.terrains],
