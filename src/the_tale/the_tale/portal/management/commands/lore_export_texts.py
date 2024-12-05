@@ -214,6 +214,21 @@ class CollectionItemRecord:
         return [self.name, self.book, self.section, self.text]
 
 
+@dataclass
+class CompanionAbilityRecord:
+    name: str
+    text: str
+    type: str
+
+    @classmethod
+    def to_header(cls):
+        return ['Название', 'Тип', 'Описание']
+
+    def to_row(self):
+        return [self.name, self.type, self.text]
+
+
+
 def remove_italic_from_quotes(text):
     text = text.replace('> *', '> ')
 
@@ -413,6 +428,18 @@ def collect_collection_items():
     return records
 
 
+def collect_companions_abilities():
+    records = []
+
+    for ability in companions_abilities_effects.ABILITIES.records:
+        record = CompanionAbilityRecord(name=ability.text,
+                                        type=ability.effect.TYPE.metatype.text,
+                                        text=ability.description)
+        records.append(record)
+
+    return records
+
+
 def export_to_csv(filename: str, records):
     with open(filename, 'w', newline='', encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
@@ -442,3 +469,4 @@ class Command(utilities_base.Command):
         export_to_csv(directory / 'companions.csv', collect_companions_descriptions())
         export_to_csv(directory / 'abilities.csv', collect_abilities())
         export_to_csv(directory / 'collection_items.csv', collect_collection_items())
+        export_to_csv(directory / 'companions_abilities.csv', collect_companions_abilities())
