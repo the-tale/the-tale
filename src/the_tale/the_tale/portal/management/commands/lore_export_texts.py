@@ -369,7 +369,7 @@ def collect_companions_descriptions():  # noqa
                                  body_size=companion.size.text,
                                  body_orientation=companion.orientation.text,
 
-                                 weapons=[w.verbose() for w in companion.weapons],
+                                 weapons=[w.verbose().replace(', ', ' / ') for w in companion.weapons],
 
                                  abilities=[a[1].text for a in companion.abilities.all_abilities],
 
