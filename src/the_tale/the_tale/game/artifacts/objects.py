@@ -296,7 +296,7 @@ class ArtifactRecord(game_names.ManageNameMixin2):
     def damage_types_verbose(self):
         types = list(type.text for type in self.weapon_type.damage_types)
         types.sort()
-        return ', '.join(types)
+        return ' / '.join(types)
 
     @property
     def is_useless(self): return self.type.is_USELESS
