@@ -247,20 +247,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-  tt-discord:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-discord:$TT_RELEASE_VERSION
-
-    build:
-      context: ../
-      dockerfile: ./docker/tt_service/Dockerfile
-      args:
-        TT_PACKAGE: tt_discord
-        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
-        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
   tt-data-protector:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-data-protector:$TT_RELEASE_VERSION

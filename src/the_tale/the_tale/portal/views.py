@@ -95,6 +95,7 @@ def chat(context):
                             content={'resource': context.resource})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor(error_message='Вы должны войти в игру, чтобы связать свой аккаунт с аккаунтом Discord')
 @accounts_views.FullAccountProcessor()
 @resource('chat-bind-discord')

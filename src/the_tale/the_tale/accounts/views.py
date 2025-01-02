@@ -64,6 +64,16 @@ class LoginRequiredProcessor(utils_views.BaseViewProcessor):
         return utils_views.Redirect(target_url=self.login_page_url(context.django_request.get_full_path()))
 
 
+class OperationDisabledDueGameStoppedProcessor(utils_views.BaseViewProcessor):
+    ARG_ERROR_MESSAGE = utils_views.ProcessorArgument(default='Операция отключена, игра остановлена и находится в режиме только для чтения')
+
+    def login_page_url(self, target_url):
+        return logic.login_page_url(target_url)
+
+    def preprocess(self, context):
+        raise utils_views.ViewError(code='common.operation_disabled_game_stopped', message=self.error_message)
+
+
 class FullAccountProcessor(utils_views.FlaggedAccessProcessor):
     ERROR_CODE = 'common.fast_account'
     ERROR_MESSAGE = 'Вы не закончили регистрацию, данная функция вам недоступна'

@@ -51,4 +51,5 @@ def new_day_actions():
 
 
 def sync_with_discord(account):
-    tt_services.discord.cmd_update_user(discord.construct_user_info(account))
+    # disabled when switching game to readonly mode
+    pass

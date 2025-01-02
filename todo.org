@@ -33,9 +33,15 @@
 
 * TODO Release
 
-** TODO Config for Caddy
+** TODO Deploy to the old server
 
-** TODO Switch domain to new server
+*** TODO Check that everyting is working
+
+** TODO Deploy to the new server
+
+*** TODO Config for Caddy
+
+*** TODO Switch domain to new server
 
 * TODO After release
 
@@ -44,4 +50,3 @@
 ** TODO Remove Sentry accounts
 
 ** TODO Cancel server
-o

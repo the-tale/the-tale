@@ -212,9 +212,6 @@ services:
   tt-emissaries-events-uniquer:
     << : *default-tt-service
 
-  tt-discord:
-    << : *default-tt-service
-
   tt-data-protector:
     << : [*default-tt-data-protector, *default-tt-service]
 
