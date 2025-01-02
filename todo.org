@@ -29,6 +29,8 @@
 
 **** currencies displayed normally
 
+** TODO Arena turned off without errors
+
 * TODO Remove unnecessary folders with configs from ./docker directory
 
 * TODO Check ansible configs
@@ -36,6 +38,8 @@
 ** TODO Check mentioned services
 
 ** TODO Check mentioned databases
+
+* TODO Disable Arena
 
 * TODO Before release
 

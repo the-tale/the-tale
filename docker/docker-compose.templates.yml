@@ -190,9 +190,6 @@ services:
   tt-clans-properties:
     << : *default-tt-service
 
-  tt-matchmaker:
-    << : *default-tt-service
-
   tt-places-effects:
     << : *default-tt-service
 

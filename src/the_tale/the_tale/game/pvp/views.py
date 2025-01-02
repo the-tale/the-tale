@@ -95,6 +95,7 @@ def pvp_page(context):
                                      'resource': context.resource})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @CanParticipateInPvPProcessor()
 @utils_views.FormProcessor(form_class=forms.SayForm)
 @resource('say', method='post')
@@ -109,6 +110,7 @@ def say(context):
     return utils_views.AjaxProcessing(task.status_url)
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @CanParticipateInPvPProcessor()
 @AbilityProcessor()
 @resource('use-ability', method='post')
@@ -123,6 +125,7 @@ def use_ability(context):
     return utils_views.AjaxProcessing(task.status_url)
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @CanParticipateInPvPProcessor()
 @utils_api.Processor(versions=(conf.settings.CALL_TO_ARENA_API_VERSION,))
 @resource('api', 'call-to-arena', method='post', name='api-call-to-arena')
@@ -134,6 +137,7 @@ def call_to_arena(context):
     return utils_views.AjaxOk(content={'info': logic.arena_info()})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @CanParticipateInPvPProcessor()
 @utils_api.Processor(versions=(conf.settings.LEAVE_ARENA_API_VERSION,))
 @resource('api', 'leave-arena', method='post', name='api-leave-arena')
@@ -152,6 +156,7 @@ def leave_arena(context):
     return utils_views.AjaxOk(content={'info': logic.arena_info()})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @CanParticipateInPvPProcessor()
 @BattleRequestIdProcessor()
 @utils_api.Processor(versions=(conf.settings.ACCEPT_ARENA_BATTLE_API_VERSION,))
@@ -178,6 +183,7 @@ def accept_arena_battle(context):
     return utils_views.AjaxProcessing(supervisor_task.status_url)
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @CanParticipateInPvPProcessor()
 @utils_api.Processor(versions=(conf.settings.CREATE_ARENA_BOT_BATTLE_API_VERSION,))
 @resource('api', 'create-arena-bot-battle', method='post', name='api-create-arena-bot-battle')
@@ -215,6 +221,7 @@ def create_arena_bot_battle(context):
                                 message='Не найдено свободных противников. Пожалуйста, подождите немного и повторите попытку.')
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @utils_api.Processor(versions=(conf.settings.INFO_API_VERSION,))
 @resource('api', 'info', method='get', name='api-info')
 def info(context):

@@ -165,12 +165,6 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/tt_clans_properties/config.json:/home/tt_service/config.json
 
-  tt-matchmaker:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-matchmaker:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_matchmaker/config.json:/home/tt_service/config.json
-
   tt-places-effects:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-effects:$TT_RELEASE_VERSION
 
