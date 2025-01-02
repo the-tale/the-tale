@@ -88,14 +88,6 @@ services:
     volumes:
       - ${PWD}:/home/tt_service/repository
 
-  tt-clans-currencies:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
-  tt-emissaries-events-currencies:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
   tt-data-protector:
     volumes:
       - ${PWD}:/home/tt_service/repository

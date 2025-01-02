@@ -177,14 +177,6 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/tt_places_effects/config.json:/home/tt_service/config.json
 
-  tt-clans-currencies: {}
-
-  tt-emissaries-events-currencies:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-bank:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_emissaries_events_currencies/config.json:/home/tt_service/config.json
-
   tt-data-protector: {}
 
   site:

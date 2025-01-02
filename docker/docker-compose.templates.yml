@@ -74,13 +74,6 @@ x-tt-personal-messages: &default-tt-personal-messages
     - $TT_CONFIGS_ROOT/tt_personal_messages/config.json:/home/tt_service/config.json
 
 
-x-tt-clans-currencies: &default-tt-clans-currencies
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-bank:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_clans_currencies/config.json:/home/tt_service/config.json
-
-
 x-tt-data-protector: &default-tt-data-protector
   image: $TT_CONTAINERS_REGISTRY/the-tale/tt-data-protector:$TT_RELEASE_VERSION
 
@@ -201,12 +194,6 @@ services:
     << : *default-tt-service
 
   tt-places-effects:
-    << : *default-tt-service
-
-  tt-clans-currencies:
-    << : [*default-tt-clans-currencies, *default-tt-service]
-
-  tt-emissaries-events-currencies:
     << : *default-tt-service
 
   tt-data-protector:
