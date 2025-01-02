@@ -43,9 +43,17 @@
 
 * TODO Disable Arena
 
-* TODO Disable creating clans
+* TODO Clans
 
-* TODO Disable editing clans?
+** TODO Disable creating clans
+
+** TODO Disable editing clans?
+
+** TODO Disable inviting to clans
+
+** TODO Disable adding members to clans
+
+** TODO Disable removing members from clans (?) - maybe not
 
 * TODO Before release
 
