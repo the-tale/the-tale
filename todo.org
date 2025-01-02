@@ -15,6 +15,12 @@
 
 ** TODO disable forum posts?
 
+* TODO Check/fix functionality of turned-off services
+
+** TODO tt-discord
+
+* TODO Remove unnecessary folders with configs from ./docker directory
+
 * TODO Before release
 
 ** TODO Create last backup
@@ -38,3 +44,4 @@
 ** TODO Remove Sentry accounts
 
 ** TODO Cancel server
+o
