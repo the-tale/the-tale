@@ -76,3 +76,11 @@
 ** Site container
 
 ** (?) tt-personal-messages
+
+** (?) tt-places-effects
+
+** (?) tt-clans-properties
+
+** (?) tt-players-properties
+
+** (?) tt-emissaries-impacts
