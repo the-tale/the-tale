@@ -27,6 +27,8 @@
 
 *** TODO private pages
 
+*** TODO clan's chronicle
+
 **** currencies displayed normally
 
 ** TODO Arena turned off without errors
@@ -40,6 +42,10 @@
 ** TODO Check mentioned databases
 
 * TODO Disable Arena
+
+* TODO Disable creating clans
+
+* TODO Disable editing clans?
 
 * TODO Before release
 
@@ -84,3 +90,5 @@
 ** (?) tt-players-properties
 
 ** (?) tt-emissaries-impacts
+
+** (?) tt-money-spendings <-- impact from money

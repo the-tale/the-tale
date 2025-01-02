@@ -135,12 +135,6 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/tt_game_chronicle/config.json:/home/tt_service/config.json
 
-  tt-clans-chronicle:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-events-log:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_clans_chronicle/config.json:/home/tt_service/config.json
-
   tt-money-spendings:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 

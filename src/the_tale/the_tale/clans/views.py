@@ -261,10 +261,8 @@ def chronicle(context):
 
     records_on_page = conf.settings.CHRONICLE_RECORDS_ON_CLAN_PAGE
 
-    page, total_records, events = tt_services.chronicle.cmd_get_events(clan=context.current_clan,
-                                                                       page=context.page+1,
-                                                                       tags=(),
-                                                                       records_on_page=records_on_page)
+    # functionality disabled due moving to read-only mode
+    page, total_records, events = 1, 0, []
 
     page -= 1
 
@@ -309,9 +307,8 @@ def show(context):
                                               for hero in heroes.values()
                                               if hero.is_premium and not hero.is_banned)
 
-    total_events, events = tt_services.chronicle.cmd_get_last_events(clan=context.current_clan,
-                                                                     tags=(),
-                                                                     number=conf.settings.CHRONICLE_RECORDS_ON_CLAN_PAGE)
+    # functionality disabled due moving to read-only mode
+    total_events, events = 0, []
 
     tt_api_events_log.fill_events_wtih_meta_objects(events)
 
@@ -448,13 +445,15 @@ def update(context):
                                             'accept_requests_from_players',
                                             context.form.c.accept_requests_from_players)
 
-    message = 'Хранитель {keeper} изменил(а) базовые свойства гильдии {guild}'.format(guild=clan.name,
-                                                                                      keeper=context.account.nick_verbose)
+    # functionality disabled due moving to read-only mode
 
-    tt_services.chronicle.cmd_add_event(clan=clan,
-                                        event=relations.EVENT.UPDATED,
-                                        tags=[context.account.meta_object().tag],
-                                        message=message)
+    # message = 'Хранитель {keeper} изменил(а) базовые свойства гильдии {guild}'.format(guild=clan.name,
+    #                                                                                   keeper=context.account.nick_verbose)
+
+    # tt_services.chronicle.cmd_add_event(clan=clan,
+    #                                     event=relations.EVENT.UPDATED,
+    #                                     tags=[context.account.meta_object().tag],
+    #                                     message=message)
 
     return utils_views.AjaxOk()
 
