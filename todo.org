@@ -1,0 +1,16 @@
+
+* TODO Fix message "game stopped" on the map page
+
+* TODO Disable registration
+
+* TODO Remove unnecessary workers
+
+* TODO Disable cards
+
+* TODO fix message on the top of the site
+
+* Before release
+
+** TODO Apply last bills?
+
+** TODO Check that GDPR logic is working, especially removing users
