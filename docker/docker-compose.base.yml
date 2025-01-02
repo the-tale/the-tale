@@ -185,12 +185,6 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/tt_emissaries_events_currencies/config.json:/home/tt_service/config.json
 
-  tt-emissaries-events-uniquer:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-uniquer:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_emissaries_events_uniquer/config.json:/home/tt_service/config.json
-
   tt-data-protector: {}
 
   site:

@@ -17,7 +17,9 @@
 
 * TODO Check/fix functionality of turned-off services
 
-** TODO tt-discord
+** TODO discord pages are working
+
+** TODO emissary's pages are working
 
 * TODO Remove unnecessary folders with configs from ./docker directory
 

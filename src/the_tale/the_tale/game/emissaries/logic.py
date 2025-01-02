@@ -683,7 +683,7 @@ def expected_power_per_day():
 
 
 def resource_id(clan_id, place_id):
-    return tt_services.events_effects_ids.cmd_get_id(f'{clan_id}_{place_id}')
+    raise NotImplementedError("logic is removed due to moving project to read-only state")
 
 
 def change_event_points(resource_id, type, currency, amount):
