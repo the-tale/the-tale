@@ -9,10 +9,32 @@
 
 * TODO fix message on the top of the site
 
-* Before release
+* TODO disable change operations:
+
+** TODO disable bills creation
+
+** TODO disable forum posts?
+
+* TODO Before release
+
+** TODO Create last backup
 
 ** TODO Apply last bills?
 
 ** TODO Check that GDPR logic is working, especially removing users
 
 ** TODO switch to new Sentry account
+
+* TODO Release
+
+** TODO Config for Caddy
+
+** TODO Switch domain to new server
+
+* TODO After release
+
+** TODO Remove google workspace accounts/subsciptions
+
+** TODO Remove Sentry accounts
+
+** TODO Cancel server
