@@ -31,6 +31,8 @@
 
 **** currencies displayed normally
 
+*** TODO cards gui
+
 ** TODO Arena turned off without errors
 
 * TODO Remove unnecessary folders with configs from ./docker directory
@@ -42,6 +44,10 @@
 ** TODO Check mentioned databases
 
 * TODO Disable Arena
+
+* TODO Cards
+
+** TODO front gui remove or fix
 
 * TODO Clans
 
@@ -89,6 +95,8 @@
 
 ** Site container
 
+** tt-game-chronicle
+
 ** (?) tt-personal-messages
 
 ** (?) tt-places-effects
@@ -100,3 +108,11 @@
 ** (?) tt-emissaries-impacts
 
 ** (?) tt-money-spendings <-- impact from money
+
+** (?) tt-fame-impacts <-- impact from fame
+
+** (?) tt-job-impacts <-- impact from job
+
+** (?) tt-crowd-impacts <-- impact from crowd
+
+** (?) tt-personal-impacts <-- impact from personal

@@ -157,9 +157,6 @@ services:
   tt-market:
     << : *default-tt-service
 
-  tt-players-timers:
-    << : *default-tt-service
-
   tt-personal-impacts:
     << : *default-tt-service
 

@@ -206,13 +206,17 @@ def api_combine(context):
 @utils_api.Processor(versions=(conf.settings.GET_CARDS_API_VERSION, ))
 @resource('api', 'get-cards', name='api-get-cards', method='get')
 def api_get_cards(context):
-    new_card_timer = accounts_tt_services.players_timers.get_or_create_timer(context.account.id)
-
-    return utils_views.AjaxOk(content={'cards': [card.ui_info()
-                                                 for card in context.account_cards.values()
-                                                 if not card.storage.is_NEW],
-                                       'new_cards': sum(1 for card in context.account_cards.values() if card.storage.is_NEW),
-                                       'new_card_timer': new_card_timer.ui_info()})
+    # view returns fake data due to moving game to readonly mode
+    return utils_views.AjaxOk(content={'cards': [],
+                                       'new_cards': 0,
+                                       'new_card_timer': {'id': 0,
+                                                          'owner_id': 0,  # TODO: it
+                                                          'type': 0,
+                                                          'speed': 0,
+                                                          'border': 1,
+                                                          'resources': 0,
+                                                          'resources_at': 0,
+                                                          'finish_at': 0}})
 
 
 @accounts_views.LoginRequiredProcessor()

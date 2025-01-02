@@ -99,12 +99,6 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/tt_market/config.json:/home/tt_service/config.json
 
-  tt-players-timers:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-timers:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_players_timers/config.json:/home/tt_service/config.json
-
   tt-personal-impacts:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 
