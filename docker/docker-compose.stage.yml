@@ -20,10 +20,6 @@ services:
     entrypoint: bash -c
     command: echo "turned off"
 
-  tasks-manager-ofelia:
-    entrypoint: sh -c
-    command: echo "turned off"
-
   tt-diary:
     volumes:
       - ${PWD}:/home/tt_service/repository

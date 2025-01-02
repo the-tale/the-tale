@@ -84,39 +84,6 @@ x-the-tale-worker: &default-the-tale-worker
     - utils-site-migrations
 
 
-x-tasks-manager: &default-tasks-manager
-  << : *default-common
-
-  stop_grace_period: 24h
-
-  labels:
-    org.the-tale.group: tasks
-
-  profiles:
-    - tasks-manager
-
-
-x-tasks: &default-tasks
-  << : *default-common
-
-  stop_grace_period: 24h
-
-  labels:
-    org.the-tale.group: tasks
-
-  profiles:
-    - tasks
-
-
-x-tasks-site: &default-tasks-site
-  << : [*default-site-image, *default-tasks]
-
-  volumes:
-    # all utils containers must has access to static files foulder
-    # they determine maintenance mode with its help
-    - tt_site_static:/var/www/site/
-
-
 x-tt-personal-messages: &default-tt-personal-messages
   image: $TT_CONTAINERS_REGISTRY/the-tale/tt-personal-messages:$TT_RELEASE_VERSION
 
@@ -183,9 +150,6 @@ services:
 
   core-postfix:
     << : *default-core
-
-  tasks-manager-ofelia:
-    << : *default-tasks-manager
 
   utils-postgresql:
     << : *default-utils-postgresql
@@ -306,89 +270,3 @@ services:
 
   worker-supervisor:
     << : *default-the-tale-worker
-
-  tasks-site-clans-sync-statistics:
-    << : *default-tasks-site
-
-  tasks-site-clans-give-points:
-    << : *default-tasks-site
-
-  tasks-site-clans-reset-free-quests:
-    << : *default-tasks-site
-
-  tasks-site-emissaries-step:
-    << : *default-tasks-site
-
-  tasks-site-emissaries-remove-orphan-effects:
-    << : *default-tasks-site
-
-  tasks-site-emissaries-monitoring:
-    << : *default-tasks-site
-
-  tasks-site-emissaries-process-day:
-    << : *default-tasks-site
-
-  tasks-site-bills-apply:
-    << : *default-tasks-site
-
-  tasks-site-game-highlevel-step:
-    << : *default-tasks-site
-
-  tasks-site-portal-clean:
-    << : *default-tasks-site
-
-  tasks-site-clearsessions:
-    << : *default-tasks-site
-
-  tasks-site-personal-messages-remove-system-messages:
-    << : *default-tasks-site
-
-  tasks-site-linguistics-clean-removed-templates:
-    << : *default-tasks-site
-
-  tasks-site-third-party-remove-expired-access-tokens:
-    << : *default-tasks-site
-
-  tasks-site-statistics-complete:
-    << : *default-tasks-site
-
-  tasks-site-portal-refresh-cdns:
-    << : *default-tasks-site
-
-  tasks-site-accounts-calculate-might:
-    << : *default-tasks-site
-
-  tasks-site-ratings-recalculate-ratings:
-    << : *default-tasks-site
-
-  tasks-site-portal-new-day-actions:
-    << : *default-tasks-site
-
-  tasks-site-accounts-send-premium-expired-notifications:
-    << : *default-tasks-site
-
-  tasks-site-places-monitor-protectorates:
-    << : *default-tasks-site
-
-  tasks-tt-personal-messages-clean:
-    << : [*default-tt-personal-messages, *default-tasks]
-
-  tasks-tt-data-protector-process-tasks:
-    << : [*default-tt-data-protector, *default-tasks]
-
-  tasks-tt-clans-currencies-rollback-hanged-transactions:
-    << : [*default-tt-clans-currencies, *default-tasks]
-
-  tasks-postgresql-backup-make-upload-cleanup:
-    << : [*default-utils-postgresql, *default-tasks]
-
-    profiles:
-      - tasks
-      - utils
-
-  tasks-certbot-create-or-renew-certificates:
-    << : [*default-utils-certbot, *default-tasks]
-
-    profiles:
-      - tasks
-      - utils

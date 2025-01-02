@@ -70,14 +70,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-  task-ofelia:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tasks-ofelia:$TT_RELEASE_VERSION
-
-    build:
-      context: ./ofelia
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
   tt-base:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-base:$TT_RELEASE_VERSION

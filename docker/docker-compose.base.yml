@@ -79,13 +79,6 @@ services:
   utils-site-generate-static:
     command: tt_generate_static
 
-  tasks-manager-ofelia:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tasks-ofelia:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/ofelia/config.ini:/etc/ofelia/config.ini:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-
   tt-diary:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-diary:$TT_RELEASE_VERSION
 
