@@ -540,6 +540,7 @@ def on_request_checks(account, clan):
                          message='Вы уже отправили заявку на вступление или получили приглашение в эту гильдию')
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
 @CanBeInvitedProcessor()
@@ -555,6 +556,7 @@ def invite_dialog(context):
                                      'form': forms.MembershipRequestForm()})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
 @CanReceiveRequessProcessor()
@@ -570,6 +572,7 @@ def request_dialog(context):
                                      'form': forms.MembershipRequestForm()})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
 @ClanStaticOperationAccessProcessor(permission='can_take_member')
@@ -587,6 +590,7 @@ def invite(context):
     return utils_views.AjaxOk()
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
 @CanReceiveRequessProcessor()

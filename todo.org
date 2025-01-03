@@ -1,27 +1,25 @@
 
-* TODO Fix message "game stopped" on the map page
+* DONE Fix message "game stopped" on the map page
 
-* TODO Disable registration
+* DONE Disable registration
 
 * TODO Remove unnecessary workers
 
 * TODO Remove unnecessary databases in ./bin/defaults
 
-* TODO Disable cards
+* DONE Disable cards
 
-* TODO fix message on the top of the site
+* DONE fix message on the top of the site
 
-** TODO Update the message
+** DONE Update the message
 
-** TODO Add link to the open-sourced lore
+** DONE Add link to the open-sourced lore
 
-** TODO Add link to the repository
+** DONE Add link to the repository
 
-* TODO disable change operations:
+* DONE disable change operations:
 
-** TODO disable bills creation
-
-** TODO disable forum posts?
+** DONE disable bills creation
 
 * TODO Check/fix functionality of turned-off services
 
@@ -53,17 +51,13 @@
 
 ** TODO Check mentioned databases
 
-* TODO Disable Arena
+* DONE Disable Arena
 
 * TODO Remove rabbitmq container?
 
 * TODO Remove redis container?
 
 * TODO update start/stop scripts to remove obsolete containers/operations
-
-* TODO Cards
-
-** TODO front gui remove or fix
 
 * TODO Clans
 
