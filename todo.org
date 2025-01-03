@@ -13,6 +13,8 @@
 
 ** TODO Add link to the open-sourced lore
 
+** TODO Add link to the repository
+
 * TODO disable change operations:
 
 ** TODO disable bills creation
