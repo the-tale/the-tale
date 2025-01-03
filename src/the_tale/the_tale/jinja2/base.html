@@ -263,10 +263,6 @@ jQuery(document).ready(function() {
 
         </div>
       </div>
-
-      <div class="alert alert-warning" style="text-align: center;">
-        <strong><a href="{{settings.STOP_GAME_LINK}}">Мы завершаем Сказку</a>. Игра будет остановлена в первые дни 2025 года.</strong>
-      </div>
     </div>
 
     {% block body %}
@@ -282,6 +278,36 @@ jQuery(document).ready(function() {
       <div id="content" class="container">
 
         {% block content_header %}
+
+          <div class="alert alert-success">
+            <p>
+              <strong><a href="{{settings.STOP_GAME_LINK}}" target="_blank">Сказка навсегда остановлена</a>.</strong>
+            </p>
+
+            <ul>
+              <li>По всем вопросам обращайтесь на наш <a href="{{settings.DISCORD_INVITE_LINK}}" target="_blank">Discord</a> сервер.</li>
+              <li><a href="{{settings.LORE_LINK}}" target="_blank">Лор игры открыт</a> под свободной лицензией.</li>
+              <li><a href="{{settings.SOCIAL_GITHUB_URL}}" target="_blank">Исходный код игры</a> доступен на GitHub.</li>
+            </ul>
+
+            <p>
+              Мы безмерно благодарны каждому из вас за время, которое вы подарили нашей игре, истории, которые вы создали, поддержку, которую оказывали друг другу и нам.
+            </p>
+
+            <p>
+              Надеемся, Сказка останется светлым и добрым воспоминанием в вашей жизни, и вы будете вспоминать наши приключения с улыбкой.
+            </p>
+
+            <p>
+              Это были замечательные тринадцать лет. Спасибо вам за них.
+            </p>
+
+            <p>
+              С любовью, команда Сказки.
+            </p>
+
+          </div>
+
 
         {% if resource.account.is_authenticated and resource.account.is_fast %}
         <div class="alert alert-success">
