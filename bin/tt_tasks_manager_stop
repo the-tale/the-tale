@@ -1,7 +1,0 @@
-#!/bin/bash
-
-set -e
-
-trap 'echo "\"${last_command}\" command failed with exit code $?."' ERR
-
-./bin/docker_compose.sh --profile tasks-manager stop `./bin/docker_compose.sh ps --services | grep "^tasks-manager-"`

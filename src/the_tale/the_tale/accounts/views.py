@@ -65,7 +65,7 @@ class LoginRequiredProcessor(utils_views.BaseViewProcessor):
 
 
 class OperationDisabledDueGameStoppedProcessor(utils_views.BaseViewProcessor):
-    ARG_ERROR_MESSAGE = utils_views.ProcessorArgument(default='Операция отключена, игра остановлена и находится в режиме только для чтения')
+    ARG_ERROR_MESSAGE = utils_views.ProcessorArgument(default='Операция отключена, игра остановлена и находится в режиме только для чтения. По всем вопросам обращайтесь на наш Discord сервер.')
 
     def login_page_url(self, target_url):
         return logic.login_page_url(target_url)
@@ -366,6 +366,7 @@ def reset_bans(context):
     return utils_views.AjaxOk()
 
 
+@OperationDisabledDueGameStoppedProcessor()
 @LoginRequiredProcessor()
 @FullAccountProcessor()
 @FullAccountProcessor(argument='master_account', error_code='receiver_is_fast', error_message='Нельзя перевести печеньки игроку, не завершившему регистрацию')
@@ -384,6 +385,7 @@ def transfer_money_dialog(context):
                                      'max_money_to_transfer': max_money_to_transfer})
 
 
+@OperationDisabledDueGameStoppedProcessor()
 @LoginRequiredProcessor()
 @FullAccountProcessor()
 @FullAccountProcessor(argument='master_account', error_code='receiver_is_fast', error_message='Нельзя перевести печеньки игроку, не завершившему регистрацию')
@@ -452,6 +454,7 @@ def hero_story_attributes(view):
     return view
 
 
+@OperationDisabledDueGameStoppedProcessor()
 @hero_story_attributes
 @utils_api.Processor(versions=('1.0',))
 @registration_resource('api', 'register', method='POST', name='api-register')
@@ -716,6 +719,7 @@ def update_settings(context):
     return utils_views.AjaxOk(content={'next_url': utils_urls.url('accounts:profile:edited')})
 
 
+@OperationDisabledDueGameStoppedProcessor()
 @profile_resource('reset-password')
 def reset_password_page(context):
     if context.account.is_authenticated:
