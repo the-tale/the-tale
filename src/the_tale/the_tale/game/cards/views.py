@@ -90,6 +90,7 @@ class CardsFilter(utils_list_filter.ListFilter):
 ########################################
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
 @AccountCardProcessor()
@@ -115,6 +116,7 @@ def use_dialog(context):
                                      'favorite_items': favorite_items})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
 @AccountCardProcessor()
@@ -131,6 +133,7 @@ def api_use(context):
     return utils_views.AjaxProcessing(task.status_url)
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
 @utils_api.Processor(versions=(conf.settings.RECEIVE_API_VERSION,))
@@ -147,6 +150,7 @@ def api_receive(context):
     return utils_views.AjaxOk(content={'cards': [card.ui_info() for card in new_cards]})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
 @AccountCardsProcessor()
@@ -201,6 +205,7 @@ def api_combine(context):
                                        'cards': [card.ui_info() for card in new_cards]})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
 @utils_api.Processor(versions=(conf.settings.GET_CARDS_API_VERSION, ))
@@ -219,6 +224,7 @@ def api_get_cards(context):
                                                           'finish_at': 0}})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
 @AccountCardsProcessor()
@@ -234,6 +240,7 @@ def api_move_to_storage(context):
     return utils_views.AjaxOk()
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
 @AccountCardsProcessor()
@@ -288,6 +295,7 @@ def index(context):
                                      'resource': context.resource})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @tt_api_views.RequestProcessor(request_class=tt_protocol_timers_pb2.CallbackBody)
 @tt_api_views.SecretProcessor(secret=django_settings.TT_SECRET)
 @technical_resource('tt', 'take-card-callback', name='tt-take-card-callback', method='post')
@@ -316,6 +324,7 @@ def take_card_callback(context):
     return tt_api_views.ProtobufOk(content=tt_protocol_timers_pb2.CallbackAnswer(postprocess_type=postprocess_type))
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.PremiumAccountProcessor(error_message='Изменить тип получаемых карт могут только подписчики.')
 @utils_views.RelationArgumentProcessor(relation=relations.RECEIVE_MODE,

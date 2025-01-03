@@ -87,12 +87,6 @@ services:
 
   tt-personal-messages: {}
 
-  tt-storage:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-storage:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_storage/config.json:/home/tt_service/config.json
-
   tt-personal-impacts:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 

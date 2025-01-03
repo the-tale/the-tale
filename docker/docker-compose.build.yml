@@ -108,34 +108,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-  tt-storage:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-storage:$TT_RELEASE_VERSION
-
-    build:
-      context: ../
-      dockerfile: ./docker/tt_service/Dockerfile
-      args:
-        TT_PACKAGE: tt_storage
-        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
-        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
-  tt-timers:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-timers:$TT_RELEASE_VERSION
-
-    build:
-      context: ../
-      dockerfile: ./docker/tt_service/Dockerfile
-      args:
-        TT_PACKAGE: tt_timers
-        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
-        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
   tt-impacts:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
 

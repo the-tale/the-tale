@@ -151,9 +151,6 @@ services:
   tt-personal-messages:
     << : [*default-tt-personal-messages, *default-tt-service]
 
-  tt-storage:
-    << : *default-tt-service
-
   tt-personal-impacts:
     << : *default-tt-service
 
