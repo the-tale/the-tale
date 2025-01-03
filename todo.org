@@ -59,17 +59,11 @@
 
 * TODO update start/stop scripts to remove obsolete containers/operations
 
-* TODO Clans
+* DONE Clans
 
-** TODO Disable creating clans
+** DONE Disable creating clans
 
-** TODO Disable editing clans?
-
-** TODO Disable inviting to clans
-
-** TODO Disable adding members to clans
-
-** TODO Disable removing members from clans (?) - maybe not
+** DONE Disable inviting to clans
 
 * TODO What with amazon CDN?
 
