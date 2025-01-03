@@ -9,6 +9,10 @@
 
 * TODO fix message on the top of the site
 
+** TODO Update the message
+
+** TODO Add link to the open-sourced lore
+
 * TODO disable change operations:
 
 ** TODO disable bills creation
@@ -92,6 +96,12 @@
 *** TODO Deploy redis
 
 *** TODO Config for Caddy
+
+**** main site
+
+**** redirecting to docs
+
+**** redirecting to open-sourced lore
 
 *** TODO Switch domain to new server
 
