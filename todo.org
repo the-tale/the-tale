@@ -79,6 +79,12 @@
 
 * TODO What with amazon CDN?
 
+* TODO what with active players tracking?
+
+** the state visualized on the keeper's page
+
+** the state is counted on the clans page
+
 * TODO Before release
 
 ** TODO remove command in docker-compose.state.yml: site

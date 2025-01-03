@@ -678,7 +678,8 @@ class CountedMixin:
         return tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER <= points
 
     def actual_info(self, emissary):
-        points = tt_services.events_currencies.cmd_balance(self.resource_id(emissary), currency=self.CURRENCY)
+        # code disabled due to moving game into read-only mode
+        points = 0  # tt_services.events_currencies.cmd_balance(self.resource_id(emissary), currency=self.CURRENCY)
         effects_number = points / tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER
 
         return f'Накопившееся количество срабатываний: {effects_number:.2f}'
