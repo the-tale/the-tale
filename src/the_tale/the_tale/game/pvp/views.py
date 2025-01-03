@@ -190,7 +190,6 @@ def accept_arena_battle(context):
 
 
 @accounts_views.OperationDisabledDueGameStoppedProcessor()
-@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @CanParticipateInPvPProcessor()
 @utils_api.Processor(versions=(conf.settings.CREATE_ARENA_BOT_BATTLE_API_VERSION,))
 @resource('api', 'create-arena-bot-battle', method='post', name='api-create-arena-bot-battle')

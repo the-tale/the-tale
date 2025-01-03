@@ -912,3 +912,9 @@ def validate_ban_game(self, *args, **kwargs):
 @old_views.validator(code='common.ban_any', message='Вам запрещено проводить эту операцию')
 def validate_ban_any(self, *args, **kwargs):
     return not self.account.is_ban_any
+
+
+@old_views.validator(code='common.operation_disabled_game_stopped',
+                     message='Операция отключена, игра остановлена и находится в режиме только для чтения. По всем вопросам обращайтесь на наш Discord сервер.')
+def validate_operation_disabled_game_stopped(self, *args, **kwargs):
+    return False
