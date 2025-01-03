@@ -130,9 +130,6 @@ services:
   utils-postgresql:
     << : *default-utils-postgresql
 
-  utils-certbot:
-    << : *default-utils-certbot
-
   utils-site:
     << : [*default-site-image, *default-utils]
 

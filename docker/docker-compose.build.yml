@@ -61,15 +61,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-  utils-certbot:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-certbot:$TT_RELEASE_VERSION
-
-    build:
-      context: ./utils_certbot
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
   tt-base:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-base:$TT_RELEASE_VERSION
