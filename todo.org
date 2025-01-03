@@ -81,6 +81,14 @@
 
 ** TODO Deploy to the new server
 
+*** TODO Create new databases
+
+**** the_tale
+
+**** the_tale_game_chronicle
+
+**** the_tale_personal_messages
+
 *** TODO Deploy redis
 
 *** TODO Config for Caddy
