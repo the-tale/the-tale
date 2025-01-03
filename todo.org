@@ -53,9 +53,9 @@
 
 * DONE Disable Arena
 
-* TODO Remove rabbitmq container?
+* DONE Remove rabbitmq container?
 
-* TODO Remove redis container?
+* DONE Remove redis container?
 
 * TODO update start/stop scripts to remove obsolete containers/operations
 
@@ -143,6 +143,8 @@
 
 ** tt-personal-messages
 
+** (?) tt-diary
+
 ** (?) tt-places-effects
 
 ** (?) tt-clans-properties
@@ -160,8 +162,6 @@
 ** (?) tt-crowd-impacts <-- impact from crowd
 
 ** (?) tt-personal-impacts <-- impact from personal
-
-** (?) tt-diary
 
 ** (?) utils-site-generate-static
 
