@@ -49,10 +49,11 @@ resource.add_processor(heroes_views.CurrentHeroProcessor())
 @resource('')
 def game_page(context):
 
-    enemy_id = pvp_logic.get_enemy_id(context.account.id)
+    # code disabled due to moving game to the readonly mode
+    # enemy_id = pvp_logic.get_enemy_id(context.account.id)
 
-    if enemy_id:
-        return utils_views.Redirect(utils_urls.url('game:pvp:'))
+    # if enemy_id:
+    #     return utils_views.Redirect(utils_urls.url('game:pvp:'))
 
     clan = None
     if context.account.clan_id is not None:

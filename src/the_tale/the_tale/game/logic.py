@@ -85,7 +85,8 @@ def _form_game_account_info(turn_number, account, is_own, client_turns=None):
     data['hero'] = hero_data
     data['hero']['diary'] = heroes_tt_services.diary.cmd_version(account.id)
 
-    data['is_old'] = (data['hero']['actual_on_turn'] < turn_number)
+    # For game in the readonly we treate all heroes as actual
+    data['is_old'] = False  # (data['hero']['actual_on_turn'] < turn_number)
 
     return data
 
