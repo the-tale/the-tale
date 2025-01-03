@@ -143,6 +143,8 @@
 
 ** tt-personal-messages
 
+** tt-data-protector
+
 ** (?) tt-diary
 
 ** (?) tt-places-effects
