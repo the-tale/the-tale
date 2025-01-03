@@ -30,13 +30,6 @@ services:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-redis:$TT_RELEASE_VERSION
 
-  core-rabbitmq:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/core-rabbitmq:$TT_RELEASE_VERSION
-
-    volumes:
-       - $TT_CONFIGS_ROOT/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
-
   core-nginx:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-nginx:$TT_RELEASE_VERSION

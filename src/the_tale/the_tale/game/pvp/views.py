@@ -97,7 +97,6 @@ def pvp_page(context):
 
 
 @accounts_views.OperationDisabledDueGameStoppedProcessor()
-@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @CanParticipateInPvPProcessor()
 @utils_views.FormProcessor(form_class=forms.SayForm)
 @resource('say', method='post')
@@ -112,7 +111,6 @@ def say(context):
     return utils_views.AjaxProcessing(task.status_url)
 
 
-@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.OperationDisabledDueGameStoppedProcessor()
 @CanParticipateInPvPProcessor()
 @AbilityProcessor()
@@ -129,7 +127,6 @@ def use_ability(context):
 
 
 @accounts_views.OperationDisabledDueGameStoppedProcessor()
-@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @CanParticipateInPvPProcessor()
 @utils_api.Processor(versions=(conf.settings.CALL_TO_ARENA_API_VERSION,))
 @resource('api', 'call-to-arena', method='post', name='api-call-to-arena')
@@ -141,7 +138,6 @@ def call_to_arena(context):
     return utils_views.AjaxOk(content={'info': logic.arena_info()})
 
 
-@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.OperationDisabledDueGameStoppedProcessor()
 @CanParticipateInPvPProcessor()
 @utils_api.Processor(versions=(conf.settings.LEAVE_ARENA_API_VERSION,))
@@ -161,7 +157,6 @@ def leave_arena(context):
     return utils_views.AjaxOk(content={'info': logic.arena_info()})
 
 
-@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.OperationDisabledDueGameStoppedProcessor()
 @CanParticipateInPvPProcessor()
 @BattleRequestIdProcessor()

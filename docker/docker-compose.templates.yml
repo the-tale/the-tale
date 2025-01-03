@@ -118,9 +118,6 @@ services:
   core-redis:
     << : *default-core
 
-  core-rabbitmq:
-    << : *default-core
-
   core-nginx:
     << : *default-core
 

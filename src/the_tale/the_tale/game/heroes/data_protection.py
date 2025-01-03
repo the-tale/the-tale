@@ -17,7 +17,9 @@ def collect_data(account_id):
 
 
 def request_hero_release(account_id):
-    amqp_environment.environment.workers.supervisor.cmd_account_release_required(account_id)
+    # code disabled due to moving the game into readonly mode
+    # amqp_environment.environment.workers.supervisor.cmd_account_release_required(account_id)
+    pass
 
 
 def before_remove_data(account_id):

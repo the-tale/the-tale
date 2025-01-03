@@ -48,7 +48,9 @@ class MessagePrototype(utils_prototypes.BasePrototype):
         prototype = cls(model=model)
 
         if now:
-            amqp_environment.environment.workers.message_sender.cmd_send_now(prototype.id)
+            # code is disabled due to moving the game into readonly mode
+            # amqp_environment.environment.workers.message_sender.cmd_send_now(prototype.id)
+            pass
 
         return prototype
 

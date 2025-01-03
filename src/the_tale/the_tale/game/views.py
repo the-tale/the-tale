@@ -229,6 +229,8 @@ def supervisor_task_status(context):
     return utils_views.AjaxProcessing(context.supervisor_task.status_url)
 
 
+
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @utils_views.DebugProcessor()
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.SuperuserProcessor()

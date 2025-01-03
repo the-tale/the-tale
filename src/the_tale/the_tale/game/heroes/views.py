@@ -100,6 +100,7 @@ class HeroResource(utils_resources.Resource):
                               'QUEST_OPTION_MARKERS': questgen_relations.OPTION_MARKERS,
                               'HABITS_BORDER': c.HABITS_BORDER})
 
+    @accounts_views.validate_operation_disabled_game_stopped()
     @utils_decorators.login_required
     @validate_ownership()
     @old_views.handler('#hero', 'choose-ability-dialog', method='get')
@@ -128,6 +129,7 @@ class HeroResource(utils_resources.Resource):
                               'favorite_items': favorite_items,
                               'change_preferences_card': cards_types.CARD.CHANGE_PREFERENCE})
 
+    @accounts_views.validate_operation_disabled_game_stopped()
     @utils_decorators.login_required
     @validate_ownership()
     @old_views.handler('#hero', 'change-hero', method='post')
@@ -182,6 +184,7 @@ class HeroResource(utils_resources.Resource):
         amqp_environment.environment.workers.supervisor.cmd_force_save(account_id=self.hero.account_id)
         return self.json_ok()
 
+    @accounts_views.validate_operation_disabled_game_stopped()
     @utils_decorators.login_required
     @validate_ownership()
     @old_views.handler('#hero', 'choose-ability', method='post')

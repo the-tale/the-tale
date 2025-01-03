@@ -31,15 +31,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-  core-rabbitmq:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/core-rabbitmq:$TT_RELEASE_VERSION
-
-    build:
-      context: ./rabbitmq
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
   core-postfix:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-postfix:$TT_RELEASE_VERSION

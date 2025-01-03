@@ -32,7 +32,9 @@ class AccountPrototype(utils_prototypes.BasePrototype):
         return self.removed_at is not None
 
     def cmd_update_hero(self):
-        amqp_environment.environment.workers.supervisor.cmd_sync_hero_required(self.id)
+        # code disabled due to moving the game into readonly mode
+        # amqp_environment.environment.workers.supervisor.cmd_sync_hero_required(self.id)
+        pass
 
     @property
     def account_id(self):
