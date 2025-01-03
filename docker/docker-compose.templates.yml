@@ -142,9 +142,6 @@ services:
   utils-site-generate-static:
     << : [*default-site-image, *default-utils]
 
-  utils-regenerate-protocol:
-    << : *default-utils
-
   tt-diary:
     << : *default-tt-service
 

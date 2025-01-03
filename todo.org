@@ -118,3 +118,5 @@
 ** (?) tt-crowd-impacts <-- impact from crowd
 
 ** (?) tt-personal-impacts <-- impact from personal
+
+** (?) tt-diary

@@ -63,10 +63,6 @@ services:
 
   utils-certbot: {}
 
-  utils-regenerate-protocol:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-regenerate-protocol:$TT_RELEASE_VERSION
-    command: tt_regenerate_protocol
-
   utils-site-migrations:
     profiles:
       - workers

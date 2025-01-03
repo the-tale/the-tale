@@ -76,10 +76,6 @@ services:
     volumes:
       - ${PWD}:/home/tt_service/repository
 
-  utils-regenerate-protocol:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
   utils-site-migrations:
     volumes:
       - ${PWD}:/home/tt_service/repository
