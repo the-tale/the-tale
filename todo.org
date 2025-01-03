@@ -103,7 +103,7 @@
 
 ** tt-game-chronicle
 
-** (?) tt-personal-messages
+** tt-personal-messages
 
 ** (?) tt-places-effects
 
