@@ -77,6 +77,8 @@
 
 ** TODO Disable removing members from clans (?) - maybe not
 
+* TODO What with amazon CDN?
+
 * TODO Before release
 
 ** TODO remove command in docker-compose.state.yml: site
