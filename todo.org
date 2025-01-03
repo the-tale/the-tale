@@ -81,6 +81,8 @@
 
 ** TODO Deploy to the new server
 
+*** TODO Deploy redis
+
 *** TODO Config for Caddy
 
 *** TODO Switch domain to new server
@@ -92,6 +94,8 @@
 ** TODO Remove Sentry accounts
 
 ** TODO Cancel server
+
+** TODO (?) configure backups? Do we need them?
 
 * Minimum deployment
 
