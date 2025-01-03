@@ -5,6 +5,8 @@
 
 * TODO Remove unnecessary workers
 
+* TODO Remove unnecessary databases in ./bin/defaults
+
 * TODO Disable cards
 
 * TODO fix message on the top of the site
@@ -53,6 +55,10 @@
 
 * TODO Disable Arena
 
+* TODO Remove rabbitmq container?
+
+* TODO Remove redis container?
+
 * TODO Cards
 
 ** TODO front gui remove or fix
@@ -78,6 +84,8 @@
 ** TODO Check that GDPR logic is working, especially removing users
 
 ** TODO switch to new Sentry account
+
+** TODO Prepare plan of command for the release
 
 * TODO Release
 
