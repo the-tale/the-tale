@@ -73,6 +73,8 @@ services:
       - ${PWD}:/home/tt_service/repository
 
   site:
+    command: sleep 24h
+
     volumes:
       - ${PWD}:/home/tt_service/repository
 

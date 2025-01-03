@@ -79,6 +79,8 @@
 
 * TODO Before release
 
+** TODO remove command in docker-compose.state.yml: site
+
 ** TODO Create last backup
 
 ** TODO Apply last bills?
@@ -90,6 +92,8 @@
 ** TODO Prepare plan of command for the release
 
 * TODO Release
+
+** TODO Prepare settings_local.py on base of current configs on prod
 
 ** TODO Deploy to the old server
 
