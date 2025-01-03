@@ -59,6 +59,8 @@
 
 * TODO Remove redis container?
 
+* TODO update start/stop scripts to remove obsolete containers/operations
+
 * TODO Cards
 
 ** TODO front gui remove or fix
