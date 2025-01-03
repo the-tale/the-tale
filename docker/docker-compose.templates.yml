@@ -115,13 +115,7 @@ services:
   core-postgresql:
     << : *default-core
 
-  core-redis:
-    << : *default-core
-
   core-nginx:
-    << : *default-core
-
-  core-postfix:
     << : *default-core
 
   utils-postgresql:

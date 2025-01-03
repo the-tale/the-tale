@@ -44,6 +44,14 @@ def validate_ownership(resource, *args, **kwargs): return resource.is_owner
 def validate_moderator_rights(resource, *args, **kwargs): return resource.can_moderate_heroes
 
 
+# copy from accounts.views to avoid circular imports
+@old_views.validator(code='common.operation_disabled_game_stopped',
+                     message='Операция отключена, игра остановлена и находится в режиме только для чтения. По всем вопросам обращайтесь на наш Discord сервер.')
+def validate_operation_disabled_game_stopped(self, *args, **kwargs):
+    return False
+
+
+
 class HeroResource(utils_resources.Resource):
 
     @old_views.validate_argument('hero', lambda hero_id: logic.load_hero(hero_id=int(hero_id)), 'heroes', 'Неверный идентификатор героя')
@@ -100,7 +108,7 @@ class HeroResource(utils_resources.Resource):
                               'QUEST_OPTION_MARKERS': questgen_relations.OPTION_MARKERS,
                               'HABITS_BORDER': c.HABITS_BORDER})
 
-    @accounts_views.validate_operation_disabled_game_stopped()
+    @validate_operation_disabled_game_stopped()
     @utils_decorators.login_required
     @validate_ownership()
     @old_views.handler('#hero', 'choose-ability-dialog', method='get')
@@ -129,7 +137,7 @@ class HeroResource(utils_resources.Resource):
                               'favorite_items': favorite_items,
                               'change_preferences_card': cards_types.CARD.CHANGE_PREFERENCE})
 
-    @accounts_views.validate_operation_disabled_game_stopped()
+    @validate_operation_disabled_game_stopped()
     @utils_decorators.login_required
     @validate_ownership()
     @old_views.handler('#hero', 'change-hero', method='post')
@@ -155,6 +163,7 @@ class HeroResource(utils_resources.Resource):
 
         return self.json_processing(task.status_url)
 
+    @validate_operation_disabled_game_stopped()
     @utils_decorators.login_required
     @validate_moderator_rights()
     @old_views.handler('#hero', 'reset-name', method='post')
@@ -184,7 +193,7 @@ class HeroResource(utils_resources.Resource):
         amqp_environment.environment.workers.supervisor.cmd_force_save(account_id=self.hero.account_id)
         return self.json_ok()
 
-    @accounts_views.validate_operation_disabled_game_stopped()
+    @validate_operation_disabled_game_stopped()
     @utils_decorators.login_required
     @validate_ownership()
     @old_views.handler('#hero', 'choose-ability', method='post')

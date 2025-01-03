@@ -107,7 +107,8 @@ TT_SECRET = 'test.secret'
 
 GA_CODE = None
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+# sessions storages moved to the DB due to moving the game into readonly mode
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
 
@@ -292,11 +293,8 @@ if TESTS_RUNNING:
 # CACHING
 ################
 
-CACHES = {'default': {'BACKEND': 'django_redis.cache.RedisCache',
-                      'LOCATION': 'redis://core-redis',
-                      'OPTIONS': {
-                          'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-                          'SERIALIZER': 'django_redis.serializers.json.JSONSerializer'}}}
+# cache removed due to moving the game into readonly mode
+# CACHES = {}
 
 STOP_GAME_LINK = "https://the-tale.org/news/349"
 LORE_LINK = "https://the-tale.notion.site/"

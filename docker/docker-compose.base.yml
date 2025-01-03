@@ -26,10 +26,6 @@ services:
 
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
 
-  core-redis:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/core-redis:$TT_RELEASE_VERSION
-
   core-nginx:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-nginx:$TT_RELEASE_VERSION
@@ -45,12 +41,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-
-  core-postfix:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/core-postfix:$TT_RELEASE_VERSION
-
-    ports:
-      - "25:25"
 
   utils-postgresql: {}
 

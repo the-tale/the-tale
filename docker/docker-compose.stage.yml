@@ -16,10 +16,6 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/nginx/templates:/nginx-config-templates:ro
 
-  core-postfix:
-    entrypoint: bash -c
-    command: echo "turned off"
-
   tt-diary:
     volumes:
       - ${PWD}:/home/tt_service/repository
