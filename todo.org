@@ -137,7 +137,7 @@
 
 * Minimum deployment
 
-** Site container
+** site
 
 ** tt-game-chronicle
 
