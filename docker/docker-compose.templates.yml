@@ -154,9 +154,6 @@ services:
   tt-storage:
     << : *default-tt-service
 
-  tt-market:
-    << : *default-tt-service
-
   tt-personal-impacts:
     << : *default-tt-service
 

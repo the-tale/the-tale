@@ -33,6 +33,8 @@
 
 *** TODO cards gui
 
+*** TODO Market gui
+
 ** TODO Arena turned off without errors
 
 * TODO Remove unnecessary folders with configs from ./docker directory
