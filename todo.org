@@ -115,6 +115,14 @@
 
 **** redirecting to open-sourced lore
 
+*** TODO Stop the game on the old server
+
+*** TODO make actual backup
+
+*** TODO download backup on the new server
+
+*** TODO restore backup on the new server
+
 *** TODO Switch domain to new server
 
 * TODO After release
