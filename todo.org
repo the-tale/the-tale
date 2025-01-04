@@ -67,6 +67,8 @@
 
 * TODO What with amazon CDN?
 
+* TODO update backup version and regenerate fixtures
+
 * TODO fixtures
 
 ** clans_properties.json
