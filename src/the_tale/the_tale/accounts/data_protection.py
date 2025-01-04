@@ -306,7 +306,7 @@ def first_step_removing(account):
 
 def ids_list(account):
     return [('the_tale', account.id),
-            ('tt_players_properties', account.id),
+            # ('tt_players_properties', account.id),  disabled while moving to readonly mode
             ('tt_personal_messages', account.id),
             # ('tt_discord', account.id),  disabled while moving to readonly mode
             # ('tt_xsolla', account.id)  disabled while moving to readonly mode

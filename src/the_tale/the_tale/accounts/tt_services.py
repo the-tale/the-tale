@@ -46,8 +46,12 @@ class PLAYER_PROPERTIES(tt_api_properties.PROPERTIES):
                 str, str, list, tt_api_properties.TYPE.APPEND))
 
 
+# code is changed due to moving game to the read-only mode
 class PlayersPropertiesClient(tt_api_properties.Client):
-    pass
+    _defaults = {PLAYER_PROPERTIES.accept_invites_from_clans: False,
+                 PLAYER_PROPERTIES.last_card_by_emissary: 0,
+                 PLAYER_PROPERTIES.last_premium_by_emissary: 0,
+                 PLAYER_PROPERTIES.ip_address: ()}
 
 
 players_properties = PlayersPropertiesClient(entry_point=conf.settings.TT_PLAYERS_PROPERTIES_ENTRY_POINT,

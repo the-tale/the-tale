@@ -106,12 +106,6 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/tt_emissaries_impacts/config.json:/home/tt_service/config.json
 
-  tt-players-properties:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-properties:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_players_properties/config.json:/home/tt_service/config.json
-
   tt-clans-properties:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-properties:$TT_RELEASE_VERSION
 

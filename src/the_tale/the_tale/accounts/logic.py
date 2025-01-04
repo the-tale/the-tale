@@ -385,14 +385,16 @@ def update_referrals_number(account_id):
 
 
 def store_client_ip(account_id, ip):
-    ips = tt_services.players_properties.cmd_get_object_property(account_id,
-                                                                 name=tt_services.PLAYER_PROPERTIES.ip_address.name)
+    # code is disabled due to moving game to the read-only mode
+    # ips = tt_services.players_properties.cmd_get_object_property(account_id,
+    #                                                              name=tt_services.PLAYER_PROPERTIES.ip_address.name)
 
-    ip = ip.strip()
+    # ip = ip.strip()
 
-    if ip in ips:
-        return
+    # if ip in ips:
+    #     return
 
-    tt_services.players_properties.cmd_set_property(object_id=account_id,
-                                                    name=tt_services.PLAYER_PROPERTIES.ip_address,
-                                                    value=ip)
+    # tt_services.players_properties.cmd_set_property(object_id=account_id,
+    #                                                 name=tt_services.PLAYER_PROPERTIES.ip_address,
+    #                                                 value=ip)
+    pass

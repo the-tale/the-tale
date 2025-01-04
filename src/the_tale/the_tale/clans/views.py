@@ -130,9 +130,11 @@ class CanBeInvitedProcessor(utils_views.FlaggedAccessProcessor):
     ARGUMENT = 'target_account'
 
     def validate(self, argument):
-        accept_invites_from_clans = accounts_tt_services.players_properties.cmd_get_object_property(object_id=argument.id,
-                                                                                                    name='accept_invites_from_clans')
-        return accept_invites_from_clans
+        # code is disabled due to moving game to the read-only mode
+        # accept_invites_from_clans = accounts_tt_services.players_properties.cmd_get_object_property(object_id=argument.id,
+        #                                                                                             name='accept_invites_from_clans')
+        # return accept_invites_from_clans
+        return False
 
 
 class CanReceiveRequessProcessor(utils_views.FlaggedAccessProcessor):
@@ -331,9 +333,10 @@ def show(context):
     experience = None
 
     if is_own_clan:
-        clan_points = tt_services.currencies.cmd_balance(context.current_clan.id, currency=relations.CURRENCY.ACTION_POINTS)
-        free_quests_points = tt_services.currencies.cmd_balance(context.current_clan.id, currency=relations.CURRENCY.FREE_QUESTS)
-        experience = tt_services.currencies.cmd_balance(context.current_clan.id, currency=relations.CURRENCY.EXPERIENCE)
+        # code is changed due to moving game to the read-only mode
+        clan_points = None
+        free_quests_points = None
+        experience = None
 
     emissaries = emissaries_logic.load_emissaries_for_clan(context.current_clan.id)
 

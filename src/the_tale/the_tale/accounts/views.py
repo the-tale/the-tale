@@ -712,9 +712,10 @@ def update_settings(context):
 
     context.account.update_settings(context.form)
 
-    tt_services.players_properties.cmd_set_property(object_id=context.account.id,
-                                                    name=tt_services.PLAYER_PROPERTIES.accept_invites_from_clans,
-                                                    value=context.form.c.accept_invites_from_clans)
+    # code is disabled due to moving game to the read-only mode
+    # tt_services.players_properties.cmd_set_property(object_id=context.account.id,
+    #                                                 name=tt_services.PLAYER_PROPERTIES.accept_invites_from_clans,
+    #                                                 value=context.form.c.accept_invites_from_clans)
 
     return utils_views.AjaxOk(content={'next_url': utils_urls.url('accounts:profile:edited')})
 

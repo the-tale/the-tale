@@ -151,8 +151,6 @@
 
 ** (?) tt-clans-properties
 
-** (?) tt-players-properties
-
 ** (?) tt-emissaries-impacts
 
 ** (?) tt-money-spendings <-- impact from money
@@ -167,6 +165,10 @@
 
 ** (?) utils-site-generate-static
 
+*** move to prepare command before running site
+
 ** (?) utils-site-migrations
+
+*** move to prepare command before running site
 
 ** (?) utils-site
