@@ -67,6 +67,12 @@
 
 * TODO What with amazon CDN?
 
+* TODO fixtures
+
+** clans_properties.json
+
+** places_effects.json
+
 * TODO Do not refresh data on the game page
 
 * TODO Эффекты влияния от площади городов и от эффектов Хранителей (карт) почему-то меняются
@@ -156,7 +162,7 @@
 ** tt-personal-impacts
 ** tt-crowd-impacts
 
-** (?) tt-emissaries-impacts
+** (?) tt-emissaries-impacts - can be replaced
 
 ** (?) tt-fame-impacts <-- impact from fame
 
