@@ -67,6 +67,8 @@
 
 * TODO What with amazon CDN?
 
+* TODO Эффекты влияния от площади городов и от эффектов Хранителей (карт) почему-то меняются
+
 * TODO what with active players tracking?
 
 ** the state visualized on the keeper's page
@@ -145,8 +147,6 @@
 
 ** tt-data-protector
 
-
-** (?) tt-places-effects
 
 ** (?) tt-emissaries-impacts
 

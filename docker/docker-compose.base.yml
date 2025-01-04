@@ -100,12 +100,6 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/tt_emissaries_impacts/config.json:/home/tt_service/config.json
 
-  tt-places-effects:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-effects:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_places_effects/config.json:/home/tt_service/config.json
-
   tt-data-protector: {}
 
   site:

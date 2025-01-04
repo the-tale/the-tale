@@ -1,7 +1,32 @@
-
+from pathlib import Path
 import smart_imports
 
 smart_imports.all()
+
+
+_places_effects_file = Path(__file__).parent / 'fixtures' / 'places_effects.json'
+
+def load_places_effects():
+    with open(_places_effects_file, 'r') as f:
+        data = json.load(f)
+
+    effects = []
+
+    for item in data:
+        effect = tt_api_effects.Effect(id=item['id'],
+                                        attribute=getattr(relations.ATTRIBUTE, item['attribute']),
+                                        entity=item['entity'],
+                                        value=item['value'],
+                                        name=item['name'],
+                                        delta=item['delta'],
+                                        info=item['info'])
+
+        effects.append(effect)
+
+    return effects
+
+
+_places_effects = load_places_effects()
 
 
 class PlacesStorage(utils_storage.CachedStorage):
@@ -189,7 +214,7 @@ class EffectsStorage(utils_storage.CachedStorage):
         raise NotImplementedError
 
     def _get_all_query(self):
-        return tt_services.effects.cmd_list()
+        return _places_effects
 
     def _reset_cache(self):
         self._effects_by_place = {}
