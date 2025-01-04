@@ -56,12 +56,6 @@ services:
   utils-site-generate-static:
     command: tt_generate_static
 
-  tt-diary:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-diary:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_diary/config.json:/home/tt_service/config.json
-
   tt-personal-messages: {}
 
   tt-personal-impacts:

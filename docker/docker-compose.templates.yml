@@ -130,9 +130,6 @@ services:
   utils-site-generate-static:
     << : [*default-site-image, *default-utils]
 
-  tt-diary:
-    << : *default-tt-service
-
   tt-personal-messages:
     << : [*default-tt-personal-messages, *default-tt-service]
 

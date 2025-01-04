@@ -16,10 +16,6 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/nginx/templates:/nginx-config-templates:ro
 
-  tt-diary:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
   tt-personal-messages:
     volumes:
       - ${PWD}:/home/tt_service/repository

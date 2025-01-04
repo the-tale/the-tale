@@ -157,7 +157,8 @@ def api_info(context):
 @accounts_views.LoginRequiredProcessor()
 @resource('api', 'diary', name='api-diary')
 def api_diary(context):
-    diary = heroes_tt_services.diary.cmd_diary(context.account.id)
+    # code is changed due to moving game to read-only mode
+    diary = []
 
     return utils_views.AjaxOk(content=diary)
 

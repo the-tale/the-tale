@@ -145,7 +145,6 @@
 
 ** tt-data-protector
 
-** (?) tt-diary
 
 ** (?) tt-places-effects
 
