@@ -45,6 +45,10 @@ class Client(client.Client):
         super().__init__(**kwargs)
         self._properties = properties
         self._properties_class = properties_class(properties)
+        self._object_defaults = self.load_object_defaults()
+
+    def load_object_defaults(self):
+        return None
 
     def cmd_set_property(self, object_id, name, value):
         raise NotImplementedError("Game in read-only mode")
@@ -78,9 +82,17 @@ class Client(client.Client):
 
         for property_type in self._properties.records:
             for object_id in objects:
+                value = None
+
+                if self._object_defaults is not None and object_id in self._object_defaults:
+                    value = self._object_defaults[object_id].get(property_type.value)
+
+                if value is None:
+                    value = self._defaults.get(property_type, property_type.default)
+
                 setattr(properties[object_id],
                         property_type.name,
-                        self._defaults.get(property_type, property_type.default))
+                        value)
 
         return properties
 

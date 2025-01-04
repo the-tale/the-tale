@@ -157,9 +157,6 @@ services:
   tt-emissaries-impacts:
     << : *default-tt-service
 
-  tt-clans-properties:
-    << : *default-tt-service
-
   tt-places-effects:
     << : *default-tt-service
 

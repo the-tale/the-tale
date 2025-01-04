@@ -47,10 +47,6 @@ services:
     volumes:
       - ${PWD}:/home/tt_service/repository
 
-  tt-clans-properties:
-    volumes:
-      - ${PWD}:/home/tt_service/repository
-
   tt-places-effects:
     volumes:
       - ${PWD}:/home/tt_service/repository

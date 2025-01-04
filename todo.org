@@ -149,8 +149,6 @@
 
 ** (?) tt-places-effects
 
-** (?) tt-clans-properties
-
 ** (?) tt-emissaries-impacts
 
 ** (?) tt-money-spendings <-- impact from money

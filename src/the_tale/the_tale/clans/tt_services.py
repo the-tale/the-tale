@@ -1,4 +1,4 @@
-
+from pathlib import Path
 import smart_imports
 
 smart_imports.all()
@@ -39,8 +39,27 @@ class CLAN_PROPERTIES(tt_api_properties.PROPERTIES):
                 str, lambda value: int(value), 0, tt_api_properties.TYPE.REPLACE),)
 
 
+# code is changed due to moving game to the read-only mode
 class ClansPropertiesClient(tt_api_properties.Client):
-    pass
+    _defaults = {CLAN_PROPERTIES.accept_requests_from_players: False,
+                 CLAN_PROPERTIES.fighters_maximum_level: 0,
+                 CLAN_PROPERTIES.emissary_maximum_level: 0,
+                 CLAN_PROPERTIES.points_gain_level: 0,
+                 CLAN_PROPERTIES.free_quests_maximum_level: 0}
+
+    def load_object_defaults(self):
+        filename = Path(__file__).parent / 'fixtures' / 'clans_properties.json'
+
+        with open(filename, 'r') as f:
+            data = json.load(f)
+
+        defaults = {}
+
+        for raw_key, raw_value in data.items():
+            values = {int(k): self._properties(int(k)).from_string(v) for k, v in raw_value.items()}
+            defaults[int(raw_key)] = values
+
+        return defaults
 
 
 properties = ClansPropertiesClient(entry_point=conf.settings.TT_CLANS_PROPERTIES_ENTRY_POINT,
