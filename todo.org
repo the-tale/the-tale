@@ -153,16 +153,14 @@
 
 ** tt-data-protector
 
+** tt-personal-impacts
+** tt-crowd-impacts
 
 ** (?) tt-emissaries-impacts
 
 ** (?) tt-fame-impacts <-- impact from fame
 
 ** (?) tt-job-impacts <-- impact from job
-
-** (?) tt-crowd-impacts <-- impact from crowd
-
-** (?) tt-personal-impacts <-- impact from personal
 
 ** (?) utils-site-generate-static
 
