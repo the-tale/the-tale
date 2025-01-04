@@ -4,24 +4,41 @@ import smart_imports
 smart_imports.all()
 
 
-_places_effects_file = Path(__file__).parent / 'fixtures' / 'places_effects.json'
+_places_effects_file = Path(__file__).parent / 'fixtures' / 'places_effects.csv'
+
 
 def load_places_effects():
-    with open(_places_effects_file, 'r') as f:
-        data = json.load(f)
-
     effects = []
 
-    for item in data:
-        effect = tt_api_effects.Effect(id=item['id'],
-                                        attribute=getattr(relations.ATTRIBUTE, item['attribute']),
-                                        entity=item['entity'],
-                                        value=item['value'],
-                                        name=item['name'],
-                                        delta=item['delta'],
-                                        info=item['info'])
+    with open(_places_effects_file, 'r') as f:
+        csv_reader = csv.reader(f, delimiter='\t')
 
-        effects.append(effect)
+        for i, row in enumerate(csv_reader):
+            _id, _attribute, _entity, _data = row
+
+            id = int(_id)
+            attribute = relations.ATTRIBUTE(int(_attribute))
+            entity = int(_entity)
+
+            data = s11n.from_json(_data.replace('\\\\', '\\'))
+
+            value = float(data['value'])
+            caption = data['caption']
+
+            data_data = s11n.from_json(data['data'])
+
+            delta = data_data['delta']
+            info = data_data['info']
+
+            effect = tt_api_effects.Effect(id=id,
+                                           attribute=attribute,
+                                           entity=entity,
+                                           value=value,
+                                           name=caption,
+                                           delta=delta,
+                                           info=info)
+
+            effects.append(effect)
 
     return effects
 
