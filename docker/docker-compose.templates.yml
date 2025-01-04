@@ -148,9 +148,6 @@ services:
   tt-game-chronicle:
     << : *default-tt-service
 
-  tt-money-spendings:
-    << : *default-tt-service
-
   tt-emissaries-impacts:
     << : *default-tt-service
 

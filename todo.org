@@ -67,6 +67,8 @@
 
 * TODO What with amazon CDN?
 
+* TODO Do not refresh data on the game page
+
 * TODO Эффекты влияния от площади городов и от эффектов Хранителей (карт) почему-то меняются
 
 * TODO what with active players tracking?
@@ -149,8 +151,6 @@
 
 
 ** (?) tt-emissaries-impacts
-
-** (?) tt-money-spendings <-- impact from money
 
 ** (?) tt-fame-impacts <-- impact from fame
 
