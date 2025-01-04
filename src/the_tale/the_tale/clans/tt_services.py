@@ -1,4 +1,5 @@
 from pathlib import Path
+import csv
 import smart_imports
 
 smart_imports.all()
@@ -48,16 +49,23 @@ class ClansPropertiesClient(tt_api_properties.Client):
                  CLAN_PROPERTIES.free_quests_maximum_level: 0}
 
     def load_object_defaults(self):
-        filename = Path(__file__).parent / 'fixtures' / 'clans_properties.json'
-
-        with open(filename, 'r') as f:
-            data = json.load(f)
+        filename = Path(__file__).parent / 'fixtures' / 'clans_properties.csv'
 
         defaults = {}
 
-        for raw_key, raw_value in data.items():
-            values = {int(k): self._properties(int(k)).from_string(v) for k, v in raw_value.items()}
-            defaults[int(raw_key)] = values
+        with open(filename, 'r') as f:
+            csv_reader = csv.reader(f)
+
+            for row in csv_reader:
+                _clan_id, _property_type, value = row
+
+                clan_id = int(_clan_id)
+                property_type = int(_property_type)
+
+                if clan_id not in defaults:
+                    defaults[clan_id] = {}
+
+                defaults[clan_id][property_type] = self._properties(property_type).from_string(value)
 
         return defaults
 
