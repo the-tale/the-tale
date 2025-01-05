@@ -325,7 +325,7 @@ def load_heroes_fame():
 
         fame[int(hero_id)] = objects.Popularity(dict(fames))
 
-        return fame
+    return fame
 
 
 _heroes_fame = load_heroes_fame()
@@ -333,7 +333,10 @@ _heroes_fame = load_heroes_fame()
 
 # code is changed due to moving the game to the read-only mode
 def get_hero_popularity(hero_id):
-    return _heroes_fame[hero_id]
+    if hero_id in _heroes_fame:
+        return _heroes_fame[hero_id]
+
+    raise NotImplementedError()
 
 
 def add_fame(hero_id, fames):

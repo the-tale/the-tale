@@ -89,8 +89,6 @@
 
 ** TODO Create last backup
 
-** TODO Apply last bills?
-
 ** TODO Check that GDPR logic is working, especially removing users
 
 ** TODO switch to new Sentry account
