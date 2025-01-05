@@ -55,25 +55,21 @@ def get_inner_circle(place_id=None, person_id=None):
                                size=size)
 
 
+def load_job_powers():
+    from pathlib import Path
+
+    with (Path(__file__).parent / 'fixtures' / 'job_powers.json').open('r') as f:
+        data = s11n.from_json(f.read())
+
+    return {int(key): jobs_objects.JobPower(positive=value['p'], negative=value['n']) for key, value in data.items()}
+
+
+_job_powers = load_job_powers()
+
+
+# code is changed due to moving game to the read-only mode
 def get_job_power(person_id=None):
-    if person_id is not None:
-        targets = ((tt_api_impacts.OBJECT_TYPE.JOB_PERSON_POSITIVE, person_id),
-                   (tt_api_impacts.OBJECT_TYPE.JOB_PERSON_NEGATIVE, person_id))
-    else:
-        raise NotImplementedError
-
-    impacts = game_tt_services.job_impacts.cmd_get_targets_impacts(targets=targets)
-
-    positive_power = 0
-    negative_power = 0
-
-    for impact in impacts:
-        if impact.target_type.is_JOB_PERSON_POSITIVE:
-            positive_power = impact.amount
-        elif impact.target_type.is_JOB_PERSON_NEGATIVE:
-            negative_power = impact.amount
-
-    return jobs_objects.JobPower(positive=positive_power, negative=negative_power)
+    return _job_powers[person_id]
 
 
 def load_emissaries_power():

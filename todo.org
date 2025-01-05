@@ -164,8 +164,6 @@
 ** tt-personal-impacts
 ** tt-crowd-impacts
 
-** (?) tt-job-impacts <-- impact from job
-
 ** (?) utils-site-generate-static
 
 *** move to prepare command before running site

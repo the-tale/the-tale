@@ -139,9 +139,6 @@ services:
   tt-crowd-impacts:
     << : *default-tt-service
 
-  tt-job-impacts:
-    << : *default-tt-service
-
   tt-game-chronicle:
     << : *default-tt-service
 
