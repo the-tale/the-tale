@@ -154,6 +154,8 @@
 
 **** TODO data is removed
 
+** TODO rempove old devops repository
+
 
 * Minimum deployment
 
