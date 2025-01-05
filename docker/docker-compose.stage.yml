@@ -37,6 +37,10 @@ services:
       - ${PWD}:/home/tt_service/repository
 
   site:
+    # command is redefined for developer needs
+    # to run site do:
+    # - docker exec site bash
+    #  - tt_django runserver 0.0.0.0:80
     command: sleep 24h
 
     volumes:

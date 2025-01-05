@@ -85,11 +85,9 @@
 
 * TODO Before release
 
-** TODO remove command in docker-compose.state.yml: site
-
 ** TODO Create last backup
 
-** TODO Check that GDPR logic is working, especially removing users
+** DONE Check that GDPR logic is working, especially removing users
 
 ** TODO switch to new Sentry account
 
