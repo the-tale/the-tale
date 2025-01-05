@@ -76,12 +76,6 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/tt_job_impacts/config.json:/home/tt_service/config.json
 
-  tt-fame-impacts:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_fame_impacts/config.json:/home/tt_service/config.json
-
   tt-game-chronicle:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-events-log:$TT_RELEASE_VERSION
 

@@ -142,9 +142,6 @@ services:
   tt-job-impacts:
     << : *default-tt-service
 
-  tt-fame-impacts:
-    << : *default-tt-service
-
   tt-game-chronicle:
     << : *default-tt-service
 

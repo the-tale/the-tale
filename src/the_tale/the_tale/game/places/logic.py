@@ -305,12 +305,35 @@ def sync_money_economic(places, max_economic):
         place.attrs.set_money_economic(economic)
 
 
-def get_hero_popularity(hero_id):
-    impacts = game_tt_services.fame_impacts.cmd_get_actor_impacts(actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
-                                                                  actor_id=hero_id,
-                                                                  target_types=[tt_api_impacts.OBJECT_TYPE.PLACE])
+def load_heroes_fame():
+    from pathlib import Path
 
-    return objects.Popularity({impact.target_id: impact.amount for impact in impacts})
+    with (Path(__file__).parent / 'fixtures' / 'heroes_fame.json').open('r') as f:
+        data = s11n.from_json(f.read())
+
+    fame = {}
+
+    for hero_id, fames in data.items():
+        place_ids = {place_id for place_id, fame in fames}
+
+        for place_id in range(1, 74):
+            if place_id in place_ids:
+                continue
+            if place_id in (54, 56, 57, 69):
+                continue
+            fames.append((place_id, 0))
+
+        fame[int(hero_id)] = objects.Popularity(dict(fames))
+
+        return fame
+
+
+_heroes_fame = load_heroes_fame()
+
+
+# code is changed due to moving the game to the read-only mode
+def get_hero_popularity(hero_id):
+    return _heroes_fame[hero_id]
 
 
 def add_fame(hero_id, fames):
