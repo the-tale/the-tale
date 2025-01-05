@@ -56,6 +56,17 @@ x-tt-service: &default-tt-service
   profiles:
     - services
 
+x-tasks: &default-tasks
+  << : *default-common
+
+  stop_grace_period: 24h
+
+  labels:
+    org.the-tale.group: tasks
+
+  profiles:
+    - tasks
+
 x-the-tale: &default-the-tale
   << : [*default-site-image, *default-common]
 
@@ -147,3 +158,6 @@ services:
 
   site:
     << : *default-the-tale
+
+  tasks-tt-data-protector-process-tasks:
+    << : [*default-tt-data-protector, *default-tasks]

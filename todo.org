@@ -146,6 +146,17 @@
 
 ** TODO kill amazon CDN/cloudfront configs
 
+** TODO checks
+
+*** TODO Sentry is working
+
+*** TODO Data protector is working
+
+**** TODO data is collected
+
+**** TODO data is removed
+
+
 * Minimum deployment
 
 ** site
@@ -158,6 +169,7 @@
 
 ** tt-personal-impacts
 ** tt-crowd-impacts
+** tt_data_protector_process_tasks
 
 ** (?) utils-site-generate-static
 

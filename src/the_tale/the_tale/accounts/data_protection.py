@@ -260,10 +260,10 @@ def remove_account_data(account_id):
 
 def remove_data(account_id):
 
+    # code disabled due to moving the game into readonly mode
     # must be first
-    if not heroes_data_protection.before_remove_data(account_id):
-        return False
-
+    # if not heroes_data_protection.before_remove_data(account_id):
+    #     return False
     shop_data_protection.remove_data(account_id)
 
     # must be before remove_account_data

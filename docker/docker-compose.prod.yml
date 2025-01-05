@@ -17,3 +17,6 @@ services:
 
     depends_on:
       - utils-site-generate-static
+
+  tasks-tt-data-protector-process-tasks:
+    command: tt_data_protector_process_tasks

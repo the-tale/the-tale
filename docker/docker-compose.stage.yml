@@ -53,3 +53,7 @@ services:
   utils-site:
     volumes:
       - ${PWD}:/home/tt_service/repository
+
+  tasks-tt-data-protector-process-tasks:
+    volumes:
+      - ${PWD}:/home/tt_service/repository

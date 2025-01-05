@@ -55,7 +55,8 @@ def _add_member(clan, account, role):
 
     account.set_clan_id(clan.id)
 
-    portal_logic.sync_with_discord(account)
+    # code disabled due to moving the game into readonly mode
+    # portal_logic.sync_with_discord(account)
 
     sync_clan_statistics(clan)
 
@@ -88,7 +89,8 @@ def _remove_member(clan, account, force=False):
 
     account.set_clan_id(None)
 
-    portal_logic.sync_with_discord(account)
+    # code disabled due to moving the game into readonly mode
+    # portal_logic.sync_with_discord(account)
 
     forum_prototypes.PermissionPrototype.get_for(account_id=account.id, subcategory_id=clan.forum_subcategory_id).remove()
 
@@ -173,8 +175,9 @@ def remove_clan(clan):
 
     models.MembershipRequest.objects.filter(clan_id=clan.id).delete()
 
-    for account_id in accounts_ids:
-        portal_logic.sync_with_discord(accounts_prototypes.AccountPrototype.get_by_id(account_id))
+    # code disabled due to moving the game into readonly mode
+    # for account_id in accounts_ids:
+    #     portal_logic.sync_with_discord(accounts_prototypes.AccountPrototype.get_by_id(account_id))
 
     storage.infos.update_version()
     storage.infos.refresh()
@@ -291,26 +294,29 @@ def remove_member(initiator, clan, member, force=False):
                                          recipients_ids=[member.id],
                                          body=message)
 
-    message = '{initiator} исключил(а) Хранителя {keeper} из гильдии'.format(initiator=initiator.nick_verbose,
-                                                                             keeper=member.nick_verbose)
+    # code disabled due to moving the game into readonly mode
 
-    tt_services.chronicle.cmd_add_event(clan=clan,
-                                        event=relations.EVENT.MEMBER_REMOVED,
-                                        tags=[initiator.meta_object().tag,
-                                              member.meta_object().tag],
-                                        message=message)
+    # message = '{initiator} исключил(а) Хранителя {keeper} из гильдии'.format(initiator=initiator.nick_verbose,
+    #                                                                          keeper=member.nick_verbose)
+
+    # tt_services.chronicle.cmd_add_event(clan=clan,
+    #                                     event=relations.EVENT.MEMBER_REMOVED,
+    #                                     tags=[initiator.meta_object().tag,
+    #                                           member.meta_object().tag],
+    #                                     message=message)
 
 
 @django_transaction.atomic
 def leave_clan(initiator, clan):
     _remove_member(clan, initiator)
+    # code disabled due to moving the game into readonly mode
 
-    message = '{keeper} покинул(а) гильдию'.format(keeper=initiator.nick_verbose)
+    # message = '{keeper} покинул(а) гильдию'.format(keeper=initiator.nick_verbose)
 
-    tt_services.chronicle.cmd_add_event(clan=clan,
-                                        event=relations.EVENT.MEMBER_LEFT,
-                                        tags=[initiator.meta_object().tag],
-                                        message=message)
+    # tt_services.chronicle.cmd_add_event(clan=clan,
+    #                                     event=relations.EVENT.MEMBER_LEFT,
+    #                                     tags=[initiator.meta_object().tag],
+    #                                     message=message)
 
 
 @django_transaction.atomic
@@ -332,19 +338,21 @@ def change_role(clan, initiator, member, new_role):
                                          recipients_ids=[member.id],
                                          body=message)
 
-    message = '{initiator} изменил(а) звание Хранителя {member} с «{old_role}» на «{new_role}».'
-    message = message.format(initiator=initiator.nick_verbose,
-                             member=member.nick_verbose,
-                             old_role=old_role.text,
-                             new_role=new_role.text)
+    # code disabled due to moving the game into readonly mode
 
-    tt_services.chronicle.cmd_add_event(clan=clan,
-                                        event=relations.EVENT.ROLE_CHANGED,
-                                        tags=[initiator.meta_object().tag,
-                                              member.meta_object().tag],
-                                        message=message)
+    # message = '{initiator} изменил(а) звание Хранителя {member} с «{old_role}» на «{new_role}».'
+    # message = message.format(initiator=initiator.nick_verbose,
+    #                          member=member.nick_verbose,
+    #                          old_role=old_role.text,
+    #                          new_role=new_role.text)
 
-    portal_logic.sync_with_discord(member)
+    # tt_services.chronicle.cmd_add_event(clan=clan,
+    #                                     event=relations.EVENT.ROLE_CHANGED,
+    #                                     tags=[initiator.meta_object().tag,
+    #                                           member.meta_object().tag],
+    #                                     message=message)
+
+    # portal_logic.sync_with_discord(member)
 
 
 @django_transaction.atomic
@@ -362,18 +370,19 @@ def change_ownership(clan, initiator, member):
                                          recipients_ids=[member.id],
                                          body=message)
 
-    message = 'Магистр гильдии {initiator} передал(а) владение гильдией Хранителю {member}.'
-    message = message.format(initiator=initiator.nick_verbose,
-                             member=member.nick_verbose)
+    # code disabled due to moving the game into readonly mode
+    # message = 'Магистр гильдии {initiator} передал(а) владение гильдией Хранителю {member}.'
+    # message = message.format(initiator=initiator.nick_verbose,
+    #                          member=member.nick_verbose)
 
-    tt_services.chronicle.cmd_add_event(clan=clan,
-                                        event=relations.EVENT.OWNER_CHANGED,
-                                        tags=[initiator.meta_object().tag,
-                                              member.meta_object().tag],
-                                        message=message)
+    # tt_services.chronicle.cmd_add_event(clan=clan,
+    #                                     event=relations.EVENT.OWNER_CHANGED,
+    #                                     tags=[initiator.meta_object().tag,
+    #                                           member.meta_object().tag],
+    #                                     message=message)
 
-    portal_logic.sync_with_discord(initiator)
-    portal_logic.sync_with_discord(member)
+    # portal_logic.sync_with_discord(initiator)
+    # portal_logic.sync_with_discord(member)
 
     return utils_views.AjaxOk()
 
