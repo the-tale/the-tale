@@ -3,9 +3,9 @@
 
 * DONE Disable registration
 
-* TODO Remove unnecessary workers
+* DONE Remove unnecessary workers
 
-* TODO Remove unnecessary databases in ./bin/defaults
+* DONE Remove unnecessary databases in ./bin/defaults
 
 * DONE Disable cards
 
@@ -23,33 +23,25 @@
 
 * TODO Check/fix functionality of turned-off services
 
-** TODO discord pages are working
+** DONE discord pages are working
 
-** TODO emissary's pages are working
+** DONE emissary's pages are working
 
-** TODO clans pages
+** WORKING clans pages
 
-*** TODO public pages
+*** DONE public pages
 
-*** TODO private pages
+*** DONE private pages
 
-*** TODO clan's chronicle
+*** DONE clan's chronicle
 
 **** currencies displayed normally
 
-*** TODO cards gui
+** DONE cards gui
 
-*** TODO Market gui
+* DONE Arena turned off without errors
 
-** TODO Arena turned off without errors
-
-* TODO Remove unnecessary folders with configs from ./docker directory
-
-* TODO Check ansible configs
-
-** TODO Check mentioned services
-
-** TODO Check mentioned databases
+* DONE Market gui
 
 * DONE Disable Arena
 
@@ -57,7 +49,7 @@
 
 * DONE Remove redis container?
 
-* TODO update start/stop scripts to remove obsolete containers/operations
+* DONE update start/stop scripts to remove obsolete containers/operations
 
 * DONE Clans
 
