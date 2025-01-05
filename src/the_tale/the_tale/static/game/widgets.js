@@ -124,6 +124,9 @@ pgf.game.Updater = function(params) {
     };
 
     instance.RefreshDiary = function() {
+        /* code is disabled due moving the game to the readonly mode */
+        return;
+
         if (!params.diaryUrl) {
             return;
         }
@@ -1382,6 +1385,9 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
     };
 
     this.RefreshDiary = function(turnMessages) {
+        /* code is disabled due moving the game to the readonly mode */
+        return;
+
         var lastTimestamp = -1;
         var lastGameTime = undefined;
 

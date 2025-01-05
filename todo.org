@@ -21,13 +21,13 @@
 
 ** DONE disable bills creation
 
-* TODO Check/fix functionality of turned-off services
+* DONE Check/fix functionality of turned-off services
 
 ** DONE discord pages are working
 
 ** DONE emissary's pages are working
 
-** WORKING clans pages
+** DONE clans pages
 
 *** DONE public pages
 
@@ -57,25 +57,27 @@
 
 ** DONE Disable inviting to clans
 
-* TODO What with amazon CDN?
+* DONE What with amazon CDN?
 
-* TODO update backup version and regenerate fixtures
+* DONE update backup version and regenerate fixtures
 
-* TODO fixtures
+* DONE fixtures
 
 ** clans_properties.json
 
 ** places_effects.json
 
-* TODO Do not refresh data on the game page
+* DONE Do not refresh data on the game page
 
-* TODO Эффекты влияния от площади городов и от эффектов Хранителей (карт) почему-то меняются
+* DONE Эффекты влияния от площади городов и от эффектов Хранителей (карт) почему-то меняются
 
-* TODO Надо ли в последний раз синкануть законы в игре?
+* DONE Надо ли в последний раз синкануть законы в игре?
 
 ** Read-only фикстуры считались для бэкапа первого января, новые законы могут сделать их неактуальными.
 
-* TODO what with active players tracking?
+** Не надо.
+
+* DONE what with active players tracking?
 
 ** the state visualized on the keeper's page
 
@@ -94,6 +96,7 @@
 ** TODO switch to new Sentry account
 
 ** TODO Prepare plan of command for the release
+** TODO В фольклор записать страницу про обновление
 
 * TODO Release
 
@@ -142,6 +145,8 @@
 ** TODO Cancel server
 
 ** TODO (?) configure backups? Do we need them?
+
+** TODO kill amazon CDN/cloudfront configs
 
 * Minimum deployment
 

@@ -354,7 +354,9 @@ ADMIN_MEDIA_PREFIX = '%sadmin/' % STATIC_URL
 LESS_FILES_DIR = os.path.join(PROJECT_DIR, 'less')
 LESS_OUTPUT_DIR = os.path.join(STATIC_ROOT, 'css')
 
-CDNS_ENABLED = globals().get('CDNS_ENABLED', False)
+# CDNS_ENABLED = globals().get('CDNS_ENABLED', False)
+# CDNs disabled do to moving the game into the read-only mode
+CDNS_ENABLED = False
 
 CDNS = (('STATIC_TWITTER_BOOTSTRAP',
          '%sbootstrap/' % STATIC_URL, '%sbootstrap/' % STATIC_CDN,
