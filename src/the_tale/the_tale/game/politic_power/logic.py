@@ -76,21 +76,21 @@ def get_job_power(person_id=None):
     return jobs_objects.JobPower(positive=positive_power, negative=negative_power)
 
 
+def load_emissaries_power():
+    from pathlib import Path
+
+    with (Path(__file__).parent / 'fixtures' / 'emissaries_power.json').open('r') as f:
+        data = s11n.from_json(f.read())
+
+    return {int(key): value for key, value in data.items()}
+
+
+_emissaries_power = load_emissaries_power()
+
+
+# code is changed due to moving game to the read-only mode
 def get_emissaries_power(emissaries_ids):
-    emissaries_impacts = {emissary_id: 0 for emissary_id in emissaries_ids}
-
-    if not emissaries_ids:
-        return emissaries_impacts
-
-    targets = [(tt_api_impacts.OBJECT_TYPE.EMISSARY, emissary_id)
-               for emissary_id in emissaries_ids]
-
-    impacts = game_tt_services.emissary_impacts.cmd_get_targets_impacts(targets=targets)
-
-    for impact in impacts:
-        emissaries_impacts[impact.target_id] += impact.amount
-
-    return emissaries_impacts
+    return {emissary_id: _emissaries_power.get(emissary_id, 0) for emissary_id in emissaries_ids}
 
 
 def add_power_impacts(impacts):

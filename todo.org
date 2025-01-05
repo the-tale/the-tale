@@ -164,8 +164,6 @@
 ** tt-personal-impacts
 ** tt-crowd-impacts
 
-** (?) tt-emissaries-impacts - can be replaced
-
 ** (?) tt-fame-impacts <-- impact from fame
 
 ** (?) tt-job-impacts <-- impact from job

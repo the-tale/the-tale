@@ -96,7 +96,9 @@ def history(context):
         target_type = tt_api_impacts.OBJECT_TYPE.EMISSARY
         target_id = context.emissary.id
 
-    storages = [game_tt_services.emissary_impacts]
+    # code is disabled due to moving the game to the read-only mode
+    storages = []
+    # storages = [game_tt_services.emissary_impacts]
 
     if context.power_type.is_ALL or context.power_type.is_PERSONAL:
         storages.append(game_tt_services.personal_impacts)
