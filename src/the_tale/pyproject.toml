@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "the_tale"
-version = "0.5.1.1"
+version = "0.5.1.4"
 description = "Zero Player Game with indirect character controll."
 repository = "https://github.com/Tiendil/the-tale"
 authors = ["Aliaksei Yaletski (Tiendil) <a.eletsky@gmail.com>"]
