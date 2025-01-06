@@ -60,6 +60,7 @@ resource.add_processor(third_party_views.RefuseThirdPartyProcessor())
 resource.add_processor(XsollaEnabledProcessor())
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @resource('', method='get')
 def index(context):
 
@@ -86,6 +87,7 @@ def index(context):
                                     'payment_failed': payment_failed})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @resource('history', method='get')
 def history(context):
     history = context.account.bank_account.get_history_list()
@@ -101,6 +103,7 @@ def history(context):
                                     'resource': context.resource})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @utils_views.PageNumberProcessor()
 @resource('market-history', method='get')
 def market_history(context):
@@ -131,6 +134,7 @@ def market_history(context):
                                     'cards_info': cards_info})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @PurchaseProcessor()
 @resource('buy', method='post')
 def buy(context):
@@ -138,6 +142,7 @@ def buy(context):
     return utils_views.AjaxProcessing(postponed_task.status_url)
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @cards_views.AccountCardsLoader()
 @cards_views.AccountCardsProcessor()
 @LotPriceProcessor()
@@ -167,6 +172,7 @@ def create_sell_lot(context):
     return utils_views.AjaxOk()
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @ItemTypeProcessor()
 @LotPriceProcessor()
 @resource('close-sell-lot', method='post')
@@ -184,6 +190,7 @@ def close_sell_lot(context):
     return utils_views.AjaxProcessing(postponed_task.status_url)
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @ItemTypeProcessor()
 @LotPriceProcessor()
 @resource('cancel-sell-lot', method='post')
@@ -197,6 +204,7 @@ def cancel_sell_lot(context):
     return utils_views.AjaxOk()
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @resource('info', method='get')
 def info(context):
     info = tt_services.market.cmd_info(owner_id=context.account.id)
@@ -213,6 +221,7 @@ def info(context):
                                        'account_balance': context.account.bank_account.amount})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @utils_views.ArgumentProcessor(error_message='Необходимо указать тип товара', get_name='item_type', context_name='item_type')
 @resource('item-type-prices', method='get')
 def item_type_prices(context):
@@ -221,6 +230,7 @@ def item_type_prices(context):
                                       'owner_prices': owner_prices})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.SuperuserProcessor()
 @accounts_views.AccountProcessor(get_name='account', context_name='target_account', error_message='Аккаунт не обнаружен')
 @utils_views.FormProcessor(form_class=forms.GMForm)

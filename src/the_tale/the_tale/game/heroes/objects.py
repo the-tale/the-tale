@@ -593,7 +593,9 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         if (recache_if_required and
             cls.is_ui_continue_caching_required(data['ui_caching_started_at']) and
             game_prototypes.GameState.is_working()):
-            amqp_environment.environment.workers.supervisor.cmd_start_hero_caching(account_id)
+            # code disabled due moving the game to the readonly mode
+            # amqp_environment.environment.workers.supervisor.cmd_start_hero_caching(account_id)
+            pass
 
         if patch_turns is not None and data['patch_turn'] in patch_turns:
             patch_fields = set(data['changed_fields'])

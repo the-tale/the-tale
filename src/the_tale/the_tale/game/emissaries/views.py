@@ -132,9 +132,8 @@ def show(context):
 
     if context.clan:
         number = conf.settings.CLAN_CHRONICLE_RECORDS_ON_EMISSARY_PAGE
-        total_events, clan_events = clans_tt_services.chronicle.cmd_get_last_events(clan=context.clan,
-                                                                                    tags=(context.current_emissary.meta_object().tag,),
-                                                                                    number=number)
+        # code replaced with fake data due moving the game to read-only mode
+        total_events, clan_events = 0, []
 
         tt_api_events_log.fill_events_wtih_meta_objects(clan_events)
 

@@ -1,4 +1,5 @@
-
+from pathlib import Path
+import csv
 import smart_imports
 
 smart_imports.all()
@@ -39,8 +40,34 @@ class CLAN_PROPERTIES(tt_api_properties.PROPERTIES):
                 str, lambda value: int(value), 0, tt_api_properties.TYPE.REPLACE),)
 
 
+# code is changed due to moving game to the read-only mode
 class ClansPropertiesClient(tt_api_properties.Client):
-    pass
+    _defaults = {CLAN_PROPERTIES.accept_requests_from_players: False,
+                 CLAN_PROPERTIES.fighters_maximum_level: 0,
+                 CLAN_PROPERTIES.emissary_maximum_level: 0,
+                 CLAN_PROPERTIES.points_gain_level: 0,
+                 CLAN_PROPERTIES.free_quests_maximum_level: 0}
+
+    def load_object_defaults(self):
+        filename = Path(__file__).parent / 'fixtures' / 'clans_properties.csv'
+
+        defaults = {}
+
+        with open(filename, 'r') as f:
+            csv_reader = csv.reader(f)
+
+            for row in csv_reader:
+                _clan_id, _property_type, value = row
+
+                clan_id = int(_clan_id)
+                property_type = int(_property_type)
+
+                if clan_id not in defaults:
+                    defaults[clan_id] = {}
+
+                defaults[clan_id][property_type] = self._properties(property_type).from_string(value)
+
+        return defaults
 
 
 properties = ClansPropertiesClient(entry_point=conf.settings.TT_CLANS_PROPERTIES_ENTRY_POINT,

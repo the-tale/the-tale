@@ -67,6 +67,9 @@ class Connection(kombu.Connection):
 
 
 def __getattr__(name):
+    # code is disabled due to moving the game to readonly mode
+    return None
+
     if name != 'connection':
         raise AttributeError(f"module {__name__} has no attribute {name}")
 

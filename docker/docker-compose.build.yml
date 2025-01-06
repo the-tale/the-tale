@@ -22,33 +22,6 @@ services:
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
         TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
 
-  core-redis:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/core-redis:$TT_RELEASE_VERSION
-
-    build:
-      context: ./redis
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
-  core-rabbitmq:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/core-rabbitmq:$TT_RELEASE_VERSION
-
-    build:
-      context: ./rabbitmq
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
-  core-postfix:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/core-postfix:$TT_RELEASE_VERSION
-
-    build:
-      context: ./postfix
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
   core-nginx:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-nginx:$TT_RELEASE_VERSION
@@ -58,23 +31,6 @@ services:
       args:
         TT_SITE_STATIC_DIR: $TT_SITE_STATIC_DIR
         TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
-  utils-certbot:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-certbot:$TT_RELEASE_VERSION
-
-    build:
-      context: ./utils_certbot
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
-  task-ofelia:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tasks-ofelia:$TT_RELEASE_VERSION
-
-    build:
-      context: ./ofelia
       labels:
         org.opencontainers.image.source: $TT_REPO
 
@@ -88,20 +44,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-  tt-diary:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-diary:$TT_RELEASE_VERSION
-
-    build:
-      context: ../
-      dockerfile: ./docker/tt_service/Dockerfile
-      args:
-        TT_PACKAGE: tt_diary
-        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
-        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
   tt-personal-messages:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-personal-messages:$TT_RELEASE_VERSION
@@ -111,48 +53,6 @@ services:
       dockerfile: ./docker/tt_service/Dockerfile
       args:
         TT_PACKAGE: tt_personal_messages
-        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
-        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
-  tt-storage:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-storage:$TT_RELEASE_VERSION
-
-    build:
-      context: ../
-      dockerfile: ./docker/tt_service/Dockerfile
-      args:
-        TT_PACKAGE: tt_storage
-        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
-        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
-  tt-market:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-market:$TT_RELEASE_VERSION
-
-    build:
-      context: ../
-      dockerfile: ./docker/tt_service/Dockerfile
-      args:
-        TT_PACKAGE: tt_market
-        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
-        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
-  tt-timers:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-timers:$TT_RELEASE_VERSION
-
-    build:
-      context: ../
-      dockerfile: ./docker/tt_service/Dockerfile
-      args:
-        TT_PACKAGE: tt_timers
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
         TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
@@ -180,34 +80,6 @@ services:
       dockerfile: ./docker/tt_service/Dockerfile
       args:
         TT_PACKAGE: tt_events_log
-        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
-        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
-  tt-properties:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-properties:$TT_RELEASE_VERSION
-
-    build:
-      context: ../
-      dockerfile: ./docker/tt_service/Dockerfile
-      args:
-        TT_PACKAGE: tt_properties
-        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
-        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
-  tt-matchmaker:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-matchmaker:$TT_RELEASE_VERSION
-
-    build:
-      context: ../
-      dockerfile: ./docker/tt_service/Dockerfile
-      args:
-        TT_PACKAGE: tt_matchmaker
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
         TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
@@ -255,20 +127,6 @@ services:
       labels:
         org.opencontainers.image.source: $TT_REPO
 
-  tt-discord:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-discord:$TT_RELEASE_VERSION
-
-    build:
-      context: ../
-      dockerfile: ./docker/tt_service/Dockerfile
-      args:
-        TT_PACKAGE: tt_discord
-        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
-        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
   tt-data-protector:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-data-protector:$TT_RELEASE_VERSION
@@ -293,19 +151,6 @@ services:
       args:
         TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
         TT_SITE_STATIC_DIR: $TT_SITE_STATIC_DIR
-        TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
-      labels:
-        org.opencontainers.image.source: $TT_REPO
-
-  utils-regenerate-protocol:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-regenerate-protocol:$TT_RELEASE_VERSION
-
-    build:
-      context: ../
-      dockerfile: ./docker/utils_regenerate_protocol/Dockerfile
-      args:
-        TT_BASE_IMAGE_VERSION: $TT_RELEASE_VERSION
         TT_CONTAINERS_REGISTRY: $TT_CONTAINERS_REGISTRY
       labels:
         org.opencontainers.image.source: $TT_REPO

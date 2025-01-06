@@ -157,6 +157,7 @@ class BillResource(utils_resources.Resource):
                               'paginator': paginator,
                               'index_filter': index_filter})
 
+    @accounts_views.validate_operation_disabled_game_stopped()
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_any()
@@ -172,6 +173,7 @@ class BillResource(utils_resources.Resource):
                                                 'page_type': 'new',
                                                 'form': bill_class.get_user_form_create(owner_id=self.account.id)})
 
+    @accounts_views.validate_operation_disabled_game_stopped()
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_any()
@@ -287,6 +289,7 @@ class BillResource(utils_resources.Resource):
 
         return self.json_error('bills.moderate.form_errors', moderator_form.errors)
 
+    @accounts_views.validate_operation_disabled_game_stopped()
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_any()

@@ -60,17 +60,13 @@ def initiate_battle(initiator_id, acceptor_id, battle_id):
 def arena_info():
     from the_tale.game import logic as game_logic
 
-    battle_requests, active_battles = tt_services.matchmaker.cmd_get_info(matchmaker_types=(relations.MATCHMAKER_TYPE.ARENA,
-                                                                                            relations.MATCHMAKER_TYPE.BOT))
+    # code removed due to moving game to readonly mode
 
-    requests = [request for request in battle_requests if request.matchmaker_type.is_ARENA]
-    requests.sort(key=lambda request: request.created_at)
+    data = {'arena_battle_requests': [],
+            'active_bot_battles': 0,
+            'active_arena_battles': 0}
 
-    data = {'arena_battle_requests': [request.ui_info() for request in requests],
-            'active_bot_battles': active_battles[relations.MATCHMAKER_TYPE.BOT],
-            'active_arena_battles': active_battles[relations.MATCHMAKER_TYPE.ARENA]}
-
-    accounts_ids = {request.initiator_id for request in battle_requests}
+    accounts_ids = {}
 
     data['accounts'] = game_logic.accounts_info(accounts_ids)
     data['clans'] = game_logic.clans_info(data['accounts'])

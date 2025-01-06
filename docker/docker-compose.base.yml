@@ -26,17 +26,6 @@ services:
 
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
 
-  core-redis:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/core-redis:$TT_RELEASE_VERSION
-
-  core-rabbitmq:
-
-    image: $TT_CONTAINERS_REGISTRY/the-tale/core-rabbitmq:$TT_RELEASE_VERSION
-
-    volumes:
-       - $TT_CONFIGS_ROOT/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
-
   core-nginx:
 
     image: $TT_CONTAINERS_REGISTRY/the-tale/core-nginx:$TT_RELEASE_VERSION
@@ -53,19 +42,7 @@ services:
       - "80:80"
       - "443:443"
 
-  core-postfix:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/core-postfix:$TT_RELEASE_VERSION
-
-    ports:
-      - "25:25"
-
   utils-postgresql: {}
-
-  utils-certbot: {}
-
-  utils-regenerate-protocol:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/utils-regenerate-protocol:$TT_RELEASE_VERSION
-    command: tt_regenerate_protocol
 
   utils-site-migrations:
     profiles:
@@ -79,38 +56,7 @@ services:
   utils-site-generate-static:
     command: tt_generate_static
 
-  tasks-manager-ofelia:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tasks-ofelia:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/ofelia/config.ini:/etc/ofelia/config.ini:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-
-  tt-diary:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-diary:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_diary/config.json:/home/tt_service/config.json
-
   tt-personal-messages: {}
-
-  tt-storage:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-storage:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_storage/config.json:/home/tt_service/config.json
-
-  tt-market:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-market:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_market/config.json:/home/tt_service/config.json
-
-  tt-players-timers:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-timers:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_players_timers/config.json:/home/tt_service/config.json
 
   tt-personal-impacts:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
@@ -124,85 +70,11 @@ services:
     volumes:
       - $TT_CONFIGS_ROOT/tt_crowd_impacts/config.json:/home/tt_service/config.json
 
-  tt-job-impacts:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_job_impacts/config.json:/home/tt_service/config.json
-
-  tt-fame-impacts:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_fame_impacts/config.json:/home/tt_service/config.json
-
   tt-game-chronicle:
     image: $TT_CONTAINERS_REGISTRY/the-tale/tt-events-log:$TT_RELEASE_VERSION
 
     volumes:
       - $TT_CONFIGS_ROOT/tt_game_chronicle/config.json:/home/tt_service/config.json
-
-  tt-clans-chronicle:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-events-log:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_clans_chronicle/config.json:/home/tt_service/config.json
-
-  tt-money-spendings:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_money_spendings/config.json:/home/tt_service/config.json
-
-  tt-emissaries-impacts:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-impacts:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_emissaries_impacts/config.json:/home/tt_service/config.json
-
-  tt-players-properties:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-properties:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_players_properties/config.json:/home/tt_service/config.json
-
-  tt-clans-properties:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-properties:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_clans_properties/config.json:/home/tt_service/config.json
-
-  tt-matchmaker:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-matchmaker:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_matchmaker/config.json:/home/tt_service/config.json
-
-  tt-places-effects:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-effects:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_places_effects/config.json:/home/tt_service/config.json
-
-  tt-clans-currencies: {}
-
-  tt-emissaries-events-currencies:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-bank:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_emissaries_events_currencies/config.json:/home/tt_service/config.json
-
-  tt-emissaries-events-uniquer:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-uniquer:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_emissaries_events_uniquer/config.json:/home/tt_service/config.json
-
-  tt-discord:
-    image: $TT_CONTAINERS_REGISTRY/the-tale/tt-discord:$TT_RELEASE_VERSION
-
-    volumes:
-      - $TT_CONFIGS_ROOT/tt_discord/config.json:/home/tt_service/config.json
 
   tt-data-protector: {}
 
@@ -214,62 +86,3 @@ services:
 
     labels:
       org.the-tale.group: site
-
-  worker-bank-processor:
-    environment:
-      TT_WORKER: bank_processor
-
-  worker-refrigerator:
-    environment:
-      TT_WORKER: refrigerator
-
-  worker-message-sender:
-    environment:
-      TT_WORKER: message_sender
-
-  worker-items-manager:
-    environment:
-      TT_WORKER: items_manager
-
-  worker-linguistics-manager:
-    environment:
-      TT_WORKER: linguistics_manager
-
-  worker-achievements-manager:
-    environment:
-      TT_WORKER: achievements_manager
-
-    depends_on:
-      - worker-items-manager
-
-  worker-turns-loop:
-    environment:
-      TT_WORKER: turns_loop
-
-  worker-logic-1:
-    environment:
-      TT_WORKER: logic_1
-
-    # service can be stopped only by worker_supervisor
-    stop_grace_period: 8760h
-
-  worker-logic-2:
-    environment:
-      TT_WORKER: logic_2
-
-    # service can be stopped only by worker_supervisor
-    stop_grace_period: 8760h
-
-  worker-quests-generator:
-    environment:
-      TT_WORKER: quests_generator
-
-  worker-supervisor:
-    environment:
-      TT_WORKER: supervisor
-
-    stop_grace_period: 1h
-
-    depends_on:
-      - worker-logic-1
-      - worker-logic-2

@@ -202,11 +202,8 @@ def verbose(name):
             'removed': 'удалено',
             'recipients': 'получатели',
 
-            'tt_discord': 'Discord (чат)',
-            'discord_id': 'идентификатор в Discord',
             'code': 'код',
             'expire_at': 'время окончания действия',
-            'bind_code': 'код связи аккаунтов игры и Discord',
 
             'tt_players_properties': 'Свойства аккаунта',
             'property': 'свойство',
@@ -263,10 +260,10 @@ def remove_account_data(account_id):
 
 def remove_data(account_id):
 
+    # code disabled due to moving the game into readonly mode
     # must be first
-    if not heroes_data_protection.before_remove_data(account_id):
-        return False
-
+    # if not heroes_data_protection.before_remove_data(account_id):
+    #     return False
     shop_data_protection.remove_data(account_id)
 
     # must be before remove_account_data
@@ -309,8 +306,8 @@ def first_step_removing(account):
 
 def ids_list(account):
     return [('the_tale', account.id),
-            ('tt_players_properties', account.id),
+            # ('tt_players_properties', account.id),  disabled while moving to readonly mode
             ('tt_personal_messages', account.id),
-            ('tt_discord', account.id),
-            # ('tt_xsolla', account.id)
+            # ('tt_discord', account.id),  disabled while moving to readonly mode
+            # ('tt_xsolla', account.id)  disabled while moving to readonly mode
             ]

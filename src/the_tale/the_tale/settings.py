@@ -107,7 +107,8 @@ TT_SECRET = 'test.secret'
 
 GA_CODE = None
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+# sessions storages moved to the DB due to moving the game into readonly mode
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
 
@@ -292,13 +293,11 @@ if TESTS_RUNNING:
 # CACHING
 ################
 
-CACHES = {'default': {'BACKEND': 'django_redis.cache.RedisCache',
-                      'LOCATION': 'redis://core-redis',
-                      'OPTIONS': {
-                          'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-                          'SERIALIZER': 'django_redis.serializers.json.JSONSerializer'}}}
+# cache removed due to moving the game into readonly mode
+# CACHES = {}
 
-STOP_GAME_LINK = "https://the-tale.org/forum/threads/10968"
+STOP_GAME_LINK = "https://the-tale.org/news/349"
+LORE_LINK = "https://the-tale.notion.site/"
 
 try:
     from the_tale.settings_local import *  # pylint: disable=W0403,W0401,W0614
@@ -355,7 +354,9 @@ ADMIN_MEDIA_PREFIX = '%sadmin/' % STATIC_URL
 LESS_FILES_DIR = os.path.join(PROJECT_DIR, 'less')
 LESS_OUTPUT_DIR = os.path.join(STATIC_ROOT, 'css')
 
-CDNS_ENABLED = globals().get('CDNS_ENABLED', False)
+# CDNS_ENABLED = globals().get('CDNS_ENABLED', False)
+# CDNs disabled do to moving the game into the read-only mode
+CDNS_ENABLED = False
 
 CDNS = (('STATIC_TWITTER_BOOTSTRAP',
          '%sbootstrap/' % STATIC_URL, '%sbootstrap/' % STATIC_CDN,

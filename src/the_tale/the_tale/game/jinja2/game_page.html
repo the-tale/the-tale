@@ -38,8 +38,9 @@ updater = new pgf.game.Updater({url: "{{ game_info_url() }}",
 
     pgf.base.ToggleWait(jQuery(".pgf-hero-data-wait"), true);
 
-    {% if game_settings.ENABLE_DATA_REFRESH %}
-    updater.SetRefreshInterval( {{ game_settings.TURN_DELAY*1000 }});
+   {% if game_settings.ENABLE_DATA_REFRESH %}
+   /* code is disabled due moving the game to the readonly mode */
+   /* updater.SetRefreshInterval( {{ game_settings.TURN_DELAY*1000 }}); */
     {% endif %}
 
     pgf.base.InitializeTabs('game-tab-main',

@@ -130,9 +130,11 @@ class CanBeInvitedProcessor(utils_views.FlaggedAccessProcessor):
     ARGUMENT = 'target_account'
 
     def validate(self, argument):
-        accept_invites_from_clans = accounts_tt_services.players_properties.cmd_get_object_property(object_id=argument.id,
-                                                                                                    name='accept_invites_from_clans')
-        return accept_invites_from_clans
+        # code is disabled due to moving game to the read-only mode
+        # accept_invites_from_clans = accounts_tt_services.players_properties.cmd_get_object_property(object_id=argument.id,
+        #                                                                                             name='accept_invites_from_clans')
+        # return accept_invites_from_clans
+        return False
 
 
 class CanReceiveRequessProcessor(utils_views.FlaggedAccessProcessor):
@@ -261,10 +263,8 @@ def chronicle(context):
 
     records_on_page = conf.settings.CHRONICLE_RECORDS_ON_CLAN_PAGE
 
-    page, total_records, events = tt_services.chronicle.cmd_get_events(clan=context.current_clan,
-                                                                       page=context.page+1,
-                                                                       tags=(),
-                                                                       records_on_page=records_on_page)
+    # functionality disabled due moving to read-only mode
+    page, total_records, events = 1, 0, []
 
     page -= 1
 
@@ -309,9 +309,8 @@ def show(context):
                                               for hero in heroes.values()
                                               if hero.is_premium and not hero.is_banned)
 
-    total_events, events = tt_services.chronicle.cmd_get_last_events(clan=context.current_clan,
-                                                                     tags=(),
-                                                                     number=conf.settings.CHRONICLE_RECORDS_ON_CLAN_PAGE)
+    # functionality disabled due moving to read-only mode
+    total_events, events = 0, []
 
     tt_api_events_log.fill_events_wtih_meta_objects(events)
 
@@ -334,9 +333,10 @@ def show(context):
     experience = None
 
     if is_own_clan:
-        clan_points = tt_services.currencies.cmd_balance(context.current_clan.id, currency=relations.CURRENCY.ACTION_POINTS)
-        free_quests_points = tt_services.currencies.cmd_balance(context.current_clan.id, currency=relations.CURRENCY.FREE_QUESTS)
-        experience = tt_services.currencies.cmd_balance(context.current_clan.id, currency=relations.CURRENCY.EXPERIENCE)
+        # code is changed due to moving game to the read-only mode
+        clan_points = None
+        free_quests_points = None
+        experience = None
 
     emissaries = emissaries_logic.load_emissaries_for_clan(context.current_clan.id)
 
@@ -448,13 +448,15 @@ def update(context):
                                             'accept_requests_from_players',
                                             context.form.c.accept_requests_from_players)
 
-    message = 'Хранитель {keeper} изменил(а) базовые свойства гильдии {guild}'.format(guild=clan.name,
-                                                                                      keeper=context.account.nick_verbose)
+    # functionality disabled due moving to read-only mode
 
-    tt_services.chronicle.cmd_add_event(clan=clan,
-                                        event=relations.EVENT.UPDATED,
-                                        tags=[context.account.meta_object().tag],
-                                        message=message)
+    # message = 'Хранитель {keeper} изменил(а) базовые свойства гильдии {guild}'.format(guild=clan.name,
+    #                                                                                   keeper=context.account.nick_verbose)
+
+    # tt_services.chronicle.cmd_add_event(clan=clan,
+    #                                     event=relations.EVENT.UPDATED,
+    #                                     tags=[context.account.meta_object().tag],
+    #                                     message=message)
 
     return utils_views.AjaxOk()
 
@@ -541,6 +543,7 @@ def on_request_checks(account, clan):
                          message='Вы уже отправили заявку на вступление или получили приглашение в эту гильдию')
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
 @CanBeInvitedProcessor()
@@ -556,6 +559,7 @@ def invite_dialog(context):
                                      'form': forms.MembershipRequestForm()})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
 @CanReceiveRequessProcessor()
@@ -571,6 +575,7 @@ def request_dialog(context):
                                      'form': forms.MembershipRequestForm()})
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
 @ClanStaticOperationAccessProcessor(permission='can_take_member')
@@ -588,6 +593,7 @@ def invite(context):
     return utils_views.AjaxOk()
 
 
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
 @CanReceiveRequessProcessor()

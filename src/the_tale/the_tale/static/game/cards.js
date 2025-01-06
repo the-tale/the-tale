@@ -135,6 +135,9 @@ pgf.game.widgets.CardsProgress = function (params) {
     instance.requestCounter = 0;
 
     function Refresh() {
+        /* code is disabled due moving the game to the readonly mode */
+        return;
+
         if (instance.data == null) {
             return
         }
@@ -219,6 +222,8 @@ pgf.game.widgets.Cards = function (params) {
     }
 
     this.GetCards = function() {
+        /* code is disabled due moving the game to the readonly mode */
+        return;
 
         var requestedVersion = localVersion + 1;
 

@@ -49,10 +49,11 @@ resource.add_processor(heroes_views.CurrentHeroProcessor())
 @resource('')
 def game_page(context):
 
-    enemy_id = pvp_logic.get_enemy_id(context.account.id)
+    # code disabled due to moving game to the readonly mode
+    # enemy_id = pvp_logic.get_enemy_id(context.account.id)
 
-    if enemy_id:
-        return utils_views.Redirect(utils_urls.url('game:pvp:'))
+    # if enemy_id:
+    #     return utils_views.Redirect(utils_urls.url('game:pvp:'))
 
     clan = None
     if context.account.clan_id is not None:
@@ -156,7 +157,8 @@ def api_info(context):
 @accounts_views.LoginRequiredProcessor()
 @resource('api', 'diary', name='api-diary')
 def api_diary(context):
-    diary = heroes_tt_services.diary.cmd_diary(context.account.id)
+    # code is changed due to moving game to read-only mode
+    diary = []
 
     return utils_views.AjaxOk(content=diary)
 
@@ -228,6 +230,8 @@ def supervisor_task_status(context):
     return utils_views.AjaxProcessing(context.supervisor_task.status_url)
 
 
+
+@accounts_views.OperationDisabledDueGameStoppedProcessor()
 @utils_views.DebugProcessor()
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.SuperuserProcessor()

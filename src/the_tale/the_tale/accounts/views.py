@@ -64,6 +64,16 @@ class LoginRequiredProcessor(utils_views.BaseViewProcessor):
         return utils_views.Redirect(target_url=self.login_page_url(context.django_request.get_full_path()))
 
 
+class OperationDisabledDueGameStoppedProcessor(utils_views.BaseViewProcessor):
+    ARG_ERROR_MESSAGE = utils_views.ProcessorArgument(default='Операция отключена, игра остановлена и находится в режиме только для чтения. По всем вопросам обращайтесь на наш Discord сервер.')
+
+    def login_page_url(self, target_url):
+        return logic.login_page_url(target_url)
+
+    def preprocess(self, context):
+        raise utils_views.ViewError(code='common.operation_disabled_game_stopped', message=self.error_message)
+
+
 class FullAccountProcessor(utils_views.FlaggedAccessProcessor):
     ERROR_CODE = 'common.fast_account'
     ERROR_MESSAGE = 'Вы не закончили регистрацию, данная функция вам недоступна'
@@ -356,6 +366,7 @@ def reset_bans(context):
     return utils_views.AjaxOk()
 
 
+@OperationDisabledDueGameStoppedProcessor()
 @LoginRequiredProcessor()
 @FullAccountProcessor()
 @FullAccountProcessor(argument='master_account', error_code='receiver_is_fast', error_message='Нельзя перевести печеньки игроку, не завершившему регистрацию')
@@ -374,6 +385,7 @@ def transfer_money_dialog(context):
                                      'max_money_to_transfer': max_money_to_transfer})
 
 
+@OperationDisabledDueGameStoppedProcessor()
 @LoginRequiredProcessor()
 @FullAccountProcessor()
 @FullAccountProcessor(argument='master_account', error_code='receiver_is_fast', error_message='Нельзя перевести печеньки игроку, не завершившему регистрацию')
@@ -442,6 +454,7 @@ def hero_story_attributes(view):
     return view
 
 
+@OperationDisabledDueGameStoppedProcessor()
 @hero_story_attributes
 @utils_api.Processor(versions=('1.0',))
 @registration_resource('api', 'register', method='POST', name='api-register')
@@ -699,13 +712,15 @@ def update_settings(context):
 
     context.account.update_settings(context.form)
 
-    tt_services.players_properties.cmd_set_property(object_id=context.account.id,
-                                                    name=tt_services.PLAYER_PROPERTIES.accept_invites_from_clans,
-                                                    value=context.form.c.accept_invites_from_clans)
+    # code is disabled due to moving game to the read-only mode
+    # tt_services.players_properties.cmd_set_property(object_id=context.account.id,
+    #                                                 name=tt_services.PLAYER_PROPERTIES.accept_invites_from_clans,
+    #                                                 value=context.form.c.accept_invites_from_clans)
 
     return utils_views.AjaxOk(content={'next_url': utils_urls.url('accounts:profile:edited')})
 
 
+@OperationDisabledDueGameStoppedProcessor()
 @profile_resource('reset-password')
 def reset_password_page(context):
     if context.account.is_authenticated:
@@ -898,3 +913,9 @@ def validate_ban_game(self, *args, **kwargs):
 @old_views.validator(code='common.ban_any', message='Вам запрещено проводить эту операцию')
 def validate_ban_any(self, *args, **kwargs):
     return not self.account.is_ban_any
+
+
+@old_views.validator(code='common.operation_disabled_game_stopped',
+                     message='Операция отключена, игра остановлена и находится в режиме только для чтения. По всем вопросам обращайтесь на наш Discord сервер.')
+def validate_operation_disabled_game_stopped(self, *args, **kwargs):
+    return False

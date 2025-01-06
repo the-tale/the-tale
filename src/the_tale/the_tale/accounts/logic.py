@@ -147,10 +147,8 @@ def register_user(nick,
 
 
 def create_cards_timer(account_id):
-    tt_services.players_timers.cmd_create_timer(owner_id=account_id,
-                                                type=relations.PLAYER_TIMERS_TYPES.CARDS_MINER,
-                                                speed=tt_cards_constants.NORMAL_PLAYER_SPEED,
-                                                border=tt_cards_constants.RECEIVE_TIME)
+    # functionality disabled due moving to read-only mode
+    pass
 
 
 def cards_timer_speed(account):
@@ -161,9 +159,8 @@ def cards_timer_speed(account):
 
 
 def update_cards_timer(account):
-    tt_services.players_timers.cmd_change_timer_speed(owner_id=account.id,
-                                                      speed=cards_timer_speed(account),
-                                                      type=relations.PLAYER_TIMERS_TYPES.CARDS_MINER)
+    # functionality disabled due moving to read-only mode
+    pass
 
 
 def login_user(request, nick=None, password=None, remember=False):
@@ -388,14 +385,16 @@ def update_referrals_number(account_id):
 
 
 def store_client_ip(account_id, ip):
-    ips = tt_services.players_properties.cmd_get_object_property(account_id,
-                                                                 name=tt_services.PLAYER_PROPERTIES.ip_address.name)
+    # code is disabled due to moving game to the read-only mode
+    # ips = tt_services.players_properties.cmd_get_object_property(account_id,
+    #                                                              name=tt_services.PLAYER_PROPERTIES.ip_address.name)
 
-    ip = ip.strip()
+    # ip = ip.strip()
 
-    if ip in ips:
-        return
+    # if ip in ips:
+    #     return
 
-    tt_services.players_properties.cmd_set_property(object_id=account_id,
-                                                    name=tt_services.PLAYER_PROPERTIES.ip_address,
-                                                    value=ip)
+    # tt_services.players_properties.cmd_set_property(object_id=account_id,
+    #                                                 name=tt_services.PLAYER_PROPERTIES.ip_address,
+    #                                                 value=ip)
+    pass

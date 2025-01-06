@@ -28,13 +28,7 @@
                 "deletion_url": "http://tt-personal-messages:80/data-protection-delete-data",
                 "secret": "test.secret"},
             "tt_discord": {
-                "plugin": "tt_data_protector.plugins.internal",
-                "report_url": "http://tt-discord:80/data-protection-collect-data",
-                "deletion_url": "http://tt-discord:80/data-protection-delete-data",
-                "secret": "test.secret"},
+                "plugin": "tt_data_protector.plugins.no_data"},
             "tt_players_properties": {
-                "plugin": "tt_data_protector.plugins.internal",
-                "report_url": "http://tt-players-properties:80/data-protection-collect-data",
-                "deletion_url": "http://tt-players-properties:80/data-protection-delete-data",
-                "secret": "test.secret"}}}
+                "plugin": "tt_data_protector.plugins.no_data"}}}
 }

@@ -37,15 +37,21 @@ def properties_class(properties):
     return PropertiesClass
 
 
+# code is changed due to moving game to the read-only mode
 class Client(client.Client):
+    _defaults = {}
 
     def __init__(self, properties, **kwargs):
         super().__init__(**kwargs)
         self._properties = properties
         self._properties_class = properties_class(properties)
+        self._object_defaults = self.load_object_defaults()
+
+    def load_object_defaults(self):
+        return None
 
     def cmd_set_property(self, object_id, name, value):
-        return self.cmd_set_properties([(object_id, name, value)])
+        raise NotImplementedError("Game in read-only mode")
 
     def get_property_type_or_raise(self, name):
         if name not in self._properties.records:
@@ -59,24 +65,9 @@ class Client(client.Client):
         return property_type
 
     def cmd_set_properties(self, properties):
-        pb_properties = []
-
-        for object_id, name, value in properties:
-            property_type = self.get_property_type_or_raise(name)
-
-            pb_properties.append(tt_protocol_properties_pb2.Property(object_id=object_id,
-                                                                     type=property_type.value,
-                                                                     value=property_type.to_string(value),
-                                                                     mode=property_type.type.protobuf))
-
-        operations.sync_request(url=self.url('set-properties'),
-                                data=tt_protocol_properties_pb2.SetPropertiesRequest(properties=pb_properties),
-                                AnswerType=tt_protocol_properties_pb2.SetPropertiesResponse)
+        raise NotImplementedError("Game in read-only mode")
 
     def cmd_get_properties(self, objects):
-
-        requests = []
-
         properties = {}
 
         for object_id, names in objects.items():
@@ -89,26 +80,19 @@ class Client(client.Client):
             if object_id not in properties:
                 properties[object_id] = self._properties_class()
 
-            requests.append(tt_protocol_properties_pb2.PropertiesList(object_id=object_id,
-                                                                      types=[property_type.value
-                                                                             for property_type in properties_types]))
+        for property_type in self._properties.records:
+            for object_id in objects:
+                value = None
 
-        answer = operations.sync_request(url=self.url('get-properties'),
-                                         data=tt_protocol_properties_pb2.GetPropertiesRequest(objects=requests),
-                                         AnswerType=tt_protocol_properties_pb2.GetPropertiesResponse)
+                if self._object_defaults is not None and object_id in self._object_defaults:
+                    value = self._object_defaults[object_id].get(property_type.value)
 
-        for property in answer.properties:
-            property_type = self._properties(property.type)
+                if value is None:
+                    value = self._defaults.get(property_type, property_type.default)
 
-            if property_type.type.is_REPLACE:
-                setattr(properties[property.object_id],
+                setattr(properties[object_id],
                         property_type.name,
-                        property_type.from_string(property.value))
-            elif property_type.type.is_APPEND:
-                getattr(properties[property.object_id],
-                        property_type.name).append(property_type.from_string(property.value))
-            else:
-                raise NotImplementedError
+                        value)
 
         return properties
 

@@ -156,6 +156,7 @@ class WordResource(utils_resources.Resource):
                               'ALLOWED_WORD_TYPE': relations.ALLOWED_WORD_TYPE,
                               'index_filter': index_filter})
 
+    @accounts_views.validate_operation_disabled_game_stopped()
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
@@ -188,6 +189,7 @@ class WordResource(utils_resources.Resource):
                               'page_type': 'dictionary',
                               'parent': parent})
 
+    @accounts_views.validate_operation_disabled_game_stopped()
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
@@ -467,6 +469,7 @@ class TemplateResource(utils_resources.Resource):
                               'clans': clans,
                               'LEXICON_KEY': lexicon_keys.LEXICON_KEY})
 
+    @accounts_views.validate_operation_disabled_game_stopped()
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
@@ -483,6 +486,7 @@ class TemplateResource(utils_resources.Resource):
                               'linguistics_settings': conf.settings,
                               'LEXICON_KEY': lexicon_keys.LEXICON_KEY})
 
+    @accounts_views.validate_operation_disabled_game_stopped()
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()

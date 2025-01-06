@@ -1,7 +1,49 @@
-
+from pathlib import Path
 import smart_imports
 
 smart_imports.all()
+
+
+_places_effects_file = Path(__file__).parent / 'fixtures' / 'places_effects.csv'
+
+
+def load_places_effects():
+    effects = []
+
+    with open(_places_effects_file, 'r') as f:
+        csv_reader = csv.reader(f, delimiter='\t')
+
+        for i, row in enumerate(csv_reader):
+            _id, _attribute, _entity, _data = row
+
+            id = int(_id)
+            attribute = relations.ATTRIBUTE(int(_attribute))
+            entity = int(_entity)
+
+            data = s11n.from_json(_data.replace('\\\\', '\\'))
+
+            value = float(data['value'])
+            caption = data['caption']
+
+            data_data = s11n.from_json(data['data'])
+
+            delta = data_data['delta']
+            info = data_data['info']
+
+            effect = tt_api_effects.Effect(id=id,
+                                           attribute=attribute,
+                                           entity=entity,
+                                           value=value,
+                                           name=caption,
+                                           delta=delta,
+                                           info=info)
+
+            effects.append(effect)
+
+    return effects
+
+
+_places_effects = load_places_effects()
 
 
 class PlacesStorage(utils_storage.CachedStorage):
@@ -189,7 +231,7 @@ class EffectsStorage(utils_storage.CachedStorage):
         raise NotImplementedError
 
     def _get_all_query(self):
-        return tt_services.effects.cmd_list()
+        return _places_effects
 
     def _reset_cache(self):
         self._effects_by_place = {}
