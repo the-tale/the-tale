@@ -92,7 +92,6 @@
 ** TODO switch to new Sentry account
 
 ** TODO Prepare plan of command for the release
-** TODO В фольклор записать страницу про обновление
 
 * TODO Release
 
@@ -104,16 +103,7 @@
 
 ** TODO Deploy to the new server
 
-*** TODO Create new databases
-
-**** the_tale
-
-**** the_tale_game_chronicle
-
-**** the_tale_personal_messages
-
-*** TODO Deploy redis
-
+*** DONE Create new databases
 *** TODO Config for Caddy
 
 **** main site
@@ -144,6 +134,8 @@
 
 ** TODO kill amazon CDN/cloudfront configs
 
+** TODO Remove unnecessary domains (the-tale.com?)
+
 ** TODO checks
 
 *** TODO Sentry is working
@@ -155,6 +147,12 @@
 **** TODO data is removed
 
 ** TODO rempove old devops repository
+
+** TODO Update backupse on S3
+
+*** TODO Copy last backup to the separate backet
+
+*** TODO remove old backups
 
 
 * Minimum deployment
