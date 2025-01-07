@@ -4,4 +4,4 @@ set -e
 
 trap 'echo "\"${last_command}\" command failed with exit code $?."' ERR
 
-wait-for-it core-postgresql:5432 -t $TT_WAIT_TIMEOUT
+wait-for-it ${POSTGRES_HOST:-core-postgresql}:${POSTGRES_PORT:-5432} -t ${TT_WAIT_TIMEOUT:-30}

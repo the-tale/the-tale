@@ -132,25 +132,26 @@ def create_clan(owner, abbr, name, motto, description):
 
     _add_member(clan=clan, account=owner, role=relations.MEMBER_ROLE.MASTER)
 
-    tt_services.chronicle.cmd_add_event(clan=clan,
-                                        event=relations.EVENT.CREATED,
-                                        tags=[owner.meta_object().tag],
-                                        message='Гильдия {guild} создана Хранителем {keeper}'.format(guild=clan.name,
-                                                                                                     keeper=owner.nick_verbose))
+    # code is disabled due to moving the game into readonly mode
+    # tt_services.chronicle.cmd_add_event(clan=clan,
+    #                                     event=relations.EVENT.CREATED,
+    #                                     tags=[owner.meta_object().tag],
+    #                                     message='Гильдия {guild} создана Хранителем {keeper}'.format(guild=clan.name,
+    #                                                                                                  keeper=owner.nick_verbose))
 
-    tt_services.currencies.cmd_change_balance(account_id=clan.id,
-                                              type='initial',
-                                              amount=tt_clans_constants.INITIAL_POINTS,
-                                              asynchronous=False,
-                                              autocommit=True,
-                                              currency=relations.CURRENCY.ACTION_POINTS)
+    # tt_services.currencies.cmd_change_balance(account_id=clan.id,
+    #                                           type='initial',
+    #                                           amount=tt_clans_constants.INITIAL_POINTS,
+    #                                           asynchronous=False,
+    #                                           autocommit=True,
+    #                                           currency=relations.CURRENCY.ACTION_POINTS)
 
-    tt_services.currencies.cmd_change_balance(account_id=clan.id,
-                                              type='initial',
-                                              amount=tt_clans_constants.INITIAL_FREE_QUESTS,
-                                              asynchronous=False,
-                                              autocommit=True,
-                                              currency=relations.CURRENCY.FREE_QUESTS)
+    # tt_services.currencies.cmd_change_balance(account_id=clan.id,
+    #                                           type='initial',
+    #                                           amount=tt_clans_constants.INITIAL_FREE_QUESTS,
+    #                                           asynchronous=False,
+    #                                           autocommit=True,
+    #                                           currency=relations.CURRENCY.FREE_QUESTS)
 
     return clan
 
@@ -428,12 +429,13 @@ def create_request(initiator, clan, text):
                                    recipient_id=recrutier_id,
                                    text=text)
 
-    message = '{keeper} хочет вступить в гильдию'.format(keeper=initiator.nick_verbose)
+    # code is disabled due to moving the game into readonly mode
+    # message = '{keeper} хочет вступить в гильдию'.format(keeper=initiator.nick_verbose)
 
-    tt_services.chronicle.cmd_add_event(clan=clan,
-                                        event=relations.EVENT.NEW_MEMBERSHIP_REQUEST,
-                                        tags=[initiator.meta_object().tag],
-                                        message=message)
+    # tt_services.chronicle.cmd_add_event(clan=clan,
+    #                                     event=relations.EVENT.NEW_MEMBERSHIP_REQUEST,
+    #                                     tags=[initiator.meta_object().tag],
+    #                                     message=message)
 
     return request.id
 
@@ -467,14 +469,15 @@ def create_invite(initiator, clan, member, text):
                                          recipients_ids=[member.id],
                                          body=message)
 
-    message = '{initiator} пригласил(а) Хранителя {keeper} в гильдию'.format(initiator=initiator.nick_verbose,
-                                                                             keeper=member.nick_verbose)
+    # code is disabled due to moving the game into readonly mode
+    # message = '{initiator} пригласил(а) Хранителя {keeper} в гильдию'.format(initiator=initiator.nick_verbose,
+    #                                                                          keeper=member.nick_verbose)
 
-    tt_services.chronicle.cmd_add_event(clan=clan,
-                                        event=relations.EVENT.NEW_MEMBERSHIP_INVITE,
-                                        tags=[initiator.meta_object().tag,
-                                              member.meta_object().tag],
-                                        message=message)
+    # tt_services.chronicle.cmd_add_event(clan=clan,
+    #                                     event=relations.EVENT.NEW_MEMBERSHIP_INVITE,
+    #                                     tags=[initiator.meta_object().tag,
+    #                                           member.meta_object().tag],
+    #                                     message=message)
 
     return request.id
 
@@ -545,12 +548,13 @@ def reject_invite(membership_request):
                                          recipients_ids=[membership_request.initiator_id],
                                          body=message)
 
-    message = '{keeper} отклонил(а) предложение вступить в гильдию'.format(keeper=account.nick_verbose)
+    # code is disabled due to moving the game into readonly mode
+    # message = '{keeper} отклонил(а) предложение вступить в гильдию'.format(keeper=account.nick_verbose)
 
-    tt_services.chronicle.cmd_add_event(clan=clan,
-                                        event=relations.EVENT.MEMBERSHIP_INVITE_REJECTED,
-                                        tags=[account.meta_object().tag],
-                                        message=message)
+    # tt_services.chronicle.cmd_add_event(clan=clan,
+    #                                     event=relations.EVENT.MEMBERSHIP_INVITE_REJECTED,
+    #                                     tags=[account.meta_object().tag],
+    #                                     message=message)
 
     models.MembershipRequest.objects.filter(id=membership_request.id).delete()
 
@@ -574,14 +578,15 @@ def reject_request(initiator, membership_request):
 
     models.MembershipRequest.objects.filter(id=membership_request.id).delete()
 
-    message = '{initiator} отказал(а) Хранителю {keeper} во вступлении в гильдию'.format(initiator=initiator.nick_verbose,
-                                                                                         keeper=account)
+    # code is disabled due to moving the game into readonly mode
+    # message = '{initiator} отказал(а) Хранителю {keeper} во вступлении в гильдию'.format(initiator=initiator.nick_verbose,
+    #                                                                                      keeper=account)
 
-    tt_services.chronicle.cmd_add_event(clan=clan,
-                                        event=relations.EVENT.MEMBERSHIP_REQUEST_REJECTED,
-                                        tags=[initiator.meta_object().tag,
-                                              account.meta_object().tag],
-                                        message=message)
+    # tt_services.chronicle.cmd_add_event(clan=clan,
+    #                                     event=relations.EVENT.MEMBERSHIP_REQUEST_REJECTED,
+    #                                     tags=[initiator.meta_object().tag,
+    #                                           account.meta_object().tag],
+    #                                     message=message)
 
 
 @django_transaction.atomic
@@ -593,12 +598,13 @@ def accept_invite(membership_request):
 
     _add_member(clan=clan, account=account, role=relations.MEMBER_ROLE.RECRUIT)
 
-    message = '{keeper} принял(а) приглашение в гильдию'.format(keeper=account.nick_verbose)
+    # code is disabled due to moving the game into readonly mode
+    # message = '{keeper} принял(а) приглашение в гильдию'.format(keeper=account.nick_verbose)
 
-    tt_services.chronicle.cmd_add_event(clan=clan,
-                                        event=relations.EVENT.MEMBERSHIP_INVITE_ACCEPTED,
-                                        tags=[account.meta_object().tag],
-                                        message=message)
+    # tt_services.chronicle.cmd_add_event(clan=clan,
+    #                                     event=relations.EVENT.MEMBERSHIP_INVITE_ACCEPTED,
+    #                                     tags=[account.meta_object().tag],
+    #                                     message=message)
 
 
 @django_transaction.atomic
@@ -619,14 +625,15 @@ def accept_request(initiator, membership_request):
                                          recipients_ids=[account.id],
                                          body=message)
 
-    message = '{initiator} принял(а) Хранителя {keeper} в гильдию'.format(initiator=initiator.nick_verbose,
-                                                                          keeper=account.nick_verbose)
+    # code is disabled due to moving the game into readonly mode
+    # message = '{initiator} принял(а) Хранителя {keeper} в гильдию'.format(initiator=initiator.nick_verbose,
+    #                                                                       keeper=account.nick_verbose)
 
-    tt_services.chronicle.cmd_add_event(clan=clan,
-                                        event=relations.EVENT.MEMBERSHIP_REQUEST_ACCEPTED,
-                                        tags=[initiator.meta_object().tag,
-                                              account.meta_object().tag],
-                                        message=message)
+    # tt_services.chronicle.cmd_add_event(clan=clan,
+    #                                     event=relations.EVENT.MEMBERSHIP_REQUEST_ACCEPTED,
+    #                                     tags=[initiator.meta_object().tag,
+    #                                           account.meta_object().tag],
+    #                                     message=message)
 
 
 def load_attributes(clan_id):

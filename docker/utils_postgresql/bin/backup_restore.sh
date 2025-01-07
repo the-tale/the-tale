@@ -38,7 +38,21 @@ do
         exit 1
     fi
 
-    export PGPASSWORD="$db_name"
+    PASSWORD_VAR="PG_${db_name}_PASSWORD"
+
+    if [ -n "${!PASSWORD_VAR}" ]; then
+        export PGPASSWORD="${!PASSWORD_VAR}"
+    else
+        export PGPASSWORD="${db_name}"
+    fi
+
+    USER_VAR="PG_${db_name}_USER"
+
+    if [ -n "${!USER_VAR}" ]; then
+        export PGUSER="${!USER_VAR}"
+    else
+        export PGUSER="${db_name}"
+    fi
 
     echo "clean $db_name"
 
@@ -46,11 +60,11 @@ do
     # that error does not break restoration, but is annoying
     # it caused by dumping db extensions, which is created by root user, not by db owner
 
-    psql -U "$db_name" "$db_name" --quiet -t -c "$sql_clean" | psql -U "$db_name" --quiet "$db_name"
+    psql -U "$PGUSER" "$db_name" --quiet -t -c "$sql_clean" | psql -U "$PGUSER" --quiet "$db_name"
 
     echo "restore backup of $db_name"
 
-    gunzip -c "$backup_file" | psql -U "$db_name" --quiet "$db_name"
+    gunzip -c "$backup_file" | psql -U "$PGUSER" --quiet "$db_name"
 
     echo "restored"
 done

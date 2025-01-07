@@ -1,3 +1,4 @@
+# FROM postgres:14-bullseye
 FROM postgres:15.2-bullseye
 
 ENV TZ=UTC \
