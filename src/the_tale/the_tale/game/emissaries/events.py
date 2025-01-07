@@ -385,8 +385,8 @@ class ClanLevelUpMixin:
         if required_experience is None:
             return False
 
-        experience = clans_tt_services.currencies.cmd_balance(emissary.clan_id,
-                                                              currency=clans_relations.CURRENCY.EXPERIENCE)
+        # code is changed due to moving game to the read-only mode
+        experience = 0
 
         if experience < required_experience:
             return False
