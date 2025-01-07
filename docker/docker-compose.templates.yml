@@ -11,6 +11,8 @@ x-common: &default-common
     TT_SITE_STATIC_DIR: $TT_SITE_STATIC_DIR
     TT_SERVERS: $TT_SERVERS
     TT_DOMAINS: $TT_DOMAINS
+    POSTGRES_HOST: core-postgresql
+    POSTGRES_PORT: '5432'
 
   networks:
     tt_network: {}
